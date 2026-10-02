@@ -18,6 +18,19 @@ applicable) a shipped-feature **parity row**. Nothing is orphaned.
 | R7 redaction-by-default | CUJ-1 | M3 | attack pack finds zero secrets in store | A1 (4 privacy modes) |
 | R8 session replay | CUJ-2 | M4 | replay matches raw transcript (automated) | A1 (run timeline) |
 
+## P1/P2 + cross-cutting requirements (also v0.1.0)
+
+| Item | Milestone | Acceptance |
+|---|---|---|
+| R9 shadow-agent / MCP inventory | M9 | inventory lists local agents/servers |
+| R10 harness/framework expansion | M10 | ≥5 Tier-1 + ≥3 Tier-2 adapters |
+| R11 retention + hash-chaining | M9 | retention enforced; `verify-store` clean |
+| R12 local replay viewer | M7 | viewer renders (parity A5) |
+| R13 fleet aggregation | M11 | multi-host aggregation (opt-in) |
+| NFR-1..NFR-12 (PRD 13) | M12 | perf, sizing, self-observability, a11y, i18n |
+| F1–F10 (PRD 17) | M12 | every failure fails closed / surfaced |
+| Compliance (PRD 18) | M13 | OWASP matrix + OpenSSF checklist |
+
 ## Parity rows (agent-exec-trace shipped → PRD 10 matrix A)
 
 | Parity row | Agentwatch version | Verification |

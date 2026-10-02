@@ -10,7 +10,7 @@ harnesses and integrations — no deferred parity.
 
 | Version | Theme | Scope |
 |---|---|---|
-| **v0.1.0** | **Full shipped-feature superset** | Port the entire `agent-exec-trace` codebase (M0), then: Claude Code recording + OTel GenAI + **security-event schema** + local hash-chained store + replay; instrumentation SDK (LangGraph, raw Python, 4 privacy modes); analytics pipeline + **40 detectors**; FastAPI read API + React operator UI (5 views); Docker stack + demo/seed + E2E; field-test + release. **Parity A1–A6 met; `agent-exec-trace` deleted.** |
+| **v0.1.0** | **Full PRD scope + shipped-feature superset** | Port the entire `agent-exec-trace` codebase (M0), then: Claude Code recording + OTel GenAI + **security-event schema** + local hash-chained store + replay; instrumentation SDK (LangGraph, raw Python, 4 privacy modes); analytics pipeline + **40 detectors**; FastAPI read API + React operator UI (5 views); Docker stack + demo/seed + E2E; **R9 inventory, R10 harness/framework expansion, R11 retention, R13 fleet aggregation**; NFRs + error handling; compliance evidence. **Parity A1–A6 met; `agent-exec-trace` deleted.** |
 | **v0.1.x** | Harness expansion + polish | Cursor, Codex CLI, Gemini CLI; more Tier-2 framework adapters; fleet aggregation (R13); retention/schema polish |
 | **later** | Additions | Bonus AgentWatch ideas (drift/deploy correlation refinements); enterprise integrations |
 

@@ -2,25 +2,30 @@
 
 **BLUF:** How to work on agentwatch: layout, setup, quality gates, and how to extend it.
 
-## Repository layout (target / parity)
+## Repository layout (ported in M0)
+
+The tree below was ported from `agent-exec-trace` at commit `008e1c7` (MIT; see
+[THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md)). The Python namespace is `agentwatch`; the legacy
+`agent_exec_trace` import path is served by a compatibility shim (DD-12).
 
 ```
-packages/   SDK (Python)
-services/   analytics, api
-apps/       web (React)
-deploy/     docker-compose, configs
-examples/   demo agents
-tests/      unit + e2e
-docs/       this documentation
-schema/     machine-readable contracts
+packages/python-sdk/   agentwatch SDK (instrumentation + redaction)
+services/analytics/    analytics pipeline + detectors
+services/api/          FastAPI read API
+apps/web/              React operator UI (Vite)
+deploy/                docker-compose + collector configs
+examples/              demo agents
+scripts/               seed/export helpers
+tests/                 repo-level tests
+docs/                  this documentation
+schema/                machine-readable contracts
 ```
 
 ## Setup
 
 ```sh
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"     # or: uv sync
-make setup
+make setup        # editable-installs packages/python-sdk, services/api, services/analytics
 ```
 
 ## Quality gates (must be green)

@@ -48,6 +48,8 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 
 > **Predecessor retention:** once **M0** lands (code fully represented, tests green), agentwatch is
 > self-contained; `agent-exec-trace` is **made private and retained at M13 — never deleted**.
+>
+> **M0 execution:** [m0-port-execution-plan.md](../../plans/m0-port-execution-plan.md).
 
 ## PRD coverage matrix (every doc 00–18)
 

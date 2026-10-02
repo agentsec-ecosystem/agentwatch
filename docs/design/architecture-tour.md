@@ -5,6 +5,10 @@ hash-chained record, and out to a backend you own.
 
 ## The path
 
+The instrumentation SDK, analytics/detector engine, and operator UI are the **ported parity baseline**
+(WBS M0); the Claude Code hook adapter, local hash-chained store, and gated OTLP export are delivered in
+M3–M5.
+
 1. **Harness** (Claude Code) fires `PreToolUse` (intent) and `PostToolUse` (outcome) hooks.
 2. **Adapter** normalizes native events per the [adapter contract](../reference/adapter-conformance.md).
 3. **Daemon** receives events over a local socket.

@@ -72,7 +72,7 @@ def _arguments(
     return redacted, _PRIVACY_MAP[cfg.mode]
 
 
-def _identity(value: Any) -> AgentIdentity:
+def identity_from(value: Any) -> AgentIdentity:
     if isinstance(value, str):
         return AgentIdentity(identity=value, name=value)
     if isinstance(value, Mapping):
@@ -92,7 +92,7 @@ def _timestamp(event: Mapping[str, Any]) -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _tool_call_id(event: Mapping[str, Any]) -> str | None:
+def tool_call_id(event: Mapping[str, Any]) -> str | None:
     raw = event.get("tool_use_id") or event.get("tool_call_id")
     return str(raw) if raw is not None else None
 
@@ -126,7 +126,7 @@ def normalize(
 
     session_id = str(event.get("session_id") or "unknown")
     tool_name = str(event.get("tool_name") or event.get("tool") or "unknown")
-    call_id = _tool_call_id(event)
+    call_id = tool_call_id(event)
     trace_id = str(event.get("trace_id") or session_id)
     arguments, privacy_mode = _arguments(event, redaction)
     event_time = _timestamp(event)
@@ -156,7 +156,7 @@ def normalize(
 
     record = AgentRecord(
         session_id=session_id,
-        agent=_identity(event.get("agent")),
+        agent=identity_from(event.get("agent")),
         tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
         outcome=outcome,
         started_at=started_at,

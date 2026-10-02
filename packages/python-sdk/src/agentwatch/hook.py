@@ -72,8 +72,15 @@ def main(
         event = None
 
     phase = args[0] if args else ""
-    if phase in _VALID_PHASES and event is not None:
-        send(build_message(phase, event), socket_path=socket_path)
+    if phase in _VALID_PHASES:
+        if event is not None:
+            send(build_message(phase, event), socket_path=socket_path)
+        else:
+            # F2: report the malformed input so the missed call is recorded, not dropped.
+            send(
+                build_message("hook-error", {"reason": "malformed hook input"}),
+                socket_path=socket_path,
+            )
 
-    # A missed event is reported by the daemon/F2 path (M3 3.7), never by blocking.
+    # Never block the agent: a missed event is the daemon's to record (M3 3.7).
     return 0

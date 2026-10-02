@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 from agentwatch import hook
-from agentwatch.daemon import Daemon
+from agentwatch.daemon import HOOK_ERROR_TOOL, Daemon
 from agentwatch.records import validate_record
 
 PRE = {
@@ -115,6 +115,65 @@ def test_malformed_line_does_not_kill_the_daemon(short_dir: Path) -> None:
 
     assert len(lines) == 1
     validate_record(json.loads(lines[0]))
+
+
+def test_matched_post_has_no_hook_error(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        hook.send(
+            {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
+        )
+        lines = _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    tools = [json.loads(line)["tool"]["name"] for line in lines]
+    assert HOOK_ERROR_TOOL not in tools
+
+
+def test_unmatched_post_records_a_hook_error(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        # A Post with no preceding Pre means the intent hook was missed (F2).
+        hook.send(
+            {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
+        )
+        lines = _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    records = [json.loads(line) for line in lines]
+    errors = [r for r in records if r["tool"]["name"] == HOOK_ERROR_TOOL]
+    assert len(errors) == 1
+    assert errors[0]["outcome"] == "error"
+    validate_record(errors[0])
+
+
+def test_explicit_hook_error_frame_is_recorded(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    event = {
+        "session_id": "sess-1",
+        "tool_name": "Bash",
+        "tool_use_id": "call-9",
+        "timestamp": "2026-01-02T03:04:05+00:00",
+        "reason": "hook could not deliver",
+    }
+    try:
+        hook.send(
+            {"phase": "hook-error", "harness": "claude-code", "event": event},
+            socket_path=str(socket_path),
+        )
+        lines = _read_lines(records_path, 1)
+    finally:
+        daemon.stop()
+
+    record = validate_record(json.loads(lines[0]))
+    assert record.tool.name == HOOK_ERROR_TOOL
+    assert record.outcome.value == "error"
+    assert record.session_id == "sess-1"
 
 
 def test_invalid_adapter_message_is_ignored(short_dir: Path) -> None:

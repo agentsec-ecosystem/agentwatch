@@ -66,6 +66,24 @@ def test_sends_a_framed_message_to_the_daemon() -> None:
     assert message == {"phase": "pre", "harness": "claude-code", "event": EVENT}
 
 
+def test_malformed_stdin_sends_a_hook_error_frame() -> None:
+    short_dir = Path(tempfile.mkdtemp(prefix="aw-", dir="/tmp"))
+    path = short_dir / "s.sock"
+    received: list[bytes] = []
+    try:
+        thread = _serve_once(path, received)
+        rc = hook.main(["pre"], stdin=StringIO("not json"), socket_path=str(path))
+        thread.join(timeout=2)
+    finally:
+        shutil.rmtree(short_dir, ignore_errors=True)
+
+    assert rc == 0
+    assert received, "the hook sent nothing"
+    message = json.loads(received[0].decode("utf-8"))
+    assert message["phase"] == "hook-error"
+    assert message["harness"] == "claude-code"
+
+
 def test_missing_daemon_still_exits_zero(tmp_path: Path) -> None:
     rc = hook.main(
         ["post"],

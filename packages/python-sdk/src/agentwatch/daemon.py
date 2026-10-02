@@ -17,15 +17,19 @@ import os
 import socket
 import threading
 import time
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from agentwatch.adapters import claude_code
 from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
 from agentwatch.hook import default_socket_path
-from agentwatch.records import AgentRecord
+from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
 from agentwatch.redact import RedactionConfig
+
+# F2: a missed tool call is recorded under this tool name, never dropped.
+HOOK_ERROR_TOOL = "hook-error"
 
 
 def default_records_path() -> Path:
@@ -44,6 +48,7 @@ class Daemon:
         socket_path: str | os.PathLike[str] | None = None,
         records_path: str | os.PathLike[str] | None = None,
         redaction: RedactionConfig | None = None,
+        pre_timeout_seconds: float = 300.0,
     ) -> None:
         self.socket_path = (
             Path(socket_path) if socket_path is not None else Path(default_socket_path())
@@ -52,9 +57,12 @@ class Daemon:
             Path(records_path) if records_path is not None else default_records_path()
         )
         self.redaction = redaction
+        self.pre_timeout_seconds = pre_timeout_seconds
         self._server: socket.socket | None = None
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
+        # Pre tool-call ids awaiting their Post, for F2 hook-error synthesis.
+        self._pending_pre: dict[str, datetime] = {}
 
     def start(self) -> None:
         """Bind the socket (0600) and start serving in a background thread."""
@@ -119,13 +127,70 @@ class Daemon:
 
     def handle_message(self, message: Any) -> list[AgentRecord]:
         """Normalize and persist a message; unsupported messages yield nothing."""
+        if not isinstance(message, Mapping):
+            return []
+
+        if message.get("phase") == "hook-error":
+            record = self._hook_error_record(message.get("event"))
+            self._append(record)
+            return [record]
+
         try:
             records = claude_code.normalize(message, redaction=self.redaction)
         except ClaudeCodeAdapterError:
             return []
+
+        event = message.get("event")
+        if not isinstance(event, Mapping):
+            event = {}
+        call_id = claude_code.tool_call_id(event)
+        phase = message.get("phase")
+
+        if phase == "pre" and call_id is not None:
+            self._pending_pre[call_id] = datetime.now(timezone.utc)
+        elif (
+            phase == "post"
+            and call_id is not None
+            # A Post with no Pre means the intent hook was missed (F2).
+            and self._pending_pre.pop(call_id, None) is None
+        ):
+            records.append(self._hook_error_record(event))
+
+        self._sweep_pending_pre()
         for record in records:
             self._append(record)
         return records
+
+    def _hook_error_record(self, event: Any) -> AgentRecord:
+        raw: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
+        session_id = str(raw.get("session_id") or "unknown")
+        call_id = claude_code.tool_call_id(raw)
+        timestamp = raw.get("timestamp")
+        started_at = (
+            _parse_iso(timestamp) if isinstance(timestamp, str) else datetime.now(timezone.utc)
+        )
+        return AgentRecord(
+            session_id=session_id,
+            agent=claude_code.identity_from(raw.get("agent")),
+            tool=ToolCall(name=HOOK_ERROR_TOOL),
+            outcome=Outcome.ERROR,
+            started_at=started_at,
+            harness=claude_code.HARNESS_ID,
+            trace_id=session_id,
+            span_id=call_id,
+            step_type=StepType.ACT,
+        )
+
+    def _sweep_pending_pre(self) -> None:
+        now = datetime.now(timezone.utc)
+        stale = [
+            call_id
+            for call_id, seen in self._pending_pre.items()
+            if (now - seen).total_seconds() > self.pre_timeout_seconds
+        ]
+        for call_id in stale:
+            self._append(self._hook_error_record({"tool_use_id": call_id}))
+            del self._pending_pre[call_id]
 
     def _append(self, record: AgentRecord) -> None:
         with self.records_path.open("a", encoding="utf-8") as fh:

@@ -43,6 +43,20 @@ harness (Claude Code)          MCP clients / proxy        (later) eBPF / gateway
 8. **Security-event schema** — the named, versioned event vocabulary (`denied`, `policy-fired`,
    `secret-detected`, `revoked`, `halted`) emitted as OTel events.
 
+## Parity components (v0.2.0–v1.0, from the shipped project)
+
+To retain shipped-feature parity ([PRD 10](../prd/10-feature-parity.md)), agentwatch also carries what
+shipped in `agent-exec-trace`:
+
+- **Instrumentation SDK** (Python) — `@trace_agent` + `plan/tool/retrieval/memory/approval` spans; LangGraph
+  adapter; `AgentTracer` OTLP export; 4 privacy modes; version/workload metadata.
+- **Analytics service** — trace ingestion (polling), run summaries, fleet rollup, version cohorts,
+  configurable detector thresholds.
+- **Detector engine** — 35 rule-based detectors (7 categories) + 5 optional LLM detectors.
+- **Read API** (FastAPI) — `/runs`, `/runs/{id}`, `/fleet`, `/compare`, `/anomalies`.
+- **Operator UI** (React) — Fleet Health, Run Timeline, Version Compare, Anomaly Inbox, Agent Detail.
+- **Local stack** — Jaeger/Tempo + OTel Collector + Postgres + API + Analytics + Web (Docker Compose).
+
 ## Data flow (CUJ-1)
 
 1. User runs `agentsec init` → hooks are registered in Claude Code settings; daemon starts.
@@ -59,9 +73,10 @@ Trace Context for cross-harness correlation. We contribute improvements upstream
 
 ## Boundaries
 
-- No alerting, no detection, no analysis (agentpolicy's and agentdrill's jobs).
+- **Detection/analytics live here** (restored from the shipped project) as **observability signals** — not
+  enforcement. Allow/deny/ask decisions belong to agentpolicy; attack packs to agentdrill.
 - No cloud component in v1; not a SIEM.
-- Harness-agnostic by format (OTel), pragmatic by adapter (Claude Code first).
+- Harness-agnostic by format (OTel), pragmatic by adapter (Claude Code first, then frameworks via SDK).
 
 ## Open questions
 

@@ -29,9 +29,9 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
    [design/record-format-design.md](../design/record-format-design.md) correct and complete?
 4. **Decisions:** review the proposed `DD-01..DD-07` in
    [design/design-decisions.md](../design/design-decisions.md).
-5. **Parity:** every feature of the superseded `agent-exec-trace`/AgentObservatory (#102) and AgentWatch
-   (#66) is accounted for in [PRD 10](10-feature-parity.md). Confirm the two decisions in §C (delegated
-   drift/alerting; fleet-dashboard waiver).
+5. **Parity:** every feature that **shipped** in the superseded `agent-exec-trace`/AgentObservatory (#102)
+   is delivered **in agentwatch** in [PRD 10](10-feature-parity.md) (mandatory, non-delegated). Confirm the
+   compatibility approach in §D–§E (instrumentation/read-API compatibility; Python-core runtime).
 
 ## Sources
 

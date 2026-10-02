@@ -1,64 +1,108 @@
-# PRD 10 — Feature Parity with Superseded Projects
+# PRD 10 — Feature Parity (Shipped-Feature Superset)
 
-**BLUF:** agentwatch supersedes **agent-exec-trace / AgentObservatory (#102)** and **AgentWatch (#66)**.
-This matrix accounts for **every feature of both**, so nothing is silently dropped. Each feature is one of:
-
-- **Delivered** — provided by agentwatch (version noted).
-- **Delegated** — provided by a named sibling tool in the ecosystem.
-- **Waived** — intentionally not provided, with rationale; **requires sign-off**.
-
-> **Non-regression rule:** before each release, this matrix is reviewed. Any row not yet *Delivered* must
-> have a target version or a signed waiver.
+**BLUF:** agentwatch **replaces the shipped project `agent-exec-trace` / AgentObservatory (#102)**. Parity
+is **mandatory and in-repo**: every feature that **shipped** in that project must be delivered **by
+agentwatch itself** — not delegated to a sibling tool and not waived. Parity is scoped to **what actually
+shipped** (its `v0.1.0` release, 2026-08-05), not to its planned-but-unreleased milestones.
 
 **Status:** v0.1.0 · **Parent:** agentsec-ecosystem #209
 
-## A. Superseded: agent-exec-trace (AgentObservatory, #102)
+## Parity rule (non-negotiable)
 
-| Superseded feature | Parity | Delivered by | Version / notes |
-|---|---|---|---|
-| Behavior trace schema (plan, tool, memory, validation, approval, escalation) | Delivered | agentwatch | Tool calls in v0.1.0; remaining behavior event classes in v0.2.0 |
-| Instrumentation wrappers (LangGraph, raw Python) | Delivered | agentwatch | Framework adapters, R10, v0.3.0 |
-| OTel/OTLP telemetry pipeline | Delivered | agentwatch | R4, v0.1.0 |
-| Loop / cost anomaly **detection** | Delegated | agentpolicy (decisions) + agentdrill (regression packs) | agentwatch exposes records/events; detection is decision logic — v0.3.0 |
-| Cost-per-success / tool-overuse **analytics** | Delivered | agentwatch query/analytics | v0.3.0 |
-| Run explorer UI (timeline, event detail, drill-down) | Delivered | agentwatch local replay/explorer | R12, v1.x |
-| Version comparison | Delivered | agentwatch analytics | v0.3.0 |
-| Fleet overview dashboard | **Waived** *(review)* | — | OSS scope ships data + single-session viewer; fleet is commercial territory |
-| Policy overlay integration | Delivered | agentwatch + agentpolicy | Security-event schema, R5, v0.1.0 |
-| Multi-agent interaction maps | Delivered | agentwatch | v1.x (later) |
-| 30-day retention | Delivered | agentwatch | R11, v0.2.0 |
-| "Formalize the trace contract before the detector catalog" | Delivered | agentwatch | Sequencing principle (documented in PRD 03/05) |
+1. Every capability in the shipped `agent-exec-trace` release is **Delivered by agentwatch** — see matrix A.
+   No row may be *Delegated* or *Waived*.
+2. **Release gate:** agentwatch **1.0** cannot ship until every matrix-A row is delivered **and tested**
+   here.
+3. Bonus/additive features (matrix B/C) must never regress parity.
 
-## B. Superseded: AgentWatch (#66)
+## A. Shipped in agent-exec-trace v0.1.0 (+ unreleased fixes) — binding, in agentwatch
 
-| Superseded feature | Parity | Delivered by | Version / notes |
-|---|---|---|---|
-| Per-step telemetry (step type reason/act/observe/verify, duration, tokens, tool, confidence, error/escalation) | Delivered | agentwatch | Tool calls v0.1.0; step-level + tokens/confidence v0.2.0 |
-| Time-series storage, 30-day retention | Delivered | agentwatch | R11, v0.2.0 |
-| Fleet overview dashboard | **Waived** *(review)* | — | Same rationale as above |
-| Per-agent drill-down | Delivered | agentwatch replay/analytics | v0.3.0 |
-| Deployment correlation | Delivered | agentwatch | v0.2.0 |
-| Drift detection (trailing baseline, not fixed thresholds) | Delegated | agentpolicy (detection decision) | agentwatch exposes drift **signals** as events; v0.3.0 |
-| Slack alert on drift | Delegated | agentinbox (delivery) | v0.3.0 |
-| Framework-agnostic SDK (LangGraph callback, raw Python, HTTP API) | Delivered | agentwatch | R10 + adapter API, v0.3.0 |
-| ~5ms per-step overhead | Delivered | agentwatch | Performance NFR, v0.2.0 |
+Source: the project's `CHANGELOG.md` and `README.md` (archived, read-only).
 
-## C. Parity decisions requiring sign-off
+### A1. Instrumentation SDK (Python, PyPI `agent-exec-trace`)
+| Shipped capability | In agentwatch |
+|---|---|
+| Raw Python decorator `@trace_agent` + context managers `plan_span`, `tool_span`, `retrieval_span`, `memory_span`, `approval_span` | ✅ required |
+| LangGraph adapter (`TracedGraph`, node-level instrumentation) | ✅ required |
+| Direct OTLP export via `AgentTracer` | ✅ required |
+| Four privacy modes — Metadata-only (default), Truncated, Hashed, Full | ✅ required |
+| Version/workload metadata propagation (`agent_name`, `agent_version`, `workload_type`) + optional `prompt_version`, `model_version`, `tool_schema_version` | ✅ required |
+| Async-first instrumentation (incl. the async `@trace_agent` fix) | ✅ required |
 
-1. **Drift detection + alerting (AgentWatch)** — proposed **delegated**: agentwatch computes and exposes
-   drift **signals**; agentpolicy makes the detection/policy decision; agentinbox delivers the alert.
-   This preserves the capability across the ecosystem while keeping agentwatch's "record and expose only"
-   boundary. **Confirm this satisfies parity**, or require detection inside agentwatch.
-2. **Fleet overview dashboard (both)** — proposed **waived** for OSS. Rationale: the ecosystem deliberately
-   ships *data, not dashboards*, per-session local replay covers single-session inspection, and fleet
-   discovery/monitoring is commercial territory. **Confirm the waiver**, or require a fleet view (would
-   expand v1.x scope).
+### A2. Detectors
+| Shipped capability | In agentwatch |
+|---|---|
+| **35 rule-based detectors** across 7 categories: Tool Execution (8), Cost & Resource (6), Runtime & Completion (5), Retry & Recovery (5), Interaction & Control (4), Output Quality (4), Cross-Run Patterns (3) | ✅ required |
+| **5 optional LLM-augmented detectors** (feature-flagged, default off): SemanticLoop, Hallucination, GoalDrift, QualityDegradation, ConfusionPattern | ✅ required |
+| Structured anomaly records with severity, explanation, and evidence payloads; configurable thresholds per detector per workload | ✅ required |
 
-## D. Preserved design lessons
+### A3. Analytics pipeline
+| Shipped capability | In agentwatch |
+|---|---|
+| Jaeger polling for trace ingestion (configurable fetch limit) | ✅ required |
+| Run summary materialization into Postgres | ✅ required |
+| Fleet rollup + version cohort summaries | ✅ required |
 
-- **Trace contract first** — schema before any detector/analytics catalog (AgentObservatory lesson).
-- **Distinguish "clean run" from "couldn't read the run"** — recording failures are surfaced, never silent
-  (see [PRD 06](06-security-baseline.md), fail-closed).
-- **Evidence presence vs sufficiency** — annotate records with evidence metadata rather than assuming.
-- **Baselines over fixed thresholds** — when drift/analytics land, use trailing baselines (AgentWatch).
-- **Instrument a known agent and model the schema from reality** — build order.
+### A4. Read API (FastAPI)
+| Shipped endpoint | In agentwatch |
+|---|---|
+| `/api/runs`, `/api/runs/{id}`, `/api/fleet`, `/api/compare`, `/api/anomalies` | ✅ required |
+
+### A5. Web UI (React)
+| Shipped view | In agentwatch |
+|---|---|
+| Fleet Health (agent cohorts, run/anomaly counts, filters) | ✅ required |
+| Run Timeline (span tree, anomaly badges, metadata) | ✅ required |
+| Version Compare (side-by-side deltas: cost, retry rate, success rate, tool usage) | ✅ required |
+| Anomaly Inbox (triage by severity/type/agent) | ✅ required |
+| Agent Detail (per-agent metrics, tool mix, cost trend, anomaly history) | ✅ required |
+
+### A6. Stack, tooling, and evidence
+| Shipped capability | In agentwatch |
+|---|---|
+| Local-first stack: Jaeger/Tempo + OTel Collector + Postgres + API + Analytics + Web (Docker Compose, 6 services) | ✅ required |
+| Monorepo layout (`packages/`, `services/`, `apps/`, `deploy/`, `examples/`, `tests/`) | ✅ required |
+| `Makefile` targets (setup, lint, typecheck, test, stack-up/down, seed-e2e, migrate) | ✅ required |
+| Quality gates: ruff zero, mypy strict, tests green, coverage >90% | ✅ required |
+| Demo agent (LangGraph `request-triage`, deterministic normal/loop/high-cost paths) | ✅ required |
+| Seed/replay workflow (96 runs, ~240 anomalies, 4 agents) | ✅ required |
+| E2E Playwright tests (Fleet Health, Run Timeline, Version Compare, Anomaly Inbox) | ✅ required |
+| Field-test harness + reports (100K-trace HF corpus, synthetic corpus, compatibility audit) | ✅ required |
+| Four privacy modes + anomaly evidence payloads | ✅ required |
+
+## B. Extra — beyond the superseded project (agentwatch's additions)
+
+Not present in agent-exec-trace; these are why agentwatch exists:
+
+- **Open security-event schema** (`denied`, `policy-fired`, `secret-detected`, `revoked`, `halted`).
+- **Coding-agent harness coverage** — Claude Code hooks first, then Cursor/Codex/Gemini (the shipped
+  project only instrumented frameworks/raw Python).
+- **Security posture** — redaction-by-default generalized, local-first, hash-chained tamper-evident store,
+  fail-closed on tamper.
+- **OTel GenAI semconv** implementation + W3C Trace Context.
+- **MCP server / shadow-agent inventory.**
+
+## C. Not shipped → non-binding
+
+- **AgentWatch (#66)** was never shipped; its ideas (per-step metrics, trailing-baseline drift, deployment
+  correlation, Slack alerts) are **bonus**, not parity.
+- **agent-exec-trace planned but unshipped** items are **not** parity: no policy-overlay view, no memory
+  audit UI, no multi-agent interaction maps, no PydanticAI adapter. (Its own "Known Issues" list confirms
+  these did not ship.)
+- Known shipped **limitations** we may improve but are not required to replicate: batch polling (~30s delay),
+  no distributed trace correlation, no multi-tenant isolation, LLM detectors research-grade, 28/35
+  detectors silent on the HF corpus.
+
+## D. Compatibility & migration (must preserve)
+
+- Existing `agent-exec-trace` users instrument with `@trace_agent` / `TracedGraph` and read the FastAPI
+  surface. Parity implies **the instrumentation API and the read API shape remain compatible** (or ship a
+  documented migration), so existing integrations do not break.
+- The PyPI package distribution and the four privacy modes are part of the contract.
+
+## E. Decision for review
+
+Parity with the shipped stack (Python SDK + analytics service + FastAPI + React UI + Jaeger/Postgres)
+requires the agentwatch core to accommodate that stack — which touches **DD-01 (runtime)**. Confirm the
+approach: preserve a compatible Python SDK + services, versus a rewrite that risks breaking the shipped
+contract.

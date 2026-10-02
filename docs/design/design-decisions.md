@@ -5,7 +5,7 @@ v0.1.0 build.
 
 | ID | Decision | Status | Rationale |
 |---|---|---|---|
-| DD-01 | CLI/daemon runtime: TypeScript on Node (distributed via `npx @agentsec-ecosystem/cli`) | proposed | Matches the install UX; hooks + MCP ecosystem is JS-native |
+| DD-01 | **Core runtime:** preserve a Python-compatible core (SDK + analytics + API) for shipped-feature parity, with a thin launcher for `npx @agentsec-ecosystem/cli` | proposed | Parity with the shipped `agent-exec-trace` Python SDK/services; avoids breaking existing instrumentation. See PRD 10 §E |
 | DD-02 | Record format = OTel GenAI spans (`execute_tool`) + a versioned security-event schema | proposed | Standards alignment; portability; schema is the differentiator |
 | DD-03 | Local-first storage; export opt-in via OTLP | proposed | Privacy by default (R6) |
 | DD-04 | Adapter boundary as an explicit contract; Claude Code hooks are the first implementation | proposed | Harness-agnostic by construction (R3) |

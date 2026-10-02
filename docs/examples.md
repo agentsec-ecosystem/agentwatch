@@ -86,7 +86,7 @@ traced = TracedGraph(graph, agent_name="my-langgraph-agent", agent_version="1.0.
 result = traced.invoke({"query": "reset password"})
 ```
 
-See the [Instrumentation Guide](reference/instrumentation.md) for full details including privacy modes, version metadata, and all span types.
+See the [Instrumentation Guide](reference/sdk.md) for full details including privacy modes, version metadata, and all span types.
 
 ---
 

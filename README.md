@@ -12,20 +12,27 @@
 *why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
 [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-> **Status: v0.1.0 in progress — docs complete; `agent-exec-trace` codebase ported (WBS M0).** agentwatch is
-> the **shipped-feature superset** of `agent-exec-trace`: that codebase is **ported in via M0** and the old
-> repo is **retained privately** at v0.1.0 release.
+> **Status: v0.1.0 in progress — docs complete; `agent-exec-trace` codebase ported (WBS M0); identity, CLI,
+> configuration, CI, and packaging landed (WBS M1).** agentwatch is the **shipped-feature superset** of
+> `agent-exec-trace`: that codebase is **ported in via M0** and the old repo is **retained privately** at
+> v0.1.0 release.
 
 ## Quickstart
 
 ```sh
+pip install agentwatch                 # Python CLI + SDK
+agentwatch --help                      # list commands
+
 # install hooks + local daemon (monitor-only, zero agent-side code changes)
-npx @agentsec-ecosystem/cli init      # or: pipx run agentwatch init
+npx @agentsec-ecosystem/cli init       # or: pipx run agentwatch init
 
 # use Claude Code normally, then reconstruct a session
 agentwatch sessions
 agentwatch replay <session-id>
 ```
+
+Configuration is layered and fail-closed in `agentwatch.configuration` — see the
+[CLI reference](docs/reference/cli-reference.md) and [PRD 16](docs/prd/16-configuration.md).
 
 ## What it does
 

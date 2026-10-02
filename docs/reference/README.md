@@ -10,7 +10,7 @@
 | [Detector catalog](detector-catalog.md) | The 40 detectors by category |
 | [Record format spec](record-format-spec.md) | Normative record + security-event contract, versioning/deprecation |
 | [Tech stack](tech-stack.md) | Languages, libs, services, dependencies policy |
-| [CLI reference](cli-reference.md) | Finalized subcommand names |
+| [CLI reference](cli-reference.md) | Subcommands, global flags, config precedence, exit codes |
 | [Versioning policy](versioning-policy.md) | SemVer, support windows, backports |
 | [Backwards-compatibility policy](backwards-compatibility-policy.md) | Stable surfaces, deprecation cycles |
 | [Comparison](comparison.md) | vs adjacent tools |

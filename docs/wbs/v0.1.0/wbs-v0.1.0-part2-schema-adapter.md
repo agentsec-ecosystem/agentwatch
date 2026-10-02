@@ -49,12 +49,20 @@ security-event schema.
 
 ## Milestone M3 — Claude Code adapter + daemon
 
-**Status:** 🚧 **implemented — exit validation pending** — execution plan:
+**Status:** 🚧 **implemented — exit validation pending (auth-gated)** — execution plan:
 [m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md); issues #22–#30,
-#119, #120. Shipped: Claude Code adapter (`normalize`), `agentwatch-hook` UDS client, `agentwatch-daemon`
-(owner-only socket → JSONL sink), F2 `hook-error` recording, and conformance fixtures. The M3 exit
-criterion (one Claude Code session records end-to-end, zero code changes) is **not yet demonstrated**:
-`agentwatch init` hook installation and a live run are outstanding, tracked as issue #159.
+#119, #120, #159. Shipped: Claude Code adapter (`normalize`, including `PostToolUseFailure` →
+`outcome="error"`), `agentwatch-hook` UDS client, `agentwatch-daemon` (owner-only socket → JSONL sink), F2
+`hook-error` recording, conformance fixtures, and `agentwatch init`/`uninstall` (hook installation +
+daemon lifecycle) with `agentwatch sessions` / `status` reporting.
+
+**M3 exit evidence (#159):** `agentwatch init` installs hooks and starts the daemon; the installed
+`agentwatch-hook` entry point forwards a realistic Pre → Post → PostToolUseFailure sequence through the
+daemon, producing valid records in `records.jsonl` that appear in `agentwatch sessions` (covered by
+`tests/test_install.py`, `tests/test_cli_init.py`, and an auth-free end-to-end run). The literal exit
+criterion — a **live Claude Code model session** — additionally requires a logged-in `claude` CLI and, for
+project-scope hooks, a trusted project folder; in the current environment `claude -p` returns
+`Not logged in`, so that final confirmation remains a follow-up. The implementation is complete.
 
 **3.1–3.3 status:** satisfied by the M0 port (SDK spans, `AgentTracer`, LangGraph adapter, OTLP emission +
 version/workload metadata). Evidence: `test_spans.py` (13), `test_tracer.py` (6), `test_langgraph.py` (24),

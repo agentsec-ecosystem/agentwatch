@@ -7,22 +7,29 @@ Status: **implemented** (v0.1.0 M3).
 
 ## Hook installation
 
-`agentwatch init` writes hooks into Claude Code's settings (user or project scope) that invoke a small
-script which forwards the event to the daemon over a Unix domain socket. The M3 scripts are
-`agentwatch-hook` (the client Claude Code calls) and `agentwatch-daemon` (the receiver).
+`agentwatch init` writes hooks into Claude Code settings and starts the local daemon. By default it
+manages the **project** file `.claude/settings.local.json` (machine-local, gitignored); `--scope user`
+writes `~/.claude/settings.json` instead. `agentwatch uninstall` removes only the agentwatch-managed
+handlers and stops the daemon.
+
+Hooks use Claude Code's matcher-group schema. The handler is **exec form** invoking the `agentwatch-hook`
+entry point, whose absolute path/args are resolved at install time so npx/pipx installs work even though
+they are not on the session `PATH`:
 
 ```jsonc
-// Claude Code settings (illustrative — confirm against current Claude Code docs at build time)
 {
   "hooks": {
-    "PreToolUse":  [{ "command": "agentwatch-hook pre" }],
-    "PostToolUse": [{ "command": "agentwatch-hook post" }]
+    "PreToolUse":         [{ "matcher": "*", "hooks": [{ "type": "command", "command": "<python>", "args": ["-m", "agentwatch.hook", "pre"] }] }],
+    "PostToolUse":        [{ "matcher": "*", "hooks": [{ "type": "command", "command": "<python>", "args": ["-m", "agentwatch.hook", "post"] }] }],
+    "PostToolUseFailure": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "<python>", "args": ["-m", "agentwatch.hook", "post"] }] }]
   }
 }
 ```
 
-`agentwatch-hook` reads the environment/event JSON from **stdin** and always exits `0` so it can never
-block the agent; `agentwatch init` wiring is delivered in a later milestone.
+`agentwatch-hook` reads the event JSON from **stdin** and always exits `0` so it can never block the agent.
+A failed tool call (`PostToolUseFailure`) is forwarded as a `post` phase; its `error` field makes the
+adapter emit `outcome="error"`. `agentwatch status` reports whether hooks are installed (project/user) and
+whether the daemon is running.
 
 ## Event payload (from Claude Code)
 

@@ -27,14 +27,14 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 
 | Command | Purpose | M1 status |
 |---|---|---|
-| `agentwatch init` | Install hooks + start the daemon (monitor-only default) | wired, implemented in M3 |
+| `agentwatch init [--scope project\|user] [--no-daemon]` | Install hooks + start the daemon (monitor-only default) | **implemented** (M3) |
 | `agentwatch status` | Print the resolved configuration / health summary | **implemented** |
-| `agentwatch sessions` | List recorded sessions | wired, implemented in M3 |
+| `agentwatch sessions` | List recorded sessions | **implemented** (M3) |
 | `agentwatch replay <id>` | Reconstruct a session timeline | wired, implemented in M5 |
 | `agentwatch export enable/disable` | Opt-in OTLP export (gated on self-test) | wired, implemented in M5 |
 | `agentwatch verify-store` | Check the store hash chain | wired, implemented in M4 |
 | `agentwatch migrate [--rollback]` | Store-format migration (v0.2.0+) | wired, implemented in M9+ |
-| `agentwatch uninstall` | Remove hooks, stop the daemon | wired, implemented in M3 |
+| `agentwatch uninstall [--scope project\|user]` | Remove hooks, stop the daemon | **implemented** (M3) |
 
 ## Configuration
 
@@ -58,5 +58,6 @@ for the full key list and defaults.
 | Code | Meaning |
 |---|---|
 | `0` | Success. |
+| `1` | Install error (e.g. the daemon failed to start). |
 | `2` | Configuration error (fail-closed) or a usage error from `argparse`. |
 | `3` | A subcommand that is wired but not yet implemented in this milestone. |

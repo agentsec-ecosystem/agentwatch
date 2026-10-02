@@ -6,14 +6,19 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- `agentwatch init` / `agentwatch uninstall` (M3): install Claude Code hooks into
+  `.claude/settings.local.json` (or `--scope user`) and start/stop the local daemon; `agentwatch sessions`
+  lists recorded sessions; `agentwatch status` reports installed hooks (project/user) and daemon state.
+  `PostToolUseFailure` is recorded as `outcome="error"`; hook installation is idempotent and refuses a
+  malformed settings file rather than overwriting it (F7).
 - Claude Code adapter, hook, and daemon (M3): `agentwatch.adapters.claude_code.normalize`, the
   `agentwatch-hook` fire-and-forget UDS client, and the `agentwatch-daemon` (owner-only socket,
   newline-delimited JSON, JSONL sink) with F2 `hook-error` recording and conformance fixtures.
 - `agentwatch.records` (M2): the record + security-event model and strict, reject-never-coerce
   `validate_record()` / `validate_event()` with unknown-version rejection (F8); valid/invalid fixtures and
   a JSON-Schema contract test against `schema/`.
-- `agentwatch` CLI (argparse): `status` implemented; `init`, `sessions`, `replay`, `export`,
-  `verify-store`, `migrate`, and `uninstall` wired and failing closed until their milestones (WBS M1).
+- `agentwatch` CLI (argparse): `status` implemented; `replay`, `export`, `verify-store`, and `migrate`
+  wired and failing closed until their milestones (WBS M1).
 - Operator configuration loader `agentwatch.configuration` (PRD 16): system < user < project < env < CLI
   precedence, strict unknown-key rejection, and fail-closed export rules (WBS M1).
 - `agentwatch` console script, `tomli` backport for Python 3.10, and `python -m build` wheel + sdist
@@ -28,6 +33,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 - Governance/DCO/OpenSSF Scorecard automation.
 
 ### Changed
+- `AGENTWATCH_SOCKET` (the daemon socket selector from the hook contract) is now a reserved environment
+  variable and is no longer parsed as a configuration key.
 - Porting policy: `agent-exec-trace` is **retained and made private** at v0.1.0 instead of being deleted —
   no repositories are deleted (WBS M13/M15 predecessor retention).
 

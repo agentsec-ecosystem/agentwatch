@@ -18,9 +18,11 @@ boundaries), and `normalize(message) -> list[AgentRecord]`. Unsupported classes 
 
 ## Claude Code (v0.1.0)
 
-- Fixtures: `packages/python-sdk/tests/fixtures/claude-code/*.json` (`message` + `expected` records).
+- Fixtures: `packages/python-sdk/tests/fixtures/claude-code/*.json` (`message` + `expected` records),
+  including `post_failure.json` for a failed `PostToolUseFailure` tool call (`outcome="error"`).
 - Tests: `packages/python-sdk/tests/test_conformance.py` (fixture replay, gap-vs-capability disjointness,
   unsupported-capability rejection).
+- Capability classes: `pre-tool-use`, `post-tool-use`, `post-tool-use-failure`.
 - Declared gaps: `session-boundaries`, `mcp-server-events` (each is rejected explicitly when presented as
   a hook phase — see `test_conformance.py::test_each_declared_gap_is_rejected_explicitly`).
 - Adapter: `agentwatch.adapters.claude_code`.

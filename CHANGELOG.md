@@ -6,6 +6,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Imported the `agent-exec-trace` codebase (MIT, commit `008e1c7`) — `packages/`, `services/`, `apps/`,
+  `deploy/`, `examples/`, `scripts/`, and build tooling (WBS M0).
 - Complete v0.1.0 documentation set: PRDs 00–14, design (decisions, record format, storage, adapter,
   threat model, privacy, OTel mapping, data dictionary, a11y), reference (API, SDK, adapter conformance,
   compatibility, limitations, detector catalog, record-format spec), machine-readable `schema/`, plans

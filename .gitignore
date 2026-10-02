@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.Python
+uv.lock
+
+# Environment
+env/
+venv/
+.venv/
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing & Coverage
+coverage/
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.bandit
+.coverage
+
+# OS
+.DS_Store
+
+# Local dev data
+data/
+
+# Node / Web
+node_modules/
+apps/web/dist/
+apps/web/.next/
+
+# Docker / local infra
+deploy/.env
+
+# Tooling
+.virtual_documents/
+.cache/
+m13-agents/
+m13-agents/

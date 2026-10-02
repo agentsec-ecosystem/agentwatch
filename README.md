@@ -27,9 +27,13 @@ agentwatch --help                      # list commands
 npx @agentsec-ecosystem/cli init       # or: pipx run agentwatch init
 
 # use Claude Code normally, then reconstruct a session
-agentwatch sessions
-agentwatch replay <session-id>
+agentwatch sessions                    # (M3+)
+agentwatch replay <session-id>         # (M5)
 ```
+
+The recording path is shipped in M3: `agentwatch-hook` (called by Claude Code's Pre/PostToolUse hooks)
+forwards events to `agentwatch-daemon`, which normalizes them to validated records. See the
+[hook contract](docs/design/claude-code-hook-contract.md).
 
 Configuration is layered and fail-closed in `agentwatch.configuration` — see the
 [CLI reference](docs/reference/cli-reference.md) and [PRD 16](docs/prd/16-configuration.md).

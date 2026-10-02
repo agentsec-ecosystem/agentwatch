@@ -6,6 +6,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Claude Code adapter, hook, and daemon (M3): `agentwatch.adapters.claude_code.normalize`, the
+  `agentwatch-hook` fire-and-forget UDS client, and the `agentwatch-daemon` (owner-only socket,
+  newline-delimited JSON, JSONL sink) with F2 `hook-error` recording and conformance fixtures.
 - `agentwatch.records` (M2): the record + security-event model and strict, reject-never-coerce
   `validate_record()` / `validate_event()` with unknown-version rejection (F8); valid/invalid fixtures and
   a JSON-Schema contract test against `schema/`.

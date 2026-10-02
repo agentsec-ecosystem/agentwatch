@@ -14,3 +14,6 @@
 | CrewAI / PydanticAI | — | — | — | ✅ |
 
 > **B1:** v0.1.0 is Claude Code only (meta-MVP); the ecosystem ≥2-Tier-1 threshold is met by v0.3.0.
+>
+> Claude Code recording via `PreToolUse`/`PostToolUse` hooks + the local daemon is implemented in M3
+> (see the [hook contract](../design/claude-code-hook-contract.md)); declared gaps apply.

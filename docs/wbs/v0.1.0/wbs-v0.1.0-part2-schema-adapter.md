@@ -49,8 +49,11 @@ security-event schema.
 
 ## Milestone M3 — Claude Code adapter + daemon
 
-**Status:** 🚧 in progress — execution plan:
-[m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md).
+**Status:** ✅ **implemented** — execution plan:
+[m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md); issues #22–#30,
+#119, #120. Shipped: Claude Code adapter (`normalize`), `agentwatch-hook` UDS client, `agentwatch-daemon`
+(owner-only socket → JSONL sink), F2 `hook-error` recording, and conformance fixtures. Remaining exit
+validation: `agentwatch init` hook installation and a live end-to-end Claude Code run.
 
 **3.1–3.3 status:** satisfied by the M0 port (SDK spans, `AgentTracer`, LangGraph adapter, OTLP emission +
 version/workload metadata). Evidence: `test_spans.py` (13), `test_tracer.py` (6), `test_langgraph.py` (24),

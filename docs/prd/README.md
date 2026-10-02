@@ -10,17 +10,21 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
 | # | Document | Covers |
 |---|---|---|
+| 00 | [Press Release / FAQ](00-press-release.md) | Working-backwards PR/FAQ |
 | 01 | [Why](01-why.md) | Problem, evidence, supersession of #102/#66, non-goals |
 | 02 | [Architecture](02-architecture.md) | Interception point, components, data flow, standards |
 | 03 | [Landscape](03-landscape.md) | Existing tools, whitespace, migration from agent-exec-trace |
 | 04 | [Users and CUJs](04-users-and-cujs.md) | Personas + critical user journeys (install/record, replay, export, event) |
-| 05 | [What (Features)](05-features.md) | v0.1.0 P0 (R1–R8), P1, P2, non-requirements, compatibility |
+| 05 | [What (Features)](05-features.md) | v0.1.0 P0 (R1–R8), parity, non-requirements, compatibility |
 | 06 | [Security Baseline](06-security-baseline.md) | Assets, controls, tamper scenarios, disclosure |
 | 07 | [Success Metrics](07-success-metrics.md) | Outcome metrics, release gate, anti-metrics |
 | 08 | [Risks](08-risks.md) | Risk register, hard parts, triggers |
 | 09 | [Roadmap](09-roadmap.md) | Versions, compatibility by version, migration/deprecation |
-| 10 | [Feature Parity](10-feature-parity.md) | Every superseded (#102/#66) feature → delivered / delegated / waived |
+| 10 | [Feature Parity](10-feature-parity.md) | Every shipped #102/#66 feature → delivered / delegated / waived |
 | 11 | [Decisions](11-decisions.md) | Accepted decisions (design, scope, technical, governance) |
+| 12 | [Traceability](12-traceability.md) | Requirements → CUJ → WBS → test → parity |
+| 13 | [Non-Functional Requirements](13-non-functional-requirements.md) | Perf, storage, privacy, reliability, portability, a11y |
+| 14 | [Non-Goals](14-non-goals.md) | Consolidated non-goals |
 
 ## Reviewers start here
 

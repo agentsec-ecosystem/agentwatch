@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentsec-ecosystem/agentwatch/schema/security-event.schema.json",
+  "title": "agentwatch security event",
+  "description": "The named, versioned agent-security event vocabulary.",
+  "type": "object",
+  "required": ["event_version", "type", "emitted_at"],
+  "properties": {
+    "event_version": { "type": "string", "const": "0.1.0" },
+    "type": {
+      "enum": ["denied", "policy-fired", "secret-detected", "revoked", "halted"]
+    },
+    "emitted_at": { "type": "string", "format": "date-time" },
+    "emitter": { "type": "string", "examples": ["agentwatch", "agentpolicy", "agentkeys", "agenthalt"] },
+    "reason": { "type": ["string", "null"] },
+    "policy_id": { "type": ["string", "null"] },
+    "tool": { "type": ["string", "null"] },
+    "credential_ref": { "type": ["string", "null"] },
+    "evidence": { "type": ["object", "null"] }
+  },
+  "additionalProperties": false
+}

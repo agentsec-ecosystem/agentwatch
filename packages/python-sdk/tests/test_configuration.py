@@ -151,6 +151,13 @@ def test_launcher_interpreter_env_is_not_treated_as_config() -> None:
     assert cfg.log.level == "info"
 
 
+def test_daemon_socket_env_is_not_treated_as_config() -> None:
+    # AGENTWATCH_SOCKET selects the daemon socket (hook contract); it shares the
+    # prefix but must not be parsed as a config key.
+    cfg = load_config(paths=[], env={"AGENTWATCH_SOCKET": "/tmp/agentwatch.sock"})
+    assert cfg.log.level == "info"
+
+
 def test_export_enabled_surfaces_a_warning(tmp_path: Path) -> None:
     good = _write(
         tmp_path / "good.toml",

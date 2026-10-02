@@ -232,8 +232,9 @@ def _nested(parts: Sequence[str], value: Any) -> dict[str, Any]:
 
 
 # Environment variables that share the AGENTWATCH_ prefix but are not config
-# keys (the npx launcher uses AGENTWATCH_PYTHON to pick an interpreter).
-_ENV_RESERVED = frozenset({"AGENTWATCH_PYTHON"})
+# keys (the npx launcher uses AGENTWATCH_PYTHON to pick an interpreter;
+# AGENTWATCH_SOCKET selects the daemon socket per the hook contract).
+_ENV_RESERVED = frozenset({"AGENTWATCH_PYTHON", "AGENTWATCH_SOCKET"})
 
 
 def _env_overlay(env: Mapping[str, str]) -> dict[str, Any]:

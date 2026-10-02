@@ -94,6 +94,9 @@ class PrivacyMode(str, Enum):
     # and non-reversible, useful for correlating repeated payloads in analytics.
     # The salt is prepended to the plaintext before hashing.
     HASHED = "hashed"
+    # Raw content, explicit opt-in only. Secret/PII classes are still masked
+    # upstream before this transform (see ``agentwatch.secrets``).
+    FULL = "full"
 
 
 # ---------------------------------------------------------------------------
@@ -215,6 +218,10 @@ class RedactionConfig:
         # This is the outer gate that stops all content dead.
         if not allowed or self.mode is PrivacyMode.METADATA_ONLY:
             return None
+
+        # Full mode keeps the value as-is (secret masking already ran upstream).
+        if self.mode is PrivacyMode.FULL:
+            return value
 
         # Deterministic hashing. The salt is prepended so equal plaintexts with
         # different salts yield different digests, and an attacker cannot rainbow-table

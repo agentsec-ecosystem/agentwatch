@@ -65,6 +65,16 @@ def test_hashed_is_deterministic_and_not_plaintext() -> None:
     assert len(first) == 64
 
 
+def test_full_mode_returns_value_unchanged() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.FULL)
+    assert cfg.apply("raw secret", allowed=True) == "raw secret"
+
+
+def test_full_mode_still_respects_field_opt_in() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.FULL)
+    assert cfg.apply("raw", allowed=False) is None
+
+
 def test_captures_content_flag() -> None:
     # captures_content is a single summary flag: true only when some field is opted
     # in under a mode that can store content. The default config (TRUNCATED +

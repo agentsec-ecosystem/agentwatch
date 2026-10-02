@@ -50,6 +50,7 @@ class Daemon:
         socket_path: str | os.PathLike[str] | None = None,
         records_path: str | os.PathLike[str] | None = None,
         store: RecordStore | None = None,
+        retention_days: int | None = None,
         redaction: RedactionConfig | None = None,
         pre_timeout_seconds: float = 300.0,
         sweep_interval_seconds: float = 5.0,
@@ -61,6 +62,7 @@ class Daemon:
             Path(records_path) if records_path is not None else default_records_path()
         )
         self.store = store if store is not None else RecordStore(self.records_path)
+        self.retention_days = retention_days
         self.chain_status: ChainStatus | None = None
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
@@ -87,6 +89,8 @@ class Daemon:
                 f"agentwatch-daemon: hash chain broken at seq {self.chain_status.broken_at} (F4)",
                 file=sys.stderr,
             )
+        if self.retention_days is not None:
+            self.store.apply_retention(retention_days=self.retention_days)
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -191,9 +195,9 @@ class Daemon:
 
         if phase == "hook-error":
             record = self._hook_error_record(event)
-            self._append(record)
+            persisted = self._append(record)
             self._sweep_pending_pre()
-            return [record]
+            return [record] if persisted else []
 
         if phase not in ("pre", "post"):
             return []
@@ -203,9 +207,9 @@ class Daemon:
         except (ClaudeCodeAdapterError, ValueError, TypeError, KeyError):
             # A recognized phase that fails to normalize is a missed call: record it.
             record = self._hook_error_record(event)
-            self._append(record)
+            persisted = self._append(record)
             self._sweep_pending_pre()
-            return [record]
+            return [record] if persisted else []
 
         raw_event: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
         call_id = claude_code.tool_call_id(raw_event)
@@ -221,9 +225,7 @@ class Daemon:
                 records.append(self._hook_error_record(raw_event))
 
         self._sweep_pending_pre()
-        for record in records:
-            self._append(record)
-        return records
+        return [record for record in records if self._append(record)]
 
     def _hook_error_record(self, event: Any) -> AgentRecord:
         raw: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
@@ -259,20 +261,24 @@ class Daemon:
         for call_id in stale:
             self._append(self._hook_error_record({"tool_use_id": call_id}))
 
-    def _append(self, record: AgentRecord) -> None:
+    def _append(self, record: AgentRecord) -> bool:
+        """Persist one record; return False (never raise) when the store is full (F3)."""
         try:
             self.store.append(record)
         except StoreFullError as exc:
             # F3: fail closed and surface; never overwrite or drop silently.
             print(f"agentwatch-daemon: {exc}", file=sys.stderr)
+            return False
+        return True
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the daemon until interrupted (SIGINT/SIGTERM stop it cleanly)."""
     from agentwatch.configuration import load_config
 
-    store = RecordStore(default_records_path(), max_size_mb=load_config().store.max_size_mb)
-    daemon = Daemon(store=store)
+    cfg = load_config()
+    store = RecordStore(default_records_path(), max_size_mb=cfg.store.max_size_mb)
+    daemon = Daemon(store=store, retention_days=cfg.store.retention_days)
     daemon.start()
     stop = threading.Event()
 

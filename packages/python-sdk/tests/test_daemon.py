@@ -317,6 +317,36 @@ def test_store_full_fails_closed_without_dropping_or_dying(short_dir: Path) -> N
     assert store.size_bytes() == 0
 
 
+def test_store_full_reports_no_persisted_records(short_dir: Path) -> None:
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path, max_size_mb=0)
+    daemon = Daemon(
+        socket_path=str(short_dir / "d.sock"), records_path=records_path, store=store
+    )
+
+    result = daemon.handle_message({"phase": "pre", "harness": "claude-code", "event": PRE})
+
+    assert result == []
+
+
+def test_daemon_applies_retention_on_start(short_dir: Path) -> None:
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path)
+    store.append(_record("old"))  # started_at 2026-01-02, older than 1 day
+    daemon = Daemon(
+        socket_path=str(short_dir / "d.sock"),
+        records_path=records_path,
+        store=store,
+        retention_days=1,
+    )
+    daemon.start()
+    try:
+        assert daemon.store.records() == []
+        assert daemon.store.entries()[0].tombstone is True
+    finally:
+        daemon.stop()
+
+
 def test_invalid_adapter_message_is_ignored(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

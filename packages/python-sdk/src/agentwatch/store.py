@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -78,6 +79,7 @@ class RecordStore:
         self.max_size_mb = max_size_mb
         self.parse_errors: list[int] = []
         self._entries: list[ChainEntry] = self._load()
+        self._lock = threading.Lock()
 
     # -- reading -----------------------------------------------------------
 
@@ -126,8 +128,8 @@ class RecordStore:
         if self.parse_errors:
             return ChainStatus(ok=False, checked=len(entries), broken_at=self.parse_errors[0])
         prev = GENESIS_HASH
-        for entry in entries:
-            if entry.prev_hash != prev:
+        for expected_seq, entry in enumerate(entries):
+            if entry.seq != expected_seq or entry.prev_hash != prev:
                 return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
             if (
                 not entry.tombstone
@@ -143,34 +145,53 @@ class RecordStore:
     def append(self, record: AgentRecord) -> ChainEntry:
         """Append one record, computing and storing its chain hash.
 
+        Serialized by an in-process lock so concurrent writers (the daemon's
+        serve/sweeper/stop threads) cannot interleave or reuse a ``seq``.
+
         Raises:
             StoreFullError: when the configured size cap is already reached
                 (F3) — recording stops and is surfaced, nothing is overwritten.
         """
-        if self.max_size_mb is not None and self.size_bytes() >= self.max_size_mb * _BYTES_PER_MB:
-            raise StoreFullError(
-                f"store {self.path} reached the {self.max_size_mb} MB cap; "
-                "raise store.max_size_mb or run retention"
+        with self._lock:
+            if (
+                self.max_size_mb is not None
+                and self.size_bytes() >= self.max_size_mb * _BYTES_PER_MB
+            ):
+                raise StoreFullError(
+                    f"store {self.path} reached the {self.max_size_mb} MB cap; "
+                    "raise store.max_size_mb or run retention"
+                )
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            seq = self._entries[-1].seq + 1 if self._entries else 0
+            prev_hash = self._entries[-1].hash if self._entries else GENESIS_HASH
+            record_data = record.to_dict()
+            envelope = {
+                "seq": seq,
+                "prev_hash": prev_hash,
+                "hash": _entry_hash(prev_hash, record_data),
+                "record": record_data,
+            }
+            # A crash can leave a partial line with no trailing newline; start a
+            # new line so the next valid record is not concatenated onto it.
+            needs_separator = self._ends_without_newline()
+            with self.path.open("a", encoding="utf-8") as handle:
+                if needs_separator:
+                    handle.write("\n")
+                handle.write(json.dumps(envelope, ensure_ascii=False) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+            entry = ChainEntry(
+                seq=seq, prev_hash=prev_hash, hash=str(envelope["hash"]), record=record
             )
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        seq = self._entries[-1].seq + 1 if self._entries else 0
-        prev_hash = self._entries[-1].hash if self._entries else GENESIS_HASH
-        record_data = record.to_dict()
-        envelope = {
-            "seq": seq,
-            "prev_hash": prev_hash,
-            "hash": _entry_hash(prev_hash, record_data),
-            "record": record_data,
-        }
-        with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(envelope, ensure_ascii=False) + "\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        entry = ChainEntry(
-            seq=seq, prev_hash=prev_hash, hash=str(envelope["hash"]), record=record
-        )
-        self._entries.append(entry)
-        return entry
+            self._entries.append(entry)
+            return entry
+
+    def _ends_without_newline(self) -> bool:
+        if not self.path.exists() or self.path.stat().st_size == 0:
+            return False
+        with self.path.open("rb") as handle:
+            handle.seek(-1, os.SEEK_END)
+            return handle.read(1) != b"\n"
 
     def apply_retention(
         self, *, retention_days: int, now: datetime | None = None

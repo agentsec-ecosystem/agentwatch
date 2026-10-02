@@ -40,6 +40,51 @@ def test_private_key_header() -> None:
     assert redact_secrets("-----BEGIN RSA PRIVATE KEY-----")[1] == ("private-key",)
 
 
+def test_private_key_block_masks_the_key_material() -> None:
+    pem = (
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "MIIEowIBAAKCAQEA1234567890SECRETMATERIAL\n"
+        "-----END RSA PRIVATE KEY-----"
+    )
+    masked, kinds = redact_secrets(pem)
+
+    assert kinds == ("private-key",)
+    assert "SECRETMATERIAL" not in masked
+
+
+def test_substring_prefixes_are_not_false_positives() -> None:
+    assert redact_secrets("risk-assessment and disk-usage") == (
+        "risk-assessment and disk-usage",
+        (),
+    )
+    assert redact_secrets("task-manager ask-me-anything") == ("task-manager ask-me-anything", ())
+
+
+def test_bearer_of_good_news_is_not_a_token() -> None:
+    assert redact_secrets("Bearer of good news") == ("Bearer of good news", ())
+
+
+def test_bare_and_camel_case_sensitive_keys_are_masked() -> None:
+    masked, kinds = redact_mapping(
+        {"PASSWORD": "p", "TOKEN": "t", "apiKey": "k", "accessToken": "a", "n": 1}
+    )
+
+    assert masked == {
+        "PASSWORD": "<REDACTED:env-secret>",
+        "TOKEN": "<REDACTED:env-secret>",
+        "apiKey": "<REDACTED:env-secret>",
+        "accessToken": "<REDACTED:env-secret>",
+        "n": 1,
+    }
+    assert kinds == ("env-secret",)
+
+
+def test_non_string_value_under_sensitive_key_is_masked() -> None:
+    masked, kinds = redact_mapping({"PASSWORD": {"nested": "x"}})
+    assert masked == {"PASSWORD": "<REDACTED:env-secret>"}
+    assert kinds == ("env-secret",)
+
+
 def test_jwt() -> None:
     jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
     assert redact_secrets(jwt)[1] == ("jwt",)

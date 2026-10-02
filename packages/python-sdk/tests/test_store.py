@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -166,3 +167,51 @@ def test_apply_retention_keeps_future_dated_entries(tmp_path: Path) -> None:
 
     assert report == RetentionReport(purged=0, kept=1)
     assert RecordStore(path).records()[0].tool.name == "future"
+
+
+def test_concurrent_appends_keep_the_chain_valid(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+
+    def worker(worker_id: int) -> None:
+        for index in range(50):
+            store.append(_record(f"t{worker_id}-{index}"))
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert len(RecordStore(path).records()) == 200
+    assert RecordStore(path).verify().ok is True
+
+
+def test_append_after_a_partial_line_keeps_the_new_record(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("A"))
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write('{"seq": 1, "prev')  # crash mid-append: no trailing newline
+
+    reloaded = RecordStore(path)
+    reloaded.append(_record("B"))
+
+    assert [record.tool.name for record in RecordStore(path).records()] == ["A", "B"]
+
+
+def test_verify_detects_seq_tampering(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("A"))
+    store.append(_record("B"))
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    rewritten = []
+    for offset, line in enumerate(lines):
+        envelope = json.loads(line)
+        envelope["seq"] = 100 + offset
+        rewritten.append(json.dumps(envelope))
+    path.write_text("\n".join(rewritten) + "\n", encoding="utf-8")
+
+    assert RecordStore(path).verify().ok is False

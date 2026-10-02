@@ -20,6 +20,14 @@ SELF_TEST_CORPUS: tuple[dict[str, Any], ...] = (
     {"card": "4111 1111 1111 1111"},
     {"db": "postgres://admin:pgLEAK@db:5432/app"},
     {"note": "reach me at leaker@example.com"},
+    {
+        "pem": (
+            "-----BEGIN RSA PRIVATE KEY-----\n"
+            "MIIEowSECRETMATERIAL\n"
+            "-----END RSA PRIVATE KEY-----"
+        )
+    },
+    {"PASSWORD": "p-LEAK-9"},
 )
 
 # Raw substrings that must never survive the pipeline.
@@ -28,6 +36,8 @@ _LEAK_MARKERS: tuple[str, ...] = (
     "4111 1111 1111 1111",
     "pgLEAK",
     "leaker@example.com",
+    "SECRETMATERIAL",
+    "p-LEAK-9",
 )
 
 

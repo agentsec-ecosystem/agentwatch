@@ -19,8 +19,8 @@ as `env-secret`. The fixed-corpus self-test lives in `agentwatch.selftest` (`run
 | Mode | Behavior | Default |
 |---|---|---|
 | `metadata-only` | record argument **shapes/keys** only; values omitted | ✅ |
-| `truncated` | values truncated to N chars (default 32) with a hash suffix for correlation | |
-| `hashed` | values replaced by `sha256(value)[:16]` (correlation without content) | |
+| `truncated` | values truncated to N chars (shipped: `value[:N] + "[...]"`) | |
+| `hashed` | values replaced by a salted `sha256` hex digest (shipped: 64 chars) | |
 | `full` | raw values (explicit opt-in; discouraged; warns) | |
 
 ## Secret/PII classes (detected even in `full` mode — never persisted)

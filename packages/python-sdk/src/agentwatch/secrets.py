@@ -32,19 +32,25 @@ SECRET_KINDS: tuple[str, ...] = (
 )
 
 _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("private-key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    (
+        "private-key",
+        re.compile(
+            r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?"
+            r"(?:-----END [A-Z ]*PRIVATE KEY-----|$)"
+        ),
+    ),
     (
         "api-key",
         re.compile(
-            r"(?:sk-[A-Za-z0-9_\-]{8,}"
-            r"|gh[pousr]_[A-Za-z0-9]{20,}"
-            r"|github_pat_[A-Za-z0-9_]{20,}"
-            r"|AKIA[0-9A-Z]{16}"
-            r"|xox[baprs]-[A-Za-z0-9\-]{10,}"
-            r"|AIza[0-9A-Za-z_\-]{20,})"
+            r"(?:(?<![A-Za-z0-9])sk-[A-Za-z0-9_\-]{8,}"
+            r"|(?<![A-Za-z0-9])gh[pousr]_[A-Za-z0-9]{20,}"
+            r"|(?<![A-Za-z0-9])github_pat_[A-Za-z0-9_]{20,}"
+            r"|(?<![A-Za-z0-9])AKIA[0-9A-Z]{16}"
+            r"|(?<![A-Za-z0-9])xox[baprs]-[A-Za-z0-9\-]{10,}"
+            r"|(?<![A-Za-z0-9])AIza[0-9A-Za-z_\-]{20,})"
         ),
     ),
-    ("oauth-bearer", re.compile(r"Bearer\s+[A-Za-z0-9._\-]+")),
+    ("oauth-bearer", re.compile(r"Bearer\s+[A-Za-z0-9._\-]{8,}")),
     ("jwt", re.compile(r"eyJ[A-Za-z0-9_\-]*\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+")),
     ("cloud-secret", re.compile(r"ya29\.[A-Za-z0-9_\-]+")),
     (
@@ -60,7 +66,14 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("phone", re.compile(r"\+[1-9]\d{6,14}\b")),
 )
 
-_ENV_KEY = re.compile(r"(?i).*(?:_TOKEN|_KEY|_SECRET|_PASSWORD)$")
+# Sensitive key names: snake/upper with a word boundary (MONKEY does not match),
+# or camelCase suffixes (apiKey, accessToken, mySecret).
+_ENV_KEY_CI = re.compile(r"(?i)(?:^|_)(?:token|secret|password|key)$")
+_ENV_KEY_CAMEL = re.compile(r"[a-z0-9](?:Key|Token|Secret|Password)$")
+
+
+def _is_sensitive_key(key: str) -> bool:
+    return bool(_ENV_KEY_CI.search(key) or _ENV_KEY_CAMEL.search(key))
 
 _PRIORITY = {kind: index for index, (kind, _) in enumerate(_PATTERNS)}
 
@@ -136,7 +149,7 @@ def redact_mapping(value: Any) -> tuple[Any, tuple[str, ...]]:
         if isinstance(node, dict):
             result: dict[Any, Any] = {}
             for key, item in node.items():
-                if isinstance(key, str) and isinstance(item, str) and _ENV_KEY.match(key):
+                if isinstance(key, str) and _is_sensitive_key(key):
                     result[key] = "<REDACTED:env-secret>"
                     kinds.append("env-secret")
                 else:

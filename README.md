@@ -2,6 +2,8 @@
 
 > **Monitor** — OpenTelemetry-based telemetry for agent tool calls, plus the shared security-event schema.
 
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/agentsec-ecosystem/agentwatch/badge)](https://scorecard.dev/viewer/?uri=github.com/agentsec-ecosystem/agentwatch)
+
 Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem) — open-source,
 harness-agnostic security for AI agents.
 

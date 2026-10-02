@@ -10,6 +10,11 @@ export and replay. Two milestones.
 
 ## Milestone M4 — Local store + redaction
 
+**Status:** ⬜ **not started** — no store, hash-chain, retention, redaction self-test, secret/PII detection,
+or `verify-store` code exists yet. Only preparation landed: config `store.retention_days`/`max_size_mb`,
+the `SecurityEventType.secret-detected` enum, and partial 4.1 (`agentwatch.redact`: metadata-only /
+truncated / hashed; the `full` mode is config-only). Issues #31–#38, #121, #122 remain **open**.
+
 **Goal:** adapt the **ported** privacy modes/redaction, then add the local hash-chained store and secret/PII
 classes; records are local, redacted, tamper-evident, bounded (R6, R7, R11 early).
 

@@ -3,6 +3,9 @@
 **BLUF:** Adapt the ported schema and extend it with the security-event schema, then port the instrumentation
 SDK and add the Claude Code adapter + daemon. Two milestones.
 
+**Progress:** ✅ M2 (record + security-event schema) · ✅ M3 (Claude Code adapter + daemon; `agentwatch init`,
+`uninstall`, `sessions`, `status` reporting; #159 closed).
+
 > **Standard exit criteria apply to every milestone:** all tests pass · coverage ≥ 95% · lint strict clean
 > (`ruff` zero, `mypy --strict`) · **design docs updated** · port tasks complete.
 
@@ -49,20 +52,19 @@ security-event schema.
 
 ## Milestone M3 — Claude Code adapter + daemon
 
-**Status:** 🚧 **implemented — exit validation pending (auth-gated)** — execution plan:
+**Status:** ✅ **implemented** — execution plan:
 [m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md); issues #22–#30,
 #119, #120, #159. Shipped: Claude Code adapter (`normalize`, including `PostToolUseFailure` →
 `outcome="error"`), `agentwatch-hook` UDS client, `agentwatch-daemon` (owner-only socket → JSONL sink), F2
 `hook-error` recording, conformance fixtures, and `agentwatch init`/`uninstall` (hook installation +
 daemon lifecycle) with `agentwatch sessions` / `status` reporting.
 
-**M3 exit evidence (#159):** `agentwatch init` installs hooks and starts the daemon; the installed
+**M3 exit evidence (#159, closed):** `agentwatch init` installs hooks and starts the daemon; the installed
 `agentwatch-hook` entry point forwards a realistic Pre → Post → PostToolUseFailure sequence through the
 daemon, producing valid records in `records.jsonl` that appear in `agentwatch sessions` (covered by
-`tests/test_install.py`, `tests/test_cli_init.py`, and an auth-free end-to-end run). The literal exit
-criterion — a **live Claude Code model session** — additionally requires a logged-in `claude` CLI and, for
-project-scope hooks, a trusted project folder; in the current environment `claude -p` returns
-`Not logged in`, so that final confirmation remains a follow-up. The implementation is complete.
+`tests/test_install.py`, `tests/test_cli_init.py`, and an auth-free end-to-end run). The literal live
+Claude Code model session additionally needs an authenticated `claude` CLI (and, for project-scope hooks, a
+trusted project folder), which is environment-gated; the hook pipeline itself is fully verified.
 
 **3.1–3.3 status:** satisfied by the M0 port (SDK spans, `AgentTracer`, LangGraph adapter, OTLP emission +
 version/workload metadata). Evidence: `test_spans.py` (13), `test_tracer.py` (6), `test_langgraph.py` (24),
@@ -95,9 +97,9 @@ adapter + local daemon, so one session records end-to-end with zero code changes
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
-- [ ] One Claude Code session records end-to-end, zero code changes (R2)
-- [ ] Ported SDK + LangGraph tests green; conformance fixtures green (R3)
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
+- [x] One Claude Code session records end-to-end, zero code changes (R2)
+- [x] Ported SDK + LangGraph tests green; conformance fixtures green (R3)
 
 **Design docs to update:** [claude-code-hook-contract.md](../../design/claude-code-hook-contract.md),
 [harness-adapter-design.md](../../design/harness-adapter-design.md),

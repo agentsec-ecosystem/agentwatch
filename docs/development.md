@@ -25,7 +25,7 @@ schema/                machine-readable contracts
 
 ```sh
 python -m venv .venv && source .venv/bin/activate
-make setup        # editable-installs packages/python-sdk, services/api, services/analytics
+make setup        # editable-installs the three packages with their [dev] extras
 ```
 
 ## Quality gates (must be green)

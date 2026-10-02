@@ -7,10 +7,10 @@ help: ## Show this help.
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-setup: ## Install all Python packages for local dev.
+setup: ## Install all Python packages (with dev extras) for local dev.
 	@for pkg in $(PACKAGES); do \
-		echo "==> pip install -e $$pkg"; \
-		$(PYTHON) -m pip install -e "$$pkg"; \
+		echo "==> pip install -e $$pkg[dev]"; \
+		$(PYTHON) -m pip install -e "$$pkg[dev]"; \
 	done
 
 format: ## Auto-format Python (ruff).
@@ -28,11 +28,15 @@ typecheck: ## Type-check Python (mypy strict).
 		(cd $$pkg && mypy --strict .); \
 	done
 
-test: ## Run all unit tests.
-	@for pkg in $(PACKAGES); do \
+test: ## Run all unit tests + coverage gate + repo guard.
+	@rc=0; \
+	for pkg in $(PACKAGES); do \
 		echo "==> pytest $$pkg"; \
-		(cd $$pkg && pytest --cov --cov-report=term); \
-	done
+		(cd $$pkg && pytest --cov --cov-report=term --cov-fail-under=95) || rc=1; \
+	done; \
+	echo "==> pytest tests (repo guard)"; \
+	$(PYTHON) -m pytest tests || rc=1; \
+	exit $$rc
 
 stack-up: ## Boot the local docker compose stack.
 	docker compose up -d

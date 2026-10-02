@@ -56,3 +56,14 @@ pythonpath = ["src"]
 strict = true
 python_version = "3.10"
 mypy_path = "src"
+
+[tool.coverage.run]
+# HF dataset download/orchestration requires network + the `datasets`/`pyarrow`
+# extras; unit tests cover the converter/validator stages it delegates to.
+omit = [
+    "*/trace_pipeline/downloader.py",
+    "*/trace_pipeline/pipeline.py",
+]
+
+[tool.coverage.report]
+fail_under = 95

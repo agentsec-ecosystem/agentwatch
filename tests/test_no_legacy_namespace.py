@@ -18,10 +18,21 @@ ROOT = Path(__file__).resolve().parents[1]
 ALLOWLIST = {
     "packages/python-sdk/src/agent_exec_trace/__init__.py",
     "packages/python-sdk/tests/test_legacy_shim.py",
+    "tests/test_no_legacy_namespace.py",
 }
 
 # Scan implementation + tests + configs, not historical/migration docs.
-SCAN_PREFIXES = ("packages/", "services/", "apps/", "examples/", "scripts/")
+SCAN_PREFIXES = (
+    "packages/",
+    "services/",
+    "apps/",
+    "examples/",
+    "scripts/",
+    "tests/",
+    "deploy/",
+    "schema/",
+    ".github/",
+)
 SCAN_FILES = {"pyproject.toml", "Makefile", "docker-compose.yml", ".pre-commit-config.yaml"}
 
 

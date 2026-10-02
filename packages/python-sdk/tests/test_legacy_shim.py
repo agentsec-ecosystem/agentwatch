@@ -22,3 +22,11 @@ def test_legacy_submodule_resolves_to_agentwatch_submodule() -> None:
     current_context = importlib.import_module("agentwatch.context")
 
     assert legacy_context.RunContext is current_context.RunContext
+
+
+def test_legacy_import_preserves_canonical_module_metadata() -> None:
+    importlib.import_module("agent_exec_trace.context")
+    current_context = importlib.import_module("agentwatch.context")
+
+    assert current_context.__spec__ is not None
+    assert current_context.__spec__.name == "agentwatch.context"

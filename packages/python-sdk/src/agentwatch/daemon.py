@@ -16,6 +16,7 @@ import json
 import os
 import signal
 import socket
+import sys
 import threading
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
 from agentwatch.hook import default_socket_path
 from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
 from agentwatch.redact import RedactionConfig
+from agentwatch.store import ChainStatus, RecordStore, StoreFullError
 
 # F2: a missed tool call is recorded under this tool name, never dropped.
 HOOK_ERROR_TOOL = "hook-error"
@@ -47,6 +49,7 @@ class Daemon:
         *,
         socket_path: str | os.PathLike[str] | None = None,
         records_path: str | os.PathLike[str] | None = None,
+        store: RecordStore | None = None,
         redaction: RedactionConfig | None = None,
         pre_timeout_seconds: float = 300.0,
         sweep_interval_seconds: float = 5.0,
@@ -57,6 +60,8 @@ class Daemon:
         self.records_path = (
             Path(records_path) if records_path is not None else default_records_path()
         )
+        self.store = store if store is not None else RecordStore(self.records_path)
+        self.chain_status: ChainStatus | None = None
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
         self.sweep_interval_seconds = sweep_interval_seconds
@@ -76,6 +81,12 @@ class Daemon:
     def start(self) -> None:
         """Bind the socket (0600) and start serving in a background thread."""
         self.records_path.parent.mkdir(parents=True, exist_ok=True)
+        self.chain_status = self.store.verify()
+        if not self.chain_status.ok:
+            print(
+                f"agentwatch-daemon: hash chain broken at seq {self.chain_status.broken_at} (F4)",
+                file=sys.stderr,
+            )
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -249,13 +260,19 @@ class Daemon:
             self._append(self._hook_error_record({"tool_use_id": call_id}))
 
     def _append(self, record: AgentRecord) -> None:
-        with self._lock, self.records_path.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(record.to_dict()) + "\n")
+        try:
+            self.store.append(record)
+        except StoreFullError as exc:
+            # F3: fail closed and surface; never overwrite or drop silently.
+            print(f"agentwatch-daemon: {exc}", file=sys.stderr)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the daemon until interrupted (SIGINT/SIGTERM stop it cleanly)."""
-    daemon = Daemon()
+    from agentwatch.configuration import load_config
+
+    store = RecordStore(default_records_path(), max_size_mb=load_config().store.max_size_mb)
+    daemon = Daemon(store=store)
     daemon.start()
     stop = threading.Event()
 

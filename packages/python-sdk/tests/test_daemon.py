@@ -13,13 +13,15 @@ import socket
 import tempfile
 import time
 from collections.abc import Iterator
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from agentwatch import hook
 from agentwatch.daemon import HOOK_ERROR_TOOL, Daemon
-from agentwatch.records import validate_record
+from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall, validate_record
+from agentwatch.store import RecordStore
 
 PRE = {
     "session_id": "sess-1",
@@ -87,7 +89,7 @@ def test_hook_to_daemon_round_trip_appends_valid_records(short_dir: Path) -> Non
         daemon.stop()
 
     assert len(lines) == 2
-    records = [validate_record(json.loads(line)) for line in lines]
+    records = RecordStore(records_path).records()
     assert records[0].session_id == "sess-1"
     assert records[1].outcome.value == "ok"
     assert records[0].span_id == records[1].span_id == "call-1"
@@ -114,7 +116,7 @@ def test_malformed_line_does_not_kill_the_daemon(short_dir: Path) -> None:
         daemon.stop()
 
     assert len(lines) == 1
-    validate_record(json.loads(lines[0]))
+    validate_record(json.loads(lines[0])["record"])
 
 
 def test_matched_post_has_no_hook_error(short_dir: Path) -> None:
@@ -130,7 +132,7 @@ def test_matched_post_has_no_hook_error(short_dir: Path) -> None:
     finally:
         daemon.stop()
 
-    tools = [json.loads(line)["tool"]["name"] for line in lines]
+    tools = [record.tool.name for record in RecordStore(records_path).records()]
     assert HOOK_ERROR_TOOL not in tools
 
 
@@ -145,11 +147,10 @@ def test_unmatched_post_records_a_hook_error(short_dir: Path) -> None:
     finally:
         daemon.stop()
 
-    records = [json.loads(line) for line in lines]
-    errors = [r for r in records if r["tool"]["name"] == HOOK_ERROR_TOOL]
+    records = RecordStore(records_path).records()
+    errors = [record for record in records if record.tool.name == HOOK_ERROR_TOOL]
     assert len(errors) == 1
-    assert errors[0]["outcome"] == "error"
-    validate_record(errors[0])
+    assert errors[0].outcome.value == "error"
 
 
 def test_explicit_hook_error_frame_is_recorded(short_dir: Path) -> None:
@@ -170,7 +171,7 @@ def test_explicit_hook_error_frame_is_recorded(short_dir: Path) -> None:
     finally:
         daemon.stop()
 
-    record = validate_record(json.loads(lines[0]))
+    record = RecordStore(records_path).records()[0]
     assert record.tool.name == HOOK_ERROR_TOOL
     assert record.outcome.value == "error"
     assert record.session_id == "sess-1"
@@ -197,7 +198,7 @@ def test_bad_timestamp_frame_does_not_kill_the_daemon(short_dir: Path) -> None:
         daemon.stop()
 
     assert alive, "the daemon serve thread died"
-    records = [validate_record(json.loads(line)) for line in lines]
+    records = RecordStore(records_path).records()
     assert any(r.session_id == "sess-1" and r.tool.name == "Bash" for r in records)
     assert any(r.tool.name == HOOK_ERROR_TOOL for r in records)
 
@@ -242,8 +243,77 @@ def test_unpaired_pre_is_flushed_after_timeout(short_dir: Path) -> None:
     finally:
         daemon.stop()
 
-    records = [json.loads(line) for line in lines]
-    assert any(r["tool"]["name"] == HOOK_ERROR_TOOL for r in records)
+    records = RecordStore(records_path).records()
+    assert any(r.tool.name == HOOK_ERROR_TOOL for r in records)
+
+
+def _record(name: str = "Bash") -> AgentRecord:
+    return AgentRecord(
+        session_id="sess-chain",
+        agent=AgentIdentity(identity="a"),
+        tool=ToolCall(name=name),
+        outcome=Outcome.OK,
+        started_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+    )
+
+
+def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        hook.send(
+            {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
+        )
+        lines = _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    assert len(lines) == 2
+    status = RecordStore(records_path).verify()
+    assert status.ok is True
+    assert status.checked == 2
+
+
+def test_daemon_surfaces_a_broken_chain(short_dir: Path) -> None:
+    socket_path = short_dir / "d.sock"
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path)
+    store.append(_record("A"))
+    lines = records_path.read_text(encoding="utf-8").splitlines()
+    envelope = json.loads(lines[0])
+    envelope["record"]["tool"]["name"] = "Tampered"
+    lines[0] = json.dumps(envelope)
+    records_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    daemon = Daemon(socket_path=str(socket_path), records_path=records_path)
+    daemon.start()
+    try:
+        assert daemon.chain_status.ok is False
+    finally:
+        daemon.stop()
+
+
+def test_store_full_fails_closed_without_dropping_or_dying(short_dir: Path) -> None:
+    socket_path = short_dir / "d.sock"
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path, max_size_mb=0)
+    daemon = Daemon(socket_path=str(socket_path), records_path=records_path, store=store)
+    daemon.start()
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        hook.send(
+            {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
+        )
+        alive = daemon.is_alive()
+    finally:
+        daemon.stop()
+
+    assert alive, "the daemon died on a full store"
+    assert store.size_bytes() == 0
 
 
 def test_invalid_adapter_message_is_ignored(short_dir: Path) -> None:

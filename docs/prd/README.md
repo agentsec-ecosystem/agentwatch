@@ -35,7 +35,7 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 1. **Scope:** does [PRD 05](05-features.md) define the right v0.1.0 (Claude Code only, monitor-only)?
 2. **Journeys:** is [PRD 04](04-users-and-cujs.md) CUJ-1..4 the right first set?
 3. **Schema:** is the security-event vocabulary in
-   [design/record-format-design.md](../design/record-format-design.md) correct and complete?
+   [reference/record-format-spec.md](../reference/record-format-spec.md) correct and complete?
 4. **Decisions:** review the proposed `DD-01..DD-07` in
    [design/design-decisions.md](../design/design-decisions.md).
 5. **Parity:** every feature that **shipped** in the superseded `agent-exec-trace`/AgentObservatory (#102)

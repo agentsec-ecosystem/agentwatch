@@ -9,7 +9,8 @@ Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 ## Start here
 
 - [User Guide](USER_GUIDE.md) — install, investigate, compare, triage
-- [Architecture tour](architecture-tour.md) — the recording path end to end
+- [Architecture tour](design/architecture-tour.md) — the recording path end to end
+- [Observability](design/observability.md) — emitted signals and backends
 - [Development guide](development.md) — layout, setup, quality gates, extending
 - [PRD index](prd/README.md) · [Roadmap](../ROADMAP.md)
 

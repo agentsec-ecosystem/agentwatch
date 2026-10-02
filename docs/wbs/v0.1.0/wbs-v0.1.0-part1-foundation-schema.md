@@ -70,7 +70,7 @@ compatibility with the shipped model.
 - [ ] Invalid records rejected (F8); schema version enforced
 
 **Design docs to update:** [record-format-spec.md](../../reference/record-format-spec.md),
-[record-format-design.md](../../design/record-format-design.md), [data-dictionary.md](../../design/data-dictionary.md),
+[record-format-spec.md](../../reference/record-format-spec.md), [data-dictionary.md](../../design/data-dictionary.md),
 [PRD 15](../../prd/15-data-model.md), [`schema/README.md`](../../../schema/README.md), [CHANGELOG](../../../CHANGELOG.md).
 
 ---

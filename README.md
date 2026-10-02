@@ -51,7 +51,7 @@ Claude Code at v0.1.0; Cursor in v0.1.x; Codex/Gemini and frameworks by v0.3.0. 
 ## Documentation
 
 Start at [docs/](docs/README.md) · [PRDs](docs/prd/README.md) · [User Guide](docs/USER_GUIDE.md) ·
-[Architecture tour](docs/architecture-tour.md) · [Roadmap](ROADMAP.md).
+[Architecture tour](docs/design/architecture-tour.md) · [Roadmap](ROADMAP.md).
 
 ## License
 

@@ -33,7 +33,7 @@ harness (Claude Code)          MCP clients / proxy        (later) eBPF / gateway
    [harness-adapter-design.md](../design/harness-adapter-design.md).
 2. **Local daemon** — receives adapter events over a local socket, normalizes, and writes records.
 3. **Record format** — tool-call records + named security events; a versioned schema. This is the
-   ecosystem's shared contract. See [record-format-design.md](../design/record-format-design.md).
+   ecosystem's shared contract. See [record-format-spec.md](../reference/record-format-spec.md).
 4. **Redaction layer** — runs at normalization time, *before* storage (`DD-06`); no secret/PII is ever
    persisted.
 5. **Local store** — local-first, append-only, hash-chained for tamper evidence (`DD-03`, `DD-07`). See

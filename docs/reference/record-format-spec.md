@@ -39,3 +39,25 @@
 
 No secret/PII is ever persisted (`DD-06`); values follow the privacy modes in
 [privacy-data-handling](../design/privacy-data-handling.md).
+
+---
+
+## Design rationale & status (merged from the former design doc)
+
+**Status:** draft — the normative contract above is authoritative; this section records rationale.
+
+### Security-event emitters
+
+| Event | Emitted when | Emitter |
+|---|---|---|
+| `denied` | a tool call is blocked | agentpolicy |
+| `policy-fired` | a policy decision (allow/deny/ask/rate-limit/redact) | agentpolicy |
+| `secret-detected` | a secret/PII is detected (and redacted) | agentwatch / agentpolicy |
+| `revoked` | a credential is revoked | agentkeys |
+| `halted` | an agent is halted/paused | agenthalt |
+
+### Decisions
+
+- **Event naming/versioning (DD-14):** propose into OTel GenAI before locking schema v1.
+- **Stewardship (DD-05):** contribute upstream; keep a repo-local copy until adopted.
+- **Store (DD-08):** append-only JSONL + hash chain for v0.1.0.

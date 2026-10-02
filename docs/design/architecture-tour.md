@@ -6,9 +6,9 @@ hash-chained record, and out to a backend you own.
 ## The path
 
 1. **Harness** (Claude Code) fires `PreToolUse` (intent) and `PostToolUse` (outcome) hooks.
-2. **Adapter** normalizes native events per the [adapter contract](reference/adapter-conformance.md).
+2. **Adapter** normalizes native events per the [adapter contract](../reference/adapter-conformance.md).
 3. **Daemon** receives events over a local socket.
-4. **Normalizer + redactor** maps to the [record format](reference/record-format-spec.md) and applies the
+4. **Normalizer + redactor** maps to the [record format](../reference/record-format-spec.md) and applies the
    privacy mode — **before** anything is written (`DD-06`).
 5. **Local store** appends the record and links it into a **hash chain** (`DD-07`).
 6. **Exporter** (opt-in, gated on the redaction self-test) forwards OTLP to Phoenix/Jaeger/Tempo/Splunk.
@@ -24,4 +24,4 @@ hash-chained record, and out to a backend you own.
 ## Standards seam
 
 Records are OTel GenAI `execute_tool` spans; the security-event schema is the ecosystem's shared contract
-(see [OTel mapping](design/otel-mapping.md)).
+(see [OTel mapping](otel-mapping.md)).

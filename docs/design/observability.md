@@ -11,7 +11,7 @@ targets.
 
 ## Attributes
 
-Mapping of agentwatch fields to OTel attributes: [design/otel-mapping.md](design/otel-mapping.md).
+Mapping of agentwatch fields to OTel attributes: [design/otel-mapping.md](otel-mapping.md).
 
 ## Backends
 

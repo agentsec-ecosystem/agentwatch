@@ -54,7 +54,7 @@ security-event schema.
 #119, #120. Shipped: Claude Code adapter (`normalize`), `agentwatch-hook` UDS client, `agentwatch-daemon`
 (owner-only socket → JSONL sink), F2 `hook-error` recording, and conformance fixtures. The M3 exit
 criterion (one Claude Code session records end-to-end, zero code changes) is **not yet demonstrated**:
-`agentwatch init` hook installation and a live run are outstanding.
+`agentwatch init` hook installation and a live run are outstanding, tracked as issue #159.
 
 **3.1–3.3 status:** satisfied by the M0 port (SDK spans, `AgentTracer`, LangGraph adapter, OTLP emission +
 version/workload metadata). Evidence: `test_spans.py` (13), `test_tracer.py` (6), `test_langgraph.py` (24),

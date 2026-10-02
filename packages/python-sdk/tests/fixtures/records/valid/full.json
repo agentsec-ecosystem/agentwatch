@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1.0",
+  "session_id": "sess-1",
+  "trace_id": "trace-1",
+  "span_id": "span-1",
+  "parent_span_id": null,
+  "harness": "claude-code",
+  "agent": {
+    "identity": "agent-1", "name": "triage", "version": "1.0",
+    "prompt_version": "p1", "model_version": "m1",
+    "tool_schema_version": "t1", "workload_type": "support"
+  },
+  "tool": {
+    "name": "Bash", "server": "mcp-bash",
+    "arguments": { "cmd": "ls" }, "privacy_mode": "truncated"
+  },
+  "outcome": "denied",
+  "started_at": "2026-01-02T03:04:05+00:00",
+  "ended_at": "2026-01-02T03:04:05.120000+00:00",
+  "duration_ms": 12.5,
+  "tokens": 42,
+  "cost_usd": 0.001,
+  "step_type": "act",
+  "security_event": {
+    "event_version": "0.1.0",
+    "type": "denied",
+    "emitted_at": "2026-01-02T03:04:05+00:00",
+    "emitter": "agentpolicy",
+    "reason": "blocked by policy",
+    "policy_id": "pol-1",
+    "tool": "Bash"
+  }
+}

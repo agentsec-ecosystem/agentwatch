@@ -43,6 +43,12 @@ def test_build_is_a_dev_dependency() -> None:
     assert any(dep.startswith("build") for dep in dev)
 
 
+def test_jsonschema_is_a_dev_dependency() -> None:
+    # The record-schema contract test uses jsonschema (dev-only; not a runtime dep).
+    dev = _metadata()["project"]["optional-dependencies"]["dev"]
+    assert any(dep.startswith("jsonschema") for dep in dev)
+
+
 def test_tomli_is_unconditional_in_dev() -> None:
     # mypy targets py3.10, so it imports tomli on every CI matrix leg; the dev
     # extra must therefore install it unconditionally or py3.12 typecheck fails.

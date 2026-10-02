@@ -1,0 +1,8 @@
+{
+  "schema_version": "0.1.0",
+  "session_id": "sess-1",
+  "agent": { "identity": "agent-1" },
+  "tool": { "name": "Bash" },
+  "outcome": "ok",
+  "started_at": "2026-01-02T03:04:05+00:00"
+}

@@ -44,12 +44,14 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 2. user — `$XDG_CONFIG_HOME/agentwatch/config.toml` (default `~/.config/agentwatch/config.toml`)
 3. project — `./.agentwatch/config.toml`
 4. environment — `AGENTWATCH_*` (nested keys use a double underscore, e.g. `AGENTWATCH_STORE__RETENTION_DAYS`)
-5. CLI flags — `--config` files and `--set` overrides
+5. CLI flags — `--config` files, then `--set` overrides
 
 Objects merge recursively; scalars are replaced by the higher-precedence source. Loading is **strict and
 fail-closed**: an unknown key, an invalid value, or an unsafe export setup prints
-`agentwatch: configuration error: …` and exits `2` rather than running with bad settings (F7). See
-[PRD 16 — Configuration](../prd/16-configuration.md) for the full key list and defaults.
+`agentwatch: configuration error: …` and exits `2` rather than running with bad settings (F7). An explicit
+`--config` file that is missing is also a configuration error. `AGENTWATCH_PYTHON` (the launcher's
+interpreter override) is reserved and ignored. See [PRD 16 — Configuration](../prd/16-configuration.md)
+for the full key list and defaults.
 
 ## Exit codes
 

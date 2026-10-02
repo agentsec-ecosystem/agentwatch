@@ -47,8 +47,10 @@ suite green — after which the source repository is **retained and made private
 
 ## Milestone M1 — Foundation & identity
 
-**Status:** ✅ **shipped** — execution plan: [m1-foundation-execution-plan.md](../../plans/m1-foundation-execution-plan.md);
-issues #10–#15, #115, #116.
+**Status:** ✅ **implemented** — execution plan:
+[m1-foundation-execution-plan.md](../../plans/m1-foundation-execution-plan.md); issues #10–#15, #115, #116.
+CI-green is verified by running the workflow's targets locally (`make lint && make typecheck && make test`);
+the first CI run happens on the PR.
 
 **Goal:** agentwatch identity, CLI, config, packaging, and CI — **ported** from the source tooling and
 rebranded.

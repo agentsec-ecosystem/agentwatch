@@ -95,6 +95,36 @@ def test_status_honours_env_override(
     assert "warn" in capsys.readouterr().out
 
 
+def test_launcher_interpreter_env_does_not_break_status(
+    isolated: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("AGENTWATCH_PYTHON", "/usr/bin/python3")
+    rc = main(["status"])
+    assert rc == 0
+    assert "claude-code" in capsys.readouterr().out
+
+
+def test_missing_explicit_config_fails_closed(
+    isolated: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    rc = main(["--config", str(isolated / "absent.toml"), "status"])
+    assert rc != 0
+    assert "configuration error" in capsys.readouterr().err.lower()
+
+
+def test_config_flag_overrides_env(
+    isolated: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    cfg_file = isolated / "explicit.toml"
+    cfg_file.write_text("log.level = 'debug'\n", encoding="utf-8")
+    monkeypatch.setenv("AGENTWATCH_LOG__LEVEL", "warn")
+
+    rc = main(["--config", str(cfg_file), "status"])
+
+    assert rc == 0
+    assert "debug" in capsys.readouterr().out
+
+
 def test_bad_config_fails_closed(
     isolated: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

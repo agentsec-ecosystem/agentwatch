@@ -142,8 +142,13 @@ def _as_positive_int(value: Any) -> int:
         raise ConfigError("expected a positive integer, got a boolean")
     if isinstance(value, int):
         result = value
-    elif isinstance(value, str) and value.strip().lstrip("+").isdigit():
-        result = int(value.strip())
+    elif isinstance(value, str):
+        # str.isdigit() accepts non-decimal characters ("²"), and int() then
+        # raises ValueError; let int() be the single source of truth.
+        try:
+            result = int(value.strip())
+        except ValueError:
+            raise ConfigError(f"expected a positive integer, got {value!r}") from None
     else:
         raise ConfigError(f"expected a positive integer, got {value!r}")
     if result <= 0:
@@ -226,10 +231,15 @@ def _nested(parts: Sequence[str], value: Any) -> dict[str, Any]:
     return node
 
 
+# Environment variables that share the AGENTWATCH_ prefix but are not config
+# keys (the npx launcher uses AGENTWATCH_PYTHON to pick an interpreter).
+_ENV_RESERVED = frozenset({"AGENTWATCH_PYTHON"})
+
+
 def _env_overlay(env: Mapping[str, str]) -> dict[str, Any]:
     overlay: dict[str, Any] = {}
     for raw_key, value in env.items():
-        if not raw_key.startswith("AGENTWATCH_"):
+        if not raw_key.startswith("AGENTWATCH_") or raw_key in _ENV_RESERVED:
             continue
         parts = [p.lower() for p in raw_key[len("AGENTWATCH_") :].split("__") if p]
         if not parts:
@@ -254,6 +264,10 @@ def _read_toml(path: Path) -> dict[str, Any]:
             data = tomllib.load(fh)
     except tomllib.TOMLDecodeError as exc:  # pragma: no cover - message varies
         raise ConfigError(f"malformed TOML in {path}: {exc}") from exc
+    except (OSError, UnicodeDecodeError) as exc:
+        # Directory, permission denied, missing, or non-UTF-8 content: all are
+        # configuration errors that must fail closed, never traceback.
+        raise ConfigError(f"cannot read config file {path}: {exc}") from exc
     if not isinstance(data, dict):
         raise ConfigError(f"configuration in {path} must be a table")
     return data
@@ -304,6 +318,8 @@ def _build_config(raw: dict[str, Any]) -> AgentwatchConfig:
     warnings: list[str] = []
     if privacy.mode == "full":
         warnings.append("privacy.mode=full captures raw content; ensure this is intended")
+    if export.enabled:
+        warnings.append(f"export.enabled sends telemetry to {export.otlp_endpoint}")
 
     return AgentwatchConfig(
         harness=validated["harness"],
@@ -338,25 +354,29 @@ def default_paths() -> list[Path]:
 def load_config(
     *,
     paths: Sequence[Path] | None = None,
+    required_paths: Sequence[Path] | None = None,
     env: Mapping[str, str] | None = None,
     cli_overrides: Mapping[str, Any] | None = None,
 ) -> AgentwatchConfig:
     """Load, merge, and validate configuration, or raise :class:`ConfigError`.
 
     Args:
-        paths: config files in increasing precedence (system..project). Missing
-            files are skipped. ``None`` uses :func:`default_paths`.
+        paths: default config files in increasing precedence (system..project).
+            Missing files are skipped. ``None`` uses :func:`default_paths`.
+        required_paths: explicitly-requested config files (``agentwatch
+            --config``). They sit above the environment and ``--set`` overrides
+            them; a missing explicit path is a :class:`ConfigError`.
         env: environment mapping; ``None`` uses ``os.environ``. Only
-            ``AGENTWATCH_*`` keys are read.
+            ``AGENTWATCH_*`` keys are read (a few reserved names are ignored).
         cli_overrides: dotted-key overrides (highest precedence).
 
     Returns:
         A fully-resolved :class:`AgentwatchConfig`.
 
     Raises:
-        ConfigError: on unknown keys, invalid values, malformed TOML, or an
-            unsafe export configuration — the loader never returns a partial
-            config (fail-closed, F7).
+        ConfigError: on unknown keys, invalid values, unreadable/malformed
+            files, or an unsafe export configuration — the loader never returns
+            a partial config (fail-closed, F7).
     """
     merged: dict[str, Any] = deepcopy(_DEFAULTS)
 
@@ -366,6 +386,13 @@ def load_config(
             _deep_merge(merged, _read_toml(candidate))
 
     _deep_merge(merged, _env_overlay(os.environ if env is None else env))
+
+    for path in required_paths or ():
+        candidate = Path(path)
+        if not candidate.exists():
+            raise ConfigError(f"config file not found: {candidate}")
+        _deep_merge(merged, _read_toml(candidate))
+
     _deep_merge(merged, _cli_overlay(cli_overrides or {}))
 
     return _build_config(merged)

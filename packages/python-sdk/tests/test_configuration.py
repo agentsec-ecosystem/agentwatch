@@ -108,6 +108,58 @@ def test_env_values_are_coerced_to_declared_types() -> None:
     assert cfg.log.level == "debug"
 
 
+def test_explicit_required_path_must_exist(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match="does-not-exist"):
+        load_config(
+            paths=[],
+            required_paths=[tmp_path / "does-not-exist.toml"],
+            env={},
+        )
+
+
+def test_required_path_overrides_env(tmp_path: Path) -> None:
+    explicit = _write(tmp_path / "explicit.toml", "log.level = 'debug'\n")
+    cfg = load_config(
+        paths=[],
+        required_paths=[explicit],
+        env={"AGENTWATCH_LOG__LEVEL": "warn"},
+    )
+    assert cfg.log.level == "debug"
+
+
+def test_read_failure_is_a_config_error(tmp_path: Path) -> None:
+    # A directory where a config file is expected must fail closed, not traceback.
+    with pytest.raises(ConfigError):
+        load_config(paths=[tmp_path], env={})
+
+
+def test_non_utf8_config_is_a_config_error(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.toml"
+    bad.write_bytes(b"\xff\xfe\x00\x01")
+    with pytest.raises(ConfigError):
+        load_config(paths=[bad], env={})
+
+
+def test_non_decimal_numeric_override_is_a_config_error() -> None:
+    # "²".isdigit() is True but int("²") raises; must surface as ConfigError.
+    with pytest.raises(ConfigError):
+        load_config(paths=[], env={}, cli_overrides={"store.retention_days": "²"})
+
+
+def test_launcher_interpreter_env_is_not_treated_as_config() -> None:
+    cfg = load_config(paths=[], env={"AGENTWATCH_PYTHON": "/usr/bin/python3"})
+    assert cfg.log.level == "info"
+
+
+def test_export_enabled_surfaces_a_warning(tmp_path: Path) -> None:
+    good = _write(
+        tmp_path / "good.toml",
+        "[export]\nenabled = true\notlp_endpoint = 'http://c:4317'\n",
+    )
+    cfg = load_config(paths=[good], env={})
+    assert any("export" in warning for warning in cfg.warnings)
+
+
 def test_missing_config_files_are_skipped(tmp_path: Path) -> None:
     cfg = load_config(paths=[tmp_path / "does-not-exist.toml"], env={})
     assert cfg.log.level == "info"

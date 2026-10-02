@@ -33,7 +33,7 @@ layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10,
 | M14 | Field Tests | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m14--field-tests) |
 | M15 | Release Readiness + predecessor retention | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m15--release-readiness) |
 
-> **Progress:** ✅ M0 (port) and ✅ M1 (foundation & identity) are shipped. M1 execution:
+> **Progress:** ✅ M0 (port) and ✅ M1 (foundation & identity) are implemented. M1 execution:
 > [m1-foundation-execution-plan.md](../../plans/m1-foundation-execution-plan.md).
 
 ## Porting map (agent-exec-trace → agentwatch)

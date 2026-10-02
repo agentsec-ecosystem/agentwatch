@@ -43,7 +43,7 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="PATH",
-        help="extra config file (highest file precedence; repeatable)",
+        help="config file that overrides the defaults and environment (repeatable)",
     )
     parser.add_argument(
         "--set",
@@ -108,9 +108,12 @@ def _print_status(cfg: AgentwatchConfig) -> None:
 
 def _run_status(args: argparse.Namespace) -> int:
     try:
-        paths = default_paths() + [Path(p) for p in args.config]
         overrides = _parse_overrides(args.overrides)
-        cfg = load_config(paths=paths, cli_overrides=overrides)
+        cfg = load_config(
+            paths=default_paths(),
+            required_paths=[Path(p) for p in args.config],
+            cli_overrides=overrides,
+        )
     except ConfigError as exc:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR

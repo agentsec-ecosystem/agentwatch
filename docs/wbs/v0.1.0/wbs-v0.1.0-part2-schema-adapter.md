@@ -49,6 +49,13 @@ security-event schema.
 
 ## Milestone M3 — Claude Code adapter + daemon
 
+**Status:** 🚧 in progress — execution plan:
+[m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md).
+
+**3.1–3.3 status:** satisfied by the M0 port (SDK spans, `AgentTracer`, LangGraph adapter, OTLP emission +
+version/workload metadata). Evidence: `test_spans.py` (13), `test_tracer.py` (6), `test_langgraph.py` (24),
+`test_otlp.py` (4), plus metadata assertions in `test_instrument.py` / `test_context.py`.
+
 **Goal:** port the **ported** instrumentation SDK (spans, LangGraph, OTLP) and add the Claude Code hook
 adapter + local daemon, so one session records end-to-end with zero code changes (R2, R3).
 

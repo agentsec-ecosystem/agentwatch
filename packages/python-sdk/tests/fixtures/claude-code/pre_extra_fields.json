@@ -1,0 +1,21 @@
+{
+  "message": {
+    "phase": "pre", "harness": "claude-code",
+    "event": {
+      "session_id": "sess-d", "tool_name": "Grep", "tool_input": { "q": "x" },
+      "tool_use_id": "call-d1", "timestamp": "2026-01-02T05:00:00+00:00",
+      "agent": { "identity": "scout", "version": "2.0" },
+      "cwd": "/repo", "permission_mode": "default", "extra": { "ignored": true }
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0", "session_id": "sess-d",
+      "agent": { "identity": "scout", "version": "2.0" },
+      "tool": { "name": "Grep", "privacy_mode": "metadata-only" },
+      "outcome": "ok", "started_at": "2026-01-02T05:00:00+00:00",
+      "harness": "claude-code", "trace_id": "sess-d", "span_id": "call-d1",
+      "step_type": "act"
+    }
+  ]
+}

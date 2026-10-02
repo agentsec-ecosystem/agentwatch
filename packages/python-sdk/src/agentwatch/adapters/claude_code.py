@@ -25,11 +25,14 @@ from agentwatch.records import (
     AgentRecord,
     Outcome,
     RecordPrivacyMode,
+    SecurityEvent,
+    SecurityEventType,
     StepType,
     ToolCall,
     _parse_iso,
 )
 from agentwatch.redact import PrivacyMode, RedactionConfig
+from agentwatch.secrets import redact_mapping
 
 HARNESS_ID = "claude-code"
 
@@ -43,6 +46,7 @@ _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
     PrivacyMode.TRUNCATED: RecordPrivacyMode.TRUNCATED,
     PrivacyMode.HASHED: RecordPrivacyMode.HASHED,
+    PrivacyMode.FULL: RecordPrivacyMode.FULL,
 }
 
 
@@ -61,9 +65,8 @@ def _redact(value: Any, cfg: RedactionConfig) -> Any:
 
 
 def _arguments(
-    event: Mapping[str, Any], cfg: RedactionConfig | None
+    raw: Any, cfg: RedactionConfig | None
 ) -> tuple[dict[str, Any] | None, RecordPrivacyMode]:
-    raw = event.get("tool_input")
     if not isinstance(raw, Mapping):
         return None, RecordPrivacyMode.METADATA_ONLY
     if cfg is None or cfg.mode is PrivacyMode.METADATA_ONLY or not cfg.capture_tool_args:
@@ -136,8 +139,20 @@ def normalize(
     tool_name = str(event.get("tool_name") or event.get("tool") or "unknown")
     call_id = tool_call_id(event)
     trace_id = str(event.get("trace_id") or session_id)
-    arguments, privacy_mode = _arguments(event, redaction)
+    # Mask secrets before any storage transform (DD-06); detection runs even when
+    # content is not captured so a secret-detected event still fires (R5).
+    masked_input, secret_kinds = redact_mapping(event.get("tool_input"))
+    arguments, privacy_mode = _arguments(masked_input, redaction)
     event_time = _timestamp(event)
+    security_event = None
+    if secret_kinds:
+        security_event = SecurityEvent(
+            type=SecurityEventType.SECRET_DETECTED,
+            emitted_at=event_time,
+            emitter="agentwatch",
+            tool=tool_name,
+            evidence={"kinds": list(secret_kinds)},
+        )
 
     if phase == "pre":
         outcome = Outcome.OK
@@ -173,5 +188,6 @@ def normalize(
         ended_at=ended_at,
         duration_ms=duration_ms,
         step_type=step_type,
+        security_event=security_event,
     )
     return [record]

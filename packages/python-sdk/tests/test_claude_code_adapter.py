@@ -6,12 +6,19 @@ the M2 record contract. Redaction is applied before a record is produced.
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
 
 from agentwatch.adapters import claude_code
-from agentwatch.records import Outcome, RecordPrivacyMode, StepType, validate_record
+from agentwatch.records import (
+    Outcome,
+    RecordPrivacyMode,
+    SecurityEventType,
+    StepType,
+    validate_record,
+)
 from agentwatch.redact import PrivacyMode, RedactionConfig
 
 PRE: dict[str, Any] = {
@@ -123,3 +130,42 @@ def test_hashed_mode_hashes_string_arguments() -> None:
     assert record.tool.arguments is not None
     assert record.tool.arguments["cmd"] != "ls"
     assert record.tool.privacy_mode is RecordPrivacyMode.HASHED
+
+
+SECRET_PRE: dict[str, Any] = {
+    "phase": "pre",
+    "harness": "claude-code",
+    "event": {
+        "session_id": "sess-sec",
+        "tool_name": "Bash",
+        "tool_input": {"cmd": "export TOKEN=sk-abcdefgh"},
+        "tool_use_id": "call-sec",
+        "timestamp": "2026-01-02T03:04:06+00:00",
+    },
+}
+
+
+def test_secret_in_tool_input_emits_secret_detected_event() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(SECRET_PRE, redaction=cfg)
+
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+    assert record.security_event.emitter == "agentwatch"
+    assert record.security_event.tool == "Bash"
+    assert record.security_event.evidence == {"kinds": ["api-key"]}
+    assert "sk-abcdefgh" not in json.dumps(record.to_dict())
+    validate_record(record.to_dict())
+
+
+def test_secret_detected_even_in_metadata_only() -> None:
+    (record,) = claude_code.normalize(SECRET_PRE)
+
+    assert record.tool.arguments is None
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
+def test_benign_input_has_no_security_event() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.security_event is None

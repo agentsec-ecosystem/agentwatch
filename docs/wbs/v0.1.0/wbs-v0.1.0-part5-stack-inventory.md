@@ -19,15 +19,17 @@ field-test harness, so the whole system runs locally and is demoable.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 8.1 | **Port/adapt** Docker Compose stack | `docker compose up -d` | services healthy |
-| 8.2 | **Port/adapt** demo agent (LangGraph `request-triage`) | `examples/demo-agent` | one-command demo |
-| 8.3 | **Port/adapt** seed/replay workflow (96 runs, ~240 anomalies, 4 agents) | `make seed-e2e` | seeded data loads |
-| 8.4 | **Port/adapt** E2E Playwright tests (five views) | e2e tests | E2E green |
-| 8.5 | **Port/adapt** field-test harness | harness | runs the plan |
-| 8.6 | Wire local dev flow (`make stack-up`, `make seed-e2e`) | Makefile | documented flow works |
-| 8.7 | **Update design docs** | deployment, demo-and-seed, runbooks | docs match stack |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 8.1 | **Port/adapt** Docker Compose stack | `docker compose up -d` | services healthy | #65 |
+| 8.2 | **Port/adapt** demo agent (LangGraph `request-triage`) | `examples/demo-agent` | one-command demo | #66 |
+| 8.3 | **Port/adapt** seed/replay workflow (96 runs, ~240 anomalies, 4 agents) | `make seed-e2e` | seeded data loads | #67 |
+| 8.4 | **Port/adapt** E2E Playwright tests (five views) | e2e tests | E2E green | #68 |
+| 8.5 | **Port/adapt** field-test harness | harness | runs the plan | #69 |
+| 8.6 | Wire local dev flow (`make stack-up`, `make seed-e2e`) | Makefile | documented flow works | #70 |
+| 8.7 | **Update design docs** | deployment, demo-and-seed, runbooks | docs match stack | #71 |
+| 8.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #129 |
+| 8.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #130 |
 
 **Tests required:** compose health; seed idempotency; Playwright E2E (5 views); field-test harness smoke.
 
@@ -53,15 +55,17 @@ tamper-evident hash-chaining** (R11) — net-new capabilities beyond the port.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 9.1 | **Port/adapt** inventory data from the ported record store | inventory source | reads recorded agents/servers |
-| 9.2 | Shadow-agent inventory (what agents exist locally) | `inventory` module | lists local agents |
-| 9.3 | MCP-server inventory | inventory | lists local MCP servers |
-| 9.4 | `agentwatch inventory` CLI | CLI path | prints inventory |
-| 9.5 | Retention controls hardening (`retention_days`, `max_size_mb`) | retention | enforced + tombstoned |
-| 9.6 | Hash-chaining retention / tombstoning (no silent gap) | chain | verify-store clean after purge |
-| 9.7 | **Update design docs** | storage, data model, cli-reference | docs match behavior |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 9.1 | **Port/adapt** inventory data from the ported record store | inventory source | reads recorded agents/servers | #72 |
+| 9.2 | Shadow-agent inventory (what agents exist locally) | `inventory` module | lists local agents | #73 |
+| 9.3 | MCP-server inventory | inventory | lists local MCP servers | #74 |
+| 9.4 | `agentwatch inventory` CLI | CLI path | prints inventory | #75 |
+| 9.5 | Retention controls hardening (`retention_days`, `max_size_mb`) | retention | enforced + tombstoned | #76 |
+| 9.6 | Hash-chaining retention / tombstoning (no silent gap) | chain | verify-store clean after purge | #77 |
+| 9.7 | **Update design docs** | storage, data model, cli-reference | docs match behavior | #78 |
+| 9.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #131 |
+| 9.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #132 |
 
 **Tests required:** inventory discovery; retention purge + tombstone; chain integrity after purge.
 

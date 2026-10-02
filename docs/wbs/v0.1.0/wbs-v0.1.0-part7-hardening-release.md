@@ -23,17 +23,19 @@ behavior, accessibility, and i18n.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 12.1 | **Port/adapt** perf measurement hooks | perf harness | p99 step latency measured |
-| 12.2 | Perf budget met (NFR-1 ≤5 ms/step; NFR-2..4) | perf tests | p99 within budget |
-| 12.3 | Sizing verified (NFR-3, NFR-5..7) | sizing doc/tests | within caps |
-| 12.4 | `/healthz` + `agentwatch status` (NFR-12 self-observability) | health surface | states correct |
-| 12.5 | Fault-injection suite **F1–F10** (PRD 17) | fault tests | all fail-closed/surfaced |
-| 12.6 | Fail-closed verification (NFR-8) | tests | no silent stop |
-| 12.7 | Accessibility pass (NFR-10) | a11y checks | keyboard + contrast |
-| 12.8 | i18n baseline (UTC, English-first) | formatting | locale-independent records |
-| 12.9 | **Update design docs** | perf, sizing, a11y, i18n, error-handling | docs match behavior |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 12.1 | **Port/adapt** perf measurement hooks | perf harness | p99 step latency measured | #93 |
+| 12.2 | Perf budget met (NFR-1 ≤5 ms/step; NFR-2..4) | perf tests | p99 within budget | #94 |
+| 12.3 | Sizing verified (NFR-3, NFR-5..7) | sizing doc/tests | within caps | #95 |
+| 12.4 | `/healthz` + `agentwatch status` (NFR-12 self-observability) | health surface | states correct | #96 |
+| 12.5 | Fault-injection suite **F1–F10** (PRD 17) | fault tests | all fail-closed/surfaced | #97 |
+| 12.6 | Fail-closed verification (NFR-8) | tests | no silent stop | #98 |
+| 12.7 | Accessibility pass (NFR-10) | a11y checks | keyboard + contrast | #99 |
+| 12.8 | i18n baseline (UTC, English-first) | formatting | locale-independent records | #100 |
+| 12.9 | **Update design docs** | perf, sizing, a11y, i18n, error-handling | docs match behavior | #101 |
+| 12.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #137 |
+| 12.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #138 |
 
 **Tests required:** perf (p99 ≤5 ms); F1–F10; health contract; a11y; i18n/UTC.
 
@@ -63,19 +65,21 @@ and **delete the `agent-exec-trace` repo**.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 13.1 | **Port/adapt** CI + release tooling | CI/scripts | pipeline runs |
-| 13.2 | First-run verification (timed, clean machine) | evidence | ≤15 min, zero code changes (R2) |
-| 13.3 | Field test execution | [report](../../field-test/v0.1.0/FIELD_TEST_REPORT.md) | all scenarios pass |
-| 13.4 | Security audit | [audit](../../release/v0.1.0/security-audit.md) | 0 unresolved findings |
-| 13.5 | SBOM + signed artifacts + provenance | artifacts | verifiable |
-| 13.6 | OWASP/compliance matrix + OpenSSF checklist (PRD 18) | matrix | published |
-| 13.7 | **Parity gate + full PRD-coverage check** | checklist | all PRD items delivered + tested |
-| 13.8 | Versioning/backwards-compat policy validated | policy | documented + honored |
-| 13.9 | Tag v0.1.0 (release notes + compatibility table) | tag + release | published |
-| 13.10 | **Delete `agent-exec-trace`** | repo removed | 404 |
-| 13.11 | **Update design docs** | README, release, traceability, backlog | docs current |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 13.1 | **Port/adapt** CI + release tooling | CI/scripts | pipeline runs | #102 |
+| 13.2 | First-run verification (timed, clean machine) | evidence | ≤15 min, zero code changes (R2) | #103 |
+| 13.3 | Field test execution | [report](../../field-test/v0.1.0/FIELD_TEST_REPORT.md) | all scenarios pass | #104 |
+| 13.4 | Security audit | [audit](../../release/v0.1.0/security-audit.md) | 0 unresolved findings | #105 |
+| 13.5 | SBOM + signed artifacts + provenance | artifacts | verifiable | #106 |
+| 13.6 | OWASP/compliance matrix + OpenSSF checklist (PRD 18) | matrix | published | #107 |
+| 13.7 | **Parity gate + full PRD-coverage check** | checklist | all PRD items delivered + tested | #108 |
+| 13.8 | Versioning/backwards-compat policy validated | policy | documented + honored | #109 |
+| 13.9 | Tag v0.1.0 (release notes + compatibility table) | tag + release | published | #110 |
+| 13.10 | **Delete `agent-exec-trace`** | repo removed | 404 | #111 |
+| 13.11 | **Update design docs** | README, release, traceability, backlog | docs current | #112 |
+| 13.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #139 |
+| 13.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #140 |
 
 **Tests required:** full suite + coverage gate; parity suite (A1–A6); first-run timed; PRD-coverage check.
 

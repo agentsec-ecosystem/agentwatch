@@ -19,16 +19,18 @@ clients, and Tier-2 framework adapters — via the **ported** adapter/SDK bounda
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 10.1 | **Port/adapt** adapter API for community harnesses | adapter API | documented + tested |
-| 10.2 | Cursor adapter (native hooks; proxy where insufficient) | adapter | conformance green |
-| 10.3 | Codex CLI adapter | adapter | conformance green |
-| 10.4 | Gemini CLI adapter | adapter | conformance green |
-| 10.5 | Generic MCP-client support (proxy tap) | adapter | MCP tool calls recorded |
-| 10.6 | Tier-2 adapters (CrewAI, PydanticAI) | adapters | SDK conformance green |
-| 10.7 | Per-harness conformance packs (agentdrill-ready) | packs | pass in CI |
-| 10.8 | **Update design docs** | compatibility, adapter-conformance, known-limitations | docs match coverage |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 10.1 | **Port/adapt** adapter API for community harnesses | adapter API | documented + tested | #79 |
+| 10.2 | Cursor adapter (native hooks; proxy where insufficient) | adapter | conformance green | #80 |
+| 10.3 | Codex CLI adapter | adapter | conformance green | #81 |
+| 10.4 | Gemini CLI adapter | adapter | conformance green | #82 |
+| 10.5 | Generic MCP-client support (proxy tap) | adapter | MCP tool calls recorded | #83 |
+| 10.6 | Tier-2 adapters (CrewAI, PydanticAI) | adapters | SDK conformance green | #84 |
+| 10.7 | Per-harness conformance packs (agentdrill-ready) | packs | pass in CI | #85 |
+| 10.8 | **Update design docs** | compatibility, adapter-conformance, known-limitations | docs match coverage | #86 |
+| 10.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #133 |
+| 10.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #134 |
 
 **Tests required:** per-harness conformance fixtures; gap assertions; cross-harness trace correlation.
 
@@ -55,14 +57,16 @@ baseline) with deployment correlation — extending the ported analytics.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 11.1 | **Port/adapt** multi-host ingestion from the analytics layer | ingestion | multiple hosts ingest |
-| 11.2 | Fleet aggregation mode (opt-in, self-hosted) | fleet mode | aggregates hosts |
-| 11.3 | Drift signal detection (trailing baseline, not fixed thresholds) | drift module | signals emitted as events |
-| 11.4 | Deployment correlation overlay | correlation | deploys aligned to metric shifts |
-| 11.5 | Fleet + drift tests | tests | aggregation + drift fixtures green |
-| 11.6 | **Update design docs** | observability, data-dictionary, PRD 13 | docs match behavior |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 11.1 | **Port/adapt** multi-host ingestion from the analytics layer | ingestion | multiple hosts ingest | #87 |
+| 11.2 | Fleet aggregation mode (opt-in, self-hosted) | fleet mode | aggregates hosts | #88 |
+| 11.3 | Drift signal detection (trailing baseline, not fixed thresholds) | drift module | signals emitted as events | #89 |
+| 11.4 | Deployment correlation overlay | correlation | deploys aligned to metric shifts | #90 |
+| 11.5 | Fleet + drift tests | tests | aggregation + drift fixtures green | #91 |
+| 11.6 | **Update design docs** | observability, data-dictionary, PRD 13 | docs match behavior | #92 |
+| 11.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #135 |
+| 11.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #136 |
 
 **Tests required:** multi-host aggregation; drift detection (baseline vs shift); deployment correlation.
 

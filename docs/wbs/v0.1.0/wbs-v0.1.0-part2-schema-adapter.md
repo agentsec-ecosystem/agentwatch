@@ -18,14 +18,16 @@ security-event schema.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 2.1 | **Port/adapt** record/trace schema + span models (from M0 tree) | record model | matches [`agent-record.schema.json`](../../../schema/agent-record.schema.json) |
-| 2.2 | Add **security-event schema** (new) | event model | enum: `denied`…`halted` |
-| 2.3 | Validation entry point | `validate_record()`/`validate_event()` | invalid rejected, not coerced (F8) |
-| 2.4 | Version handling | `schema_version`/`event_version` checks | unknown version rejected clearly |
-| 2.5 | Fixtures | valid + invalid records/events | used by tests + conformance |
-| 2.6 | **Update design docs** | record-format spec, data-dictionary | docs match models |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 2.1 | **Port/adapt** record/trace schema + span models (from M0 tree) | record model | matches [`agent-record.schema.json`](../../../schema/agent-record.schema.json) | #16 |
+| 2.2 | Add **security-event schema** (new) | event model | enum: `denied`…`halted` | #17 |
+| 2.3 | Validation entry point | `validate_record()`/`validate_event()` | invalid rejected, not coerced (F8) | #18 |
+| 2.4 | Version handling | `schema_version`/`event_version` checks | unknown version rejected clearly | #19 |
+| 2.5 | Fixtures | valid + invalid records/events | used by tests + conformance | #20 |
+| 2.6 | **Update design docs** | record-format spec, data-dictionary | docs match models | #21 |
+| 2.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #117 |
+| 2.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #118 |
 
 **Tests required:** JSON round-trip; invalid rejected (F8); event enum + version enforcement.
 
@@ -52,17 +54,19 @@ adapter + local daemon, so one session records end-to-end with zero code changes
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 3.1 | **Port/adapt** instrumentation SDK core (spans, `AgentTracer`) | SDK module | ported tests pass |
-| 3.2 | **Port/adapt** LangGraph adapter (`TracedGraph`) | adapter | node-level spans |
-| 3.3 | **Port/adapt** OTLP/span emission + version/workload metadata | emission | metadata carried |
-| 3.4 | Add **Claude Code hook script** (`pre`/`post`) | `agentwatch-hook` | returns 0, forwards event |
-| 3.5 | Add **UDS protocol + daemon** | daemon | hook ↔ daemon round-trip |
-| 3.6 | `normalize(claude_code_event) -> Record[]` | adapter mapping | Pre→intent, Post→outcome |
-| 3.7 | Hook-error handling (F2) | `hook-error` record | miss never dropped |
-| 3.8 | Conformance fixtures + documented gaps (R3) | fixtures + gaps | fixtures replay green |
-| 3.9 | **Update design docs** | hook contract, adapter design/conformance, compatibility | docs match implementation |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 3.1 | **Port/adapt** instrumentation SDK core (spans, `AgentTracer`) | SDK module | ported tests pass | #22 |
+| 3.2 | **Port/adapt** LangGraph adapter (`TracedGraph`) | adapter | node-level spans | #23 |
+| 3.3 | **Port/adapt** OTLP/span emission + version/workload metadata | emission | metadata carried | #24 |
+| 3.4 | Add **Claude Code hook script** (`pre`/`post`) | `agentwatch-hook` | returns 0, forwards event | #25 |
+| 3.5 | Add **UDS protocol + daemon** | daemon | hook ↔ daemon round-trip | #26 |
+| 3.6 | `normalize(claude_code_event) -> Record[]` | adapter mapping | Pre→intent, Post→outcome | #27 |
+| 3.7 | Hook-error handling (F2) | `hook-error` record | miss never dropped | #28 |
+| 3.8 | Conformance fixtures + documented gaps (R3) | fixtures + gaps | fixtures replay green | #29 |
+| 3.9 | **Update design docs** | hook contract, adapter design/conformance, compatibility | docs match implementation | #30 |
+| 3.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #119 |
+| 3.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #120 |
 
 **Tests required:** conformance fixture replay; socket perms; F2; ported-SDK tests; hook never blocks agent.
 

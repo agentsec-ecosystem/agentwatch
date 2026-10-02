@@ -19,17 +19,19 @@ thresholds) and the **40 detectors** (35 rule + 5 LLM), backed by Postgres.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 6.1 | **Port/adapt** trace-ingestion poller | ingestion | traces consumed from Jaeger/Tempo |
-| 6.2 | **Port/adapt** run-summary materialization | summaries | per-run aggregates correct |
-| 6.3 | **Port/adapt** fleet rollup + version-cohort summaries | rollups | cohort deltas computable |
-| 6.4 | **Port/adapt** 35 rule-based detectors | detectors | all classes registered |
-| 6.5 | **Port/adapt** 5 LLM detectors (feature-flagged, default off) | LLM detectors | flagged + off |
-| 6.6 | Postgres schema + migrations (data dictionary) | schema | migrations apply cleanly |
-| 6.7 | Configurable thresholds per detector/workload | config | thresholds honored |
-| 6.8 | Corpus + detector tests | tests | fire/no-fire fixtures green |
-| 6.9 | **Update design docs** | data-dictionary, detector-catalog, observability | docs match implementation |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 6.1 | **Port/adapt** trace-ingestion poller | ingestion | traces consumed from Jaeger/Tempo | #47 |
+| 6.2 | **Port/adapt** run-summary materialization | summaries | per-run aggregates correct | #48 |
+| 6.3 | **Port/adapt** fleet rollup + version-cohort summaries | rollups | cohort deltas computable | #49 |
+| 6.4 | **Port/adapt** 35 rule-based detectors | detectors | all classes registered | #50 |
+| 6.5 | **Port/adapt** 5 LLM detectors (feature-flagged, default off) | LLM detectors | flagged + off | #51 |
+| 6.6 | Postgres schema + migrations (data dictionary) | schema | migrations apply cleanly | #52 |
+| 6.7 | Configurable thresholds per detector/workload | config | thresholds honored | #53 |
+| 6.8 | Corpus + detector tests | tests | fire/no-fire fixtures green | #54 |
+| 6.9 | **Update design docs** | data-dictionary, detector-catalog, observability | docs match implementation | #55 |
+| 6.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #125 |
+| 6.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #126 |
 
 **Tests required:** ingestion → run summary; fleet rollup + cohort math; 40 detectors (fire/no-fire corpus);
 threshold configurability; migration up/down.
@@ -58,17 +60,19 @@ Compare, Anomaly Inbox, Agent Detail) wired to analytics.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 7.1 | **Port/adapt** FastAPI read API (`/runs`, `/runs/{id}`, `/fleet`, `/compare`, `/anomalies`) | read API | contract shapes preserved |
-| 7.2 | **Port/adapt** React UI scaffold (Vite) | web app | builds + serves |
-| 7.3 | **Port/adapt** Fleet Health view | view | agent cohorts + anomaly counts |
-| 7.4 | **Port/adapt** Run Timeline view | view | span tree + anomaly markers |
-| 7.5 | **Port/adapt** Version Compare view | view | side-by-side deltas |
-| 7.6 | **Port/adapt** Anomaly Inbox view | view | triage by severity/type/agent |
-| 7.7 | **Port/adapt** Agent Detail view | view | metrics, tool mix, cost trend |
-| 7.8 | Wire UI ↔ API; a11y baseline | integration | keyboard + contrast pass |
-| 7.9 | **Update design docs** | api, ui-accessibility, ui-interaction-observability | docs match UI/API |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 7.1 | **Port/adapt** FastAPI read API (`/runs`, `/runs/{id}`, `/fleet`, `/compare`, `/anomalies`) | read API | contract shapes preserved | #56 |
+| 7.2 | **Port/adapt** React UI scaffold (Vite) | web app | builds + serves | #57 |
+| 7.3 | **Port/adapt** Fleet Health view | view | agent cohorts + anomaly counts | #58 |
+| 7.4 | **Port/adapt** Run Timeline view | view | span tree + anomaly markers | #59 |
+| 7.5 | **Port/adapt** Version Compare view | view | side-by-side deltas | #60 |
+| 7.6 | **Port/adapt** Anomaly Inbox view | view | triage by severity/type/agent | #61 |
+| 7.7 | **Port/adapt** Agent Detail view | view | metrics, tool mix, cost trend | #62 |
+| 7.8 | Wire UI ↔ API; a11y baseline | integration | keyboard + contrast pass | #63 |
+| 7.9 | **Update design docs** | api, ui-accessibility, ui-interaction-observability | docs match UI/API | #64 |
+| 7.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #127 |
+| 7.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #128 |
 
 **Tests required:** API contract tests (all five endpoints); UI build; view render tests; basic a11y checks.
 

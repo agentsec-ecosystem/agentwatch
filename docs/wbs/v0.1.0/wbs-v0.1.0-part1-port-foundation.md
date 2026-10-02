@@ -18,15 +18,17 @@ suite green — at which point the source repository is **redundant and can be d
 
 **Work items (this milestone *is* the port)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 0.1 | **Port** the entire repo tree (`packages/`, `services/`, `apps/`, `deploy/`, `examples/`, `tests/`, `schema`, `Makefile`, `pyproject.toml`, docs subset) | full tree present | tree mirrors the source |
-| 0.2 | **Rename namespace** `agent_exec_trace` → `agentwatch` across code, tests, configs, docs | renamed | zero `agent_exec_trace` references remain |
-| 0.3 | **Preserve git history** (`git filter-repo` / subtree merge) | merged history | provenance intact |
-| 0.4 | Adapt packaging metadata to `agentwatch` | packaging | `pip install -e .` works |
-| 0.5 | Get the **ported test suite green** (minimal adaptation only) | passing tests | ported suite passes |
-| 0.6 | Record provenance + porting notes | `THIRD_PARTY_NOTICES`, `CHANGELOG` | MIT attribution recorded |
-| 0.7 | **Update design docs** | architecture-tour, development, THIRD_PARTY_NOTICES | docs describe the ported tree |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 0.1 | **Port** the entire repo tree (`packages/`, `services/`, `apps/`, `deploy/`, `examples/`, `tests/`, `schema`, `Makefile`, `pyproject.toml`, docs subset) | full tree present | tree mirrors the source | #3 |
+| 0.2 | **Rename namespace** `agent_exec_trace` → `agentwatch` across code, tests, configs, docs | renamed | zero `agent_exec_trace` references remain | #4 |
+| 0.3 | **Preserve git history** (`git filter-repo` / subtree merge) | merged history | provenance intact | #5 |
+| 0.4 | Adapt packaging metadata to `agentwatch` | packaging | `pip install -e .` works | #6 |
+| 0.5 | Get the **ported test suite green** (minimal adaptation only) | passing tests | ported suite passes | #7 |
+| 0.6 | Record provenance + porting notes | `THIRD_PARTY_NOTICES`, `CHANGELOG` | MIT attribution recorded | #8 |
+| 0.7 | **Update design docs** | architecture-tour, development, THIRD_PARTY_NOTICES | docs describe the ported tree | #9 |
+| 0.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #113 |
+| 0.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #114 |
 
 **Tests required:** the entire ported suite (SDK, analytics, API, UI, E2E) passes after the namespace rename.
 
@@ -53,14 +55,16 @@ rebranded.
 
 **Work items (port first)**
 
-| # | Task | Deliverable | Acceptance |
-|---|---|---|---|
-| 1.1 | **Port** pyproject/quality-gate tooling + rebrand metadata | `agentwatch` build config | name/bin = agentwatch |
-| 1.2 | **Port** CLI framework + install pattern; wire all subcommands | [cli-reference](../../reference/cli-reference.md) | `agentwatch --help` lists commands |
-| 1.3 | Config loader + validation (precedence, strict, **fail-closed**) | [PRD 16](../../prd/16-configuration.md) | invalid config refuses to start (F7) |
-| 1.4 | CI (ruff, mypy, pytest, **coverage ≥95%**, DCO) | GitHub Actions | CI green on PR |
-| 1.5 | Packaging: wheel + sdist + `@agentsec-ecosystem/cli` launcher | artifacts | installable |
-| 1.6 | **Update design docs** | development, cli-reference, README | docs match identity |
+| # | Task | Deliverable | Acceptance | Issue | Issue |
+|---|---|---|---|---|---|
+| 1.1 | **Port** pyproject/quality-gate tooling + rebrand metadata | `agentwatch` build config | name/bin = agentwatch | #10 |
+| 1.2 | **Port** CLI framework + install pattern; wire all subcommands | [cli-reference](../../reference/cli-reference.md) | `agentwatch --help` lists commands | #11 |
+| 1.3 | Config loader + validation (precedence, strict, **fail-closed**) | [PRD 16](../../prd/16-configuration.md) | invalid config refuses to start (F7) | #12 |
+| 1.4 | CI (ruff, mypy, pytest, **coverage ≥95%**, DCO) | GitHub Actions | CI green on PR | #13 |
+| 1.5 | Packaging: wheel + sdist + `@agentsec-ecosystem/cli` launcher | artifacts | installable | #14 |
+| 1.6 | **Update design docs** | development, cli-reference, README | docs match identity | #15 |
+| 1.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #115 |
+| 1.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #116 |
 
 **Tests required:** config precedence + validation (F7); CLI smoke.
 

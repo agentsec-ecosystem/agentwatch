@@ -47,6 +47,7 @@ def test_capabilities_and_gaps_are_declared() -> None:
     assert claude_code.HARNESS_ID == "claude-code"
     assert "pre-tool-use" in claude_code.CAPABILITIES
     assert "post-tool-use" in claude_code.CAPABILITIES
+    assert "post-tool-use-failure" in claude_code.CAPABILITIES
     assert "session-boundaries" in claude_code.DOCUMENTED_GAPS
 
 

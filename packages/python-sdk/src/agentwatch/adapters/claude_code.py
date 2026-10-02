@@ -34,7 +34,7 @@ from agentwatch.redact import PrivacyMode, RedactionConfig
 HARNESS_ID = "claude-code"
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"pre-tool-use", "post-tool-use"})
+CAPABILITIES = frozenset({"pre-tool-use", "post-tool-use", "post-tool-use-failure"})
 
 # Honest, declared gaps (R3) — never dropped silently.
 DOCUMENTED_GAPS = ("session-boundaries", "mcp-server-events")

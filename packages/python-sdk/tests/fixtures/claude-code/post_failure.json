@@ -1,0 +1,25 @@
+{
+  "message": {
+    "phase": "post", "harness": "claude-code",
+    "event": {
+      "session_id": "sess-fail", "tool_name": "Bash",
+      "tool_input": { "command": "npm test" },
+      "tool_use_id": "toolu_fail_1",
+      "timestamp": "2026-01-02T03:04:07+00:00",
+      "error": "Exit code 1\nError: Cannot find module 'express'",
+      "is_interrupt": false,
+      "duration_ms": 4187
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0", "session_id": "sess-fail",
+      "agent": { "identity": "unknown" },
+      "tool": { "name": "Bash", "privacy_mode": "metadata-only" },
+      "outcome": "error", "started_at": "2026-01-02T03:04:07+00:00",
+      "ended_at": "2026-01-02T03:04:07+00:00", "duration_ms": 4187.0,
+      "harness": "claude-code", "trace_id": "sess-fail", "span_id": "toolu_fail_1",
+      "step_type": "observe"
+    }
+  ]
+}

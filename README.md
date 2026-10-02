@@ -13,8 +13,8 @@
 [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
 > **Status: v0.1.0 in progress — docs complete; build next.** agentwatch is the **shipped-feature superset**
-> of `agent-exec-trace`: that codebase is **ported in first (WBS M0)** and the old repo is **deleted** at
-> v0.1.0 release.
+> of `agent-exec-trace`: that codebase is **ported in first (WBS M0)** and the old repo is **retained
+> privately** at v0.1.0 release.
 
 ## Quickstart
 

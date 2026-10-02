@@ -17,7 +17,7 @@ shipped** (its `v0.1.0` release, 2026-08-05), not to its planned-but-unreleased 
 
 ## A. Shipped in agent-exec-trace v0.1.0 (+ unreleased fixes) — binding, in agentwatch
 
-Source: the project's `CHANGELOG.md` and `README.md` (archived, read-only).
+Source: the project's `CHANGELOG.md` and `README.md` (archived, read-only; retained as a private repo).
 
 ### A1. Instrumentation SDK (Python, PyPI `agent-exec-trace`)
 | Shipped capability | In agentwatch |
@@ -100,7 +100,7 @@ Not present in agent-exec-trace; these are why agentwatch exists:
   documented migration), so existing integrations do not break.
 - The PyPI package distribution and the four privacy modes are part of the contract.
 - **Port-first:** the entire codebase is ported in WBS **M0**; once its tests are green in CI,
-  `agent-exec-trace` is **deleted** (WBS M9).
+  `agent-exec-trace` is **made private and retained** (WBS M13).
 
 ## E. Decision — resolved
 

@@ -12,6 +12,10 @@ versioning: [Semantic Versioning](https://semver.org/).
   (execution, testing & parity), release/migration, runbooks, tutorials, ADRs.
 - Governance/DCO/OpenSSF Scorecard automation.
 
+### Changed
+- Porting policy: `agent-exec-trace` is **retained and made private** at v0.1.0 instead of being deleted —
+  no repositories are deleted (WBS M13/M15 predecessor retention).
+
 ## [0.1.0] - TBD
 
 ### Added

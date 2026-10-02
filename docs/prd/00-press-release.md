@@ -26,5 +26,5 @@ coding-agent coverage.
 - **Does my data leave my machine?** No. Local-first; export is opt-in and gated on a redaction self-test.
 - **What does it cost?** Nothing. Apache-2.0, no paywalled enforcement, no proprietary formats.
 - **What harnesses?** Claude Code first; Cursor, Codex CLI, Gemini CLI, and frameworks follow.
-- **How is it different from the tool we archived?** It's a superset: same instrumentation/detectors/UI,
+- **How is it different from the earlier tool we retired?** It's a superset: same instrumentation/detectors/UI,
   plus the security-event schema, coding-agent hooks, and a hardened local store.

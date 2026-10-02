@@ -6,7 +6,7 @@ listed below.
 ## agent-exec-trace (AgentObservatory)
 
 - **License:** MIT
-- **Source:** https://github.com/agentsec-ecosystem/agent-exec-trace (archived)
+- **Source:** https://github.com/agentsec-ecosystem/agent-exec-trace (archived; retained as a private repo — not deleted)
 - **What is retained:** behavior trace schema concepts, instrumentation approach, detector catalog,
   analytics pipeline design, operator UI concepts, and field-test methodology — absorbed into agentwatch
   per the ecosystem consolidation.

@@ -4,7 +4,7 @@ Documentation for **agentwatch** — the vendor-neutral telemetry and security-e
 Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
 > **Status: v0.1.0 decisions accepted; full shipped-feature superset.** Port `agent-exec-trace` first, then
-> delete it. agentwatch is the **shipped-feature superset** of
+> retain it as a **private** repo (never deleted). agentwatch is the **shipped-feature superset** of
 > the retired `agent-exec-trace`/AgentObservatory (#102).
 
 ## Start here

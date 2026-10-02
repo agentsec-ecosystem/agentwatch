@@ -1,7 +1,7 @@
 # WBS v0.1.0 — Part 1: Port the Codebase & Foundation (M0–M1)
 
-**BLUF:** **M0 is a bulk port of the entire `agent-exec-trace` codebase** (urgent — it makes the old repo
-redundant so it can be deleted). M1 rebrands/adapts the foundation.
+**BLUF:** **M0 is a bulk port of the entire `agent-exec-trace` codebase** (urgent — it makes agentwatch
+self-contained; the old repo is retained and made private, never deleted). M1 rebrands/adapts the foundation.
 
 > **Standard exit criteria apply to every milestone:** all tests pass · coverage ≥ 95% · lint strict clean
 > (`ruff` zero, `mypy --strict`) · **design docs updated** · port tasks complete.
@@ -11,7 +11,7 @@ redundant so it can be deleted). M1 rebrands/adapts the foundation.
 ## Milestone M0 — Port the entire codebase
 
 **Goal:** move **all** of `agent-exec-trace` into agentwatch, rename the namespace, and get the ported test
-suite green — at which point the source repository is **redundant and can be deleted**.
+suite green — after which the source repository is **retained and made private** (never deleted).
 
 **Requirements / PRDs:** [PRD 10](../../prd/10-feature-parity.md) (parity is mandatory and in-repo),
 [THIRD_PARTY_NOTICES](../../../THIRD_PARTY_NOTICES.md).
@@ -37,7 +37,7 @@ suite green — at which point the source repository is **redundant and can be d
 - [ ] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
 - [ ] The full `agent-exec-trace` codebase is represented in agentwatch
 - [ ] Zero `agent_exec_trace` references remain; history preserved
-- [ ] Ported suite green → **`agent-exec-trace` is redundant and may be deleted**
+- [ ] Ported suite green → **`agent-exec-trace` is retained and made private (not deleted)**
 
 **Design docs to update:** [architecture-tour.md](../../design/architecture-tour.md),
 [development.md](../../development.md), [THIRD_PARTY_NOTICES](../../../THIRD_PARTY_NOTICES.md),
@@ -79,4 +79,4 @@ rebranded.
 
 ---
 
-Part 1 green ⇒ the old repo is redundant; proceed to [Part 2 (M2–M3)](wbs-v0.1.0-part2-schema-adapter.md).
+Part 1 green ⇒ agentwatch is self-contained (the predecessor is retained privately); proceed to [Part 2 (M2–M3)](wbs-v0.1.0-part2-schema-adapter.md).

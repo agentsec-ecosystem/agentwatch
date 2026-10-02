@@ -18,7 +18,7 @@ Each risk below has a concrete mitigation and an owner-facing trigger.
 | R7 | **Trying to solve too much** — analytics/eval/policy in this repo | Medium | Focus | Strict non-requirements; enforcement/alerting/eval are other tools | A PR adds a detector or alert path |
 | R8 | **Single-maintainer fragility** | High | Adoption/enterprise trust | Governance ladder; recruit a second maintainer (P0) per org governance | First public release with one maintainer |
 | R9 | **"Yet another observability tool" sameness** | Medium | Differentiation | Lead with the **security-event schema**, not the trace viewer | Messaging drifts to dashboards |
-| R10 | **Migration pain for agent-exec-trace users** | Low | Existing users | Publish a schema mapping; archive the old repo with a pointer | Any active issue reports a migration gap |
+| R10 | **Migration pain for agent-exec-trace users** | Low | Existing users | Publish a schema mapping; retain the old repo as private with a pointer | Any active issue reports a migration gap |
 
 ## Hard parts (be explicit)
 

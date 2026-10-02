@@ -40,7 +40,7 @@ schema, not the trace viewer.
 agent-exec-trace was a real, shipped OSS project. The migration path (see [09-roadmap](09-roadmap.md)):
 
 - Publish a mapping from the agent-exec-trace trace schema to the agentwatch record format.
-- **Port the entire codebase into agentwatch (WBS M0)**, then **delete the old repo** once its tests are green in CI (WBS M9). It is already archived.
+- **Port the entire codebase into agentwatch (WBS M0)**, then **make the old repo private** once its tests are green in CI (WBS M13). It is retained, never deleted.
 - Reuse its code (analytics, detectors, UI included) via the port — parity is mandatory and in-repo.
 
 ## Honest limitation

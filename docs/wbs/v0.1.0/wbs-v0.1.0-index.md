@@ -29,13 +29,13 @@ layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10,
 | M10 | Harness + framework expansion (R10) | [Part 6](wbs-v0.1.0-part6-expansion.md#milestone-m10--harness--framework-expansion-r10) |
 | M11 | Fleet aggregation (R13) + drift signals | [Part 6](wbs-v0.1.0-part6-expansion.md#milestone-m11--fleet-aggregation-r13--drift-signals) |
 | M12 | NFRs + resilience + error handling (PRD 13, 17) | [Part 7](wbs-v0.1.0-part7-hardening-release.md#milestone-m12--nfrs--resilience--error-handling) |
-| M13 | Compliance + full-parity release + decommission (PRD 18, 07, 09) | [Part 7](wbs-v0.1.0-part7-hardening-release.md#milestone-m13--compliance--full-parity-release--decommission) |
+| M13 | Compliance + full-parity release + predecessor retention (PRD 18, 07, 09) | [Part 7](wbs-v0.1.0-part7-hardening-release.md#milestone-m13--compliance--full-parity-release--predecessor-retention) |
 | M14 | Field Tests | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m14--field-tests) |
-| M15 | Release Readiness + decommission | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m15--release-readiness) |
+| M15 | Release Readiness + predecessor retention | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m15--release-readiness) |
 
 ## Porting map (agent-exec-trace → agentwatch)
 
-Source: https://github.com/agentsec-ecosystem/agent-exec-trace (archived, MIT). The port is a **bulk move**
+Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, made private and retained). The port is a **bulk move**
 (M0); later milestones adapt and add. Namespace rename `agent_exec_trace` → `agentwatch`.
 
 | Shipped artifact | Ported at |
@@ -46,8 +46,8 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (archived, MIT). 
 | Docker Compose stack, demo, seed/replay, Playwright E2E, field-test harness | M8 |
 | CI + release tooling | M13 |
 
-> **Decommission:** once **M0** lands (code fully represented, tests green), `agent-exec-trace` is redundant
-> and is **deleted at M13**.
+> **Predecessor retention:** once **M0** lands (code fully represented, tests green), agentwatch is
+> self-contained; `agent-exec-trace` is **made private and retained at M13 — never deleted**.
 
 ## PRD coverage matrix (every doc 00–18)
 
@@ -56,7 +56,7 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (archived, MIT). 
 | **PRD 00** | Press Release / FAQ | context/narrative; validated at M13 |
 | **PRD 01** | Why | context (all milestones) |
 | **PRD 02** | Architecture | M0–M5 |
-| **PRD 03** | Landscape / migration / delete old repo | M0, M13 |
+| **PRD 03** | Landscape / migration / retain predecessor (private) | M0, M13 |
 | **PRD 04** | Users & CUJs (CUJ-1..7) | M3, M5, M4, M9, M7, M11 |
 | **PRD 05** | Features R1–R13 | M2–M11 |
 | **PRD 06** | Security baseline / tamper | M4, M12 |

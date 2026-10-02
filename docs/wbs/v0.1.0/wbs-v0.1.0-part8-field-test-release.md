@@ -44,7 +44,7 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 
 ## Milestone M15 — Release Readiness
 
-**Goal:** execute the release-readiness checklist, ship **v0.1.0**, and delete `agent-exec-trace`.
+**Goal:** execute the release-readiness checklist, ship **v0.1.0**, and make `agent-exec-trace` private (retained, never deleted).
 
 **Requirements / PRDs:** [PRD 07](../../prd/07-success-metrics.md), [PRD 09](../../prd/09-roadmap.md),
 [PRD 10](../../prd/10-feature-parity.md), [PRD 18](../../prd/18-security-compliance.md),
@@ -62,7 +62,7 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 | 15.6 | Versioning + backwards-compat policy validated | policy | documented + honored | #153 |
 | 15.7 | Release notes + compatibility table | notes | published | #154 |
 | 15.8 | Tag v0.1.0 | tag + release | published | #155 |
-| 15.9 | Delete `agent-exec-trace` repo | removal | 404 | #156 |
+| 15.9 | Make `agent-exec-trace` repo private | visibility | retained + `private` | #156 |
 | 15.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #157 |
 | 15.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #158 |
 
@@ -73,7 +73,7 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 - [ ] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
 - [ ] Full PRD coverage + shipped-feature parity A1–A6 delivered and tested
 - [ ] First-run ≤15 min; security audit + OWASP matrix + release notes published; SBOM + signed artifacts
-- [ ] v0.1.0 tagged; **`agent-exec-trace` repository deleted**
+- [ ] v0.1.0 tagged; **`agent-exec-trace` repository retained and made private**
 
 **Design docs to update:** [README](../../../README.md), [CHANGELOG](../../../CHANGELOG.md),
 [release notes](../../release/v0.1.0/release-notes.md), [security audit](../../release/v0.1.0/security-audit.md),
@@ -92,4 +92,4 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 - [ ] NFRs met; F1–F10 fail-closed
 - [ ] Field tests pass; security audit + OWASP matrix + release notes published
 - [ ] SBOM + signed artifacts; OpenSSF Scorecard grade recorded
-- [ ] **`agent-exec-trace` deleted**
+- [ ] **`agent-exec-trace` retained and made private (not deleted)**

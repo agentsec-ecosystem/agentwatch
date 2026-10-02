@@ -1,8 +1,8 @@
 # WBS v0.1.0 — Part 7: NFRs, Resilience & Release (M12–M13)
 
 **BLUF:** Implement the cross-cutting non-functional requirements and error handling (PRD 13, 17), then ship
-v0.1.0 with compliance evidence, full PRD coverage, and the **deletion of `agent-exec-trace`**. Two
-milestones.
+v0.1.0 with compliance evidence, full PRD coverage, and **predecessor retention** (the old repo is made
+private, never deleted). Two milestones.
 
 > **Standard exit criteria apply to every milestone:** all tests pass · coverage ≥ 95% · lint strict clean
 > (`ruff` zero, `mypy --strict`) · **design docs updated** · port tasks complete.
@@ -53,10 +53,10 @@ behavior, accessibility, and i18n.
 
 ---
 
-## Milestone M13 — Compliance + full-parity release + decommission
+## Milestone M13 — Compliance + full-parity release + predecessor retention
 
 **Goal:** port the CI/release tooling, prove **full PRD coverage + shipped-feature parity**, ship **v0.1.0**,
-and **delete the `agent-exec-trace` repo**.
+and **make the `agent-exec-trace` repo private** (retained, never deleted).
 
 **Requirements / PRDs:** all R1–R13, parity A1–A6 ([PRD 10](../../prd/10-feature-parity.md)),
 [PRD 18](../../prd/18-security-compliance.md), [PRD 07](../../prd/07-success-metrics.md),
@@ -76,7 +76,7 @@ and **delete the `agent-exec-trace` repo**.
 | 13.7 | **Parity gate + full PRD-coverage check** | checklist | all PRD items delivered + tested | #108 |
 | 13.8 | Versioning/backwards-compat policy validated | policy | documented + honored | #109 |
 | 13.9 | Tag v0.1.0 (release notes + compatibility table) | tag + release | published | #110 |
-| 13.10 | **Delete `agent-exec-trace`** | repo removed | 404 | #111 |
+| 13.10 | **Make `agent-exec-trace` private** | repo visibility | retained + `private` | #111 |
 | 13.11 | **Update design docs** | README, release, traceability, backlog | docs current | #112 |
 | 13.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #139 |
 | 13.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #140 |
@@ -89,7 +89,7 @@ and **delete the `agent-exec-trace` repo**.
 - [ ] **Full PRD coverage + shipped-feature parity A1–A6** delivered and tested
 - [ ] R1–R13 acceptance demonstrated; fresh-machine ≤15 min; attack pack 0 leaks
 - [ ] Field test + security audit + OWASP matrix + release notes published; SBOM + signed artifacts
-- [ ] v0.1.0 tagged; **`agent-exec-trace` repository deleted**
+- [ ] v0.1.0 tagged; **`agent-exec-trace` repository retained and made private**
 
 **Design docs to update:** [README](../../../README.md), [CHANGELOG](../../../CHANGELOG.md),
 [release notes](../../release/v0.1.0/release-notes.md), [security audit](../../release/v0.1.0/security-audit.md),
@@ -108,4 +108,4 @@ and **delete the `agent-exec-trace` repo**.
 - [ ] NFRs met; F1–F10 fail-closed
 - [ ] Field test + security audit + OWASP matrix + release notes published
 - [ ] SBOM + signed artifacts; OpenSSF Scorecard grade recorded
-- [ ] **`agent-exec-trace` deleted**
+- [ ] **`agent-exec-trace` retained and made private (not deleted)**

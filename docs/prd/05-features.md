@@ -30,12 +30,16 @@ One harness (**Claude Code**), monitor-only by default, zero agent-side code cha
 Per [PRD 10](10-feature-parity.md), every capability that **shipped** in `agent-exec-trace` v0.1.0 is
 delivered **in agentwatch** (never delegated). Sequence:
 
-| Version | Shipped capability restored to agentwatch |
+| Area | Shipped capability restored to agentwatch (all in v0.1.0) |
 |---|---|
-| **v0.1.0** | Foundation: coding-agent recording (Claude Code), OTel GenAI export, **security-event schema**, redaction-by-default + local-first store, session replay |
-| **v0.2.0** | **Instrumentation SDK** — `@trace_agent` + `plan/tool/retrieval/memory/approval` spans, LangGraph adapter, `AgentTracer` OTLP export, **4 privacy modes** (metadata-only/truncated/hashed/full), version/workload metadata; **analytics pipeline** — trace polling, run summaries, fleet rollup, version cohorts, configurable detector thresholds; **read API** — `/runs`, `/runs/{id}`, `/fleet`, `/anomalies`; demo agent + seed/replay; local stack (Docker Compose); quality gates |
-| **v0.3.0** | **40 detectors** — 35 rule-based across 7 categories + 5 LLM-augmented (feature-flagged); **Run Timeline**, **Fleet Health**, **Anomaly Inbox** UI; retention controls + hash-chaining |
-| **v1.0** | **Version Compare** + **Agent Detail** UI; **all shipped features tested** → the parity release gate |
+| Foundation | coding-agent recording (Claude Code), OTel GenAI export, **security-event schema**, redaction-by-default + local-first store, session replay |
+| Instrumentation SDK | `@trace_agent` + `plan/tool/retrieval/memory/approval` spans, LangGraph adapter, `AgentTracer` OTLP export, **4 privacy modes**, version/workload metadata |
+| Analytics + detectors | analytics pipeline (polling, run summaries, fleet rollup, version cohorts, thresholds) + **40 detectors** (35 rule + 5 LLM) |
+| API + UI | FastAPI read API (`/runs`, `/fleet`, `/compare`, `/anomalies`) + React operator UI (**Fleet Health, Run Timeline, Version Compare, Anomaly Inbox, Agent Detail**) |
+| Stack + evidence | Docker Compose stack (Jaeger/Tempo, Collector, Postgres), demo agent, seed/replay, E2E Playwright, field-test harness |
+
+**The full shipped-feature parity lands in v0.1.0** (see [PRD 10](10-feature-parity.md)); the parity gate is
+part of the v0.1.0 release.
 
 > **Bonus (not binding):** **AgentWatch (#66)** was never shipped; its ideas (per-step metrics, trailing
 > baselines, deployment correlation, Slack alerts) are additive, delivered if/when built.
@@ -73,12 +77,12 @@ delivered **in agentwatch** (never delegated). Sequence:
 
 | Version | Tier-1 coding agents | Tier-2 frameworks |
 |---|---|---|
-| **v0.1.0** | **Claude Code** | — |
-| v0.1.x / v0.2.0 | + Cursor (proxy-interposition where hooks are insufficient) | LangGraph, raw Python (instrumentation SDK) |
-| v0.3.0 | + Codex CLI, Gemini CLI; Copilot via OTel/lower layer | + CrewAI, PydanticAI (≥3) |
+| **v0.1.0** | **Claude Code** | LangGraph, raw Python (instrumentation SDK) |
+| v0.1.x | + Cursor (proxy-interposition where hooks are insufficient) | + more frameworks |
+| later | + Codex CLI, Gemini CLI; Copilot via OTel/lower layer | + CrewAI, PydanticAI (≥3) |
 
-> **Resolved (B1, 2026-10-02):** v0.1.0 ships **Claude Code only**; Cursor lands in v0.1.x. The ecosystem
-> ≥2-Tier-1 threshold is met by v0.3.0.
+> **Resolved (B1, 2026-10-02):** v0.1.0 ships **Claude Code** + the ported LangGraph/raw-Python SDK; Cursor
+> lands in v0.1.x. The ecosystem ≥2-Tier-1 threshold is met in v0.1.x/later.
 
 ## Open questions
 

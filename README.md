@@ -12,8 +12,9 @@
 *why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
 [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-> **Status: pre-v0.1.0 (Wave 0).** Docs complete; recording for **Claude Code first**, monitor-only by
-> default. agentwatch is the **shipped-feature superset** of the retired `agent-exec-trace`/AgentObservatory.
+> **Status: v0.1.0 in progress — docs complete; build next.** agentwatch is the **shipped-feature superset**
+> of `agent-exec-trace`: that codebase is **ported in first (WBS M0)** and the old repo is **deleted** at
+> v0.1.0 release.
 
 ## Quickstart
 

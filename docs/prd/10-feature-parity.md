@@ -11,7 +11,7 @@ shipped** (its `v0.1.0` release, 2026-08-05), not to its planned-but-unreleased 
 
 1. Every capability in the shipped `agent-exec-trace` release is **Delivered by agentwatch** — see matrix A.
    No row may be *Delegated* or *Waived*.
-2. **Release gate:** agentwatch **1.0** cannot ship until every matrix-A row is delivered **and tested**
+2. **Release gate:** agentwatch **v0.1.0** cannot ship until every matrix-A row is delivered **and tested**
    here.
 3. Bonus/additive features (matrix B/C) must never regress parity.
 
@@ -99,6 +99,8 @@ Not present in agent-exec-trace; these are why agentwatch exists:
   surface. Parity implies **the instrumentation API and the read API shape remain compatible** (or ship a
   documented migration), so existing integrations do not break.
 - The PyPI package distribution and the four privacy modes are part of the contract.
+- **Port-first:** the entire codebase is ported in WBS **M0**; once its tests are green in CI,
+  `agent-exec-trace` is **deleted** (WBS M9).
 
 ## E. Decision — resolved
 

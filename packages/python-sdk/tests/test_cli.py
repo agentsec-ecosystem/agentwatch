@@ -27,7 +27,7 @@ ALL_COMMANDS = [
     "uninstall",
 ]
 
-DEFERRED = ["init", "sessions", "verify-store", "migrate", "uninstall"]
+DEFERRED = ["verify-store", "migrate"]
 
 
 @pytest.fixture

@@ -1,23 +1,38 @@
 """agentwatch command-line entry point (issue #11).
 
-M1 wires the framework and every documented subcommand so ``agentwatch --help``
-lists them. ``status`` is fully implemented; the daemon/store/hook subcommands
-land in M3-M5 and fail closed here rather than pretending to succeed.
+M1 wired the framework and every documented subcommand so ``agentwatch --help``
+lists them. ``status`` is fully implemented; M3 adds ``init``/``uninstall``
+(hook installation + daemon lifecycle) and ``sessions``. Remaining commands
+land in M4-M5 and fail closed here rather than pretending to succeed.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
+from agentwatch.install import (
+    InstallError,
+    hooks_installed,
+    install_hooks,
+    is_daemon_alive,
+    resolve_hook_command,
+    resolve_scope,
+    start_daemon,
+    stop_daemon,
+    uninstall_hooks,
+)
 
-# Documented subcommands ([cli-reference](../../../../docs/reference/cli-reference.md)).
-DEFERRED_COMMANDS = ("init", "sessions", "replay", "export", "verify-store", "migrate", "uninstall")
+# Documented subcommands still deferred to a later milestone
+# ([cli-reference](../../../../docs/reference/cli-reference.md)).
+DEFERRED_COMMANDS = ("replay", "export", "verify-store", "migrate")
 
 _EXIT_CONFIG_ERROR = 2
+_EXIT_INSTALL_ERROR = 1
 _EXIT_NOT_IMPLEMENTED = 3
 
 
@@ -56,7 +71,19 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sub = parser.add_subparsers(dest="command", metavar="COMMAND", required=True)
 
-    sub.add_parser("init", help="install hooks + start the daemon (M3)")
+    init = sub.add_parser("init", help="install hooks + start the daemon (M3)")
+    init.add_argument(
+        "--scope",
+        choices=("project", "user"),
+        default="project",
+        help="where to write hooks: project .claude/settings.local.json (default) or user settings",
+    )
+    init.add_argument(
+        "--no-daemon",
+        action="store_true",
+        help="install hooks only; do not start the daemon",
+    )
+
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
 
@@ -71,7 +98,14 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("verify-store", help="check the store hash chain (M4)")
     migrate = sub.add_parser("migrate", help="store-format migration (M9+)")
     migrate.add_argument("--rollback", action="store_true", help="roll back the last migration")
-    sub.add_parser("uninstall", help="remove hooks and stop the daemon (M3)")
+
+    uninstall = sub.add_parser("uninstall", help="remove hooks and stop the daemon (M3)")
+    uninstall.add_argument(
+        "--scope",
+        choices=("project", "user"),
+        default="project",
+        help="which hooks to remove (default: project)",
+    )
 
     return parser
 
@@ -86,11 +120,33 @@ def _parse_overrides(items: Sequence[str]) -> dict[str, str]:
     return overrides
 
 
+def _load(args: argparse.Namespace) -> AgentwatchConfig:
+    overrides = _parse_overrides(args.overrides)
+    return load_config(
+        paths=default_paths(),
+        required_paths=[Path(p) for p in args.config],
+        cli_overrides=overrides,
+    )
+
+
+def _hooks_summary() -> str:
+    installed = [
+        target.scope
+        for target in (resolve_scope("project"), resolve_scope("user"))
+        if hooks_installed(target.settings_path)
+    ]
+    if installed:
+        return f"hooks: installed ({'+'.join(installed)})"
+    return "hooks: absent"
+
+
 def _print_status(cfg: AgentwatchConfig) -> None:
     lines = [
         "agentwatch status",
         f"  harness: {cfg.harness}",
         f"  mode: {cfg.mode}",
+        f"  {_hooks_summary()}",
+        f"  daemon: {'running' if is_daemon_alive() else 'stopped'}",
         f"  store.path: {cfg.store.path}",
         f"  store.retention_days: {cfg.store.retention_days}",
         f"  store.max_size_mb: {cfg.store.max_size_mb}",
@@ -108,12 +164,7 @@ def _print_status(cfg: AgentwatchConfig) -> None:
 
 def _run_status(args: argparse.Namespace) -> int:
     try:
-        overrides = _parse_overrides(args.overrides)
-        cfg = load_config(
-            paths=default_paths(),
-            required_paths=[Path(p) for p in args.config],
-            cli_overrides=overrides,
-        )
+        cfg = _load(args)
     except ConfigError as exc:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
@@ -121,9 +172,90 @@ def _run_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_init(args: argparse.Namespace) -> int:
+    try:
+        _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    target = resolve_scope(args.scope)
+    try:
+        install_hooks(target.settings_path, resolve_hook_command())
+    except InstallError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+
+    print(f"agentwatch: hooks installed ({target.scope}: {target.settings_path})")
+    if args.no_daemon:
+        print("  daemon: not started (--no-daemon)")
+        return 0
+    try:
+        started = start_daemon()
+    except InstallError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    print(f"  daemon: {'started' if started else 'already running'}")
+    return 0
+
+
+def _run_uninstall(args: argparse.Namespace) -> int:
+    try:
+        _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    target = resolve_scope(args.scope)
+    removed = uninstall_hooks(target.settings_path)
+    stopped = stop_daemon()
+    print(f"agentwatch: hooks {'removed' if removed else 'not installed'} ({target.scope})")
+    print(f"  daemon: {'stopped' if stopped else 'not running'}")
+    return 0
+
+
+def _run_sessions(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    records_path = Path(cfg.store.path).expanduser() / "records.jsonl"
+    if not records_path.exists():
+        print("agentwatch: no sessions recorded")
+        return 0
+
+    counts: dict[str, int] = {}
+    order: list[str] = []
+    for line in records_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        session_id = record.get("session_id") if isinstance(record, dict) else None
+        if not isinstance(session_id, str):
+            continue
+        if session_id not in counts:
+            order.append(session_id)
+            counts[session_id] = 0
+        counts[session_id] += 1
+
+    if not order:
+        print("agentwatch: no sessions recorded")
+        return 0
+    print("SESSION\tRECORDS")
+    for session_id in order:
+        print(f"{session_id}\t{counts[session_id]}")
+    return 0
+
+
 def _run_deferred(command: str) -> int:
     print(
-        f"agentwatch: '{command}' is not implemented in v0.1.0 M1; "
+        f"agentwatch: '{command}' is not implemented in v0.1.0; "
         "see the WBS for its milestone.",
         file=sys.stderr,
     )
@@ -135,4 +267,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.command == "status":
         return _run_status(args)
+    if args.command == "init":
+        return _run_init(args)
+    if args.command == "uninstall":
+        return _run_uninstall(args)
+    if args.command == "sessions":
+        return _run_sessions(args)
     return _run_deferred(str(args.command))

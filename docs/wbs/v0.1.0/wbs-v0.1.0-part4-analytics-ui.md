@@ -85,4 +85,4 @@ Compare, Anomaly Inbox, Agent Detail) wired to analytics.
 
 ---
 
-Part 4 green ⇒ proceed to [Part 5 (M8–M9)](wbs-v0.1.0-part5-stack-release.md).
+Part 4 green ⇒ proceed to [Part 5 (M8–M9)](wbs-v0.1.0-part5-stack-inventory.md).

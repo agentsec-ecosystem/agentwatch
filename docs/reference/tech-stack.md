@@ -15,7 +15,7 @@ services (v0.2.0+). Decisions recorded in [design-decisions](../design/design-de
 | Redaction | rules engine (regex + shape) | see [redaction-rules](../design/redaction-rules.md) |
 | Export | `opentelemetry-sdk` + OTLP exporter | OTel GenAI semconv |
 | Config | `tomllib` (stdlib, 3.11+) / `tomli` backport | strict validation |
-| Tests | `pytest`, `pytest-cov` | coverage >90% |
+| Tests | `pytest`, `pytest-cov` | coverage ≥95% |
 | Lint/types | `ruff`, `mypy --strict` | zero violations |
 | Packaging | `hatch` / `build` + `uv` | PyPI `agentwatch` |
 

@@ -7,16 +7,16 @@ applicable) a shipped-feature **parity row**. Nothing is orphaned.
 
 ## v0.1.0 requirements
 
-| Req | CUJ | WBS part | Acceptance test | Parity row |
+| Req | CUJ | Milestone | Acceptance test | Parity row |
 |---|---|---|---|---|
-| R1 record every tool call | CUJ-1 | 2, 3, 4 | session timeline reconstructs from store | A1 (behavior trace schema) |
-| R2 zero code changes, ≤15 min | CUJ-1 | 8 | fresh-machine install, first call recorded | A1 (SDK path) |
-| R3 Claude Code coverage | CUJ-1 | 3 | Pre/PostToolUse captured; gaps documented | extra (coding agents) |
-| R4 OTel GenAI export | CUJ-3 | 6 | loads into ≥2 standard backends unmodified | A1 (OTLP) |
-| R5 security-event schema | CUJ-4 | 2 | fixture events validate against schema; ≥1 sibling emits | extra |
-| R6 local-first storage | CUJ-1 | 4 | core works with no network | A1 (local store) |
-| R7 redaction-by-default | CUJ-1 | 5 | attack pack finds zero secrets in store | A1 (4 privacy modes) |
-| R8 session replay | CUJ-2 | 7 | replay matches raw transcript (automated) | A1 (run timeline) |
+| R1 record every tool call | CUJ-1 | M1, M2, M3 | session timeline reconstructs from store | A1 (behavior trace schema) |
+| R2 zero code changes, ≤15 min | CUJ-1 | M2, M5 | fresh-machine install, first call recorded | A1 (SDK path) |
+| R3 Claude Code coverage | CUJ-1 | M2 | Pre/PostToolUse captured; gaps documented | extra (coding agents) |
+| R4 OTel GenAI export | CUJ-3 | M4 | loads into ≥2 standard backends unmodified | A1 (OTLP) |
+| R5 security-event schema | CUJ-4 | M1, M3 | fixture events validate against schema; ≥1 sibling emits | extra |
+| R6 local-first storage | CUJ-1 | M3 | core works with no network | A1 (local store) |
+| R7 redaction-by-default | CUJ-1 | M3 | attack pack finds zero secrets in store | A1 (4 privacy modes) |
+| R8 session replay | CUJ-2 | M4 | replay matches raw transcript (automated) | A1 (run timeline) |
 
 ## Parity rows (agent-exec-trace shipped → PRD 10 matrix A)
 

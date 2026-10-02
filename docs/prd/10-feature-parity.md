@@ -63,7 +63,7 @@ Source: the project's `CHANGELOG.md` and `README.md` (archived, read-only).
 | Local-first stack: Jaeger/Tempo + OTel Collector + Postgres + API + Analytics + Web (Docker Compose, 6 services) | ✅ required |
 | Monorepo layout (`packages/`, `services/`, `apps/`, `deploy/`, `examples/`, `tests/`) | ✅ required |
 | `Makefile` targets (setup, lint, typecheck, test, stack-up/down, seed-e2e, migrate) | ✅ required |
-| Quality gates: ruff zero, mypy strict, tests green, coverage >90% | ✅ required |
+| Quality gates: ruff zero, mypy strict, tests green, coverage ≥95% | ✅ required |
 | Demo agent (LangGraph `request-triage`, deterministic normal/loop/high-cost paths) | ✅ required |
 | Seed/replay workflow (96 runs, ~240 anomalies, 4 agents) | ✅ required |
 | E2E Playwright tests (Fleet Health, Run Timeline, Version Compare, Anomaly Inbox) | ✅ required |

@@ -28,7 +28,7 @@ make setup
 ```sh
 make lint        # ruff — zero violations
 make typecheck   # mypy — strict, clean
-make test        # pytest — green, coverage >90%
+make test        # pytest — green, coverage ≥95%
 make stack-up    # local stack (v0.2.0+)
 ```
 

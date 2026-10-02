@@ -1,78 +1,60 @@
-# WBS — agentwatch v0.1.0
+# WBS — agentwatch v0.1.0 (Index)
 
 **BLUF:** v0.1.0 delivers P0 requirements R1–R8 for Claude Code, monitor-only, local-first, with the
-security-event schema defined and replay working. Work items are issue-per-item, milestone-tracked.
+security-event schema defined and replay working. **Porting from the shipped `agent-exec-trace` project is
+frontloaded** — we reuse its code rather than rewrite. Six milestones (M0–M5), split across three detail
+files (max 2 milestones per file).
 
-## Parts & work items
+## Standard milestone exit criteria (applies to EVERY milestone)
 
-### Part 1 — Foundation (M0)
-- 1.1 Repo scaffold (monorepo layout: `packages/`, `services/`, `apps/`, `schema/`, `docs/`)
-- 1.2 Python project + `pyproject.toml` (ruff, mypy strict, pytest, coverage>90%)
-- 1.3 CLI skeleton (`agentwatch` entrypoint; `init`/`status`/`sessions`/`replay`/`export`/`verify-store`)
-- 1.4 Config loader + validation (PRD 16); fail-closed on bad config
-- 1.5 CI: ruff/mypy/pytest/coverage; DCO; Scorecard (existing)
-- **Exit:** `make setup` works; `agentwatch --help` prints; CI green
-
-### Part 2 — Record format + security-event schema (M1)
-- 2.1 Implement `schema/agent-record.schema.json` as a dataclass/Pydantic model
-- 2.2 Implement `schema/security-event.schema.json`
-- 2.3 Schema validation entry point; reject invalid records (F8)
-- 2.4 Versioning + deprecation policy (record-format spec)
-- **Exit:** round-trip tests; schema-version enforced; security-event schema published in `schema/`
-
-### Part 3 — Claude Code adapter (M2)
-- 3.1 Hook script (Pre/PostToolUse) per the [Claude Code hook contract](../../design/claude-code-hook-contract.md)
-- 3.2 Local socket protocol (UDS) between hook and daemon
-- 3.3 `normalize(raw) -> Record[]` for Claude Code events
-- 3.4 Documented gaps (R3 honesty)
-- **Exit:** a Claude Code session emits records; conformance fixtures green
-
-### Part 4 — Local daemon + storage (M2)
-- 4.1 Daemon: listen on UDS, receive events
-- 4.2 Normalizer + redactor pipeline (DD-06)
-- 4.3 Append-only JSONL store + hash chain (DD-07, DD-08)
-- 4.4 Retention (size/time caps, R11 early)
-- **Exit:** records stored, chain `verify-store` clean, no network required (R6)
-
-### Part 5 — Redaction-by-default (M2)
-- 5.1 Redaction rules engine (see [redaction-rules.md](../../design/redaction-rules.md))
-- 5.2 Four privacy modes (metadata-only/truncated/hashed/full)
-- 5.3 Redaction self-test (blocks export, DD-09)
-- **Exit:** attack pack finds 0 leaks in store (R7)
-
-### Part 6 — OTel GenAI export (M3)
-- 6.1 OTLP exporter (opt-in)
-- 6.2 Attribute mapping ([otel-mapping.md](../../design/otel-mapping.md))
-- 6.3 Export gating on redaction self-test
-- **Exit:** traces load in ≥2 backends unmodified (R4)
-
-### Part 7 — Session replay (M3)
-- 7.1 `agentwatch sessions` (list)
-- 7.2 `agentwatch replay <id>` (ordered timeline)
-- 7.3 Replay-fidelity automated test vs raw transcript
-- **Exit:** replay matches transcript (R8)
-
-### Part 8 — CLI + first-run (M4)
-- 8.1 `agentwatch init` (install hooks + start daemon; monitor-only default)
-- 8.2 `agentwatch status` (health summary, PRD 13)
-- 8.3 `/healthz` endpoint
-- 8.4 First-run guide verification (≤15 min on clean machine)
-- **Exit:** fresh machine → first recorded call ≤15 min (R2, CUJ-1)
-
-### Part 9 — Field test + release readiness (M5)
-- 9.1 Field-test execution (see [field-test-plan.md](../../field-test/v0.1.0/field-test-plan.md))
-- 9.2 Security audit (see [release/v0.1.0/security-audit.md](../../release/v0.1.0/security-audit.md))
-- 9.3 Release notes + compatibility table + SBOM + signed artifacts
-- 9.4 Tag v0.1.0
-- **Exit:** all P0 met; field test report published; release shipped
+- [ ] **All tests pass** (`make test`)
+- [ ] **Code coverage ≥ 95%** (enforced in CI)
+- [ ] **Lint strict clean** — `ruff` zero violations; `mypy --strict` clean
+- [ ] **Design docs updated** (milestone-specific list in each file)
+- [ ] **Port tasks complete** (each milestone frontloads its `agent-exec-trace` port)
 
 ## Milestones
 
-| M | Parts | Gate |
+| M | Name | Port (frontloaded) | Detail file |
+|---|---|---|---|
+| **M0** | Foundation | monorepo layout, tooling, Makefile, quality gates | [Part 1](wbs-v0.1.0-part1-foundation-schema.md#milestone-m0--foundation) |
+| **M1** | Record + security-event schema | record/trace schema + models | [Part 1](wbs-v0.1.0-part1-foundation-schema.md#milestone-m1--record-format--security-event-schema) |
+| **M2** | Claude Code adapter + daemon | instrumentation SDK (spans, LangGraph, OTLP) | [Part 2](wbs-v0.1.0-part2-recording.md#milestone-m2--claude-code-adapter--daemon) |
+| **M3** | Local store + redaction | privacy modes / redaction | [Part 2](wbs-v0.1.0-part2-recording.md#milestone-m3--local-store--redaction) |
+| **M4** | OTel export + replay | OTLP export, replay/timeline concepts | [Part 3](wbs-v0.1.0-part3-export-release.md#milestone-m4--otel-export--replay) |
+| **M5** | First-run + release | CI, field-test, release tooling | [Part 3](wbs-v0.1.0-part3-export-release.md#milestone-m5--first-run--release) |
+
+## Porting map (agent-exec-trace → agentwatch)
+
+Source: https://github.com/agentsec-ecosystem/agent-exec-trace (archived, MIT).
+Process: copy module → rename namespace (`agent_exec_trace` → `agentwatch`) → adapt imports → run its tests →
+keep or re-derive per PRD 10.
+
+| Shipped artifact | Ported at | Notes |
 |---|---|---|
-| M0 | 1 | foundation green |
-| M1 | 2 | schema + validation |
-| M2 | 3, 4, 5 | record + store + redaction |
-| M3 | 6, 7 | export + replay |
-| M4 | 8 | first-run ≤15 min |
-| M5 | 9 | field test + release |
+| Monorepo layout, `pyproject.toml`, `Makefile`, quality gates | **M0** | frontloaded |
+| Record/trace schema + models | **M1** | extend with the security-event schema |
+| Instrumentation SDK — spans, LangGraph adapter, OTLP, metadata | **M2** | rename namespace; privacy modes kept |
+| Privacy modes / redaction | **M3** | retained; add secret/PII classes |
+| OTLP export orchestrator | **M4** | retained |
+| Replay / run-timeline concepts | **M4** | retained |
+| CI, field-test harness, release tooling | **M5** | retained |
+| Analytics pipeline, 40 detectors, FastAPI read API, React UI, local stack | **v0.2.0–v1.0** | per [PRD 09](../../prd/09-roadmap.md); parity gate at v1.0 |
+
+> **Rule:** in each milestone, port first (frontload), then adapt/add. Any ported module that changes behavior
+> updates its design doc in the same milestone.
+
+## Requirements → milestone
+
+| Req | Milestone(s) |
+|---|---|
+| R1 record every tool call | M1 (format), M2 (capture), M3 (store) |
+| R2 zero code changes, ≤15 min | M2 (hooks), M5 (first-run gate) |
+| R3 Claude Code coverage | M2 |
+| R4 OTel GenAI export | M4 |
+| R5 security-event schema | M1, M3 |
+| R6 local-first | M3 |
+| R7 redaction-by-default | M3 |
+| R8 session replay | M4 |
+
+Full mapping: [PRD 12 — Traceability](../../prd/12-traceability.md) · Review log: [codereview-log.md](codereview-log.md).

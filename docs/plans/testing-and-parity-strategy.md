@@ -15,7 +15,7 @@ Status: **draft** (v0.1.0).
 
 ## Gates
 
-- ruff zero, mypy strict, tests green, coverage **>90%** (NFR-11).
+- ruff zero, mypy strict, tests green, coverage **≥95%** (NFR-11).
 - **Parity gate:** v1.0 requires every matrix-A row green.
 - **Security gate:** redaction attack pack zero leaks; export blocked until it passes.
 

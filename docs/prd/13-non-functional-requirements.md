@@ -17,7 +17,7 @@ privacy, fail-closed behavior, and portability across macOS/Linux.
 | NFR-8 | Reliability | **Fail-closed** on tamper; never silently stop recording | PRD 06 |
 | NFR-9 | Privacy | No egress by default; redaction before storage; export gated | R6, R7, DD-06, DD-09 |
 | NFR-10 | Accessibility | Operator UI meets basic a11y (keyboard, contrast, labels) | ui-accessibility.md |
-| NFR-11 | Test coverage | **>90%** with quality gates (ruff zero, mypy strict) | UI/generated code excluded |
+| NFR-11 | Test coverage | **≥95%** with quality gates (ruff zero, mypy strict) | UI/generated code excluded |
 | NFR-12 | Observability (of agentwatch) | Its own health/recording status is visible | "couldn't read the run" lesson |
 
 ## Self-observability spec (NFR-12)
@@ -62,4 +62,4 @@ not a state (NFR-8).
 ## Parity NFRs
 
 The shipped project's quality bar is retained: ruff zero violations, mypy strict clean, tests green,
-coverage >90%.
+coverage ≥95%.

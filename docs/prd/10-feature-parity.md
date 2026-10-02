@@ -100,9 +100,9 @@ Not present in agent-exec-trace; these are why agentwatch exists:
   documented migration), so existing integrations do not break.
 - The PyPI package distribution and the four privacy modes are part of the contract.
 
-## E. Decision for review
+## E. Decision — resolved
 
-Parity with the shipped stack (Python SDK + analytics service + FastAPI + React UI + Jaeger/Postgres)
-requires the agentwatch core to accommodate that stack — which touches **DD-01 (runtime)**. Confirm the
-approach: preserve a compatible Python SDK + services, versus a rewrite that risks breaking the shipped
-contract.
+**Accepted (2026-10-02): keep the Python core for true parity.** agentwatch preserves a Python-compatible
+core (instrumentation SDK + analytics service + FastAPI) and the shipped instrumentation/read-API
+contracts. `npx @agentsec-ecosystem/cli` remains a thin launcher that installs/invokes the Python CLI; the
+Python CLI is also published on PyPI. See `DD-01` in `../design/design-decisions.md`.

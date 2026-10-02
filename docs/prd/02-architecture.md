@@ -57,6 +57,15 @@ shipped in `agent-exec-trace`:
 - **Operator UI** (React) — Fleet Health, Run Timeline, Version Compare, Anomaly Inbox, Agent Detail.
 - **Local stack** — Jaeger/Tempo + OTel Collector + Postgres + API + Analytics + Web (Docker Compose).
 
+## Runtime & distribution
+
+- **Core: Python** (instrumentation SDK + analytics service + FastAPI) — true parity with the shipped
+  `agent-exec-trace` stack (`DD-01`, **accepted**).
+- **CLI / launcher:** `npx @agentsec-ecosystem/cli init` is a thin launcher that installs/invokes the Python
+  CLI; the Python CLI is also published on PyPI (`pip` / `uvx`).
+- **Operator UI:** React (the shipped views: Fleet Health, Run Timeline, Version Compare, Anomaly Inbox,
+  Agent Detail).
+
 ## Data flow (CUJ-1)
 
 1. User runs `agentsec init` → hooks are registered in Claude Code settings; daemon starts.

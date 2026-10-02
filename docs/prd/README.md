@@ -20,6 +20,7 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 08 | [Risks](08-risks.md) | Risk register, hard parts, triggers |
 | 09 | [Roadmap](09-roadmap.md) | Versions, compatibility by version, migration/deprecation |
 | 10 | [Feature Parity](10-feature-parity.md) | Every superseded (#102/#66) feature → delivered / delegated / waived |
+| 11 | [Open Decisions](11-open-decisions.md) | Review tracker: design decisions, scope, technical, governance |
 
 ## Reviewers start here
 

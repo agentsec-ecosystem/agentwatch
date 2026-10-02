@@ -82,7 +82,7 @@ delivered **in agentwatch** (never delegated). Sequence:
 
 ## Open questions
 
-- **Runtime (DD-01):** parity with the shipped Python SDK + services may require preserving a compatible
-  Python surface rather than a rewrite. See [PRD 10 §E](10-feature-parity.md).
+- **Runtime (DD-01):** **Resolved** — Python core retained for true parity (see
+  [design/design-decisions.md](../design/design-decisions.md)); `npx` is a thin launcher.
 - Cursor full-fidelity recording — native hooks vs proxy interposition for which event classes?
 - Schema stewardship: solo steward vs proposing into OTel GenAI from day one (`DD-05`)?

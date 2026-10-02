@@ -43,6 +43,19 @@ class ChainEntry:
     tombstone: bool = False
 
 
+@dataclass(frozen=True)
+class ChainStatus:
+    """Result of verifying the hash chain (never raises; reports F4)."""
+
+    ok: bool
+    checked: int
+    broken_at: int | None
+
+
+class ChainError(Exception):
+    """Raised by callers that require an intact chain."""
+
+
 class RecordStore:
     """Append-only JSONL store with a hash chain over its entries."""
 
@@ -92,6 +105,21 @@ class RecordStore:
 
     def size_bytes(self) -> int:
         return self.path.stat().st_size if self.path.exists() else 0
+
+    def verify(self) -> ChainStatus:
+        """Recompute the chain and report the first break (F4), never raising."""
+        entries = self._entries
+        if self.parse_errors:
+            return ChainStatus(ok=False, checked=len(entries), broken_at=self.parse_errors[0])
+        prev = GENESIS_HASH
+        for entry in entries:
+            if entry.prev_hash != prev:
+                return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
+            if not entry.tombstone and entry.record is not None:
+                if _entry_hash(entry.prev_hash, entry.record.to_dict()) != entry.hash:
+                    return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
+            prev = entry.hash
+        return ChainStatus(ok=True, checked=len(entries), broken_at=None)
 
     # -- writing -----------------------------------------------------------
 

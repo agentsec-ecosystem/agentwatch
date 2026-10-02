@@ -7,14 +7,18 @@ silently succeed.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from agentwatch.cli import main
+from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
+from agentwatch.store import RecordStore
 
 ALL_COMMANDS = [
     "init",
@@ -27,7 +31,7 @@ ALL_COMMANDS = [
     "uninstall",
 ]
 
-DEFERRED = ["verify-store", "migrate"]
+DEFERRED = ["migrate"]
 
 
 @pytest.fixture
@@ -160,6 +164,32 @@ def test_replay_deferred_fails_closed(
     rc = main(["replay", "session-123"])
     assert rc != 0
     assert "not implemented" in capsys.readouterr().err.lower()
+
+
+def test_verify_store_reports_clean_and_tampered(
+    isolated: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store_path = isolated / "records.jsonl"
+    record = AgentRecord(
+        session_id="s",
+        agent=AgentIdentity(identity="a"),
+        tool=ToolCall(name="Bash"),
+        outcome=Outcome.OK,
+        started_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+    )
+    RecordStore(store_path).append(record)
+
+    assert main(["--set", f"store.path={isolated}", "verify-store"]) == 0
+    assert "chain ok" in capsys.readouterr().out
+
+    lines = store_path.read_text(encoding="utf-8").splitlines()
+    envelope = json.loads(lines[0])
+    envelope["record"]["tool"]["name"] = "Tampered"
+    lines[0] = json.dumps(envelope)
+    store_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    assert main(["--set", f"store.path={isolated}", "verify-store"]) == 1
+    assert "broken" in capsys.readouterr().err.lower()
 
 
 def test_export_requires_action(

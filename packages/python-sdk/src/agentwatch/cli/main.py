@@ -26,10 +26,11 @@ from agentwatch.install import (
     stop_daemon,
     uninstall_hooks,
 )
+from agentwatch.store import RecordStore
 
 # Documented subcommands still deferred to a later milestone
 # ([cli-reference](../../../../docs/reference/cli-reference.md)).
-DEFERRED_COMMANDS = ("replay", "export", "verify-store", "migrate")
+DEFERRED_COMMANDS = ("replay", "export", "migrate")
 
 _EXIT_CONFIG_ERROR = 2
 _EXIT_INSTALL_ERROR = 1
@@ -214,6 +215,21 @@ def _run_uninstall(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_verify_store(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    status = store.verify()
+    if status.ok:
+        print(f"agentwatch: chain ok ({status.checked} entries)")
+        return 0
+    print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
+    return _EXIT_INSTALL_ERROR
+
+
 def _run_sessions(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -273,4 +289,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_uninstall(args)
     if args.command == "sessions":
         return _run_sessions(args)
+    if args.command == "verify-store":
+        return _run_verify_store(args)
     return _run_deferred(str(args.command))

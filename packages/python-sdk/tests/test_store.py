@@ -9,7 +9,6 @@ from pathlib import Path
 from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
 from agentwatch.store import GENESIS_HASH, RecordStore
 
-
 def _record(name: str = "Bash", session: str = "sess-1") -> AgentRecord:
     return AgentRecord(
         session_id=session,
@@ -70,3 +69,50 @@ def test_truncated_final_line_is_surfaced_not_fatal(tmp_path: Path) -> None:
 
     assert [record.tool.name for record in reloaded.records()] == ["A", "B"]
     assert reloaded.parse_errors == [2]
+
+
+def test_verify_passes_on_a_clean_chain(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("A"))
+    store.append(_record("B"))
+
+    status = store.verify()
+
+    assert status.ok is True
+    assert status.checked == 2
+    assert status.broken_at is None
+
+
+def test_verify_detects_an_edited_record(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("A"))
+    store.append(_record("B"))
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    envelope = json.loads(lines[0])
+    envelope["record"]["tool"]["name"] = "Tampered"
+    lines[0] = json.dumps(envelope)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    status = RecordStore(path).verify()
+
+    assert status.ok is False
+    assert status.broken_at == 0
+
+
+def test_verify_detects_a_deleted_middle_line(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("A"))
+    store.append(_record("B"))
+    store.append(_record("C"))
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    del lines[1]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    status = RecordStore(path).verify()
+
+    assert status.ok is False
+    assert status.broken_at == 2

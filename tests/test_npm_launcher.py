@@ -49,7 +49,7 @@ def test_launcher_forwards_exit_code(tmp_path: Path) -> None:
     script = CLI_DIR / "bin" / "agentwatch.js"
 
     result = subprocess.run(
-        [node, str(script), "verify-store"],
+        [node, str(script), "migrate"],
         capture_output=True,
         text=True,
         cwd=tmp_path,

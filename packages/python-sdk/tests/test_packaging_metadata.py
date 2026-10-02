@@ -38,6 +38,11 @@ def test_hook_console_script_is_declared() -> None:
     assert scripts.get("agentwatch-hook") == "agentwatch.hook:main"
 
 
+def test_daemon_console_script_is_declared() -> None:
+    scripts = _metadata()["project"].get("scripts", {})
+    assert scripts.get("agentwatch-daemon") == "agentwatch.daemon:main"
+
+
 def test_tomli_backport_is_declared_for_python_310() -> None:
     deps = _metadata()["project"]["dependencies"]
     assert any(dep.startswith("tomli") and "3.11" in dep for dep in deps)

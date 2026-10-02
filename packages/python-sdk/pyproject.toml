@@ -36,6 +36,7 @@ dev = [
 [project.scripts]
 agentwatch = "agentwatch.cli:main"
 agentwatch-hook = "agentwatch.hook:main"
+agentwatch-daemon = "agentwatch.daemon:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

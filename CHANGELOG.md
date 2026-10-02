@@ -6,6 +6,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- `agentwatch.records` (M2): the record + security-event model and strict, reject-never-coerce
+  `validate_record()` / `validate_event()` with unknown-version rejection (F8); valid/invalid fixtures and
+  a JSON-Schema contract test against `schema/`.
 - `agentwatch` CLI (argparse): `status` implemented; `init`, `sessions`, `replay`, `export`,
   `verify-store`, `migrate`, and `uninstall` wired and failing closed until their milestones (WBS M1).
 - Operator configuration loader `agentwatch.configuration` (PRD 16): system < user < project < env < CLI

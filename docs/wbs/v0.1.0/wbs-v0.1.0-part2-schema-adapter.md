@@ -10,6 +10,10 @@ SDK and add the Claude Code adapter + daemon. Two milestones.
 
 ## Milestone M2 — Record + security-event schema
 
+**Status:** ✅ **implemented** — execution plan:
+[m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md);
+issues #16–#21, #117, #118. `agentwatch.records` + strict validators; fixtures and schema contract tests.
+
 **Goal:** adapt the **ported** record/trace schema into the normative agentwatch record model, and add the
 security-event schema.
 

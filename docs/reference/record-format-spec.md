@@ -28,6 +28,18 @@
 `event_version`, `type` ∈ {`denied`, `policy-fired`, `secret-detected`, `revoked`, `halted`}, `emitted_at`,
 `emitter`, optional `reason`, `policy_id`, `tool`, `credential_ref`, `evidence`.
 
+## Python model (M2)
+
+The normative contract is implemented in `agentwatch.records`: `AgentRecord`, `AgentIdentity`,
+`ToolCall`, `SecurityEvent`, their enums, and the version constants `SCHEMA_VERSION` / `EVENT_VERSION`.
+`validate_record()` and `validate_event()` are the validation entry points: strict, structural, and
+**reject-never-coerce** (F8) — unknown keys, wrong types, bad enumerations, and unknown versions raise
+`RecordValidationError` instead of being silently fixed. `to_dict()` / `from_dict()` round-trip
+losslessly and are verified against [`../../schema/`](../../schema/) by the contract tests.
+
+The `hook-error` convention (F2): a tool call whose hook could not be delivered is recorded, not dropped,
+as a record with `outcome="error"` and `tool.name="hook-error"`.
+
 ## Versioning & deprecation policy
 
 - Schema is versioned with `schema_version` / `event_version`.
@@ -44,7 +56,8 @@ No secret/PII is ever persisted (`DD-06`); values follow the privacy modes in
 
 ## Design rationale & status (merged from the former design doc)
 
-**Status:** draft — the normative contract above is authoritative; this section records rationale.
+**Status:** shipped (M2) — the normative contract above is authoritative; the Python model lives in
+`agentwatch.records`. This section records rationale.
 
 ### Security-event emitters
 

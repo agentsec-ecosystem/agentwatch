@@ -3,7 +3,9 @@
 **BLUF:** The Postgres tables used by the analytics/API layer (v0.2.0+), retained from the shipped project
 (DD-12). The v0.1.0 local store is JSONL (DD-08).
 
-Status: **draft**.
+Status: **draft** (v0.2.0+). The v0.1.0 record contract itself is in
+[`agentwatch.records`](../../packages/python-sdk/src/agentwatch/records.py) and the
+[record-format spec](../reference/record-format-spec.md).
 
 | Table | Key fields |
 |---|---|

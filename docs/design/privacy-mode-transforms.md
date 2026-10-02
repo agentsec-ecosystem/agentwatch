@@ -12,3 +12,9 @@
 
 Secret/PII classes are **always** redacted regardless of mode (see redaction-rules). Truncation N=32
 (configurable). Hash = `sha256` (configurable). Records carry the `privacy_mode` used.
+
+**Shipped (v0.1.0 M4).** All four modes are implemented in `agentwatch.redact` (`metadata-only`,
+`truncated`, `hashed`, `full`). The shipped transform for `truncated` is `value[:N] + "[...]"`
+(not a hash suffix) and `hashed` is a full salted `sha256` hex digest; these ported transforms are
+kept for v0.1.0. Secret/PII masking (`agentwatch.secrets`) runs before the mode transform, so `full`
+records still never contain a secret.

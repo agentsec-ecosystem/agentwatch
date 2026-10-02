@@ -38,6 +38,10 @@ layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10,
 > closed). M1 execution:
 > [m1-foundation-execution-plan.md](../../plans/m1-foundation-execution-plan.md) · M2/M3 execution:
 > [m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md).
+>
+> **M4 (Local store + redaction) ✅** — hash-chained store, secret/PII redaction, `verify-store`,
+> retention/F3/F4, export self-test. Execution plan:
+> [m4-store-redaction-execution-plan.md](../../plans/m4-store-redaction-execution-plan.md).
 
 ## Porting map (agent-exec-trace → agentwatch)
 

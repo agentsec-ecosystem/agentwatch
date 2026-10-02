@@ -3,7 +3,16 @@
 **BLUF:** What counts as a secret/PII, the four privacy modes, and the algorithms. This is what R7's attack
 pack tests against.
 
-Status: **draft** (v0.1.0).
+Status: **shipped** (v0.1.0 M4).
+
+## Implementation
+
+`agentwatch.secrets` detects and masks the classes above as `<REDACTED:kind>` before any storage
+transform, and `agentwatch.adapters.claude_code.normalize` attaches a `secret-detected` security event
+(`emitter="agentwatch"`, `evidence={"kinds": [...]}`) when any fires — even in `metadata-only` mode.
+Values under a sensitive key name (`*_TOKEN` / `*_KEY` / `*_SECRET` / `*_PASSWORD`) are masked wholesale
+as `env-secret`. The fixed-corpus self-test lives in `agentwatch.selftest` (`run_redaction_self_test`,
+`export_allowed`) and blocks export (DD-09).
 
 ## Privacy modes (applied per record at normalization, DD-06)
 

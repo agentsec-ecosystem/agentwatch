@@ -2,7 +2,20 @@
 
 **BLUF:** Local-first, append-only record store with hash-chaining; export is opt-in.
 
-Status: **draft**.
+Status: **shipped** (v0.1.0 M4).
+
+## Implementation
+
+- **Module:** `agentwatch.store.RecordStore` — append-only JSONL at
+  `<store.path>/records.jsonl`.
+- **Envelope:** `{"seq", "prev_hash", "hash", "record"}`; `hash = sha256(prev_hash + canonical_json(record))`,
+  genesis `prev_hash = "0"*64`.
+- **Verify:** `RecordStore.verify()` recomputes each live entry and checks every link; a break is reported as
+  `ChainStatus(ok=False, broken_at=<seq>)` and surfaced by `agentwatch verify-store` (exit 1) — never silent (F4).
+- **Retention:** entries older than `retention_days` are rewritten as tombstones
+  (`{"seq","prev_hash","hash","tombstone":true,"purged_at"}`) that keep the chain links; `max_size_mb` reached
+  makes `append` raise `StoreFullError` and stop recording without overwriting (F3).
+- **Sink:** the daemon writes through the store and verifies the chain on startup.
 
 ## Requirements it satisfies
 

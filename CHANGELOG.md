@@ -6,6 +6,13 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Local hash-chained store (M4): `agentwatch.store.RecordStore` (append-only JSONL envelope with a
+  sha256 chain), `agentwatch verify-store`, retention tombstones that keep the chain links, and a
+  size-cap that fails closed without overwriting (F3/F4).
+- Secret/PII redaction (M4, R5): `agentwatch.secrets` masks API keys/tokens, private keys, JWTs, cards
+  (Luhn-checked), SSN, email, phone, and credential-bearing connection strings to `<REDACTED:kind>`,
+  emits a `secret-detected` security event, and adds the `full` privacy mode; `agentwatch.selftest`
+  gates export on a fixed-corpus self-test (DD-09).
 - `agentwatch init` / `agentwatch uninstall` (M3): install Claude Code hooks into
   `.claude/settings.local.json` (or `--scope user`) and start/stop the local daemon; `agentwatch sessions`
   lists recorded sessions; `agentwatch status` reports installed hooks (project/user) and daemon state.

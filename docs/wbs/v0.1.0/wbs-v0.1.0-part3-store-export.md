@@ -10,10 +10,12 @@ export and replay. Two milestones.
 
 ## Milestone M4 — Local store + redaction
 
-**Status:** ⬜ **not started** — no store, hash-chain, retention, redaction self-test, secret/PII detection,
-or `verify-store` code exists yet. Only preparation landed: config `store.retention_days`/`max_size_mb`,
-the `SecurityEventType.secret-detected` enum, and partial 4.1 (`agentwatch.redact`: metadata-only /
-truncated / hashed; the `full` mode is config-only). Issues #31–#38, #121, #122 remain **open**.
+**Status:** ✅ **implemented** — execution plan:
+[m4-store-redaction-execution-plan.md](../../plans/m4-store-redaction-execution-plan.md); issues #31–#38, #121,
+#122. Shipped: `agentwatch.secrets` (secret/PII detection + `<REDACTED:kind>`), the `full` privacy mode,
+`agentwatch.store.RecordStore` (append-only hash-chained JSONL), `agentwatch verify-store`, retention
+tombstones + size-cap fail-closed (F3), chain-break surfacing (F4), and `agentwatch.selftest` export gate
+(DD-09). The daemon persists through the store; `sessions` reads it.
 
 **Goal:** adapt the **ported** privacy modes/redaction, then add the local hash-chained store and secret/PII
 classes; records are local, redacted, tamper-evident, bounded (R6, R7, R11 early).
@@ -42,10 +44,10 @@ transforms; retention tombstoning.
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
-- [ ] `verify-store` clean after a session; any edit detected
-- [ ] Redaction attack pack finds **0 leaks** (R7); `secret-detected` emitted
-- [ ] Store-full fails closed (F3); corrupt chain surfaced (F4); no network (R6)
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
+- [x] `verify-store` clean after a session; any edit detected
+- [x] Redaction attack pack finds **0 leaks** (R7); `secret-detected` emitted
+- [x] Store-full fails closed (F3); corrupt chain surfaced (F4); no network (R6)
 
 **Design docs to update:** [storage-design.md](../../design/storage-design.md),
 [redaction-rules.md](../../design/redaction-rules.md), [privacy-mode-transforms.md](../../design/privacy-mode-transforms.md),

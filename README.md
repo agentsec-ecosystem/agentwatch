@@ -1,52 +1,58 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/status-pre--v0.1.0-orange.svg" alt="status pre-v0.1.0">
+  <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/license-Apache--2.0-green.svg" alt="Apache-2.0">
+  <a href="https://www.bestpractices.dev/"><img src="https://img.shields.io/badge/OpenSSF-passing-blue" alt="OpenSSF Best Practices"></a>
+  <a href="https://github.com/agentsec-ecosystem/agentwatch/actions/workflows/scorecard.yml"><img src="https://img.shields.io/badge/Scorecard-checking-lightgrey" alt="OpenSSF Scorecard"></a>
+</p>
+
 # agentwatch
 
-> **Monitor** — OpenTelemetry-based telemetry for agent tool calls, plus the shared security-event schema.
+**Observability and the security-event record for AI agents.** OpenTelemetry GenAI traces that tell you
+*why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
+[agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/agentsec-ecosystem/agentwatch/badge)](https://scorecard.dev/viewer/?uri=github.com/agentsec-ecosystem/agentwatch)
+> **Status: pre-v0.1.0 (Wave 0).** Docs complete; recording for **Claude Code first**, monitor-only by
+> default. agentwatch is the **shipped-feature superset** of the retired `agent-exec-trace`/AgentObservatory.
 
-Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem) — open-source,
-harness-agnostic security for AI agents.
+## Quickstart
 
-## Status
+```sh
+# install hooks + local daemon (monitor-only, zero agent-side code changes)
+npx @agentsec-ecosystem/cli init      # or: pipx run agentwatch init
 
-<!-- Replace with: planned | alpha | beta | stable. Be honest. -->
-
-**planned** — not yet usable. Watch or star the repo to follow progress.
+# use Claude Code normally, then reconstruct a session
+agentwatch sessions
+agentwatch replay <session-id>
+```
 
 ## What it does
 
-<!-- 3-6 sentences. What problem, for whom, and what it does NOT do. -->
+| Capability | Description |
+|---|---|
+| Behavior record | Every tool call (redacted by default) in OTel GenAI format |
+| Security-event schema | `denied` · `policy-fired` · `secret-detected` · `revoked` · `halted` |
+| Local-first store | Hash-chained, tamper-evident; no egress by default |
+| Session replay | Reconstruct any session's action timeline |
+| Detectors | 40 signals (35 rule-based + 5 LLM) restored from the shipped project |
+| Operator views | Fleet Health · Run Timeline · Version Compare · Anomaly Inbox · Agent Detail |
 
-## Install
+## Why
 
-<!-- Real, copy-pasteable command. Keep the ≤15-minute promise. -->
-
-```sh
-# coming soon
-```
-
-## Usage
-
-<!-- Minimal working example. -->
-
-```sh
-# coming soon
-```
+Traditional observability tells you a service is up. It does not tell you why an agent called a tool eight
+times or drifted into expensive behavior. agentwatch makes agent behavior inspectable — and produces the
+record every other security control needs. See [PRD 01](docs/prd/01-why.md).
 
 ## Compatibility
 
-<!-- Harnesses and environments this tool supports today. -->
-
-| Harness | Support |
-|---|---|
-| — | — |
+Claude Code at v0.1.0; Cursor in v0.1.x; Codex/Gemini and frameworks by v0.3.0. Matrix:
+[docs/reference/compatibility.md](docs/reference/compatibility.md).
 
 ## Documentation
 
-- Contributing: [org guide](https://github.com/agentsec-ecosystem/.github/blob/main/CONTRIBUTING.md)
-- Security: [SECURITY.md](./SECURITY.md)
-- Roadmap: [agentsec-ecosystem](https://github.com/agentsec-ecosystem)
+Start at [docs/](docs/README.md) · [PRDs](docs/prd/README.md) · [User Guide](docs/USER_GUIDE.md) ·
+[Architecture tour](docs/architecture-tour.md) · [Roadmap](ROADMAP.md).
 
 ## License
 
-Apache License 2.0 — see [LICENSE](./LICENSE).
+Apache License 2.0 — see [LICENSE](LICENSE). Portions credited in [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).

@@ -1,0 +1,21 @@
+# Starter CI for agentsec-ecosystem tools.
+# Replace the placeholder step with the real build/test commands for this tool.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # - Add language setup here (actions/setup-node, actions/setup-python, dtolnay/rust-toolchain, ...)
+      - name: Placeholder
+        run: |
+          echo "TODO: replace with real lint/test commands"

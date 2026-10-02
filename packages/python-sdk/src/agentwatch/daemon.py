@@ -14,9 +14,9 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import signal
 import socket
 import threading
-import time
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
@@ -254,13 +254,23 @@ class Daemon:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run the daemon until interrupted."""
+    """Run the daemon until interrupted (SIGINT/SIGTERM stop it cleanly)."""
     daemon = Daemon()
     daemon.start()
+    stop = threading.Event()
+
+    def _request_stop(signum: int, frame: object) -> None:  # pragma: no cover - signal path
+        stop.set()
+
+    signal.signal(signal.SIGTERM, _request_stop)
+    signal.signal(signal.SIGINT, _request_stop)
     try:
-        while True:
-            time.sleep(1.0)
-    except KeyboardInterrupt:  # pragma: no cover - interactive shutdown
-        return 0
+        while not stop.wait(1.0):
+            pass
     finally:
         daemon.stop()
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover - process entry point
+    raise SystemExit(main())

@@ -84,3 +84,7 @@ def main(
 
     # Never block the agent: a missed event is the daemon's to record (M3 3.7).
     return 0
+
+
+if __name__ == "__main__":  # pragma: no cover - process entry point
+    raise SystemExit(main())

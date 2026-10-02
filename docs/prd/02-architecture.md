@@ -87,8 +87,7 @@ Trace Context for cross-harness correlation. We contribute improvements upstream
 - No cloud component in v1; not a SIEM.
 - Harness-agnostic by format (OTel), pragmatic by adapter (Claude Code first, then frameworks via SDK).
 
-## Open questions
+## Decisions
 
-- Cursor exposes less scripting surface than Claude Code — is full-fidelity recording possible, or does it
-  require proxy interposition for some event classes?
-- Security-event schema: steward alone, or propose into the OTel GenAI working group from day one?
+- **Cursor (DD-15):** native hooks first; proxy-interpose only event classes native cannot capture.
+- **Schema stewardship (DD-05):** propose into the OTel GenAI working group from day one; keep a repo-local copy.

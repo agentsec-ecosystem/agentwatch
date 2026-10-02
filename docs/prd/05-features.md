@@ -77,8 +77,8 @@ delivered **in agentwatch** (never delegated). Sequence:
 | v0.1.x / v0.2.0 | + Cursor (proxy-interposition where hooks are insufficient) | LangGraph, raw Python (instrumentation SDK) |
 | v0.3.0 | + Codex CLI, Gemini CLI; Copilot via OTel/lower layer | + CrewAI, PydanticAI (≥3) |
 
-> **Documented tension:** the ecosystem threshold asks for ≥2 Tier-1 at v0.1.0, while the meta-MVP keeps
-> v0.1.0 to Claude Code only. Resolution: v0.1.0 ships Claude Code; Cursor lands in v0.1.x.
+> **Resolved (B1, 2026-10-02):** v0.1.0 ships **Claude Code only**; Cursor lands in v0.1.x. The ecosystem
+> ≥2-Tier-1 threshold is met by v0.3.0.
 
 ## Open questions
 

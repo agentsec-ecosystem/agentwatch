@@ -15,7 +15,8 @@ Status: **draft**.
 - Retention controls: size/time caps (v0.2.0, R11).
 - No network required; OTLP exporter is opt-in (`DD-03`).
 
-## Open questions
+## Decisions
 
-- Embedded store (SQLite) vs append-only JSONL for v0.1.0?
-- Key management for the hash chain (none vs local key)?
+- **Store (C1 / DD-08):** append-only JSONL + hash chain for v0.1.0; Postgres for analytics in v0.2.0.
+- **Hash-chain key (C2):** detect-only in v0.1.0.
+- **Export gating (C4 / DD-09):** export blocked until a redaction self-test passes.

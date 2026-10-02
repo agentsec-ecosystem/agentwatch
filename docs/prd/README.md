@@ -3,7 +3,7 @@
 Requirements for **agentwatch v0.1.0** — the vendor-neutral telemetry and security-event layer for AI
 agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
-> **Status: ready for review.** These PRDs are the v0.1.0 baseline. They supersede the retired
+> **Status: decisions accepted (2026-10-02); ready for the v0.1.0 build.** These PRDs are the v0.1.0 baseline. They supersede the retired
 > `agent-exec-trace`/AgentObservatory (#102) and AgentWatch (#66) projects.
 
 ## Documents
@@ -20,7 +20,7 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 08 | [Risks](08-risks.md) | Risk register, hard parts, triggers |
 | 09 | [Roadmap](09-roadmap.md) | Versions, compatibility by version, migration/deprecation |
 | 10 | [Feature Parity](10-feature-parity.md) | Every superseded (#102/#66) feature → delivered / delegated / waived |
-| 11 | [Open Decisions](11-open-decisions.md) | Review tracker: design decisions, scope, technical, governance |
+| 11 | [Decisions](11-decisions.md) | Accepted decisions (design, scope, technical, governance) |
 
 ## Reviewers start here
 

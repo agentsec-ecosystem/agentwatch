@@ -22,7 +22,8 @@ Status: **draft** (schema v1 targeted for v0.2.0 per the ecosystem roadmap; v0.1
 | `revoked` | a credential is revoked | agentkeys |
 | `halted` | an agent is halted/paused | agenthalt |
 
-## Open questions
+## Decisions
 
-- Event naming/versioning scheme (OTel event vs custom attribute)?
-- Steward alone vs propose into OTel GenAI from day one (DD-05)?
+- **Event naming/versioning (DD-14):** propose into OTel GenAI before locking schema v1.
+- **Stewardship (DD-05):** contribute upstream; keep a repo-local copy until adopted.
+- **Store (DD-08):** append-only JSONL + hash chain for v0.1.0.

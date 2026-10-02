@@ -48,7 +48,7 @@ Report vulnerabilities per the organization
 [SECURITY policy](https://github.com/agentsec-ecosystem/.github/blob/main/SECURITY.md) — private advisory,
 never a public issue.
 
-## Open questions
+## Decisions
 
-- Hash-chain key management: none (detect-only) vs a local key in v0.1.0?
-- Should export be blocked until a redaction self-test passes?
+- **Hash chain (C2 / DD-08):** detect-only in v0.1.0 (no key).
+- **Export gating (C4 / DD-09):** OTLP export is blocked until a redaction self-test passes.

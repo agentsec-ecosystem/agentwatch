@@ -20,6 +20,45 @@ privacy, fail-closed behavior, and portability across macOS/Linux.
 | NFR-11 | Test coverage | **>90%** with quality gates (ruff zero, mypy strict) | UI/generated code excluded |
 | NFR-12 | Observability (of agentwatch) | Its own health/recording status is visible | "couldn't read the run" lesson |
 
+## Self-observability spec (NFR-12)
+
+agentwatch exposes its **own** health so operators can tell "clean run" from "couldn't read the run"
+(the AgentObservatory lesson). It never claims to be recording when it isn't.
+
+### Health endpoint
+
+`GET http://127.0.0.1:9100/healthz` (configurable, see [PRD 16](16-configuration.md)) returns:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `state` | enum | `recording` · `degraded` · `stopped` |
+| `daemon` | object | `pid`, `uptime_s`, `version` |
+| `store` | object | `path`, `records`, `size_mb`, `chain_ok` (bool), `last_append_at` |
+| `export` | object | `enabled` (bool), `endpoint`, `last_success_at`, `last_error` |
+| `redaction` | object | `mode`, `self_test_passing` (bool) |
+| `hooks` | object | per-harness: `installed` (bool), `last_fire_at`, `errors` (count) |
+| `gaps` | array | recent recording-gap events (F1/F2/F8 from [PRD 17](17-error-handling.md)) |
+
+### States
+
+- **`recording`** — daemon up, chain intact, hooks firing, no active gap.
+- **`degraded`** — recording but something is wrong (export failing, self-test failing, hook errors > 0).
+- **`stopped`** — fail-closed (F1/F3/F4/F7); the state says *why*.
+
+### Signals (also emitted as OTel metrics on the same exporter, when enabled)
+
+- `agentwatch.records.stored` (counter) · `agentwatch.gaps` (counter) · `agentwatch.export.errors` (counter)
+- `agentwatch.chain.broken` (gauge, 0/1) · `agentwatch.self_test.passing` (gauge, 0/1)
+
+### CLI
+
+`agentwatch status` prints the health summary for humans; `agentwatch verify-store` checks the chain.
+
+### Guarantee
+
+`state=recording` is only reported when the chain is intact and hooks are firing. A silent stop is a bug,
+not a state (NFR-8).
+
 ## Parity NFRs
 
 The shipped project's quality bar is retained: ruff zero violations, mypy strict clean, tests green,

@@ -23,8 +23,12 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 10 | [Feature Parity](10-feature-parity.md) | Every shipped #102/#66 feature → delivered / delegated / waived |
 | 11 | [Decisions](11-decisions.md) | Accepted decisions (design, scope, technical, governance) |
 | 12 | [Traceability](12-traceability.md) | Requirements → CUJ → WBS → test → parity |
-| 13 | [Non-Functional Requirements](13-non-functional-requirements.md) | Perf, storage, privacy, reliability, portability, a11y |
+| 13 | [Non-Functional Requirements](13-non-functional-requirements.md) | Perf, storage, privacy, reliability, portability, a11y, **self-observability spec** |
 | 14 | [Non-Goals](14-non-goals.md) | Consolidated non-goals |
+| 15 | [Data Model & Lifecycle](15-data-model.md) | Entities, identity/versioning, record/session/run lifecycle, invariants |
+| 16 | [Configuration Model](16-configuration.md) | Configurables, defaults, locations, validation, fail-closed |
+| 17 | [Error Handling & Failure Modes](17-error-handling.md) | Operational failures: detection, fail-closed, recovery |
+| 18 | [Security & Compliance Controls](18-security-compliance.md) | OWASP/ATLAS/NIST/ISO/SOC2/OpenSSF mapping + release-gate evidence |
 
 ## Reviewers start here
 

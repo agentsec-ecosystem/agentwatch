@@ -14,8 +14,8 @@ An adapter module declares:
 - its `DOCUMENTED_GAPS` — capability classes it does **not** implement, declared honestly (R3);
 - `normalize(message) -> list[AgentRecord]` mapping one native event to records.
 
-Unsupported capability classes are rejected explicitly (a `ClaudeCodeAdapterError`), never dropped
-silently.
+Unsupported capability classes presented to the adapter (a declared-gap or unknown hook phase) are
+rejected explicitly with a `ClaudeCodeAdapterError`, never dropped silently.
 
 ## v0.1.0 implementation
 

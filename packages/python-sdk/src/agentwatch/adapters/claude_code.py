@@ -85,11 +85,19 @@ def identity_from(value: Any) -> AgentIdentity:
     return AgentIdentity(identity="unknown")
 
 
+def _parse_optional_timestamp(value: Any) -> datetime | None:
+    """Parse an optional ISO timestamp, rejecting a malformed one explicitly."""
+    if not isinstance(value, str):
+        return None
+    try:
+        return _parse_iso(value)
+    except ValueError as exc:
+        raise ClaudeCodeAdapterError(f"invalid timestamp {value!r}") from exc
+
+
 def _timestamp(event: Mapping[str, Any]) -> datetime:
-    raw = event.get("timestamp")
-    if isinstance(raw, str):
-        return _parse_iso(raw)
-    return datetime.now(timezone.utc)
+    parsed = _parse_optional_timestamp(event.get("timestamp"))
+    return parsed if parsed is not None else datetime.now(timezone.utc)
 
 
 def tool_call_id(event: Mapping[str, Any]) -> str | None:
@@ -144,8 +152,7 @@ def normalize(
         )
         outcome = Outcome.ERROR if is_error else Outcome.OK
         step_type = StepType.OBSERVE
-        started_raw = event.get("started_at")
-        started_at = _parse_iso(started_raw) if isinstance(started_raw, str) else event_time
+        started_at = _parse_optional_timestamp(event.get("started_at")) or event_time
         ended_at = event_time
         raw_duration = event.get("duration_ms")
         duration_ms = (

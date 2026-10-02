@@ -46,3 +46,10 @@ def test_declared_gaps_are_disjoint_from_capabilities() -> None:
 def test_unsupported_capability_phase_is_rejected() -> None:
     with pytest.raises(claude_code.ClaudeCodeAdapterError):
         claude_code.normalize({"phase": "session-end", "event": {"session_id": "s"}})
+
+
+@pytest.mark.parametrize("gap", claude_code.DOCUMENTED_GAPS)
+def test_each_declared_gap_is_rejected_explicitly(gap: str) -> None:
+    # A documented-gap capability class must be rejected, never dropped silently.
+    with pytest.raises(claude_code.ClaudeCodeAdapterError):
+        claude_code.normalize({"phase": gap, "event": {"session_id": "s"}})

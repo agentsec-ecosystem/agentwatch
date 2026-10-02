@@ -34,7 +34,7 @@ layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10,
 | M15 | Release Readiness + predecessor retention | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m15--release-readiness) |
 
 > **Progress:** ✅ M0 (port), ✅ M1 (foundation & identity), ✅ M2 (record + security-event schema), and
-> ✅ M3 (Claude Code adapter + daemon) are implemented. M1 execution:
+> 🚧 M3 (Claude Code adapter + daemon — exit validation pending). M1 execution:
 > [m1-foundation-execution-plan.md](../../plans/m1-foundation-execution-plan.md) · M2/M3 execution:
 > [m2-m3-schema-adapter-execution-plan.md](../../plans/m2-m3-schema-adapter-execution-plan.md).
 

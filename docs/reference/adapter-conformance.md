@@ -21,7 +21,8 @@ boundaries), and `normalize(message) -> list[AgentRecord]`. Unsupported classes 
 - Fixtures: `packages/python-sdk/tests/fixtures/claude-code/*.json` (`message` + `expected` records).
 - Tests: `packages/python-sdk/tests/test_conformance.py` (fixture replay, gap-vs-capability disjointness,
   unsupported-capability rejection).
-- Declared gaps: `session-boundaries`, `mcp-server-events`.
+- Declared gaps: `session-boundaries`, `mcp-server-events` (each is rejected explicitly when presented as
+  a hook phase — see `test_conformance.py::test_each_declared_gap_is_rejected_explicitly`).
 - Adapter: `agentwatch.adapters.claude_code`.
 
 ## Verification

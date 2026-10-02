@@ -176,6 +176,76 @@ def test_explicit_hook_error_frame_is_recorded(short_dir: Path) -> None:
     assert record.session_id == "sess-1"
 
 
+def test_bad_timestamp_frame_does_not_kill_the_daemon(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        # Valid JSON, valid phase, but an unparseable timestamp must not be fatal.
+        assert hook.send(
+            {
+                "phase": "pre",
+                "harness": "claude-code",
+                "event": {**PRE, "timestamp": "not-a-date"},
+            },
+            socket_path=str(socket_path),
+        )
+        assert hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        lines = _read_lines(records_path, 2)
+        alive = daemon.is_alive()
+    finally:
+        daemon.stop()
+
+    assert alive, "the daemon serve thread died"
+    records = [validate_record(json.loads(line)) for line in lines]
+    assert any(r.session_id == "sess-1" and r.tool.name == "Bash" for r in records)
+    assert any(r.tool.name == HOOK_ERROR_TOOL for r in records)
+
+
+def test_second_daemon_refuses_a_live_socket(short_dir: Path) -> None:
+    daemon, socket_path, _ = _started(short_dir)
+    try:
+        other = Daemon(socket_path=str(socket_path), records_path=short_dir / "other.jsonl")
+        with pytest.raises(RuntimeError):
+            other.start()
+    finally:
+        daemon.stop()
+
+
+def test_stale_socket_file_is_replaced(short_dir: Path) -> None:
+    socket_path = short_dir / "stale.sock"
+    socket_path.write_text("not a socket", encoding="utf-8")
+    daemon = Daemon(socket_path=str(socket_path), records_path=short_dir / "records.jsonl")
+    daemon.start()
+    try:
+        assert daemon.is_alive()
+    finally:
+        daemon.stop()
+
+
+def test_unpaired_pre_is_flushed_after_timeout(short_dir: Path) -> None:
+    socket_path = short_dir / "d.sock"
+    records_path = short_dir / "records.jsonl"
+    daemon = Daemon(
+        socket_path=str(socket_path),
+        records_path=records_path,
+        pre_timeout_seconds=0.05,
+        sweep_interval_seconds=0.02,
+    )
+    daemon.start()
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        # A Pre whose Post never arrives must still be recorded as hook-error (F2).
+        lines = _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    records = [json.loads(line) for line in lines]
+    assert any(r["tool"]["name"] == HOOK_ERROR_TOOL for r in records)
+
+
 def test_invalid_adapter_message_is_ignored(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

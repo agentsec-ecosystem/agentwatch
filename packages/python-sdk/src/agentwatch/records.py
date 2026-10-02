@@ -371,12 +371,16 @@ def _check_table(value: Any, where: str, key: str, *, nullable: bool = False) ->
         _fail(f"{where}: {key} must be an object")
 
 
-def _check_number(value: Any, where: str, key: str) -> None:
+def _check_number(value: Any, where: str, key: str, *, nullable: bool = False) -> None:
+    if value is None and nullable:
+        return
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         _fail(f"{where}: {key} must be a number")
 
 
-def _check_int(value: Any, where: str, key: str) -> None:
+def _check_int(value: Any, where: str, key: str, *, nullable: bool = False) -> None:
+    if value is None and nullable:
+        return
     if isinstance(value, bool) or not isinstance(value, int):
         _fail(f"{where}: {key} must be an integer")
 
@@ -468,11 +472,11 @@ def _validate_record_dict(data: Any) -> None:
     if "ended_at" in data:
         _check_datetime(data["ended_at"], where, "ended_at", nullable=True)
     if "duration_ms" in data:
-        _check_number(data["duration_ms"], where, "duration_ms")
+        _check_number(data["duration_ms"], where, "duration_ms", nullable=True)
     if "cost_usd" in data:
-        _check_number(data["cost_usd"], where, "cost_usd")
+        _check_number(data["cost_usd"], where, "cost_usd", nullable=True)
     if "tokens" in data:
-        _check_int(data["tokens"], where, "tokens")
+        _check_int(data["tokens"], where, "tokens", nullable=True)
     if "step_type" in data:
         _check_enum(data["step_type"], where, "step_type", StepType, nullable=True)
     if data.get("security_event") is not None:

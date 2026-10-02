@@ -301,6 +301,15 @@ def test_nullable_fields_accept_null_and_omission() -> None:
     validate_record(omitted)
 
 
+def test_nullable_numeric_fields_accept_null() -> None:
+    # schema types duration_ms/tokens/cost_usd as ["number"/"integer","null"].
+    data = _valid_dict()
+    data["duration_ms"] = None
+    data["tokens"] = None
+    data["cost_usd"] = None
+    validate_record(data)
+
+
 def test_non_table_input_is_rejected() -> None:
     with pytest.raises(RecordValidationError):
         validate_record(["not", "a", "table"])

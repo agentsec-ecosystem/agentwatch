@@ -1,14 +1,14 @@
-# agent-exec-trace-analytics
+# agentwatch-analytics
 
-Behavior analytics service for `agent-exec-trace` — reads raw traces from Jaeger/Tempo via the collector, normalizes spans, runs 35+ deterministic and 5 LLM-augmented anomaly detectors, and writes run summaries and anomalies to a Postgres read model.
+Behavior analytics service for `agentwatch` — reads raw traces from Jaeger/Tempo via the collector, normalizes spans, runs 35+ deterministic and 5 LLM-augmented anomaly detectors, and writes run summaries and anomalies to a Postgres read model.
 
 ## Installation
 
 ```bash
-pip install agent-exec-trace-analytics
+pip install agentwatch-analytics
 ```
 
-Published on [PyPI](https://pypi.org/project/agent-exec-trace-analytics/).
+Published on [PyPI](https://pypi.org/project/agentwatch-analytics/).
 
 Run with:
 

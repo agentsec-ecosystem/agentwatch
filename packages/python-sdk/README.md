@@ -1,28 +1,28 @@
-# agent-exec-trace SDK
+# agentwatch SDK
 
-Instrumentation SDK for `agent-exec-trace`: OpenTelemetry-style observability for AI
+Instrumentation SDK for `agentwatch`: OpenTelemetry-style observability for AI
 agent workflows.
 
 ## Installation
 
 ```bash
-pip install agent-exec-trace
+pip install agentwatch
 ```
 
 Add optional extras for LangGraph integration or OTLP export:
 
 ```bash
-pip install agent-exec-trace[langgraph]   # LangGraph adapter
-pip install agent-exec-trace[otlp]        # OTLP export extras
+pip install agentwatch[langgraph]   # LangGraph adapter
+pip install agentwatch[otlp]        # OTLP export extras
 ```
 
-Published on [PyPI](https://pypi.org/project/agent-exec-trace/).
+Published on [PyPI](https://pypi.org/project/agentwatch/).
 
 ## Overview
 
 The SDK turns agent behavior into OpenTelemetry spans and attributes so runs can be
 inspected in Jaeger, Tempo, or any OTLP-compatible backend, then analyzed by the
-`agent-exec-trace` analytics service.
+`agentwatch` analytics service.
 
 ## Status
 

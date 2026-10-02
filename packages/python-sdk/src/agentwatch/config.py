@@ -49,7 +49,7 @@ from agentwatch.redact import PrivacyMode, RedactionConfig
 
 # Default OTel service name.  Shows up as the service column in Jaeger / Tempo
 # and as the ``service.name`` resource attribute on every exported span.
-DEFAULT_SERVICE_NAME = "agent-exec-trace"
+DEFAULT_SERVICE_NAME = "agentwatch"
 
 # OTLP gRPC endpoint for the local OpenTelemetry Collector.  Milestone 3.1 wires
 # the actual exporter; this is the default target the collector listens on.

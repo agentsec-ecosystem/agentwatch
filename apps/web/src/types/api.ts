@@ -1,5 +1,5 @@
 /**
- * TypeScript type definitions for the agent-exec-trace API responses.
+ * TypeScript type definitions for the agentwatch API responses.
  *
  * Mirrors the Pydantic models from `api/models.py` and `api/queries.py`
  * response shapes. These types represent the normalized data the API client

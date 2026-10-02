@@ -3,12 +3,12 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agent-exec-trace"
-version = "0.2.0"
+name = "agentwatch"
+version = "0.1.0"
 description = "Execution traces for agent behavior - OpenTelemetry-style observability for AI agent workflows"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 dependencies = [
     "opentelemetry-api>=1.24",
     "opentelemetry-sdk>=1.24",

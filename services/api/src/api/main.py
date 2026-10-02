@@ -1,4 +1,4 @@
-"""FastAPI application entry point for the agent-exec-trace REST API.
+"""FastAPI application entry point for the agentwatch REST API.
 
 Provides the HTTP server that serves the web frontend's data needs: run timeline
 details, fleet health aggregates, version comparison, and anomaly inbox.  The
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 # Lifespan handles startup/shutdown; version is hardcoded for now until
 # there's a proper release process.
 app = FastAPI(
-    title="agent-exec-trace API",
+    title="agentwatch API",
     version="0.1.0",
     lifespan=lifespan,
 )

@@ -1,6 +1,6 @@
 # Real-World Agent Integration Test Plan — M13.2
 
-> Validates the agent-exec-trace SDK integration workflow by instrumenting
+> Validates the agentwatch SDK integration workflow by instrumenting
 > real open-source GitHub agents, generating traces, and running the full
 > detection pipeline (rule-based + LLM 9B).
 

@@ -1,14 +1,14 @@
-# agent-exec-trace User Guide
+# agentwatch User Guide
 
 > v0.1.0 — Production-grade observability for AI agent workflows
 
 ---
 
-## What is agent-exec-trace?
+## What is agentwatch?
 
-**agent-exec-trace** is an observability platform purpose-built for AI agent workflows. Agents are different from traditional services. A service handles requests predictably — you can monitor its latency, error rate, and throughput with standard tools. An agent makes decisions. It plans, calls tools, retrieves context, mutates memory, retries on failure, and accumulates cost with every LLM call. When an agent misbehaves, the failure mode is not a 500 error — it is a tool-call loop, a retry spiral, a cost spike, an output drift. Traditional observability was never designed to catch these failure modes.
+**agentwatch** is an observability platform purpose-built for AI agent workflows. Agents are different from traditional services. A service handles requests predictably — you can monitor its latency, error rate, and throughput with standard tools. An agent makes decisions. It plans, calls tools, retrieves context, mutates memory, retries on failure, and accumulates cost with every LLM call. When an agent misbehaves, the failure mode is not a 500 error — it is a tool-call loop, a retry spiral, a cost spike, an output drift. Traditional observability was never designed to catch these failure modes.
 
-agent-exec-trace solves this by treating every agent run as an execution trace — a structured, timestamped record of planning, tool calls, memory mutations, retries, approvals, and cost accumulation. These traces are captured through OpenTelemetry-compatible instrumentation and analyzed by 35 deterministic (rule-based) anomaly detectors across seven behavioral categories: Tool Execution, Cost & Resource, Runtime & Completion, Retry & Recovery, Interaction & Control, Output Quality, and Cross-Run Patterns. A further 5 LLM-augmented detectors provide semantic analysis for patterns that rule-based logic cannot detect — semantic loops, hallucinations, goal drift, quality degradation, and confusion patterns.
+agentwatch solves this by treating every agent run as an execution trace — a structured, timestamped record of planning, tool calls, memory mutations, retries, approvals, and cost accumulation. These traces are captured through OpenTelemetry-compatible instrumentation and analyzed by 35 deterministic (rule-based) anomaly detectors across seven behavioral categories: Tool Execution, Cost & Resource, Runtime & Completion, Retry & Recovery, Interaction & Control, Output Quality, and Cross-Run Patterns. A further 5 LLM-augmented detectors provide semantic analysis for patterns that rule-based logic cannot detect — semantic loops, hallucinations, goal drift, quality degradation, and confusion patterns.
 
 The system is not a replacement for your existing observability stack. It layers on top of Jaeger, Tempo, or any OTLP-compatible backend. It does not require you to ship prompts or tool arguments — metadata-only mode is the default. And it is local-first: the entire stack runs on a laptop before it needs a cluster.
 
@@ -26,7 +26,7 @@ The product is designed for the **operator** — the engineer or platform team m
 
 ### Prerequisites
 
-agent-exec-trace runs as a local Docker Compose stack. You will need:
+agentwatch runs as a local Docker Compose stack. You will need:
 
 | Prerequisite | Minimum Version | Check Command |
 |---|---|---|
@@ -42,8 +42,8 @@ macOS users: Docker Desktop works out of the box. Linux users: ensure your user 
 Clone the repository and install the Python SDK + service packages:
 
 ```bash
-git clone https://github.com/your-org/agent-exec-trace.git
-cd agent-exec-trace
+git clone https://github.com/your-org/agentwatch.git
+cd agentwatch
 
 # Install SDK and services in editable mode
 make setup
@@ -784,7 +784,7 @@ The following step-by-step scenarios walk through the most common operator journ
 
 ## Reference: Anomaly Types
 
-agent-exec-trace ships 35 deterministic (rule-based) anomaly detectors across 7 behavioural categories and 5 LLM-augmented detectors. Every rule-based detector produces structured anomaly records with severity, explanation, and evidence payloads. All detectors have configurable thresholds per workload.
+agentwatch ships 35 deterministic (rule-based) anomaly detectors across 7 behavioural categories and 5 LLM-augmented detectors. Every rule-based detector produces structured anomaly records with severity, explanation, and evidence payloads. All detectors have configurable thresholds per workload.
 
 The detection engine is deterministic-first by design — no LLM is required to decide whether an anomaly occurred. The 5 LLM-augmented detectors provide additional semantic analysis and degrade gracefully (returning no anomaly) when the LLM is unavailable.
 
@@ -1085,4 +1085,4 @@ docker compose logs analytics --tail 20
 
 ---
 
-*agent-exec-trace v0.1.0 — Built on OpenTelemetry. Behaviour-first. Deterministic-first. Local-first.*
+*agentwatch v0.1.0 — Built on OpenTelemetry. Behaviour-first. Deterministic-first. Local-first.*

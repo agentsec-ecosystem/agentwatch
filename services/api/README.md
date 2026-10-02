@@ -1,14 +1,14 @@
-# agent-exec-trace-api
+# agentwatch-api
 
-Read API service for `agent-exec-trace` — serves product-facing views (run timeline, fleet health, version compare, anomaly inbox) from the normalized Postgres read model.
+Read API service for `agentwatch` — serves product-facing views (run timeline, fleet health, version compare, anomaly inbox) from the normalized Postgres read model.
 
 ## Installation
 
 ```bash
-pip install agent-exec-trace-api
+pip install agentwatch-api
 ```
 
-Published on [PyPI](https://pypi.org/project/agent-exec-trace-api/).
+Published on [PyPI](https://pypi.org/project/agentwatch-api/).
 
 Run with:
 

@@ -1,5 +1,5 @@
 /**
- * Application entry point for the agent-exec-trace web dashboard.
+ * Application entry point for the agentwatch web dashboard.
  *
  * ## Architecture
  * - Rendered into the `<div id="root">` element in `index.html`.

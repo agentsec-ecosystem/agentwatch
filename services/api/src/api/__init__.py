@@ -1,4 +1,4 @@
-"""API package for the agent-exec-trace REST service.
+"""API package for the agentwatch REST service.
 
 Provides the FastAPI application, Pydantic models, database queries, and route
 handlers that serve the web frontend's data needs: run timeline details, fleet

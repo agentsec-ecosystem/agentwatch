@@ -1,5 +1,5 @@
 /**
- * Shared UI components for the agent-exec-trace dashboard.
+ * Shared UI components for the agentwatch dashboard.
  *
  * ## Design system — Cyber-Industrial
  * - Dark sidebar (#0b1120) with electric-blue accents

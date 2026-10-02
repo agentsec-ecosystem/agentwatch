@@ -1,6 +1,6 @@
 # E2E Test Report — v0.1.0 (Milestone 11)
 
-> Playwright end-to-end validation of the agent-exec-trace web app against the
+> Playwright end-to-end validation of the agentwatch web app against the
 > seeded local stack. Closes the M11 release gate defined in
 > [`docs/test/e2e-testing-plan.md`](e2e-testing-plan.md).
 > **Run date:** 2026-08-05

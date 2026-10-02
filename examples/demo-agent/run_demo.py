@@ -9,7 +9,7 @@ Jaeger or Tempo instance, where they can be inspected in the Jaeger UI.
 = Architecture overview
 1. Configure OTLP tracing to export spans to a local backend (Jaeger/Tempo).
 2. Import and build the LangGraph from ``request_triage.graph.build_graph()``.
-3. Wrap the compiled graph with ``trace_graph()`` from the agent-exec-trace SDK.
+3. Wrap the compiled graph with ``trace_graph()`` from the agentwatch SDK.
    This injects span instrumentation at each LangGraph node boundary.
 4. Invoke the graph with a seeded scenario input (``seeds.all_requests()``).
 5. Print the outcome, step count, cost estimate, and tool log to stdout.
@@ -27,7 +27,7 @@ Jaeger or Tempo instance, where they can be inspected in the Jaeger UI.
 
 = Prerequisites
     - docker compose up -d jaeger  (or ``docker compose --profile tempo up -d``)
-    - pip install "agent-exec-trace[otlp]"  (from the SDK package)
+    - pip install "agentwatch[otlp]"  (from the SDK package)
 """
 
 from __future__ import annotations

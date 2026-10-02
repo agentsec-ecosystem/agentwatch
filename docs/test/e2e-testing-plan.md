@@ -1,4 +1,4 @@
-# agent-exec-trace v0.1.0 — E2E Testing Plan (Robust)
+# agentwatch v0.1.0 — E2E Testing Plan (Robust)
 
 > Milestone: M11 (E2E Playwright Testing and Screenshot Validation)
 > Stack: React + Vite → FastAPI → Postgres (read-model)

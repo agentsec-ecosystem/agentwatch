@@ -23,7 +23,7 @@ def test_default_config_is_truncated_with_tool_args() -> None:
 def test_config_defaults() -> None:
     # Documented defaults for service identity and the future OTLP exporter endpoint.
     cfg = SDKConfig()
-    assert cfg.service_name == "agent-exec-trace"
+    assert cfg.service_name == "agentwatch"
     assert cfg.otlp_endpoint == "http://localhost:4317"
     assert cfg.default_agent_name == "unnamed_agent"
     assert cfg.default_agent_version is None

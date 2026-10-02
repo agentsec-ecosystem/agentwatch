@@ -1,4 +1,4 @@
-"""request-triage: deterministic LangGraph demo agent for agent-exec-trace.
+"""request-triage: deterministic LangGraph demo agent for agentwatch.
 
 This package exposes a compiled LangGraph that triages support requests.  The graph
 is fully deterministic: given the same seed, it always produces the same outcome,

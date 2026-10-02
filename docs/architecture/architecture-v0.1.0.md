@@ -1,4 +1,4 @@
-# agent-exec-trace v0.1.0 Architecture
+# agentwatch v0.1.0 Architecture
 
 ## Goal
 

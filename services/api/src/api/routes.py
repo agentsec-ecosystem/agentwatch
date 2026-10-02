@@ -1,4 +1,4 @@
-"""FastAPI route definitions for the agent-exec-trace REST API.
+"""FastAPI route definitions for the agentwatch REST API.
 
 Provides endpoints under ``/api/v1`` for:
 

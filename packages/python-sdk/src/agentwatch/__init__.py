@@ -1,4 +1,4 @@
-"""agent-exec-trace SDK: execution traces for agent behavior.
+"""agentwatch SDK: execution traces for agent behavior.
 
 ========================================================
 What this package provides

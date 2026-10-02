@@ -1,4 +1,4 @@
-# agent-exec-trace v0.1.0 — E2E Seed Data Spec
+# agentwatch v0.1.0 — E2E Seed Data Spec
 
 > Purpose: Document all seed data required to exercise E2E UI tests reliably across Dashboard, Fleet Health, Run Timeline, Version Compare, and Anomaly Inbox.
 

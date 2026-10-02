@@ -1,6 +1,6 @@
 # Examples
 
-Ready-to-run examples showing how to instrument agents with the `agent-exec-trace` SDK.
+Ready-to-run examples showing how to instrument agents with the `agentwatch` SDK.
 
 ---
 
@@ -15,7 +15,7 @@ A deterministic request-triage agent built with LangGraph, instrumented end-to-e
 make stack-up
 
 # 2. Install the SDK with OTLP export extras
-pip install "agent-exec-trace[otlp]"
+pip install "agentwatch[otlp]"
 
 # 3. Run a scenario
 cd examples/demo-agent

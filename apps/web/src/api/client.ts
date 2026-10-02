@@ -1,5 +1,5 @@
 /**
- * API client for the agent-exec-trace REST API.
+ * API client for the agentwatch REST API.
  *
  * Provides typed methods for each API endpoint. The browser defaults to
  * relative `/api` requests so Vite's proxy works in local Docker and host-dev.

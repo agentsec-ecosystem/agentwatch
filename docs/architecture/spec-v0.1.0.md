@@ -1,4 +1,4 @@
-# agent-exec-trace v0.1.0 Technical Specification
+# agentwatch v0.1.0 Technical Specification
 
 ## Scope
 

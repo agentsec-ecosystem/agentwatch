@@ -159,7 +159,7 @@ def configure_otlp_tracing(
     Jaeger / Tempo / any OTLP-gRPC-capable backend.
 
     The ``opentelemetry-exporter-otlp-proto-grpc`` package is required at runtime.
-    It is declared as an optional dependency (``agent-exec-trace[otlp]``) so the
+    It is declared as an optional dependency (``agentwatch[otlp]``) so the
     core SDK stays lightweight.
 
     Behavior:
@@ -193,7 +193,7 @@ def configure_otlp_tracing(
         # Traces now flow to the collector at http://collector:4317
     """
     # Lazy-import the OTLP exporter so the core SDK has no gRPC dependency until
-    # this function is actually called.  The ``pip install agent-exec-trace[otlp]``
+    # this function is actually called.  The ``pip install agentwatch[otlp]``
     # extra brings in ``opentelemetry-exporter-otlp-proto-grpc``.
     try:
         from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
@@ -202,7 +202,7 @@ def configure_otlp_tracing(
     except ImportError as exc:
         raise ImportError(
             "OTLP export requires the opentelemetry-exporter-otlp-proto-grpc package. "
-            'Install it with: pip install "agent-exec-trace[otlp]"'
+            'Install it with: pip install "agentwatch[otlp]"'
         ) from exc
 
     # Use caller-provided endpoint if given, otherwise fall back to config.

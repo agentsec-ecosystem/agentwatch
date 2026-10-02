@@ -1,7 +1,6 @@
-# <tool-name>
+# agentwatch
 
-> One-line description of what this tool does and which of the four capabilities it provides
-> (monitor / alert / block-limit / revoke).
+> **Monitor** — OpenTelemetry-based telemetry for agent tool calls, plus the shared security-event schema.
 
 Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem) — open-source,
 harness-agnostic security for AI agents.

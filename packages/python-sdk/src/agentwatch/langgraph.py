@@ -39,8 +39,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.langgraph import trace_graph
-    from agent_exec_trace.tracer import configure_tracing, default_config
+    from agentwatch.langgraph import trace_graph
+    from agentwatch.tracer import configure_tracing, default_config
 
     configure_tracing(default_config())
 
@@ -60,7 +60,7 @@ from langgraph.graph.state import CompiledStateGraph
 from opentelemetry import trace
 from opentelemetry.trace import Span, SpanKind
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_AGENT_OUTPUT,
     GEN_AI_OPERATION_NAME,
     GEN_AI_RESPONSE_CONTENT,
@@ -70,9 +70,9 @@ from agent_exec_trace.attrs import (
     SPAN_KIND_PLAN,
     SPAN_KIND_TOOL,
 )
-from agent_exec_trace.context import RunContext
-from agent_exec_trace.instrument import invoke_agent
-from agent_exec_trace.tracer import get_tracer
+from agentwatch.context import RunContext
+from agentwatch.instrument import invoke_agent
+from agentwatch.tracer import get_tracer
 
 
 class _NodeCallbackHandler(BaseCallbackHandler):
@@ -430,8 +430,8 @@ def trace_graph(
 
     Example::
 
-        from agent_exec_trace.langgraph import trace_graph
-        from agent_exec_trace.tracer import configure_tracing, default_config
+        from agentwatch.langgraph import trace_graph
+        from agentwatch.tracer import configure_tracing, default_config
 
         configure_tracing(default_config())
 

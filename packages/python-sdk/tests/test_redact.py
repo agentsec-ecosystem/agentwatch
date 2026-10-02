@@ -7,7 +7,7 @@ deterministic and never reversible to plaintext.
 
 from __future__ import annotations
 
-from agent_exec_trace.redact import PrivacyMode, RedactionConfig
+from agentwatch.redact import PrivacyMode, RedactionConfig
 
 
 def test_metadata_only_returns_none() -> None:

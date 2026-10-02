@@ -33,8 +33,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.config import SDKConfig, default_config
-    from agent_exec_trace.tracer import configure_tracing, get_tracer, reset_tracing
+    from agentwatch.config import SDKConfig, default_config
+    from agentwatch.tracer import configure_tracing, get_tracer, reset_tracing
 
     # Once at startup:
     configure_tracing(default_config())
@@ -57,7 +57,7 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
-from agent_exec_trace.config import SDKConfig
+from agentwatch.config import SDKConfig
 
 # ---------------------------------------------------------------------------
 # Module-level state
@@ -105,8 +105,8 @@ def configure_tracing(
 
     Example::
 
-        from agent_exec_trace.config import default_config
-        from agent_exec_trace.tracer import configure_tracing
+        from agentwatch.config import default_config
+        from agentwatch.tracer import configure_tracing
 
         provider = configure_tracing(default_config())
         # Provider is now available via get_tracer()
@@ -185,8 +185,8 @@ def configure_otlp_tracing(
 
     Example::
 
-        from agent_exec_trace.config import SDKConfig
-        from agent_exec_trace.tracer import configure_otlp_tracing
+        from agentwatch.config import SDKConfig
+        from agentwatch.tracer import configure_otlp_tracing
 
         cfg = SDKConfig(service_name="my-agent", otlp_endpoint="http://collector:4317")
         configure_otlp_tracing(cfg)
@@ -214,7 +214,7 @@ def configure_otlp_tracing(
     return configure_tracing(config, processor=processor, resource_attributes=resource_attributes)
 
 
-def get_tracer(name: str = "agent_exec_trace") -> trace.Tracer:
+def get_tracer(name: str = "agentwatch") -> trace.Tracer:
     """Return the active tracer for ``name``.
 
     Traces emitted through this tracer flow to the provider configured by
@@ -230,7 +230,7 @@ def get_tracer(name: str = "agent_exec_trace") -> trace.Tracer:
 
     Example::
 
-        from agent_exec_trace.tracer import get_tracer
+        from agentwatch.tracer import get_tracer
 
         tracer = get_tracer("my-custom-agent")
         with tracer.start_as_current_span("custom-operation"):
@@ -262,7 +262,7 @@ def reset_tracing() -> None:
 
     Example::
 
-        from agent_exec_trace.tracer import configure_tracing, reset_tracing
+        from agentwatch.tracer import configure_tracing, reset_tracing
 
         def test_something():
             configure_tracing(test_config)

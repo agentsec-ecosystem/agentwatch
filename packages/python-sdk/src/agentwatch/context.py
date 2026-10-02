@@ -10,7 +10,7 @@ which is exactly the cross-adapter inconsistency the product must avoid
 (see the "Release Blockers" in wbs-v0.1.0.md).
 
 ``RunContext`` is the single carrier for that identity. It is created once per run
-and passed into :func:`agent_exec_trace.instrument.invoke_agent`, which fans its
+and passed into :func:`agentwatch.instrument.invoke_agent`, which fans its
 attributes out onto the root span and, transitively, the whole span tree.
 
 ========================================================
@@ -35,7 +35,7 @@ Design decisions
   ``gen_ai.agent.version`` key (for OTel interop) and the provisional
   ``gen_ai.agent.version.label`` key (the stable key version-compare cohorts use).
   This dual-write is intentional -- see the docstring in
-  :class:`agent_exec_trace.attrs`.
+  :class:`agentwatch.attrs`.
 
 ========================================================
 Usage
@@ -43,8 +43,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.context import RunContext
-    from agent_exec_trace.instrument import invoke_agent
+    from agentwatch.context import RunContext
+    from agentwatch.instrument import invoke_agent
 
     ctx = RunContext(
         agent_name="request-triage",
@@ -63,7 +63,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_AGENT_NAME,
     GEN_AI_AGENT_RUN_ID,
     GEN_AI_AGENT_VERSION,

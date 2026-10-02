@@ -15,7 +15,7 @@ Design rules shared by every helper:
     ``invoke_agent`` or another helper.
   * Sensitive payloads (tool args, memory content) are ONLY written through
     ``RedactionConfig.apply(..., allowed=<field flag>)``. This is the privacy
-    enforcement point -- see :mod:`agent_exec_trace.redact`.
+    enforcement point -- see :mod:`agentwatch.redact`.
 
 ========================================================
 Span portability guarantees
@@ -36,16 +36,16 @@ Usage
 
 ::
 
-    from agent_exec_trace.spans import (
+    from agentwatch.spans import (
         plan_span,
         execute_tool_span,
         retrieval_span,
         memory_span,
         record_event,
     )
-    from agent_exec_trace.instrument import invoke_agent
-    from agent_exec_trace.context import RunContext
-    from agent_exec_trace.redact import RedactionConfig, PrivacyMode
+    from agentwatch.instrument import invoke_agent
+    from agentwatch.context import RunContext
+    from agentwatch.redact import RedactionConfig, PrivacyMode
 
     redact = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
 
@@ -68,7 +68,7 @@ from contextlib import contextmanager
 from opentelemetry import trace
 from opentelemetry.trace import Span, SpanKind
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_OPERATION_NAME,
     GEN_AI_TOOL_ARGS,
     GEN_AI_TOOL_NAME,
@@ -78,8 +78,8 @@ from agent_exec_trace.attrs import (
     SPAN_KIND_RETRIEVAL,
     SPAN_KIND_TOOL,
 )
-from agent_exec_trace.redact import RedactionConfig
-from agent_exec_trace.tracer import get_tracer
+from agentwatch.redact import RedactionConfig
+from agentwatch.tracer import get_tracer
 
 # ---------------------------------------------------------------------------
 # Types
@@ -217,7 +217,7 @@ def execute_tool_span(
 
     Example::
 
-        from agent_exec_trace.redact import RedactionConfig, PrivacyMode
+        from agentwatch.redact import RedactionConfig, PrivacyMode
 
         redact = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
 
@@ -312,7 +312,7 @@ def memory_span(
 
     Example::
 
-        from agent_exec_trace.redact import RedactionConfig, PrivacyMode
+        from agentwatch.redact import RedactionConfig, PrivacyMode
 
         redact = RedactionConfig(mode=PrivacyMode.HASHED, capture_memory=True)
 
@@ -404,7 +404,7 @@ def tool_span(
 
     Example::
 
-        from agent_exec_trace.spans import tool_span
+        from agentwatch.spans import tool_span
 
         @trace_agent("my-agent")
         def my_agent(query: str) -> str:
@@ -415,7 +415,7 @@ def tool_span(
             return str(results)
     """
     # Lazy import to avoid circular dependency at module load time.
-    from agent_exec_trace.config import default_config
+    from agentwatch.config import default_config
 
     redact = default_config().redaction
     with execute_tool_span(

@@ -269,8 +269,8 @@ _(Per-agent walkthrough of what worked and what broke.)_
 **LangGraph agents (TracedGraph wrapper):**
 ```
 # Typical instrumentation (3 lines):
-from agent_exec_trace.langgraph import TracedGraph
-from agent_exec_trace.context import RunContext
+from agentwatch.langgraph import TracedGraph
+from agentwatch.context import RunContext
 
 ctx = RunContext(agent_name="chatbot", agent_version="v1.0")
 graph = TracedGraph(original_graph, ctx)
@@ -279,7 +279,7 @@ graph = TracedGraph(original_graph, ctx)
 **PydanticAI agents (@trace_agent decorator):**
 ```
 # Typical instrumentation (2 lines):
-from agent_exec_trace.raw import trace_agent
+from agentwatch.raw import trace_agent
 
 @trace_agent(agent_name="weather", agent_version="v1.0")
 async def run_agent(payload): ...
@@ -288,7 +288,7 @@ async def run_agent(payload): ...
 **CrewAI agents (@trace_agent decorator):**
 ```
 # Typical instrumentation (2 lines):
-from agent_exec_trace.raw import trace_agent
+from agentwatch.raw import trace_agent
 
 @trace_agent(agent_name="crew", agent_version="v1.0")
 def run_crew(payload): ...

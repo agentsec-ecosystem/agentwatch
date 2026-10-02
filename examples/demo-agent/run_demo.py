@@ -41,9 +41,9 @@ import sys
 # ``request_triage`` package.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from agent_exec_trace.config import SDKConfig
-from agent_exec_trace.langgraph import trace_graph
-from agent_exec_trace.tracer import configure_otlp_tracing
+from agentwatch.config import SDKConfig
+from agentwatch.langgraph import trace_graph
+from agentwatch.tracer import configure_otlp_tracing
 
 from request_triage.graph import DEFAULT_VERSION, build_graph
 from request_triage.seeds import all_requests

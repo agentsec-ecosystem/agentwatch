@@ -7,7 +7,7 @@ auto-generate uniquely.
 
 from __future__ import annotations
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_AGENT_NAME,
     GEN_AI_AGENT_RUN_ID,
     GEN_AI_AGENT_VERSION,
@@ -16,7 +16,7 @@ from agent_exec_trace.attrs import (
     GEN_AI_PROVIDER_NAME,
     GEN_AI_REQUEST_MODEL,
 )
-from agent_exec_trace.context import RunContext
+from agentwatch.context import RunContext
 
 
 def test_to_attributes_maps_identity() -> None:

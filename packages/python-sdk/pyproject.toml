@@ -40,7 +40,7 @@ line-length = 100
 select = ["E", "F", "I", "UP", "B", "SIM", "N"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["agent_exec_trace"]
+known-first-party = ["agentwatch"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

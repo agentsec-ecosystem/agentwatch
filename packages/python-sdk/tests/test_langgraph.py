@@ -18,9 +18,9 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
 )
 
-from agent_exec_trace.config import SDKConfig
-from agent_exec_trace.langgraph import TracedGraph, _NodeCallbackHandler, trace_graph
-from agent_exec_trace.tracer import configure_tracing, reset_tracing
+from agentwatch.config import SDKConfig
+from agentwatch.langgraph import TracedGraph, _NodeCallbackHandler, trace_graph
+from agentwatch.tracer import configure_tracing, reset_tracing
 
 
 @pytest.fixture(autouse=True)

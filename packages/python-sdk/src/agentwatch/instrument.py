@@ -36,8 +36,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.context import RunContext
-    from agent_exec_trace.instrument import invoke_agent
+    from agentwatch.context import RunContext
+    from agentwatch.instrument import invoke_agent
 
     ctx = RunContext(agent_name="my-agent")
     with invoke_agent(ctx, attributes={"custom.key": "value"}) as root:
@@ -54,15 +54,15 @@ from contextlib import contextmanager
 from opentelemetry import trace
 from opentelemetry.trace import Span, SpanKind
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_AGENT_OUTPUT,
     GEN_AI_OPERATION_NAME,
     GEN_AI_RESPONSE_CONTENT,
     SPAN_KIND_INVOKE_AGENT,
 )
-from agent_exec_trace.context import RunContext
-from agent_exec_trace.redact import RedactionConfig
-from agent_exec_trace.tracer import get_tracer
+from agentwatch.context import RunContext
+from agentwatch.redact import RedactionConfig
+from agentwatch.tracer import get_tracer
 
 
 @contextmanager

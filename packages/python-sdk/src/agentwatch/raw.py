@@ -7,7 +7,7 @@ The ``@trace_agent`` decorator is the "no-framework" onboarding path. It proves 
 SDK is not locked to LangGraph: any plain Python agent function can be wrapped so
 every invocation becomes a coherent root ``invoke_agent`` span, and the nested
 behavior helpers (``plan_span``, ``execute_tool_span``, ``retrieval_span`` from
-:mod:`agent_exec_trace.spans`) used *inside* the function parent to that root
+:mod:`agentwatch.spans`) used *inside* the function parent to that root
 automatically -- no manual span plumbing required.
 
 This keeps raw-Python output structurally consistent with the LangGraph adapter
@@ -34,8 +34,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.raw import trace_agent
-    from agent_exec_trace.spans import plan_span, execute_tool_span
+    from agentwatch.raw import trace_agent
+    from agentwatch.spans import plan_span, execute_tool_span
 
     @trace_agent("my-agent", agent_version="v0.2.0")
     def my_agent(request: str) -> str:
@@ -54,8 +54,8 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, TypeVar, cast
 
-from agent_exec_trace.context import RunContext
-from agent_exec_trace.instrument import invoke_agent
+from agentwatch.context import RunContext
+from agentwatch.instrument import invoke_agent
 
 # Bound so the decorator preserves the exact callable shape of the wrapped agent.
 # ``Callable[..., Any]`` accepts any arity and returns any type, so the decorated
@@ -99,8 +99,8 @@ def trace_agent(
 
     Example::
 
-        from agent_exec_trace.raw import trace_agent
-        from agent_exec_trace.spans import plan_span, execute_tool_span
+        from agentwatch.raw import trace_agent
+        from agentwatch.spans import plan_span, execute_tool_span
 
         @trace_agent(
             "support-bot",

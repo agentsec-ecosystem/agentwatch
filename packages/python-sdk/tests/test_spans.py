@@ -16,18 +16,18 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
 )
 
-from agent_exec_trace.attrs import (
+from agentwatch.attrs import (
     GEN_AI_OPERATION_NAME,
     SPAN_KIND_MEMORY,
     SPAN_KIND_PLAN,
     SPAN_KIND_RETRIEVAL,
     SPAN_KIND_TOOL,
 )
-from agent_exec_trace.config import SDKConfig
-from agent_exec_trace.context import RunContext
-from agent_exec_trace.instrument import invoke_agent
-from agent_exec_trace.redact import PrivacyMode, RedactionConfig
-from agent_exec_trace.spans import (
+from agentwatch.config import SDKConfig
+from agentwatch.context import RunContext
+from agentwatch.instrument import invoke_agent
+from agentwatch.redact import PrivacyMode, RedactionConfig
+from agentwatch.spans import (
     execute_tool_span,
     memory_span,
     plan_span,
@@ -36,7 +36,7 @@ from agent_exec_trace.spans import (
     retrieval_span,
     tool_span,
 )
-from agent_exec_trace.tracer import configure_tracing, reset_tracing
+from agentwatch.tracer import configure_tracing, reset_tracing
 
 
 @pytest.fixture(autouse=True)

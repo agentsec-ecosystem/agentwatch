@@ -53,7 +53,7 @@ Usage
 
 ::
 
-    from agent_exec_trace.redact import RedactionConfig, PrivacyMode
+    from agentwatch.redact import RedactionConfig, PrivacyMode
 
     cfg = RedactionConfig(
         mode=PrivacyMode.HASHED,

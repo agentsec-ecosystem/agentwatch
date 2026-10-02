@@ -19,7 +19,7 @@ Usage
 ========================================================
 Import the constant you need by name; never construct a key string directly::
 
-    from agent_exec_trace.attrs import GEN_AI_OPERATION_NAME, SPAN_KIND_PLAN
+    from agentwatch.attrs import GEN_AI_OPERATION_NAME, SPAN_KIND_PLAN
 
     span.set_attribute(GEN_AI_OPERATION_NAME, SPAN_KIND_PLAN)
 

@@ -19,8 +19,8 @@ Usage
 
 ::
 
-    from agent_exec_trace.config import SDKConfig, default_config
-    from agent_exec_trace.tracer import configure_tracing
+    from agentwatch.config import SDKConfig, default_config
+    from agentwatch.tracer import configure_tracing
 
     # Safe-by-default (truncated content capture with tool args enabled)
     configure_tracing(default_config())
@@ -37,7 +37,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from agent_exec_trace.redact import PrivacyMode, RedactionConfig
+from agentwatch.redact import PrivacyMode, RedactionConfig
 
 # ---------------------------------------------------------------------------
 # Module-level defaults
@@ -70,11 +70,11 @@ class SDKConfig:
         default_agent_name: fallback agent name when a run provides none.
         default_agent_version: fallback agent version when a run provides none.
         default_workload_type: fallback workload classification when none is given.
-        redaction: privacy/capture configuration (see :mod:`agent_exec_trace.redact`).
+        redaction: privacy/capture configuration (see :mod:`agentwatch.redact`).
 
     Example::
 
-        from agent_exec_trace.redact import PrivacyMode, RedactionConfig
+        from agentwatch.redact import PrivacyMode, RedactionConfig
 
         cfg = SDKConfig(
             service_name="my-tuning-agent",
@@ -110,8 +110,8 @@ def default_config() -> SDKConfig:
 
     Example::
 
-        from agent_exec_trace.config import default_config
-        from agent_exec_trace.tracer import configure_tracing
+        from agentwatch.config import default_config
+        from agentwatch.tracer import configure_tracing
 
         configure_tracing(default_config())
     """

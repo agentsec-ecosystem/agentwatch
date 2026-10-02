@@ -52,7 +52,7 @@ See `examples/demo-agent/scenario-matrix.md` for the full scenario catalog.
 ### Raw Python agent
 
 ```python
-from agent_exec_trace import AgentTracer, trace_agent, tool_span
+from agentwatch import AgentTracer, trace_agent, tool_span
 
 # Configure OTLP export once at startup
 AgentTracer.setup(otlp_endpoint="http://localhost:4317", service_name="my-agent")
@@ -77,7 +77,7 @@ async def handle_request(query: str) -> str:
 ### LangGraph agent
 
 ```python
-from agent_exec_trace import AgentTracer, TracedGraph
+from agentwatch import AgentTracer, TracedGraph
 
 AgentTracer.setup(otlp_endpoint="http://localhost:4317")
 
@@ -102,7 +102,7 @@ Control what data is captured in spans:
 | `FULL` | Full argument content (use with care) |
 
 ```python
-from agent_exec_trace import RedactionConfig, PrivacyMode
+from agentwatch import RedactionConfig, PrivacyMode
 
 config = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
 ```

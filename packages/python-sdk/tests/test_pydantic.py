@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from agent_exec_trace import pydantic as pyd_mod
-from agent_exec_trace.pydantic import (
+from agentwatch import pydantic as pyd_mod
+from agentwatch.pydantic import (
     is_pydanticai_v1,
     is_pydanticai_v2,
     pydanticai_version,

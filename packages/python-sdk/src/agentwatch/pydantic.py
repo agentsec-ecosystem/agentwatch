@@ -10,7 +10,7 @@ Usage with v2 (the current default)
 
 ::
 
-    from agent_exec_trace.pydantic import trace_agent_pydantic
+    from agentwatch.pydantic import trace_agent_pydantic
 
     traced = trace_agent_pydantic(your_agent, agent_name="my-agent")
 
@@ -25,7 +25,7 @@ PydanticAI v1 agents require ``pydantic-ai<2``.  Install with::
 
 Then use the ``@trace_agent`` decorator (not PydanticAI-specific instrumentation)::
 
-    from agent_exec_trace.raw import trace_agent
+    from agentwatch.raw import trace_agent
 
     @trace_agent("my-agent")
     def my_agent(prompt: str) -> str:
@@ -52,7 +52,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agent_exec_trace.config import SDKConfig
+from agentwatch.config import SDKConfig
 
 logger = logging.getLogger(__name__)
 
@@ -131,8 +131,8 @@ def trace_pydantic_agent(
             "\n"
             "For v1 agents, instrument with @trace_agent + tool_span():\n"
             "\n"
-            "    from agent_exec_trace.raw import trace_agent\n"
-            "    from agent_exec_trace.spans import tool_span\n"
+            "    from agentwatch.raw import trace_agent\n"
+            "    from agentwatch.spans import tool_span\n"
             "\n"
             "    @trace_agent('my-agent')\n"
             "    def my_agent(prompt):\n"
@@ -151,7 +151,7 @@ def trace_pydantic_agent(
             "\n"
             "Example:\n"
             "\n"
-            "    from agent_exec_trace.raw import trace_agent\n"
+            "    from agentwatch.raw import trace_agent\n"
             "\n"
             "    @trace_agent('my-agent')\n"
             "    def run_agent(prompt):\n"

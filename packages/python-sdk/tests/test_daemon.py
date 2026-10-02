@@ -128,7 +128,7 @@ def test_matched_post_has_no_hook_error(short_dir: Path) -> None:
         hook.send(
             {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
         )
-        lines = _read_lines(records_path, 2)
+        _read_lines(records_path, 2)
     finally:
         daemon.stop()
 
@@ -143,7 +143,7 @@ def test_unmatched_post_records_a_hook_error(short_dir: Path) -> None:
         hook.send(
             {"phase": "post", "harness": "claude-code", "event": POST}, socket_path=str(socket_path)
         )
-        lines = _read_lines(records_path, 2)
+        _read_lines(records_path, 2)
     finally:
         daemon.stop()
 
@@ -167,7 +167,7 @@ def test_explicit_hook_error_frame_is_recorded(short_dir: Path) -> None:
             {"phase": "hook-error", "harness": "claude-code", "event": event},
             socket_path=str(socket_path),
         )
-        lines = _read_lines(records_path, 1)
+        _read_lines(records_path, 1)
     finally:
         daemon.stop()
 
@@ -192,7 +192,7 @@ def test_bad_timestamp_frame_does_not_kill_the_daemon(short_dir: Path) -> None:
         assert hook.send(
             {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
         )
-        lines = _read_lines(records_path, 2)
+        _read_lines(records_path, 2)
         alive = daemon.is_alive()
     finally:
         daemon.stop()
@@ -239,7 +239,7 @@ def test_unpaired_pre_is_flushed_after_timeout(short_dir: Path) -> None:
             {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
         )
         # A Pre whose Post never arrives must still be recorded as hook-error (F2).
-        lines = _read_lines(records_path, 2)
+        _read_lines(records_path, 2)
     finally:
         daemon.stop()
 
@@ -290,6 +290,7 @@ def test_daemon_surfaces_a_broken_chain(short_dir: Path) -> None:
     daemon = Daemon(socket_path=str(socket_path), records_path=records_path)
     daemon.start()
     try:
+        assert daemon.chain_status is not None
         assert daemon.chain_status.ok is False
     finally:
         daemon.stop()

@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from agentwatch.cli import main
 from agentwatch.install import hooks_installed
+from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
+from agentwatch.store import RecordStore
 
 
 @pytest.fixture
@@ -97,16 +100,17 @@ def test_status_reflects_user_scope_hooks(
 
 
 def _write_records(isolated: Path) -> None:
-    store = isolated / "store"
-    store.mkdir(parents=True, exist_ok=True)
-    records = [
-        {"session_id": "sess-a", "tool": {"name": "Bash"}},
-        {"session_id": "sess-b", "tool": {"name": "Read"}},
-        {"session_id": "sess-a", "tool": {"name": "Edit"}},
-    ]
-    (store / "records.jsonl").write_text(
-        "\n".join(json.dumps(r) for r in records) + "\n", encoding="utf-8"
-    )
+    store = RecordStore(isolated / "store" / "records.jsonl")
+    for session_id, tool_name in [("sess-a", "Bash"), ("sess-b", "Read"), ("sess-a", "Edit")]:
+        store.append(
+            AgentRecord(
+                session_id=session_id,
+                agent=AgentIdentity(identity="a"),
+                tool=ToolCall(name=tool_name),
+                outcome=Outcome.OK,
+                started_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+            )
+        )
 
 
 def test_sessions_lists_recorded_sessions(

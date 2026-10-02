@@ -129,9 +129,12 @@ class RecordStore:
         for entry in entries:
             if entry.prev_hash != prev:
                 return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
-            if not entry.tombstone and entry.record is not None:
-                if _entry_hash(entry.prev_hash, entry.record.to_dict()) != entry.hash:
-                    return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
+            if (
+                not entry.tombstone
+                and entry.record is not None
+                and _entry_hash(entry.prev_hash, entry.record.to_dict()) != entry.hash
+            ):
+                return ChainStatus(ok=False, checked=len(entries), broken_at=entry.seq)
             prev = entry.hash
         return ChainStatus(ok=True, checked=len(entries), broken_at=None)
 
@@ -163,7 +166,9 @@ class RecordStore:
             handle.write(json.dumps(envelope, ensure_ascii=False) + "\n")
             handle.flush()
             os.fsync(handle.fileno())
-        entry = ChainEntry(seq=seq, prev_hash=prev_hash, hash=envelope["hash"], record=record)
+        entry = ChainEntry(
+            seq=seq, prev_hash=prev_hash, hash=str(envelope["hash"]), record=record
+        )
         self._entries.append(entry)
         return entry
 
@@ -182,7 +187,11 @@ class RecordStore:
         purged = 0
         kept = 0
         for entry in self._entries:
-            if not entry.tombstone and entry.record is not None and entry.record.started_at < cutoff:
+            if (
+                not entry.tombstone
+                and entry.record is not None
+                and entry.record.started_at < cutoff
+            ):
                 purged += 1
                 lines.append(
                     json.dumps(

@@ -37,6 +37,7 @@ from agentwatch.install import (
     stop_daemon,
     uninstall_hooks,
 )
+from agentwatch.store import RecordStore
 
 # A fixed, hand-written command so expected JSON is derived independently of
 # the resolver under test.
@@ -292,7 +293,8 @@ def test_start_daemon_records_a_hook_and_stops(
     finally:
         assert stop_daemon() is True
 
-    assert json.loads(lines[0])["session_id"] == "sess-live"
+    assert RecordStore(store / "records.jsonl").records()[0].session_id == "sess-live"
+    assert json.loads(lines[0])  # the sink is a non-empty JSONL envelope
     assert is_daemon_alive() is False
 
 

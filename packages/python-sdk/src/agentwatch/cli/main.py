@@ -9,7 +9,6 @@ land in M4-M5 and fail closed here rather than pretending to succeed.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -237,24 +236,11 @@ def _run_sessions(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
 
-    records_path = Path(cfg.store.path).expanduser() / "records.jsonl"
-    if not records_path.exists():
-        print("agentwatch: no sessions recorded")
-        return 0
-
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     counts: dict[str, int] = {}
     order: list[str] = []
-    for line in records_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            record = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        session_id = record.get("session_id") if isinstance(record, dict) else None
-        if not isinstance(session_id, str):
-            continue
+    for record in store.records():
+        session_id = record.session_id
         if session_id not in counts:
             order.append(session_id)
             counts[session_id] = 0

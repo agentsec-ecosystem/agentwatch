@@ -16,12 +16,14 @@ import hashlib
 import json
 import os
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 from agentwatch.records import AgentRecord, RecordValidationError, validate_record
 
 GENESIS_HASH = "0" * 64
+_BYTES_PER_MB = 1024 * 1024
 
 
 def _canonical(record: dict[str, Any]) -> str:
@@ -54,6 +56,18 @@ class ChainStatus:
 
 class ChainError(Exception):
     """Raised by callers that require an intact chain."""
+
+
+class StoreFullError(Exception):
+    """Raised when the size cap is reached: recording stops, never overwrites (F3)."""
+
+
+@dataclass(frozen=True)
+class RetentionReport:
+    """Outcome of a retention pass."""
+
+    purged: int
+    kept: int
 
 
 class RecordStore:
@@ -124,7 +138,17 @@ class RecordStore:
     # -- writing -----------------------------------------------------------
 
     def append(self, record: AgentRecord) -> ChainEntry:
-        """Append one record, computing and storing its chain hash."""
+        """Append one record, computing and storing its chain hash.
+
+        Raises:
+            StoreFullError: when the configured size cap is already reached
+                (F3) — recording stops and is surfaced, nothing is overwritten.
+        """
+        if self.max_size_mb is not None and self.size_bytes() >= self.max_size_mb * _BYTES_PER_MB:
+            raise StoreFullError(
+                f"store {self.path} reached the {self.max_size_mb} MB cap; "
+                "raise store.max_size_mb or run retention"
+            )
         self.path.parent.mkdir(parents=True, exist_ok=True)
         seq = self._entries[-1].seq + 1 if self._entries else 0
         prev_hash = self._entries[-1].hash if self._entries else GENESIS_HASH
@@ -142,3 +166,52 @@ class RecordStore:
         entry = ChainEntry(seq=seq, prev_hash=prev_hash, hash=envelope["hash"], record=record)
         self._entries.append(entry)
         return entry
+
+    def apply_retention(
+        self, *, retention_days: int, now: datetime | None = None
+    ) -> RetentionReport:
+        """Tombstone entries older than the window; never remove a line silently.
+
+        Tombstones keep ``seq``/``prev_hash``/``hash`` so the chain links still
+        verify; only the record payload is dropped. Future-dated entries (clock
+        skew) are kept (Review Focus 3).
+        """
+        moment = now or datetime.now(timezone.utc)
+        cutoff = moment - timedelta(days=retention_days)
+        lines: list[str] = []
+        purged = 0
+        kept = 0
+        for entry in self._entries:
+            if not entry.tombstone and entry.record is not None and entry.record.started_at < cutoff:
+                purged += 1
+                lines.append(
+                    json.dumps(
+                        {
+                            "seq": entry.seq,
+                            "prev_hash": entry.prev_hash,
+                            "hash": entry.hash,
+                            "tombstone": True,
+                            "purged_at": moment.isoformat(),
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+                continue
+            kept += 1
+            payload = entry.record.to_dict() if entry.record is not None else None
+            lines.append(
+                json.dumps(
+                    {
+                        "seq": entry.seq,
+                        "prev_hash": entry.prev_hash,
+                        "hash": entry.hash,
+                        "tombstone": entry.tombstone,
+                        "record": payload,
+                    },
+                    ensure_ascii=False,
+                )
+            )
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.write_text("\n".join(lines) + "\n" if lines else "", encoding="utf-8")
+        self._entries = self._load()
+        return RetentionReport(purged=purged, kept=kept)

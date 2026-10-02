@@ -6,16 +6,28 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
-from agentwatch.store import GENESIS_HASH, RecordStore
+import pytest
 
-def _record(name: str = "Bash", session: str = "sess-1") -> AgentRecord:
+from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
+from agentwatch.store import (
+    GENESIS_HASH,
+    RecordStore,
+    RetentionReport,
+    StoreFullError,
+)
+
+
+def _record(
+    name: str = "Bash",
+    session: str = "sess-1",
+    when: datetime | None = None,
+) -> AgentRecord:
     return AgentRecord(
         session_id=session,
         agent=AgentIdentity(identity="agent"),
         tool=ToolCall(name=name),
         outcome=Outcome.OK,
-        started_at=datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+        started_at=when or datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
     )
 
 
@@ -116,3 +128,41 @@ def test_verify_detects_a_deleted_middle_line(tmp_path: Path) -> None:
 
     assert status.ok is False
     assert status.broken_at == 2
+
+
+def test_append_fails_closed_when_size_cap_reached(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path, max_size_mb=0)
+
+    with pytest.raises(StoreFullError):
+        store.append(_record("A"))
+
+    assert not path.exists() or path.stat().st_size == 0
+
+
+def test_apply_retention_tombstones_old_and_keeps_fresh(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("old", when=datetime(2020, 1, 1, tzinfo=timezone.utc)))
+    store.append(_record("fresh", when=datetime(2026, 1, 1, tzinfo=timezone.utc)))
+
+    report = store.apply_retention(retention_days=30, now=datetime(2026, 1, 2, tzinfo=timezone.utc))
+
+    assert report == RetentionReport(purged=1, kept=1)
+    reloaded = RecordStore(path)
+    entries = reloaded.entries()
+    assert entries[0].tombstone is True
+    assert entries[0].record is None
+    assert entries[1].record is not None
+    assert reloaded.verify().ok is True
+
+
+def test_apply_retention_keeps_future_dated_entries(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("future", when=datetime(2030, 1, 1, tzinfo=timezone.utc)))
+
+    report = store.apply_retention(retention_days=30, now=datetime(2026, 1, 2, tzinfo=timezone.utc))
+
+    assert report == RetentionReport(purged=0, kept=1)
+    assert RecordStore(path).records()[0].tool.name == "future"

@@ -10,16 +10,17 @@
 
 ## Milestone M8 — Local stack + demo/seed + E2E
 
-**Status:** 🚧 **partial** — the ported stack, demo agent, seed/replay workflow, Playwright E2E (6 specs)
+**Status:** ✅ **complete** — the ported stack, demo agent, seed/replay workflow, Playwright E2E (6 specs)
 and local dev flow are in place; demo-agent tests pass (12). Additions: transcript import (#192, now
 idempotent), `diff` (#193), `search` (#194), `tail --alert` (#196), golden corpus (#199), and the
-investigation cookbook (#205). **Reopened:** #69 (no runnable field-test harness exists — only the
-plan/report docs). #63 (a11y automated checks) is resolved.
+investigation cookbook (#205). **8.5 (field-test harness) folded into M14 14.1 (#141)** — the harness
+drives real machines/Docker, so it belongs with the field tests; see
+[Part 8](wbs-v0.1.0-part8-field-test-release.md). #63 (a11y automated checks) is resolved.
 Not verified here: `docker compose up` health, `make seed-e2e` load, and E2E green (Docker daemon
-was not available).
+was not available) — these move with the harness to M14.
 
-**Goal:** adapt the **ported** Docker Compose stack, demo agent, seed/replay workflow, and E2E (Playwright) +
-field-test harness, so the whole system runs locally and is demoable.
+**Goal:** adapt the **ported** Docker Compose stack, demo agent, seed/replay workflow, and E2E (Playwright),
+so the whole system runs locally and is demoable.
 
 **Requirements / PRDs:** parity A6 ([PRD 10](../../prd/10-feature-parity.md)),
 [deployment](../../deployment.md), [demo & seed](../../plans/demo-and-seed.md),
@@ -33,13 +34,13 @@ field-test harness, so the whole system runs locally and is demoable.
 | 8.2 | **Port/adapt** demo agent (LangGraph `request-triage`) | `examples/demo-agent` | one-command demo | #66 |
 | 8.3 | **Port/adapt** seed/replay workflow (96 runs, ~240 anomalies, 4 agents) | `make seed-e2e` | seeded data loads | #67 |
 | 8.4 | **Port/adapt** E2E Playwright tests (five views) | e2e tests | E2E green | #68 |
-| 8.5 | **Port/adapt** field-test harness | harness | runs the plan | #69 |
+| 8.5 | **Port/adapt** field-test harness → **folded into 14.1 (#141)** | — | delivered in M14 | — |
 | 8.6 | Wire local dev flow (`make stack-up`, `make seed-e2e`) | Makefile | documented flow works | #70 |
 | 8.7 | **Update design docs** | deployment, demo-and-seed, runbooks | docs match stack | #71 |
 | 8.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #129 |
 | 8.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #130 |
 
-**Tests required:** compose health; seed idempotency; Playwright E2E (5 views); field-test harness smoke.
+**Tests required:** compose health; seed idempotency; Playwright E2E (5 views).
 
 **Exit criteria**
 

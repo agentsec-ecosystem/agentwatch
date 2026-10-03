@@ -17,6 +17,12 @@ Status: **draft**.
 5. **Tamper** — edit hook config / a store record. **Pass:** fail-closed; gap surfaced; chain break reported.
 6. **Long session** — 1k+ tool calls. **Pass:** no gaps; bounded growth (<cap); p99 step latency ≤5 ms.
 
+## Harness
+
+A single **Playwright** harness (delivered in M14 14.1, #141) drives the Docker Compose stack
+(`make stack-up` → `make seed-e2e` → the E2E specs) and executes the automatable scenarios. It absorbs
+the M8 8.5 harness, which was deferred to M14 because it needs a real environment.
+
 ## Report
 
 Results → [`FIELD_TEST_REPORT.md`](FIELD_TEST_REPORT.md) at gate time.

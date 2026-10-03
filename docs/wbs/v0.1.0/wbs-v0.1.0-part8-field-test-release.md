@@ -20,7 +20,7 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 
 | # | Task | Deliverable | Acceptance | Issue |
 |---|---|---|---|---|
-| 14.1 | **Port/adapt** the field-test harness | harness | runnable | #141 |
+| 14.1 | **Port/adapt** the field-test harness (**Playwright**; drives the Docker/compose + seed + E2E setup; absorbs M8 8.5) | harness | runnable | #141 |
 | 14.2 | Execute field-test scenarios 1–6 (fresh install, replay, export, redaction attack, tamper, long session) | results | all scenarios pass | #142 |
 | 14.3 | Collect evidence + publish `FIELD_TEST_REPORT.md` | report | published | #143 |
 | 14.4 | Fix defects found; add regression tests | fixes | defects closed | #144 |
@@ -29,6 +29,11 @@ dedicated `field-test` and `release-readiness` parts. Two milestones.
 | 14.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #147 |
 
 **Tests required:** all six field-test scenarios; regression tests for every defect found.
+
+> **Scope note:** 14.1 owns a **single Playwright harness** that drives the Docker Compose stack
+> (`make stack-up` → `make seed-e2e` → the E2E specs) for the field-test scenarios. It absorbs M8 8.5:
+> the harness was deferred from M8 because it needs a real environment, and the M14 field-test milestone
+> is where that environment exists.
 
 **Exit criteria**
 

@@ -56,21 +56,24 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > operator UI; plus `agentwatch view` (#195), `agentwatch explain` (#211), and automated axe a11y
 > checks for all five views (#63, `apps/web/src/__tests__/a11y.test.tsx`).
 >
-> **M8 (Local stack + demo/seed + E2E) 🚧 partial** — ported compose stack, demo agent, seed/replay,
+> **M8 (Local stack + demo/seed + E2E) ✅** — ported compose stack, demo agent, seed/replay,
 > and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),
-> `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **Reopened:** #69
-> (field-test harness runner).
+> `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **8.5** (field-test
+> harness) is folded into M14 14.1 (#141) as a single Playwright harness that drives the stack.
 
-## Remaining (as of 2026-10-02)
+## Remaining (as of 2026-10-03)
 
-**Blocking open issues (milestones reopened):**
+**Blocking open issues (milestones reopened):** none — M7 and M8 are complete.
 
-- **M8 (#69)** — no runnable field-test harness exists yet (only plan/report docs); milestone 9 is `open`.
-- **M8 (#199)** — real authenticated golden-corpus capture still deferred; the committed corpus is
-  synthesized-from-shape (per D-19.39) and the real-corpus test skips with a reason.
+**Deferred to M14 (Field Tests):** M8 **8.5** field-test harness → **14.1 (#141)** — delivered as a
+single **Playwright** harness that drives the Docker/compose + seed + E2E setup.
+
+**Known limitation:** real authenticated golden-corpus capture (#199) remains deferred; the committed
+corpus is synthesized-from-shape (per D-19.39) and the real-corpus test skips with a reason.
 
 **Resolved since the last audit:** **M7 (#63)** — automated axe a11y checks now run in the UI test
-suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete.
+suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete. **M8 8.5**
+folded into M14 14.1.
 
 **Not started:** **M9–M15** (milestones 10–16, all `open`): inventory + retention, harness/framework
 expansion, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
@@ -93,7 +96,8 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | Entire repo tree (`packages/`, `services/`, `apps/`, `deploy/`, `examples/`, `tests/`, `schema`, tooling) | **M0** |
 | CLI/packaging metadata; record/trace schema; instrumentation SDK; privacy/redaction; OTLP export + replay | M1–M5 |
 | Analytics pipeline + 40 detectors; FastAPI read API + React UI | M6–M7 |
-| Docker Compose stack, demo, seed/replay, Playwright E2E, field-test harness | M8 |
+| Docker Compose stack, demo, seed/replay, Playwright E2E | M8 |
+| Field-test harness (single Playwright harness, drives the stack) | M14 |
 | CI + release tooling | M13 |
 
 > **Predecessor retention:** once **M0** lands (code fully represented, tests green), agentwatch is

@@ -14,6 +14,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
+from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.install import (
     InstallError,
     hooks_installed,
@@ -34,6 +35,7 @@ DEFERRED_COMMANDS = ("replay", "export", "migrate")
 _EXIT_CONFIG_ERROR = 2
 _EXIT_INSTALL_ERROR = 1
 _EXIT_NOT_IMPLEMENTED = 3
+_EXIT_USAGE_ERROR = 2
 
 
 def _version() -> str:
@@ -145,9 +147,39 @@ def _hooks_summary() -> str:
     return "hooks: absent"
 
 
-def _print_status(cfg: AgentwatchConfig) -> None:
+def _health_payload(cfg: AgentwatchConfig) -> dict[str, object]:
+    """Prefer the live daemon's ``/healthz``; fall back to local truth (stopped)."""
+    live = fetch_health(cfg.health.endpoint)
+    if live is not None:
+        return live
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    installed = any(
+        hooks_installed(target.settings_path)
+        for target in (resolve_scope("project"), resolve_scope("user"))
+    )
+    return local_snapshot(
+        store=store,
+        version=_version(),
+        hooks_installed=installed,
+        export_enabled=cfg.export.enabled,
+        export_endpoint=cfg.export.otlp_endpoint,
+        redaction_mode=cfg.privacy.mode,
+    ).to_dict()
+
+
+def _print_status(cfg: AgentwatchConfig, health: dict[str, object]) -> None:
+    store = health.get("store")
+    redaction = health.get("redaction")
+    store_fields = store if isinstance(store, dict) else {}
+    redaction_fields = redaction if isinstance(redaction, dict) else {}
     lines = [
         "agentwatch status",
+        f"  state: {health.get('state')}",
+        f"  state.reason: {health.get('reason') or '-'}",
+        f"  store.records: {store_fields.get('records', 0)}",
+        f"  store.chain_ok: {store_fields.get('chain_ok', True)}",
+        f"  store.size_mb: {store_fields.get('size_mb', 0.0)}",
+        f"  redaction.self_test_passing: {redaction_fields.get('self_test_passing', True)}",
         f"  harness: {cfg.harness}",
         f"  mode: {cfg.mode}",
         f"  {_hooks_summary()}",
@@ -173,7 +205,7 @@ def _run_status(args: argparse.Namespace) -> int:
     except ConfigError as exc:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
-    _print_status(cfg)
+    _print_status(cfg, _health_payload(cfg))
     return 0
 
 

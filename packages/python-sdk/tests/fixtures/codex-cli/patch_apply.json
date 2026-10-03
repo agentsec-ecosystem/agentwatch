@@ -1,0 +1,28 @@
+{
+  "message": {
+    "phase": "patch_apply",
+    "harness": "codex-cli",
+    "event": {
+      "session_id": "sess-x",
+      "call_id": "call-2",
+      "patch": "*** Begin Patch",
+      "success": true,
+      "timestamp": "2026-01-02T03:04:07+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-x",
+      "agent": { "identity": "codex-cli" },
+      "tool": { "name": "apply_patch" },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:07+00:00",
+      "harness": "codex-cli",
+      "trace_id": "sess-x",
+      "span_id": "call-2",
+      "ended_at": "2026-01-02T03:04:07+00:00",
+      "step_type": "act"
+    }
+  ]
+}

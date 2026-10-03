@@ -52,7 +52,7 @@
 
 **Interfaces:** `HARNESS_ID="codex-cli"`, `CAPABILITIES={exec_begin, exec_end, patch_apply}`, `DOCUMENTED_GAPS=("mcp-server-events",)`; `exec_begin`→act, `exec_end`→observe (error on `error`/nonzero `exit_code`), `patch_apply`→act with outcome from `success`.
 
-- [ ] Steps mirror Task 1 (write failing tests → RED → implement → GREEN → commit `feat(adapters): modeled Codex CLI adapter (M10 #81)`).
+- [x] Steps mirror Task 1 (write failing tests → RED → implement → GREEN → commit `feat(adapters): modeled Codex CLI adapter (M10 #81)`).
 
 ### Task 3: Gemini CLI adapter
 

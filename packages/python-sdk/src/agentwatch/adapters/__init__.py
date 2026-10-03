@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from agentwatch.adapters import claude_code, cursor
+from agentwatch.adapters import claude_code, codex_cli, cursor
 
-__all__ = ["claude_code", "cursor"]
+__all__ = ["claude_code", "codex_cli", "cursor"]

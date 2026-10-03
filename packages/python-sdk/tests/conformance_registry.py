@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentwatch import conformance
-from agentwatch.adapters import claude_code, cursor
+from agentwatch.adapters import claude_code, codex_cli, cursor
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -37,8 +37,19 @@ def cursor_spec() -> conformance.AdapterSpec:
     )
 
 
+def codex_cli_spec() -> conformance.AdapterSpec:
+    return conformance.AdapterSpec(
+        name=codex_cli.HARNESS_ID,
+        normalize=codex_cli.normalize,
+        capabilities=codex_cli.CAPABILITIES,
+        documented_gaps=codex_cli.DOCUMENTED_GAPS,
+        error_cls=codex_cli.CodexCliAdapterError,
+        fixtures_dir=FIXTURES / "codex-cli",
+    )
+
+
 def _shipped_specs() -> list[conformance.AdapterSpec]:
-    return [claude_code_spec(), cursor_spec()]
+    return [claude_code_spec(), cursor_spec(), codex_cli_spec()]
 
 
 def register_shipped_adapters() -> None:

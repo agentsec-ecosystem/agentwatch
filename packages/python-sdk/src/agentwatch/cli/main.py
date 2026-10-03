@@ -9,10 +9,13 @@ land in M4-M5 and fail closed here rather than pretending to succeed.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
+from datetime import datetime, timezone
 from pathlib import Path
 
+from agentwatch import hook
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.install import (
     InstallError,
@@ -25,6 +28,7 @@ from agentwatch.install import (
     stop_daemon,
     uninstall_hooks,
 )
+from agentwatch.records import EVENT_VERSION, SecurityEventType, validate_event
 from agentwatch.store import RecordStore
 
 # Documented subcommands still deferred to a later milestone
@@ -91,6 +95,19 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
+
+    event = sub.add_parser("event", help="emit a validated security event (M5 B2)")
+    event_sub = event.add_subparsers(dest="action", metavar="ACTION", required=True)
+    emit = event_sub.add_parser("emit", help="emit a security event to the daemon")
+    emit.add_argument(
+        "type",
+        choices=[member.value for member in SecurityEventType],
+        help="security event type",
+    )
+    emit.add_argument("--session-id", dest="session_id", help="session to attach the event to")
+    emit.add_argument("--tool", help="tool the event concerns")
+    emit.add_argument("--reason", help="human-readable reason")
+    emit.add_argument("--evidence", help="JSON object of supporting evidence")
 
     replay = sub.add_parser("replay", help="reconstruct a session timeline (M5)")
     replay.add_argument("session_id", help="session id to replay")
@@ -264,6 +281,45 @@ def _run_sessions(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_event_emit(args: argparse.Namespace) -> int:
+    event: dict[str, object] = {
+        "event_version": EVENT_VERSION,
+        "type": args.type,
+        "emitted_at": datetime.now(timezone.utc).isoformat(),
+        "emitter": "agentwatch",
+    }
+    if args.tool:
+        event["tool"] = args.tool
+    if args.reason:
+        event["reason"] = args.reason
+    if args.evidence is not None:
+        try:
+            evidence = json.loads(args.evidence)
+        except json.JSONDecodeError:
+            print("agentwatch: --evidence must be a JSON object", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        if not isinstance(evidence, dict):
+            print("agentwatch: --evidence must be a JSON object", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        event["evidence"] = evidence
+
+    # Fail closed before the wire: reject-never-coerce (F8).
+    try:
+        validate_event(event)
+    except ValueError as exc:
+        print(f"agentwatch: invalid event: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    message: dict[str, object] = {"phase": "event", "harness": "agentwatch", "event": event}
+    if args.session_id:
+        message["session_id"] = args.session_id
+    if not hook.send(message):
+        print("agentwatch: daemon not reachable; event was not recorded", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    print(f"agentwatch: event emitted ({args.type})")
+    return 0
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -286,4 +342,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_sessions(args)
     if args.command == "verify-store":
         return _run_verify_store(args)
+    if args.command == "event":
+        return _run_event_emit(args)
     return _run_deferred(str(args.command))

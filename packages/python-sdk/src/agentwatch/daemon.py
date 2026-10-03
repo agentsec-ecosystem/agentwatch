@@ -28,7 +28,17 @@ from agentwatch.adapters import claude_code
 from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
 from agentwatch.hook import default_socket_path
 from agentwatch.quarantine import QuarantineLog
-from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
+from agentwatch.records import (
+    AgentIdentity,
+    AgentRecord,
+    Outcome,
+    RecordValidationError,
+    StepType,
+    ToolCall,
+    _iso,
+    _parse_iso,
+    validate_event,
+)
 from agentwatch.redact import RedactionConfig
 from agentwatch.spool import Spool
 from agentwatch.store import ChainStatus, RecordStore, StoreFullError
@@ -36,6 +46,11 @@ from agentwatch.transcript import extract_usage
 
 # F2: a missed tool call is recorded under this tool name, never dropped.
 HOOK_ERROR_TOOL = "hook-error"
+
+# B2: an ingested ecosystem security event is carried by this tool name (D-19.7).
+EXTERNAL_EVENT_TOOL = "external-event"
+# B2: an event with no session id is attached to this synthetic session.
+DEFAULT_EVENT_SESSION = "external"
 
 
 def default_records_path() -> Path:
@@ -240,6 +255,9 @@ class Daemon:
             self._sweep_pending_pre()
             return [record] if persisted else []
 
+        if phase == "event":
+            return self._handle_event(message)
+
         if phase not in ("pre", "post", "denied", "prompt", "session-start", "session-end"):
             return []
 
@@ -337,6 +355,60 @@ class Daemon:
             span_id=call_id,
             step_type=StepType.ACT,
         )
+
+    def _handle_event(self, message: Mapping[str, Any]) -> list[AgentRecord]:
+        """Ingest an ecosystem security event as a carrier record (B2/D-19.7).
+
+        The frame is ``{"phase": "event", "harness": <emitter>, "event": <SecurityEvent>}``;
+        ``harness`` is required and is the authoritative emitter. The event is
+        validated with ``validate_event`` (reject-never-coerce, F8); an invalid
+        event is quarantined with the offending field named, never dropped.
+        """
+        emitter = message.get("harness")
+        raw = message.get("event")
+        if not isinstance(emitter, str) or not emitter:
+            self._quarantine_event(message, "missing required field 'harness' (emitter)")
+            return []
+        if not isinstance(raw, Mapping):
+            self._quarantine_event(message, "missing required field 'event'")
+            return []
+
+        # The envelope's `harness` is the provenance of record; attach it before
+        # validating so distinct sibling emitters stay distinguishable.
+        try:
+            event = validate_event({**raw, "emitter": emitter})
+        except RecordValidationError as exc:
+            self._quarantine_event(message, str(exc))
+            return []
+
+        session_id = message.get("session_id")
+        if not isinstance(session_id, str) or not session_id:
+            session_id = DEFAULT_EVENT_SESSION
+        record = AgentRecord(
+            session_id=session_id,
+            agent=AgentIdentity(identity=emitter),
+            tool=ToolCall(name=EXTERNAL_EVENT_TOOL),
+            outcome=Outcome.OK,
+            started_at=event.emitted_at,
+            harness=emitter,
+            trace_id=session_id,
+            span_id=f"{EXTERNAL_EVENT_TOOL}:{event.event_version}:{event.type.value}:{_iso(event.emitted_at)}",
+            step_type=None,
+            security_event=event,
+        )
+        key = self._key(record)
+        if key in self._seen:
+            return []
+        if self._append(record):
+            self._seen.add(key)
+            return [record]
+        return []
+
+    def _quarantine_event(self, message: Mapping[str, Any], detail: str) -> None:
+        with contextlib.suppress(TypeError, ValueError):
+            self.quarantine.add(
+                json.dumps(message, default=str), reason=f"event-invalid: {detail}"
+            )
 
     def _sweep_pending_pre(self, *, force: bool = False) -> None:
         now = datetime.now(timezone.utc)

@@ -2,7 +2,7 @@
 
 **BLUF:** Local-first, append-only record store with hash-chaining; export is opt-in.
 
-Status: **shipped** (v0.1.0 M4).
+Status: **shipped** (v0.1.0 M4; retention controls + single-session purge M9).
 
 ## Implementation
 
@@ -14,7 +14,11 @@ Status: **shipped** (v0.1.0 M4).
   `ChainStatus(ok=False, broken_at=<seq>)` and surfaced by `agentwatch verify-store` (exit 1) — never silent (F4).
 - **Retention:** entries older than `retention_days` are rewritten as tombstones
   (`{"seq","prev_hash","hash","tombstone":true,"purged_at"}`) that keep the chain links; `max_size_mb` reached
-  makes `append` raise `StoreFullError` and stop recording without overwriting (F3).
+  makes `append` raise `StoreFullError` and stop recording without overwriting (F3). `agentwatch retention apply`
+  runs a retention pass on demand and exits non-zero if the chain is not green (M9).
+- **Purge (right to erasure, M9):** `RecordStore.purge_session` tombstones one session's records and appends a
+  metadata-only `session-purge` marker (who/why); `agentwatch purge <id> --yes` exposes it. Never hard-deletes
+  (D-K); `verify()` stays green and other sessions are untouched.
 - **Sink:** the daemon writes through the store and verifies the chain on startup.
 
 ## Requirements it satisfies

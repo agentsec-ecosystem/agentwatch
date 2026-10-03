@@ -60,10 +60,14 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),
 > `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **8.5** (field-test
 > harness) is folded into M14 14.1 (#141) as a single Playwright harness that drives the stack.
+>
+> **M9 (Inventory + retention) ✅** — `agentwatch inventory` (agents + MCP servers, `mcp__` attribution),
+> capture fidelity (`project` / `prompt_version` / `parent_session_id`, `--project` filters), and
+> `retention apply` / `purge` (tombstone + marker; chain stays green).
 
 ## Remaining (as of 2026-10-03)
 
-**Blocking open issues (milestones reopened):** none — M7 and M8 are complete.
+**Blocking open issues (milestones reopened):** none — M7, M8, and M9 are complete.
 
 **Deferred to M14 (Field Tests):** M8 **8.5** field-test harness → **14.1 (#141)** — delivered as a
 single **Playwright** harness that drives the Docker/compose + seed + E2E setup.
@@ -75,7 +79,7 @@ corpus is synthesized-from-shape (per D-19.39) and the real-corpus test skips wi
 suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete. **M8 8.5**
 folded into M14 14.1.
 
-**Not started:** **M9–M15** (milestones 10–16, all `open`): inventory + retention, harness/framework
+**Not started:** **M10–M15** (milestones 11–16, all `open`): harness/framework
 expansion, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
 release readiness.
 

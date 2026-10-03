@@ -66,6 +66,10 @@ so the whole system runs locally and is demoable.
 
 ## Milestone M9 — Inventory + retention (R9, R11)
 
+**Status:** ✅ **implemented** — `agentwatch inventory` (agents + MCP servers, `mcp__` attribution);
+capture fidelity (`project`, `prompt_version`, `parent_session_id`, `--project` filters); `retention apply`
+and `purge` (tombstone + marker, chain stays green). Tests: SDK 544 passed, 1 skipped.
+
 **Goal:** add the **shadow-agent / MCP-server inventory** (R9) and harden **retention controls +
 tamper-evident hash-chaining** (R11) — net-new capabilities beyond the port.
 

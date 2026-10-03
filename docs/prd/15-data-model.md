@@ -27,6 +27,8 @@ record-format spec, and the data dictionary.
   [record-format spec §Versioning](../reference/record-format-spec.md)).
 - **Agent dimensions** — `agent_name`, `agent_version`, optional `prompt_version`, `model_version`,
   `tool_schema_version`, `workload_type` (carried for cohort comparison).
+- **Capture-fidelity fields (M9)** — records carry an optional `project` (the event cwd) for per-project
+  filtering and `parent_session_id` linking resumed/forked sessions to their logical parent.
 
 ## Record lifecycle
 
@@ -40,7 +42,7 @@ created (normalized + redacted) → stored (hash-chained) → [exported, opt-in]
 | **stored** | appended to local store; chained (DD-07) | append-only; hash chain intact |
 | **exported** | OTLP exporter forwards (opt-in, gated on redaction self-test, DD-09) | backend receives OTel GenAI spans + events |
 | **retained** | within retention window (30-day default, R11) | queryable; replayable |
-| **purged** | retention cap reached (size/time) | removed; chain tombstoned (no silent gap) |
+| **purged** | retention cap reached (size/time) or `agentwatch purge <id>` | removed; chain tombstoned (no silent gap) |
 
 ## Session & run lifecycle
 

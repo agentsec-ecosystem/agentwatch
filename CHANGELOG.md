@@ -38,6 +38,15 @@ versioning: [Semantic Versioning](https://semver.org/).
   compatibility, limitations, detector catalog, record-format spec), machine-readable `schema/`, plans
   (execution, testing & parity), release/migration, runbooks, tutorials, ADRs.
 - Governance/DCO/OpenSSF Scorecard automation.
+- Shadow-agent + MCP-server inventory (M9, R9): `agentwatch inventory [--session-id] [--project] [--json]`
+  aggregates recorded agents and MCP servers; the Claude Code adapter splits `mcp__<server>__<tool>`
+  into `ToolCall.server`/`name` (defensive, plugin-scoped-safe).
+- Capture fidelity (M9): records carry optional `project` (event cwd) and `parent_session_id`; the hook
+  records a metadata-only `prompt_version` digest of `CLAUDE.md` + `.claude/rules/*.md`; `replay` follows
+  the parent chain; `sessions`/`search`/`tail` accept `--project`.
+- Retention & erasure (M9, R11): `agentwatch retention apply` runs a tombstoning pass on demand and reports
+  the chain status; `agentwatch purge <id> --yes [--reason]` tombstones one session (chain links preserved)
+  and writes a metadata-only `session-purge` marker — never a hard delete.
 
 ### Fixed
 - Operator UI accessibility (#63): corrected heading order (h1 skipped to h3 on Dashboard and

@@ -283,9 +283,9 @@ def test_purge_unknown_session_is_a_noop(tmp_path): ...
 
 **Interfaces:** none (documentation).
 
-- [ ] **Step 1: Update docs** — inventory CLI + new record fields + retention/purge behavior; mark M9 work items done in Part 5/index; CHANGELOG entries.
-- [ ] **Step 2: Verify** — `python3 -m pytest tests -q` from repo root (link-check green).
-- [ ] **Step 3: Commit** — `git commit -s -m "docs(m9): inventory, capture fidelity, retention/purge (M9 #78,#132)"`
+- [x] **Step 1: Update docs** — inventory CLI + new record fields + retention/purge behavior; mark M9 work items done in Part 5/index; CHANGELOG entries.
+- [x] **Step 2: Verify** — `python3 -m pytest tests -q` from repo root (link-check green).
+- [x] **Step 3: Commit** — `git commit -s -m "docs(m9): inventory, capture fidelity, retention/purge (M9 #78,#132)"`
 
 ---
 

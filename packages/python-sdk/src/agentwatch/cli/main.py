@@ -18,9 +18,11 @@ from pathlib import Path
 
 from agentwatch import hook
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
+from agentwatch.diff import diff_sessions
 from agentwatch.doctor import all_passed, run_checks, to_json
 from agentwatch.explain import explain_session
 from agentwatch.health import fetch_health, local_snapshot
+from agentwatch.importer import import_transcripts, resolve_paths
 from agentwatch.install import (
     EVENT_PHASES,
     InstallError,
@@ -35,7 +37,9 @@ from agentwatch.install import (
     stop_daemon,
     uninstall_hooks,
 )
+from agentwatch.query import search
 from agentwatch.records import EVENT_VERSION, SecurityEventType, validate_event
+from agentwatch.redact import redaction_config_from_mode
 from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
 from agentwatch.tail import Tail, TailLine, follow, render_record
@@ -130,6 +134,9 @@ def _build_parser() -> argparse.ArgumentParser:
     tail.add_argument("-f", "--follow", action="store_true", help="follow new records (1 s poll)")
     tail.add_argument("--session-id", default=None, help="only show records for this session")
     tail.add_argument("--json", action="store_true", help="emit one JSON object per record")
+    tail.add_argument(
+        "--alert", action="store_true", help="mark security signals with an ALERT prefix (M8 H5)"
+    )
 
     event = sub.add_parser("event", help="emit a validated security event (M5 B2)")
     event_sub = event.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -154,6 +161,28 @@ def _build_parser() -> argparse.ArgumentParser:
 
     explain = sub.add_parser("explain", help="summarize a session (deterministic, local-first)")
     explain.add_argument("session_id", help="session id to summarize")
+
+    search = sub.add_parser("search", help="filter stored records (M8 H3)")
+    search.add_argument("--tool", default=None, help="only records for this tool")
+    search.add_argument("--outcome", default=None, help="only records with this outcome")
+    search.add_argument("--session", dest="session_id", default=None, help="only this session")
+    search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
+    search.add_argument("--json", action="store_true", help="emit one JSON object per record")
+
+    diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
+    diff.add_argument("a", help="first session id")
+    diff.add_argument("b", help="second session id")
+    diff.add_argument("--json", action="store_true", help="emit the diff as JSON")
+
+    import_cmd = sub.add_parser("import", help="import Claude Code transcripts (M8 H1)")
+    import_cmd.add_argument("path", help="transcript file or directory")
+    import_cmd.add_argument(
+        "--capture",
+        choices=("metadata-only", "truncated", "hashed", "full"),
+        default="metadata-only",
+        help="how much tool content to capture (default: metadata-only)",
+    )
+    import_cmd.add_argument("--json", action="store_true", help="emit the import stats as JSON")
 
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -400,6 +429,8 @@ def _run_tail(args: argparse.Namespace) -> int:
             elif args.json:
                 assert line.record is not None
                 print(json.dumps(line.record.to_dict()))
+            elif args.alert and line.record is not None and line.record.security_event is not None:
+                print("ALERT " + line.text)
             else:
                 print(line.text)
 
@@ -566,6 +597,80 @@ def _run_explain(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_search(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    records = search(
+        store,
+        tool=args.tool,
+        outcome=args.outcome,
+        session_id=args.session_id,
+        since=args.since,
+    )
+    for record in records:
+        print(json.dumps(record.to_dict()) if args.json else render_record(record))
+    return 0
+
+
+def _run_diff(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    result = diff_sessions(store, args.a, args.b)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "a": result.a,
+                    "b": result.b,
+                    "records_a": result.records_a,
+                    "records_b": result.records_b,
+                    "failed_a": result.failed_a,
+                    "failed_b": result.failed_b,
+                    "added_tools": list(result.added_tools),
+                    "removed_tools": list(result.removed_tools),
+                }
+            )
+        )
+    else:
+        print(result.render())
+    return 0
+
+
+def _run_import(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    paths = resolve_paths(Path(args.path).expanduser())
+    if not paths:
+        print("agentwatch: no transcripts found", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    redaction = redaction_config_from_mode(args.capture)
+    stats = import_transcripts(paths, store, redaction=redaction)
+    if args.json:
+        print(
+            json.dumps(
+                {"files": stats.files, "records": stats.records, "skipped": stats.skipped}
+            )
+        )
+    else:
+        print(
+            f"imported {stats.records} records from {stats.files} file(s); "
+            f"{stats.skipped} skipped"
+        )
+    return 0
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -604,4 +709,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_view(args)
     if args.command == "explain":
         return _run_explain(args)
+    if args.command == "search":
+        return _run_search(args)
+    if args.command == "diff":
+        return _run_diff(args)
+    if args.command == "import":
+        return _run_import(args)
     return _run_deferred(str(args.command))

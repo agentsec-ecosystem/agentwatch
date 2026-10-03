@@ -13,6 +13,7 @@ returned so the adapter can emit a ``secret-detected`` security event.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -60,7 +61,7 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
             r"[^\s:@/]+:[^\s@/]+@[^\s/]+"
         ),
     ),
-    ("credit-card", re.compile(r"\b(?:\d[ -]?){13,19}\b")),
+    ("credit-card", re.compile(r"\b\d(?:[ -]?\d){12,18}\b")),
     ("ssn", re.compile(r"\b\d{3}-\d{2}-\d{4}\b")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")),
     ("phone", re.compile(r"\+[1-9]\d{6,14}\b")),
@@ -146,7 +147,7 @@ def redact_mapping(value: Any) -> tuple[Any, tuple[str, ...]]:
     kinds: list[str] = []
 
     def _walk(node: Any) -> Any:
-        if isinstance(node, dict):
+        if isinstance(node, Mapping):
             result: dict[Any, Any] = {}
             for key, item in node.items():
                 if isinstance(key, str) and _is_sensitive_key(key):

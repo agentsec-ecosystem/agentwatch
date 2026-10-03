@@ -5,6 +5,8 @@ Detection is the trust boundary for R7: no secret/PII may survive to the store.
 
 from __future__ import annotations
 
+from types import MappingProxyType
+
 from agentwatch.secrets import SECRET_KINDS, detect, redact_mapping, redact_secrets
 
 
@@ -127,3 +129,15 @@ def test_redact_mapping_recurses_and_dedupes() -> None:
 def test_secret_kinds_are_stable_and_ordered() -> None:
     assert "api-key" in SECRET_KINDS
     assert detect("sk-abcdefgh")[0].kind == "api-key"
+
+
+def test_redact_mapping_accepts_any_mapping() -> None:
+    masked, kinds = redact_mapping(MappingProxyType({"cmd": "sk-abcdefgh"}))
+    assert masked["cmd"] == "<REDACTED:api-key>"
+    assert kinds == ("api-key",)
+
+
+def test_credit_card_does_not_eat_following_text() -> None:
+    masked, kinds = redact_secrets("card 4111 1111 1111 1111 ssn")
+    assert masked == "card <REDACTED:credit-card> ssn"
+    assert kinds == ("credit-card",)

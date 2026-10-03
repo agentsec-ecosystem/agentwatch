@@ -53,6 +53,7 @@ class ChainStatus:
     ok: bool
     checked: int
     broken_at: int | None
+    line: int | None = None
 
 
 class ChainError(Exception):
@@ -78,6 +79,7 @@ class RecordStore:
         self.path = Path(path)
         self.max_size_mb = max_size_mb
         self.parse_errors: list[int] = []
+        self.parse_error_lines: list[int] = []
         self._entries: list[ChainEntry] = self._load()
         self._lock = threading.Lock()
 
@@ -85,10 +87,13 @@ class RecordStore:
 
     def _load(self) -> list[ChainEntry]:
         self.parse_errors = []
+        self.parse_error_lines = []
         entries: list[ChainEntry] = []
         if not self.path.exists():
             return entries
-        for line in self.path.read_text(encoding="utf-8").split("\n"):
+        for line_number, line in enumerate(
+            self.path.read_text(encoding="utf-8").split("\n"), start=1
+        ):
             if not line:
                 continue
             try:
@@ -111,6 +116,7 @@ class RecordStore:
                 )
             except (json.JSONDecodeError, ValueError, KeyError, RecordValidationError, TypeError):
                 self.parse_errors.append(entries[-1].seq + 1 if entries else 0)
+                self.parse_error_lines.append(line_number)
         return entries
 
     def entries(self) -> list[ChainEntry]:
@@ -126,7 +132,12 @@ class RecordStore:
         """Recompute the chain and report the first break (F4), never raising."""
         entries = self._entries
         if self.parse_errors:
-            return ChainStatus(ok=False, checked=len(entries), broken_at=self.parse_errors[0])
+            return ChainStatus(
+                ok=False,
+                checked=len(entries),
+                broken_at=self.parse_errors[0],
+                line=self.parse_error_lines[0] if self.parse_error_lines else None,
+            )
         prev = GENESIS_HASH
         for expected_seq, entry in enumerate(entries):
             if entry.seq != expected_seq or entry.prev_hash != prev:
@@ -202,46 +213,51 @@ class RecordStore:
         verify; only the record payload is dropped. Future-dated entries (clock
         skew) are kept (Review Focus 3).
         """
-        moment = now or datetime.now(timezone.utc)
-        cutoff = moment - timedelta(days=retention_days)
-        lines: list[str] = []
-        purged = 0
-        kept = 0
-        for entry in self._entries:
-            if (
-                not entry.tombstone
-                and entry.record is not None
-                and entry.record.started_at < cutoff
-            ):
-                purged += 1
+        with self._lock:
+            moment = now or datetime.now(timezone.utc)
+            cutoff = moment - timedelta(days=retention_days)
+            lines: list[str] = []
+            purged = 0
+            kept = 0
+            for entry in self._entries:
+                if (
+                    not entry.tombstone
+                    and entry.record is not None
+                    and entry.record.started_at < cutoff
+                ):
+                    purged += 1
+                    lines.append(
+                        json.dumps(
+                            {
+                                "seq": entry.seq,
+                                "prev_hash": entry.prev_hash,
+                                "hash": entry.hash,
+                                "tombstone": True,
+                                "purged_at": moment.isoformat(),
+                            },
+                            ensure_ascii=False,
+                        )
+                    )
+                    continue
+                kept += 1
+                payload = entry.record.to_dict() if entry.record is not None else None
                 lines.append(
                     json.dumps(
                         {
                             "seq": entry.seq,
                             "prev_hash": entry.prev_hash,
                             "hash": entry.hash,
-                            "tombstone": True,
-                            "purged_at": moment.isoformat(),
+                            "tombstone": entry.tombstone,
+                            "record": payload,
                         },
                         ensure_ascii=False,
                     )
                 )
-                continue
-            kept += 1
-            payload = entry.record.to_dict() if entry.record is not None else None
-            lines.append(
-                json.dumps(
-                    {
-                        "seq": entry.seq,
-                        "prev_hash": entry.prev_hash,
-                        "hash": entry.hash,
-                        "tombstone": entry.tombstone,
-                        "record": payload,
-                    },
-                    ensure_ascii=False,
-                )
-            )
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text("\n".join(lines) + "\n" if lines else "", encoding="utf-8")
-        self._entries = self._load()
-        return RetentionReport(purged=purged, kept=kept)
+            if purged:
+                # Atomic rewrite under the append lock; a no-op pass leaves the file byte-identical.
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                tmp = self.path.with_name(self.path.name + ".tmp")
+                tmp.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+                os.replace(tmp, self.path)
+                self._entries = self._load()
+            return RetentionReport(purged=purged, kept=kept)

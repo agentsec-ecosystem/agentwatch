@@ -84,6 +84,37 @@ def test_truncated_final_line_is_surfaced_not_fatal(tmp_path: Path) -> None:
     assert reloaded.parse_errors == [2]
 
 
+def test_retention_noop_leaves_the_file_untouched(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("fresh", when=datetime(2026, 1, 1, tzinfo=timezone.utc)))
+    before = path.read_bytes()
+
+    report = store.apply_retention(
+        retention_days=30, now=datetime(2026, 1, 2, tzinfo=timezone.utc)
+    )
+
+    assert report == RetentionReport(purged=0, kept=1)
+    assert path.read_bytes() == before
+
+
+def test_parse_error_reports_a_line_number(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    store = RecordStore(path)
+    store.append(_record("A"))
+    store.append(_record("B"))
+    lines = path.read_text(encoding="utf-8").splitlines()
+    lines.insert(1, "not an envelope")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    reloaded = RecordStore(path)
+    status = reloaded.verify()
+
+    assert reloaded.parse_error_lines == [2]
+    assert status.ok is False
+    assert status.line == 2
+
+
 def test_verify_passes_on_a_clean_chain(tmp_path: Path) -> None:
     store = RecordStore(tmp_path / "records.jsonl")
     store.append(_record("A"))

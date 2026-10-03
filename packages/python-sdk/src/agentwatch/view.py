@@ -13,11 +13,13 @@ from agentwatch.store import RecordStore
 from agentwatch.tail import render_record
 
 
-def list_sessions(store: RecordStore) -> list[str]:
-    """Distinct session ids in first-seen order."""
+def list_sessions(store: RecordStore, *, project: str | None = None) -> list[str]:
+    """Distinct session ids in first-seen order, optionally filtered by project."""
     order: list[str] = []
     seen: set[str] = set()
     for record in store.records():
+        if project is not None and record.project != project:
+            continue
         if record.session_id not in seen:
             seen.add(record.session_id)
             order.append(record.session_id)

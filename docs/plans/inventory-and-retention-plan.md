@@ -183,7 +183,7 @@ def test_inventory_project_filter(...): ...
 - Produces: `list_sessions(store, *, project=None) -> list[str]`; `search(..., project=None)`; `tail`/`Tail` accept `project`; CLI `--project PATH` on `sessions`, `search`, `tail`. Exact-match on the normalized record `project`.
 - Consumes: Task 1 `project` field.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_project_filter_selects_one_project(...): ...   # two-project fixture
@@ -191,10 +191,10 @@ def test_project_filter_is_per_record_not_per_session(...): ...  # session spans
 def test_project_filter_missing_cwd_is_unknown(...): ...
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_project_filter.py -v` → FAIL.
-- [ ] **Step 3: Implement** — thread `project` through the three readers and the CLI parsers.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_project_filter.py tests/test_view_explain.py tests/test_search_diff_alerts.py tests/test_tail.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(cli): --project filter for sessions/search/tail (M9 #201)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_project_filter.py -v` → FAIL.
+- [x] **Step 3: Implement** — thread `project` through the three readers and the CLI parsers.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_project_filter.py tests/test_view_explain.py tests/test_search_diff_alerts.py tests/test_tail.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(cli): --project filter for sessions/search/tail (M9 #201)"`
 
 ---
 

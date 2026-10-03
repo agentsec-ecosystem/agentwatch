@@ -34,6 +34,7 @@ def search(
     outcome: str | None = None,
     session_id: str | None = None,
     since: str | None = None,
+    project: str | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order."""
     cutoff = since_cutoff(since) if since is not None else None
@@ -44,6 +45,8 @@ def search(
         if outcome is not None and record.outcome.value != outcome:
             continue
         if session_id is not None and record.session_id != session_id:
+            continue
+        if project is not None and record.project != project:
             continue
         if cutoff is not None and record.started_at < cutoff:
             continue

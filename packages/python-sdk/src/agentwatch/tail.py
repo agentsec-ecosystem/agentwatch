@@ -45,9 +45,16 @@ def render_record(record: AgentRecord) -> str:
 class Tail:
     """Incremental JSONL envelope reader with a byte cursor."""
 
-    def __init__(self, path: Path | str, *, session_id: str | None = None) -> None:
+    def __init__(
+        self,
+        path: Path | str,
+        *,
+        session_id: str | None = None,
+        project: str | None = None,
+    ) -> None:
         self.path = Path(path)
         self.session_id = session_id
+        self.project = project
         self._offset = 0
         self._buffer = ""
         self._line = 0
@@ -102,6 +109,8 @@ class Tail:
         except RecordValidationError:
             return TailLine(f"skipped invalid record seq {seq}", is_note=True)
         if self.session_id is not None and record.session_id != self.session_id:
+            return None
+        if self.project is not None and record.project != self.project:
             return None
         return TailLine(render_record(record), record=record)
 

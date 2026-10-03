@@ -121,7 +121,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     sub.add_parser("status", help="print the resolved configuration / health summary")
-    sub.add_parser("sessions", help="list recorded sessions (M3)")
+    sessions = sub.add_parser("sessions", help="list recorded sessions (M3)")
+    sessions.add_argument("--project", default=None, help="only sessions in this project (cwd)")
     sub.add_parser("verify-privacy", help="verify redaction and scan the store for leaks (M5)")
     completions = sub.add_parser("completions", help="print a shell completion script (M5)")
     completions.add_argument("shell", choices=("bash", "zsh", "fish"))
@@ -134,6 +135,7 @@ def _build_parser() -> argparse.ArgumentParser:
     tail = sub.add_parser("tail", help="print a read-only stream of records (M5)")
     tail.add_argument("-f", "--follow", action="store_true", help="follow new records (1 s poll)")
     tail.add_argument("--session-id", default=None, help="only show records for this session")
+    tail.add_argument("--project", default=None, help="only show records for this project (cwd)")
     tail.add_argument("--json", action="store_true", help="emit one JSON object per record")
     tail.add_argument(
         "--alert", action="store_true", help="mark security signals with an ALERT prefix (M8 H5)"
@@ -167,6 +169,7 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument("--tool", default=None, help="only records for this tool")
     search.add_argument("--outcome", default=None, help="only records with this outcome")
     search.add_argument("--session", dest="session_id", default=None, help="only this session")
+    search.add_argument("--project", default=None, help="only records for this project (cwd)")
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
@@ -393,6 +396,8 @@ def _run_sessions(args: argparse.Namespace) -> int:
     counts: dict[str, int] = {}
     order: list[str] = []
     for record in store.records():
+        if args.project is not None and record.project != args.project:
+            continue
         session_id = record.session_id
         if session_id not in counts:
             order.append(session_id)
@@ -425,7 +430,7 @@ def _run_tail(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
 
-    tail = Tail(path, session_id=args.session_id)
+    tail = Tail(path, session_id=args.session_id, project=args.project)
 
     def emit(lines: Iterable[TailLine]) -> None:
         for line in lines:
@@ -616,6 +621,7 @@ def _run_search(args: argparse.Namespace) -> int:
         outcome=args.outcome,
         session_id=args.session_id,
         since=args.since,
+        project=args.project,
     )
     for record in records:
         print(json.dumps(record.to_dict()) if args.json else render_record(record))

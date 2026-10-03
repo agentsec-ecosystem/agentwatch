@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentwatch import conformance
-from agentwatch.adapters import claude_code, codex_cli, cursor
+from agentwatch.adapters import claude_code, codex_cli, cursor, gemini_cli
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -48,8 +48,19 @@ def codex_cli_spec() -> conformance.AdapterSpec:
     )
 
 
+def gemini_cli_spec() -> conformance.AdapterSpec:
+    return conformance.AdapterSpec(
+        name=gemini_cli.HARNESS_ID,
+        normalize=gemini_cli.normalize,
+        capabilities=gemini_cli.CAPABILITIES,
+        documented_gaps=gemini_cli.DOCUMENTED_GAPS,
+        error_cls=gemini_cli.GeminiCliAdapterError,
+        fixtures_dir=FIXTURES / "gemini-cli",
+    )
+
+
 def _shipped_specs() -> list[conformance.AdapterSpec]:
-    return [claude_code_spec(), cursor_spec(), codex_cli_spec()]
+    return [claude_code_spec(), cursor_spec(), codex_cli_spec(), gemini_cli_spec()]
 
 
 def register_shipped_adapters() -> None:

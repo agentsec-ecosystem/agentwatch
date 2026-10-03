@@ -60,7 +60,7 @@
 
 **Interfaces:** `HARNESS_ID="gemini-cli"`, `CAPABILITIES={tool_call, tool_result, session_start, session_end}`, `DOCUMENTED_GAPS=("mcp-server-events",)`; `tool_call`→act, `tool_result`→observe (error on `is_error`), `session_*`→boundary records (no step type).
 
-- [ ] Steps mirror Task 1 → commit `feat(adapters): modeled Gemini CLI adapter (M10 #82)`.
+- [x] Steps mirror Task 1 → commit `feat(adapters): modeled Gemini CLI adapter (M10 #82)`.
 
 ### Task 4: Register all three + docs/WBS/CHANGELOG
 

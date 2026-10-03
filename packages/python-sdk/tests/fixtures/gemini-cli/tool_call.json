@@ -1,0 +1,26 @@
+{
+  "message": {
+    "phase": "tool_call",
+    "harness": "gemini-cli",
+    "event": {
+      "session_id": "sess-g",
+      "call_id": "call-1",
+      "tool": "search",
+      "timestamp": "2026-01-02T03:04:05+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-g",
+      "agent": { "identity": "gemini-cli" },
+      "tool": { "name": "search" },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "harness": "gemini-cli",
+      "trace_id": "sess-g",
+      "span_id": "call-1",
+      "step_type": "act"
+    }
+  ]
+}

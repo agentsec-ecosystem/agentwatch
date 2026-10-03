@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
@@ -29,6 +29,7 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.store import RecordStore
+from agentwatch.tail import Tail, TailLine, follow
 
 # Documented subcommands still deferred to a later milestone
 # ([cli-reference](../../../../docs/reference/cli-reference.md)).
@@ -100,6 +101,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "doctor", help="run an ordered health checklist with fix hints (M5)"
     )
     doctor.add_argument("--json", action="store_true", help="emit the checklist as JSON")
+
+    tail = sub.add_parser("tail", help="print a read-only stream of records (M5)")
+    tail.add_argument("-f", "--follow", action="store_true", help="follow new records (1 s poll)")
+    tail.add_argument("--session-id", default=None, help="only show records for this session")
+    tail.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     replay = sub.add_parser("replay", help="reconstruct a session timeline (M5)")
     replay.add_argument("session_id", help="session id to replay")
@@ -303,6 +309,45 @@ def _run_sessions(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_tail(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    path = Path(cfg.store.path).expanduser() / "records.jsonl"
+    if path.exists():
+        status = RecordStore(path).verify()
+        if not status.ok:
+            print(
+                "agentwatch: warning: hash chain broken at seq "
+                f"{status.broken_at}; tailing valid records",
+                file=sys.stderr,
+            )
+
+    tail = Tail(path, session_id=args.session_id)
+
+    def emit(lines: Iterable[TailLine]) -> None:
+        for line in lines:
+            if line.is_note:
+                if not args.json:
+                    print(line.text)
+            elif args.json:
+                assert line.record is not None
+                print(json.dumps(line.record.to_dict()))
+            else:
+                print(line.text)
+
+    emit(tail.read_new())
+    if args.follow:
+        try:
+            emit(follow(tail))
+        except KeyboardInterrupt:
+            pass
+    return 0
+
+
 def _run_doctor(args: argparse.Namespace) -> int:
     config_error: str | None = None
     cfg: AgentwatchConfig | None = None
@@ -346,4 +391,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_verify_store(args)
     if args.command == "doctor":
         return _run_doctor(args)
+    if args.command == "tail":
+        return _run_tail(args)
     return _run_deferred(str(args.command))

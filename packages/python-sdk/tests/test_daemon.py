@@ -257,6 +257,30 @@ def _record(name: str = "Bash") -> AgentRecord:
     )
 
 
+def test_daemon_records_session_boundaries(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        hook.send(
+            {
+                "phase": "session-start",
+                "harness": "claude-code",
+                "event": {
+                    "session_id": "sess-1",
+                    "reason": "startup",
+                    "timestamp": "2026-01-02T03:04:00+00:00",
+                },
+            },
+            socket_path=str(socket_path),
+        )
+        _read_lines(records_path, 1)
+    finally:
+        daemon.stop()
+
+    record = RecordStore(records_path).records()[0]
+    assert record.tool.name == "session-start"
+    assert record.tool.arguments == {"reason": "startup"}
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

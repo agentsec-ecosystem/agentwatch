@@ -55,7 +55,46 @@ def test_capabilities_and_gaps_are_declared() -> None:
     assert "pre-tool-use" in claude_code.CAPABILITIES
     assert "post-tool-use" in claude_code.CAPABILITIES
     assert "post-tool-use-failure" in claude_code.CAPABILITIES
-    assert "session-boundaries" in claude_code.DOCUMENTED_GAPS
+    assert "session-boundaries" in claude_code.CAPABILITIES
+    assert "mcp-server-events" in claude_code.DOCUMENTED_GAPS
+
+
+def test_session_start_produces_a_boundary_record() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "reason": "startup",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "session-start"
+    assert record.tool.arguments == {"reason": "startup"}
+    assert record.step_type is None
+    assert record.outcome is Outcome.OK
+    assert record.ended_at is None
+    validate_record(record.to_dict())
+
+
+def test_session_end_records_the_reason() -> None:
+    message = {
+        "phase": "session-end",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "reason": "prompt_input_exit",
+            "timestamp": "2026-01-02T03:05:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "session-end"
+    assert record.tool.arguments == {"reason": "prompt_input_exit"}
+    assert record.step_type is None
+    validate_record(record.to_dict())
 
 
 def test_pre_event_produces_an_intent_record() -> None:

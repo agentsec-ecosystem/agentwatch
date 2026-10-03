@@ -199,7 +199,7 @@ class Daemon:
             self._sweep_pending_pre()
             return [record] if persisted else []
 
-        if phase not in ("pre", "post"):
+        if phase not in ("pre", "post", "session-start", "session-end"):
             return []
 
         try:

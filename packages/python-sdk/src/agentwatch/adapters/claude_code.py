@@ -37,10 +37,12 @@ from agentwatch.secrets import redact_mapping
 HARNESS_ID = "claude-code"
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"pre-tool-use", "post-tool-use", "post-tool-use-failure"})
+CAPABILITIES = frozenset(
+    {"pre-tool-use", "post-tool-use", "post-tool-use-failure", "session-boundaries"}
+)
 
 # Honest, declared gaps (R3) — never dropped silently.
-DOCUMENTED_GAPS = ("session-boundaries", "mcp-server-events")
+DOCUMENTED_GAPS = ("mcp-server-events",)
 
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
@@ -128,8 +130,11 @@ def normalize(
         raise ClaudeCodeAdapterError("hook message must be an object")
 
     phase = message.get("phase")
-    if phase not in ("pre", "post"):
-        raise ClaudeCodeAdapterError(f"unsupported hook phase {phase!r}; expected 'pre' or 'post'")
+    if phase not in ("pre", "post", "session-start", "session-end"):
+        raise ClaudeCodeAdapterError(
+            f"unsupported hook phase {phase!r}; expected 'pre', 'post', "
+            "'session-start', or 'session-end'"
+        )
 
     event = message.get("event")
     if not isinstance(event, Mapping):
@@ -153,6 +158,28 @@ def normalize(
             tool=tool_name,
             evidence={"kinds": list(secret_kinds)},
         )
+
+    if phase in ("session-start", "session-end"):
+        # Session-boundary record (M5 A1): no step type, reason carried as an argument.
+        reason = event.get("reason") or event.get("source")
+        boundary_args = {"reason": str(reason)} if reason is not None else None
+        record = AgentRecord(
+            session_id=session_id,
+            agent=identity_from(event.get("agent")),
+            tool=ToolCall(
+                name=phase,
+                arguments=boundary_args,
+                privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+            ),
+            outcome=Outcome.OK,
+            started_at=event_time,
+            harness=HARNESS_ID,
+            trace_id=trace_id,
+            span_id=call_id,
+            step_type=None,
+            security_event=security_event,
+        )
+        return [record]
 
     if phase == "pre":
         outcome = Outcome.OK

@@ -76,6 +76,19 @@ def test_install_hooks_writes_exec_handlers_for_each_tool_event(tmp_path: Path) 
     assert hooks["PostToolUseFailure"] == [_group("post")]
 
 
+def test_install_hooks_wires_session_boundaries(tmp_path: Path) -> None:
+    settings = tmp_path / ".claude" / "settings.local.json"
+
+    install_hooks(settings, HOOK)
+
+    hooks = _read(settings)["hooks"]
+    assert isinstance(hooks, dict)
+    start = {"type": "command", "command": HOOK.command, "args": ["session-start"]}
+    end = {"type": "command", "command": HOOK.command, "args": ["session-end"]}
+    assert hooks["SessionStart"] == [{"matcher": "*", "hooks": [start]}]
+    assert hooks["SessionEnd"] == [{"matcher": "*", "hooks": [end]}]
+
+
 def test_install_hooks_preserves_unrelated_settings(tmp_path: Path) -> None:
     settings = tmp_path / "settings.local.json"
     unrelated = {"matcher": "Bash", "hooks": [{"type": "command", "command": "other-tool"}]}

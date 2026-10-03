@@ -31,6 +31,8 @@ EVENT_PHASES: dict[str, str] = {
     "PreToolUse": "pre",
     "PostToolUse": "post",
     "PostToolUseFailure": "post",
+    "SessionStart": "session-start",
+    "SessionEnd": "session-end",
 }
 
 _DAEMON_START_TIMEOUT_SECONDS = 10.0

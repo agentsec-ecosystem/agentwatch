@@ -1,0 +1,18 @@
+{
+  "message": {
+    "phase": "session-start", "harness": "claude-code",
+    "event": {
+      "session_id": "sess-b", "reason": "startup",
+      "timestamp": "2026-01-02T03:04:00+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0", "session_id": "sess-b",
+      "agent": { "identity": "unknown" },
+      "tool": { "name": "session-start", "arguments": { "reason": "startup" }, "privacy_mode": "metadata-only" },
+      "outcome": "ok", "started_at": "2026-01-02T03:04:00+00:00",
+      "harness": "claude-code", "trace_id": "sess-b"
+    }
+  ]
+}

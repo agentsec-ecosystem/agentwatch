@@ -81,7 +81,7 @@ def test_unknown_record_key_is_still_rejected():
 - Produces: `split_mcp_tool(name: str) -> tuple[str | None, str]` (returns `(server, tool_name)`); `normalize()` sets `ToolCall.server` for `mcp__…` names, `AgentRecord.project` from `event["cwd"]`, `agent.prompt_version` from `event["prompt_version"]`, and `AgentRecord.parent_session_id` on `session-start` when `source`/`reason` is `resume`/`fork` (from `event["parent_session_id"]` / `event["source_session_id"]`).
 - Consumes: Task 1 fields.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_split_mcp_tool_extracts_server():
@@ -101,10 +101,10 @@ def test_resume_session_links_parent():
     assert records[0].parent_session_id == "sess-1"
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_claude_code_adapter.py -k "mcp or project or resume" -v` → FAIL.
-- [ ] **Step 3: Implement** — add `split_mcp_tool`; use it when building `ToolCall` in the `pre`/`post`/`denied` paths; set `project=event.get("cwd")`, `parent_session_id=event.get("parent_session_id")` (only when `source`/`reason` ∈ {resume, fork}); extend `identity_from`/`identity_for` to carry `prompt_version` from an explicit agent mapping. Add the two conformance fixtures.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_claude_code_adapter.py tests/test_conformance.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(adapter): tag MCP server, project, prompt_version, parent session (M9)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_claude_code_adapter.py -k "mcp or project or resume" -v` → FAIL.
+- [x] **Step 3: Implement** — add `split_mcp_tool`; use it when building `ToolCall` in the `pre`/`post`/`denied` paths; set `project=event.get("cwd")`, `parent_session_id=event.get("parent_session_id")` (only when `source`/`reason` ∈ {resume, fork}); extend `identity_from`/`identity_for` to carry `prompt_version` from an explicit agent mapping. Add the two conformance fixtures.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_claude_code_adapter.py tests/test_conformance.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(adapter): tag MCP server, project, prompt_version, parent session (M9)"`
 
 ---
 

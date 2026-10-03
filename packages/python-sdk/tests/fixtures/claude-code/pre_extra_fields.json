@@ -15,6 +15,7 @@
       "tool": { "name": "Grep", "privacy_mode": "metadata-only" },
       "outcome": "ok", "started_at": "2026-01-02T05:00:00+00:00",
       "harness": "claude-code", "trace_id": "sess-d", "span_id": "call-d1",
+      "project": "/repo",
       "step_type": "act"
     }
   ]

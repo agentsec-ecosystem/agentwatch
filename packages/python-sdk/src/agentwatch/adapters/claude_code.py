@@ -84,15 +84,30 @@ def _arguments(
     return redacted, _PRIVACY_MAP[cfg.mode]
 
 
+def split_mcp_tool(name: str) -> tuple[str | None, str]:
+    """Split an MCP tool id ``mcp__<server>__<tool>`` into ``(server, tool)``.
+
+    Defensive: a non-MCP name, a malformed ``mcp__`` name, or an empty
+    server/tool segment returns ``(None, name)`` so the raw name is preserved
+    rather than a bogus server recorded (PRD 25 D1).
+    """
+    parts = name.split("__")
+    if len(parts) >= 3 and parts[0] == "mcp" and parts[1] and "__".join(parts[2:]):
+        return parts[1], "__".join(parts[2:])
+    return None, name
+
+
 def identity_from(value: Any) -> AgentIdentity:
     if isinstance(value, str):
         return AgentIdentity(identity=value, name=value)
     if isinstance(value, Mapping):
         identity = value.get("identity") or value.get("name") or "unknown"
+        prompt_version = value.get("prompt_version")
         return AgentIdentity(
             identity=str(identity),
             name=value.get("name"),
             version=value.get("version"),
+            prompt_version=str(prompt_version) if isinstance(prompt_version, str) else None,
         )
     return AgentIdentity(identity="unknown")
 
@@ -100,15 +115,30 @@ def identity_from(value: Any) -> AgentIdentity:
 def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
     """Agent identity for an event: explicit ``agent`` first, else subagent ids."""
     if event.get("agent") is not None:
-        return identity_from(event["agent"])
-    agent_id = event.get("agent_id")
-    agent_type = event.get("agent_type")
-    if agent_id is not None or agent_type is not None:
+        base = identity_from(event["agent"])
+    else:
+        agent_id = event.get("agent_id")
+        agent_type = event.get("agent_type")
+        if agent_id is not None or agent_type is not None:
+            base = AgentIdentity(
+                identity=str(agent_id if agent_id is not None else agent_type),
+                name=str(agent_type) if agent_type is not None else None,
+            )
+        else:
+            base = AgentIdentity(identity="unknown")
+    # The hook carries the CLAUDE.md fingerprint at the top level (PRD 25 D2);
+    # an explicit agent mapping's prompt_version wins.
+    if base.prompt_version is None and isinstance(event.get("prompt_version"), str):
         return AgentIdentity(
-            identity=str(agent_id if agent_id is not None else agent_type),
-            name=str(agent_type) if agent_type is not None else None,
+            identity=base.identity,
+            name=base.name,
+            version=base.version,
+            prompt_version=event["prompt_version"],
+            model_version=base.model_version,
+            tool_schema_version=base.tool_schema_version,
+            workload_type=base.workload_type,
         )
-    return AgentIdentity(identity="unknown")
+    return base
 
 
 def _parse_optional_timestamp(value: Any) -> datetime | None:
@@ -191,8 +221,10 @@ def normalize(
 
     session_id = str(event.get("session_id") or "unknown")
     tool_name = str(event.get("tool_name") or event.get("tool") or "unknown")
+    server, bare_tool_name = split_mcp_tool(tool_name)
     call_id = tool_call_id(event)
     trace_id = str(event.get("trace_id") or session_id)
+    project = event.get("cwd") if isinstance(event.get("cwd"), str) else None
     # Mask secrets before any storage transform (DD-06); detection runs even when
     # content is not captured so a secret-detected event still fires (R5).
     masked_input, secret_kinds = redact_mapping(event.get("tool_input"))
@@ -216,6 +248,10 @@ def normalize(
         # Session-boundary record (M5 A1): no step type, reason carried as an argument.
         reason = event.get("reason") or event.get("source")
         boundary_args = {"reason": str(reason)} if reason is not None else None
+        parent_session_id = None
+        if str(reason) in ("resume", "fork"):
+            raw_parent = event.get("parent_session_id") or event.get("source_session_id")
+            parent_session_id = str(raw_parent) if raw_parent is not None else None
         record = AgentRecord(
             session_id=session_id,
             agent=identity_for(event),
@@ -229,6 +265,8 @@ def normalize(
             harness=HARNESS_ID,
             trace_id=trace_id,
             span_id=call_id,
+            project=project,
+            parent_session_id=parent_session_id,
             step_type=None,
             security_event=security_event,
         )
@@ -247,12 +285,15 @@ def normalize(
         record = AgentRecord(
             session_id=session_id,
             agent=identity_for(event),
-            tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
+            tool=ToolCall(
+                name=bare_tool_name, server=server, arguments=arguments, privacy_mode=privacy_mode
+            ),
             outcome=Outcome.DENIED,
             started_at=event_time,
             harness=HARNESS_ID,
             trace_id=trace_id,
             span_id=call_id,
+            project=project,
             step_type=StepType.OBSERVE,
             security_event=denial,
         )
@@ -290,6 +331,7 @@ def normalize(
             harness=HARNESS_ID,
             trace_id=trace_id,
             span_id=call_id,
+            project=project,
             step_type=StepType.REASON,
             security_event=security_event,
         )
@@ -322,7 +364,8 @@ def normalize(
         session_id=session_id,
         agent=identity_for(event),
         tool=ToolCall(
-            name=tool_name,
+            name=bare_tool_name,
+            server=server,
             arguments=arguments,
             response=captured_response,
             privacy_mode=privacy_mode,
@@ -332,6 +375,7 @@ def normalize(
         harness=HARNESS_ID,
         trace_id=trace_id,
         span_id=call_id,
+        project=project,
         ended_at=ended_at,
         duration_ms=duration_ms,
         step_type=step_type,

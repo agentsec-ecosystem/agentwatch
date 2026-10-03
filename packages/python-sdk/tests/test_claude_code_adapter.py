@@ -347,3 +347,120 @@ def test_post_secret_in_response_is_masked() -> None:
     assert record.tool.response == {"output": "<REDACTED:api-key>"}
     assert record.security_event is not None
     assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
+# ---------------------------------------------------------------------------
+# M9: MCP server attribution + capture-fidelity fields (PRD 25 D1/D2/I3/I4)
+# ---------------------------------------------------------------------------
+
+
+def test_split_mcp_tool_extracts_server() -> None:
+    assert claude_code.split_mcp_tool("mcp__github__create_issue") == ("github", "create_issue")
+
+
+def test_split_mcp_tool_defensive() -> None:
+    assert claude_code.split_mcp_tool("mcp__x__") == (None, "mcp__x__")
+    assert claude_code.split_mcp_tool("npm__bad__name") == (None, "npm__bad__name")
+    assert claude_code.split_mcp_tool("Bash") == (None, "Bash")
+
+
+def test_split_mcp_tool_plugin_scoped() -> None:
+    assert claude_code.split_mcp_tool("mcp__plugin_p_s__t") == ("plugin_p_s", "t")
+    assert claude_code.split_mcp_tool("mcp__a__b__c") == ("a", "b__c")
+
+
+def test_normalize_tags_mcp_server_and_project() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-mcp",
+            "tool_name": "mcp__github__create_issue",
+            "tool_input": {"title": "bug"},
+            "tool_use_id": "call-mcp",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "agent": "triage",
+            "cwd": "/repo/a",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "create_issue"
+    assert record.tool.server == "github"
+    assert record.project == "/repo/a"
+    validate_record(record.to_dict())
+
+
+def test_normalize_non_mcp_tool_has_no_server() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.tool.server is None
+
+
+def test_project_missing_is_none() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.project is None
+
+
+def test_normalize_carries_prompt_version() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-pv",
+            "tool_name": "Bash",
+            "tool_use_id": "call-pv",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "agent": {"identity": "triage", "name": "triage", "prompt_version": "a1b2c3d4"},
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.prompt_version == "a1b2c3d4"
+
+
+def test_resume_session_links_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-child",
+            "source": "resume",
+            "parent_session_id": "sess-parent",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id == "sess-parent"
+    validate_record(record.to_dict())
+
+
+def test_fork_session_links_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-fork",
+            "source": "fork",
+            "source_session_id": "sess-parent",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id == "sess-parent"
+
+
+def test_startup_session_has_no_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "source": "startup",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id is None

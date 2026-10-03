@@ -21,20 +21,23 @@ clients, and Tier-2 framework adapters — via the **ported** adapter/SDK bounda
 [compatibility matrix](../../reference/compatibility.md), [adapter conformance](../../reference/adapter-conformance.md),
 [harness-adapter design](../../design/harness-adapter-design.md).
 
+**Progress:** ✅ 10.1–10.4 (adapter API + modeled Cursor / Codex CLI / Gemini CLI), 10.7 (conformance
+packs), 10.J1 (plumbing contract) · ☐ 10.5 MCP proxy, 10.6 Tier-2, 10.8/10.T/10.D docs+tests, 10.N1–N4.
+
 **Work items (port first)**
 
 | # | Task | Deliverable | Acceptance | Issue | Issue |
 |---|---|---|---|---|---|
-| 10.1 | **Port/adapt** adapter API for community harnesses | adapter API | documented + tested | #79 |
-| 10.2 | Cursor adapter (native hooks; proxy where insufficient) | adapter | conformance green | #80 |
-| 10.3 | Codex CLI adapter | adapter | conformance green | #81 |
-| 10.4 | Gemini CLI adapter | adapter | conformance green | #82 |
-| 10.5 | Generic MCP-client support (proxy tap) | adapter | MCP tool calls recorded | #83 |
-| 10.6 | Tier-2 adapters (CrewAI, PydanticAI) | adapters | SDK conformance green | #84 |
-| 10.7 | Per-harness conformance packs (agentdrill-ready) | packs | pass in CI | #85 |
-| 10.8 | **Update design docs** | compatibility, adapter-conformance, known-limitations | docs match coverage | #86 |
-| 10.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #133 |
-| 10.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #134 |
+| 10.1 | ✅ **Port/adapt** adapter API for community harnesses | adapter API | documented + tested | #79 |
+| 10.2 | ✅ Cursor adapter (provisional, modeled) | adapter | conformance green | #80 |
+| 10.3 | ✅ Codex CLI adapter (provisional, modeled) | adapter | conformance green | #81 |
+| 10.4 | ✅ Gemini CLI adapter (provisional, modeled) | adapter | conformance green | #82 |
+| 10.5 | ☐ Generic MCP-client support (proxy tap) | adapter | MCP tool calls recorded | #83 |
+| 10.6 | ☐ Tier-2 adapters (CrewAI, PydanticAI) | adapters | SDK conformance green | #84 |
+| 10.7 | ✅ Per-harness conformance packs (agentdrill-ready) | packs | pass in CI | #85 |
+| 10.8 | ☐ **Update design docs** | compatibility, adapter-conformance, known-limitations | docs match coverage | #86 |
+| 10.T | ☐ Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #133 |
+| 10.D | ☐ Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #134 |
 
 **Tests required:** per-harness conformance fixtures; gap assertions; cross-harness trace correlation.
 
@@ -52,11 +55,11 @@ clients, and Tier-2 framework adapters — via the **ported** adapter/SDK bounda
 
 | # | Addition | Deliverable | Acceptance | PRD | Issue |
 |---|---|---|---|---|---|
-| 10.J1 | Publish the plumbing contract | store + socket specs | sample external adapter passes conformance | [23](../../prd/23-event-interchange.md) | #203 |
-| 10.N1 | MCP-client interposition adapter | `init --mcp-proxy` | records both directions; restores config exactly | [27](../../prd/27-harness-expansion.md) | #212 |
-| 10.N2 | OTel GenAI ingestion | `ingest --format otel` | fixture trace chains + validates | [27](../../prd/27-harness-expansion.md) | #213 |
-| 10.N3 | Fake-harness emitters | per-platform generators | long-running paths covered deterministically | [27](../../prd/27-harness-expansion.md) | #214 |
-| 10.N4 | Generated compatibility table + version matrix | version-tagged fixtures + drift job | drift opens an issue; table generated | [27](../../prd/27-harness-expansion.md) | #215 |
+| 10.J1 | ✅ Publish the plumbing contract | store + socket specs | sample external adapter passes conformance | [23](../../prd/23-event-interchange.md) | #203 |
+| 10.N1 | ☐ MCP-client interposition adapter | `init --mcp-proxy` | records both directions; restores config exactly | [27](../../prd/27-harness-expansion.md) | #212 |
+| 10.N2 | ☐ OTel GenAI ingestion | `ingest --format otel` | fixture trace chains + validates | [27](../../prd/27-harness-expansion.md) | #213 |
+| 10.N3 | ☐ Fake-harness emitters | per-platform generators | long-running paths covered deterministically | [27](../../prd/27-harness-expansion.md) | #214 |
+| 10.N4 | ☐ Generated compatibility table + version matrix | version-tagged fixtures + drift job | drift opens an issue; table generated | [27](../../prd/27-harness-expansion.md) | #215 |
 
 ---
 

@@ -118,7 +118,7 @@ def test_resume_session_links_parent():
 - Produces: `prompt_fingerprint(project_dir: str | None) -> str | None` — sha256 over `CLAUDE.md` + `.claude/rules/*.md` in sorted path order, hex `[:16]`; returns `None` when there is no `CLAUDE.md`. `main()` injects `event["prompt_version"]` when the digest exists, for tool/prompt phases.
 - Consumes: Task 2 reads `event["prompt_version"]`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_fingerprint_is_stable_and_16_hex(tmp_path):
@@ -133,10 +133,10 @@ def test_fingerprint_multi_file_order_is_path_sorted(tmp_path):
     # .claude/rules/b.md + a.md -> same digest regardless of creation order
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_hook.py -k fingerprint -v` → FAIL.
-- [ ] **Step 3: Implement** — stream-hash each file (`hashlib.sha256`, read in chunks) in sorted order; inject the digest into the forwarded `event` only when present (never an empty string).
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_hook.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(hook): record CLAUDE.md prompt fingerprint (M9 #178)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_hook.py -k fingerprint -v` → FAIL.
+- [x] **Step 3: Implement** — stream-hash each file (`hashlib.sha256`, read in chunks) in sorted order; inject the digest into the forwarded `event` only when present (never an empty string).
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_hook.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(hook): record CLAUDE.md prompt fingerprint (M9 #178)"`
 
 ---
 

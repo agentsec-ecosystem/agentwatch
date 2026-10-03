@@ -6,7 +6,9 @@ must return 0 on every path so it never blocks the agent (F2).
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import shutil
 import socket
 import tempfile
@@ -49,8 +51,9 @@ def _serve_once(path: Path, received: list[bytes]) -> threading.Thread:
     return thread
 
 
-def test_sends_a_framed_message_to_the_daemon() -> None:
+def test_sends_a_framed_message_to_the_daemon(monkeypatch: pytest.MonkeyPatch) -> None:
     # AF_UNIX paths are capped (~104 chars), so use a short directory.
+    monkeypatch.delenv("CLAUDE_PROJECT_DIR", raising=False)
     short_dir = Path(tempfile.mkdtemp(prefix="aw-", dir="/tmp"))
     path = short_dir / "s.sock"
     received: list[bytes] = []
@@ -156,3 +159,54 @@ def test_hook_latency_is_bounded() -> None:
     assert rc == 0
     assert received
     assert elapsed < 2.0
+
+
+# ---------------------------------------------------------------------------
+# M9: prompt-version fingerprint (PRD 25 D2, #178)
+# ---------------------------------------------------------------------------
+
+
+def test_fingerprint_is_stable_and_16_hex(tmp_path: Path) -> None:
+    (tmp_path / "CLAUDE.md").write_text("rules", encoding="utf-8")
+
+    first = hook.prompt_fingerprint(str(tmp_path))
+
+    assert first is not None
+    assert first == hook.prompt_fingerprint(str(tmp_path))
+    assert re.fullmatch(r"[0-9a-f]{16}", first)
+
+
+def test_fingerprint_absent_file_omits_field(tmp_path: Path) -> None:
+    assert hook.prompt_fingerprint(str(tmp_path)) is None
+    assert hook.prompt_fingerprint(None) is None
+
+
+def test_fingerprint_multi_file_order_is_path_sorted(tmp_path: Path) -> None:
+    rules = tmp_path / ".claude" / "rules"
+    rules.mkdir(parents=True)
+    (tmp_path / "CLAUDE.md").write_text("top", encoding="utf-8")
+    (rules / "b.md").write_text("B", encoding="utf-8")
+    (rules / "a.md").write_text("A", encoding="utf-8")
+
+    expected = hashlib.sha256(b"top" + b"A" + b"B").hexdigest()[:16]
+
+    assert hook.prompt_fingerprint(str(tmp_path)) == expected
+
+
+def test_main_injects_prompt_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    (tmp_path / "CLAUDE.md").write_text("rules", encoding="utf-8")
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+
+    short_dir = Path(tempfile.mkdtemp(prefix="aw-", dir="/tmp"))
+    path = short_dir / "s.sock"
+    received: list[bytes] = []
+    try:
+        thread = _serve_once(path, received)
+        rc = hook.main(["pre"], stdin=StringIO(json.dumps(EVENT)), socket_path=str(path))
+        thread.join(timeout=2)
+    finally:
+        shutil.rmtree(short_dir, ignore_errors=True)
+
+    assert rc == 0
+    message = json.loads(received[0].decode("utf-8"))
+    assert message["event"]["prompt_version"] == hook.prompt_fingerprint(str(tmp_path))

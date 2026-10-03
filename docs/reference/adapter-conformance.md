@@ -12,9 +12,19 @@ boundaries), and `normalize(message) -> list[AgentRecord]`. Unsupported classes 
 
 ## Conformance suite
 
+A shared, reusable runner (`agentwatch.conformance`, M5 O1 #216) holds every
+registered adapter to the same bar, blocking in CI (`assert_registered_conform`):
+
 - **Fixture replay:** native harness events → expected normalized records.
 - **Gap assertions:** declared-unsupported classes must be rejected explicitly, never dropped silently.
+- **Record validation:** every normalized output is validated (`validate_record`, reject-never-coerce).
+- **Dedup/idempotency:** normalizing the same event twice is deterministic.
 - **Cross-harness correlation:** W3C Trace Context survives the adapter.
+
+Each adapter registers an `AdapterSpec` (name, `normalize`, capabilities, documented
+gaps, error class, fixtures dir). A shipped adapter with no registration fails CI;
+a deliberately-broken sample adapter is asserted to fail the runner
+(`tests/test_conformance_runner.py`).
 
 ## Claude Code (v0.1.0)
 

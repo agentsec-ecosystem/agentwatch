@@ -16,7 +16,8 @@ import hashlib
 import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 from opentelemetry import trace
@@ -69,6 +70,66 @@ class ExportReport:
     error: str | None = None
     blocked: bool = False
     reset: bool = False
+
+
+# --- export cursor (F3, #184) -----------------------------------------------
+
+
+@dataclass(frozen=True)
+class ExportWatermark:
+    """The export position: the last store ``seq`` successfully delivered."""
+
+    last_seq: int = -1
+    updated_at: datetime | None = None
+
+
+class ExportState:
+    """Persisted export watermark beside the store, so export resumes (F3)."""
+
+    def __init__(self, path: Path | str) -> None:
+        self.path = Path(path)
+
+    @classmethod
+    def from_store(cls, store: RecordStore) -> ExportState:
+        return cls(Path(store.path).parent / "export.state.json")
+
+    def load(self) -> ExportWatermark:
+        if not self.path.exists():
+            return ExportWatermark()
+        try:
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return ExportWatermark()
+        if not isinstance(data, dict) or not isinstance(data.get("last_seq"), int):
+            return ExportWatermark()
+        updated = data.get("updated_at")
+        stamp: datetime | None = None
+        if isinstance(updated, str):
+            try:
+                stamp = datetime.fromisoformat(updated)
+            except ValueError:
+                stamp = None
+        return ExportWatermark(last_seq=int(data["last_seq"]), updated_at=stamp)
+
+    def save(self, watermark: ExportWatermark) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.write_text(
+            json.dumps(
+                {
+                    "last_seq": watermark.last_seq,
+                    "updated_at": (
+                        watermark.updated_at.isoformat()
+                        if watermark.updated_at is not None
+                        else None
+                    ),
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    def reset(self) -> None:
+        self.save(ExportWatermark())
 
 
 # --- span construction ------------------------------------------------------
@@ -240,37 +301,64 @@ class ExportOrchestrator:
         store: RecordStore,
         sink: SpanSink,
         *,
+        state: ExportState | None = None,
         self_test: Callable[[], bool] | None = None,
     ) -> None:
         self._store = store
         self._sink = sink
+        self._state = state if state is not None else ExportState.from_store(store)
+        self._explicit_state = state is not None
         self._self_test: Callable[[], bool] = self_test if self_test is not None else export_allowed
 
-    def export_pending(self) -> ExportReport:
-        """Export every live record currently in the store, in order.
+    def _persist(self, last_seq: int) -> None:
+        self._state.save(ExportWatermark(last_seq=last_seq, updated_at=datetime.now(timezone.utc)))
 
-        A sink failure stops the pass and is reported (F5); no store mutation
-        ever happens and no record is considered successfully delivered after the
-        failure, so a later pass can resume.
+    def export_pending(self) -> ExportReport:
+        """Deliver store records after the cursor, advancing it as it goes (F3, F5).
+
+        Export is gated on the redaction self-test (DD-09): on failure nothing is
+        sent and the cursor is untouched (F6). A sink failure stops the pass, the
+        cursor stays at the last delivered record, and the store is never mutated
+        (F5). A cursor beyond the store (e.g. after a repair, E2) is reset with a
+        notice instead of silently re-exporting or skipping.
         """
+        watermark = self._state.load()
         if not self._self_test():
-            return ExportReport(exported=0, attempted=0, last_seq=-1, blocked=True)
+            return ExportReport(
+                exported=0, attempted=0, last_seq=watermark.last_seq, blocked=True
+            )
+        entries = self._store.entries()
+        last_entry_seq = entries[-1].seq if entries else -1
+        reset = False
+        if watermark.last_seq > last_entry_seq:
+            self._state.reset()
+            watermark = self._state.load()
+            reset = True
+
         exported = 0
         attempted = 0
-        last_seq = -1
-        for entry in self._store.entries():
-            if entry.record is None:
+        cursor = watermark.last_seq
+        for entry in entries:
+            if entry.seq <= cursor:
+                continue
+            if entry.record is None:  # tombstone: advance past it, do not export
+                if self._explicit_state:
+                    cursor = entry.seq
+                    self._persist(cursor)
                 continue
             attempted += 1
             try:
                 self._sink.emit(entry.record, seq=entry.seq)
             except ExportError as exc:
+                self._persist(cursor)
                 return ExportReport(
                     exported=exported,
                     attempted=attempted,
-                    last_seq=last_seq,
+                    last_seq=cursor,
                     error=str(exc),
+                    reset=reset,
                 )
             exported += 1
-            last_seq = entry.seq
-        return ExportReport(exported=exported, attempted=attempted, last_seq=last_seq)
+            cursor = entry.seq
+            self._persist(cursor)
+        return ExportReport(exported=exported, attempted=attempted, last_seq=cursor, reset=reset)

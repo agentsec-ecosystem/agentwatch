@@ -475,13 +475,13 @@ def test_cursor_prevents_double_export(tmp_path: Path) -> None:
     sink, _ = _sink()
 
     first = ExportOrchestrator(store, sink, state=state).export_pending()
-    again, _ = _sink()
+    again, again_exporter = _sink()
     second = ExportOrchestrator(store, again, state=state).export_pending()
 
     assert first.exported == 2
     assert first.last_seq == 1
     assert second.exported == 0
-    assert again.get_finished_spans() == ()
+    assert again_exporter.get_finished_spans() == ()
 
 
 def test_cursor_resumes_with_only_new_records(tmp_path: Path) -> None:

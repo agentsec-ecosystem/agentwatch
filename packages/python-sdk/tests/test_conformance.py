@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import conformance_registry  # noqa: F401  (registers shipped adapters)
 import pytest
 
 from agentwatch.adapters import claude_code
@@ -53,3 +54,10 @@ def test_each_declared_gap_is_rejected_explicitly(gap: str) -> None:
     # A documented-gap capability class must be rejected, never dropped silently.
     with pytest.raises(claude_code.ClaudeCodeAdapterError):
         claude_code.normalize({"phase": gap, "event": {"session_id": "s"}})
+
+
+def test_claude_code_passes_the_shared_conformance_runner() -> None:
+    # The checks above are the Claude Code instance of the reusable runner (O1).
+    from agentwatch import conformance
+
+    conformance.assert_conforms(conformance_registry.claude_code_spec())

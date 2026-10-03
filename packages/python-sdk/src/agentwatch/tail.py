@@ -85,7 +85,11 @@ class Tail:
             envelope = json.loads(raw)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return TailLine(f"skipped malformed line {number}", is_note=True)
-        if not isinstance(envelope, dict) or "seq" not in envelope:
+        if not isinstance(envelope, dict):
+            return TailLine(f"skipped malformed line {number}", is_note=True)
+        if "format" in envelope and "seq" not in envelope:
+            return None  # store format marker, not a record
+        if "seq" not in envelope:
             return TailLine(f"skipped malformed line {number}", is_note=True)
         seq = envelope.get("seq")
         if envelope.get("tombstone"):

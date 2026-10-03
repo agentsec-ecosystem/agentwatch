@@ -46,7 +46,7 @@
 - Consumes: nothing new.
 - Produces: `AgentRecord.project: str | None = None`, `AgentRecord.parent_session_id: str | None = None`; both serialize via `to_dict()` and parse via `from_dict()`; unknown-key rejection unchanged.
 
-- [ ] **Step 1: Write the failing tests** in `tests/test_records.py`
+- [x] **Step 1: Write the failing tests** in `tests/test_records.py`
 
 ```python
 def test_new_optional_fields_round_trip():
@@ -63,10 +63,10 @@ def test_unknown_record_key_is_still_rejected():
         validate_record({**valid_record_dict(), "nope": 1})
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `cd packages/python-sdk && pytest tests/test_records.py -k "new_optional_fields or legacy_record_without" -v` → FAIL (`unexpected keyword argument 'project'`).
-- [ ] **Step 3: Implement** — add the two fields to `AgentRecord` (after `harness`), include them in `to_dict()`'s `_drop_none` block, read them in `from_dict()`, add both to `_RECORD_FIELDS`, and `_check_str(..., nullable=True)` for each in `_validate_record_dict`. Add matching optional `"project"` / `"parent_session_id"` `{ "type": ["string","null"] }` properties in the JSON schema. Add one valid fixture record carrying both.
-- [ ] **Step 4: Run to verify it passes** — same command → PASS; then `pytest tests/test_schema_contract.py tests/test_records.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(records): add optional project + parent_session_id (M9)"`
+- [x] **Step 2: Run to verify it fails** — `cd packages/python-sdk && pytest tests/test_records.py -k "new_optional_fields or legacy_record_without" -v` → FAIL (`unexpected keyword argument 'project'`).
+- [x] **Step 3: Implement** — add the two fields to `AgentRecord` (after `harness`), include them in `to_dict()`'s `_drop_none` block, read them in `from_dict()`, add both to `_RECORD_FIELDS`, and `_check_str(..., nullable=True)` for each in `_validate_record_dict`. Add matching optional `"project"` / `"parent_session_id"` `{ "type": ["string","null"] }` properties in the JSON schema. Add one valid fixture record carrying both.
+- [x] **Step 4: Run to verify it passes** — same command → PASS; then `pytest tests/test_schema_contract.py tests/test_records.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(records): add optional project + parent_session_id (M9)"`
 
 ---
 

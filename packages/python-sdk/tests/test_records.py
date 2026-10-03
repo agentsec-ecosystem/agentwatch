@@ -349,3 +349,45 @@ def test_tool_response_must_be_an_object() -> None:
 
     with pytest.raises(RecordValidationError):
         validate_record(data)
+
+
+# ---------------------------------------------------------------------------
+# M9: additive project / parent-session fields (PRD 25 I3/I4)
+# ---------------------------------------------------------------------------
+
+
+def test_new_optional_fields_round_trip() -> None:
+    record = _record(project="/repo/a", parent_session_id="sess-parent")
+    data = record.to_dict()
+
+    assert data["project"] == "/repo/a"
+    assert data["parent_session_id"] == "sess-parent"
+    assert AgentRecord.from_dict(data) == record
+    assert validate_record(data) == record
+
+
+def test_legacy_record_without_new_fields_round_trips() -> None:
+    data = _record().to_dict()
+
+    assert "project" not in data
+    assert "parent_session_id" not in data
+    assert validate_record(data) == _record()
+
+
+def test_new_fields_reject_wrong_types() -> None:
+    data = _valid_dict()
+    data["project"] = 5
+    with pytest.raises(RecordValidationError, match="project"):
+        validate_record(data)
+
+    data = _valid_dict()
+    data["parent_session_id"] = ["not", "a", "string"]
+    with pytest.raises(RecordValidationError, match="parent_session_id"):
+        validate_record(data)
+
+
+def test_new_fields_accept_null_and_omission() -> None:
+    data = _valid_dict()
+    data["project"] = None
+    data["parent_session_id"] = None
+    validate_record(data)

@@ -217,6 +217,8 @@ class AgentRecord:
     span_id: str | None = None
     parent_span_id: str | None = None
     harness: str | None = None
+    project: str | None = None
+    parent_session_id: str | None = None
     ended_at: datetime | None = None
     duration_ms: float | None = None
     tokens: int | None = None
@@ -240,6 +242,8 @@ class AgentRecord:
                     "span_id": self.span_id,
                     "parent_span_id": self.parent_span_id,
                     "harness": self.harness,
+                    "project": self.project,
+                    "parent_session_id": self.parent_session_id,
                 }
             )
         )
@@ -276,6 +280,8 @@ class AgentRecord:
             span_id=data.get("span_id"),
             parent_span_id=data.get("parent_span_id"),
             harness=data.get("harness"),
+            project=data.get("project"),
+            parent_session_id=data.get("parent_session_id"),
             ended_at=_parse_iso(ended) if ended is not None else None,
             duration_ms=data.get("duration_ms"),
             tokens=data.get("tokens"),
@@ -302,6 +308,8 @@ _RECORD_FIELDS = frozenset(
         "span_id",
         "parent_span_id",
         "harness",
+        "project",
+        "parent_session_id",
         "agent",
         "tool",
         "outcome",
@@ -468,7 +476,7 @@ def _validate_record_dict(data: Any) -> None:
             f"expected {SCHEMA_VERSION!r}"
         )
     _check_str(data["session_id"], where, "session_id")
-    for key in ("trace_id", "span_id", "parent_span_id", "harness"):
+    for key in ("trace_id", "span_id", "parent_span_id", "harness", "project", "parent_session_id"):
         if key in data:
             _check_str(data[key], where, key, nullable=True)
     _validate_identity_dict(data["agent"])

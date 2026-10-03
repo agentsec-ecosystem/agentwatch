@@ -12,6 +12,8 @@
     "span_id": { "type": "string" },
     "parent_span_id": { "type": ["string", "null"] },
     "harness": { "type": "string", "examples": ["claude-code", "cursor", "langgraph", "python"] },
+    "project": { "type": ["string", "null"], "description": "Project working directory (M9 per-project filtering)" },
+    "parent_session_id": { "type": ["string", "null"], "description": "Logical parent session for resumed/forked sessions (M9)" },
     "agent": {
       "type": "object",
       "required": ["identity"],

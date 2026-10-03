@@ -9,11 +9,13 @@ land in M4-M5 and fail closed here rather than pretending to succeed.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
+from agentwatch.doctor import all_passed, run_checks, to_json
 from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.install import (
     InstallError,
@@ -93,6 +95,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
+
+    doctor = sub.add_parser(
+        "doctor", help="run an ordered health checklist with fix hints (M5)"
+    )
+    doctor.add_argument("--json", action="store_true", help="emit the checklist as JSON")
 
     replay = sub.add_parser("replay", help="reconstruct a session timeline (M5)")
     replay.add_argument("session_id", help="session id to replay")
@@ -296,6 +303,25 @@ def _run_sessions(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_doctor(args: argparse.Namespace) -> int:
+    config_error: str | None = None
+    cfg: AgentwatchConfig | None = None
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        config_error = str(exc)
+    results = run_checks(cfg, config_error=config_error)
+    if args.json:
+        print(json.dumps(to_json(results), indent=2))
+    else:
+        for result in results:
+            line = f"{result.status} {result.name}: {result.detail}"
+            if result.hint:
+                line += f"  [hint: {result.hint}]"
+            print(line)
+    return 0 if all_passed(results) else _EXIT_INSTALL_ERROR
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -318,4 +344,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_sessions(args)
     if args.command == "verify-store":
         return _run_verify_store(args)
+    if args.command == "doctor":
+        return _run_doctor(args)
     return _run_deferred(str(args.command))

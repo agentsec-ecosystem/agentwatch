@@ -403,22 +403,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run the daemon until interrupted (SIGINT/SIGTERM stop it cleanly)."""
     from agentwatch.configuration import load_config
     from agentwatch.install import hooks_installed, resolve_scope
-    from agentwatch.redact import PrivacyMode
+    from agentwatch.redact import redaction_config_from_mode
     from agentwatch.selftest import run_redaction_self_test
 
     cfg = load_config()
     records_path = default_records_path()
     store = RecordStore(records_path, max_size_mb=cfg.store.max_size_mb)
-    modes = {
-        "metadata-only": PrivacyMode.METADATA_ONLY,
-        "truncated": PrivacyMode.TRUNCATED,
-        "hashed": PrivacyMode.HASHED,
-        "full": PrivacyMode.FULL,
-    }
-    redaction = RedactionConfig(
-        mode=modes.get(cfg.privacy.mode, PrivacyMode.METADATA_ONLY),
-        capture_tool_args=True,
-    )
+    redaction = redaction_config_from_mode(cfg.privacy.mode)
     hooks_installed_any = any(
         hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
     )

@@ -29,6 +29,7 @@ from agentwatch.hook import default_socket_path
 from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
 from agentwatch.redact import RedactionConfig
 from agentwatch.store import ChainStatus, RecordStore, StoreFullError
+from agentwatch.transcript import extract_usage
 
 # F2: a missed tool call is recorded under this tool name, never dropped.
 HOOK_ERROR_TOOL = "hook-error"
@@ -226,6 +227,16 @@ class Daemon:
             elif phase == "denied" and call_id is not None:
                 # A denial retires the matching intent; no false hook-error.
                 self._pending_pre.pop(call_id, None)
+
+        if phase == "session-end":
+            transcript_path = raw_event.get("transcript_path")
+            if isinstance(transcript_path, str) and transcript_path:
+                usage = extract_usage(transcript_path)
+                records.append(
+                    claude_code.usage_record(
+                        raw_event, tokens=usage.tokens, model=usage.model
+                    )
+                )
 
         self._sweep_pending_pre()
         return [record for record in records if self._append(record)]

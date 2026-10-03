@@ -301,6 +301,46 @@ def test_permission_denied_retires_the_pending_pre(short_dir: Path) -> None:
     assert HOOK_ERROR_TOOL not in [record.tool.name for record in records]
 
 
+def test_daemon_emits_session_usage_from_transcript(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    transcript = short_dir / "t.jsonl"
+    transcript.write_text(
+        json.dumps(
+            {
+                "message": {
+                    "model": "claude-x",
+                    "usage": {"input_tokens": 10, "output_tokens": 5},
+                    "content": [{"type": "text", "text": "CANARY-sk-abcdefgh"}],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    try:
+        hook.send(
+            {
+                "phase": "session-end",
+                "harness": "claude-code",
+                "event": {
+                    "session_id": "sess-1",
+                    "reason": "other",
+                    "timestamp": "2026-01-02T03:05:00+00:00",
+                    "transcript_path": str(transcript),
+                },
+            },
+            socket_path=str(socket_path),
+        )
+        _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    usage = [r for r in RecordStore(records_path).records() if r.tool.name == "session-usage"]
+    assert usage
+    assert usage[0].tokens == 15
+    assert usage[0].agent.model_version == "claude-x"
+    assert "CANARY" not in json.dumps(usage[0].to_dict())
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

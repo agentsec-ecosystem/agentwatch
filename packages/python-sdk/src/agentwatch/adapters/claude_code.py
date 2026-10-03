@@ -131,6 +131,34 @@ def tool_call_id(event: Mapping[str, Any]) -> str | None:
     return str(raw) if raw is not None else None
 
 
+def usage_record(
+    event: Mapping[str, Any], *, tokens: int, model: str | None
+) -> AgentRecord:
+    """A session-usage record derived from a transcript (usage + model only)."""
+    session_id = str(event.get("session_id") or "unknown")
+    base = identity_for(event)
+    agent = AgentIdentity(
+        identity=base.identity,
+        name=base.name,
+        version=base.version,
+        prompt_version=base.prompt_version,
+        model_version=model if model is not None else base.model_version,
+        tool_schema_version=base.tool_schema_version,
+        workload_type=base.workload_type,
+    )
+    return AgentRecord(
+        session_id=session_id,
+        agent=agent,
+        tool=ToolCall(name="session-usage"),
+        outcome=Outcome.OK,
+        started_at=_timestamp(event),
+        harness=HARNESS_ID,
+        trace_id=str(event.get("trace_id") or session_id),
+        tokens=tokens,
+        step_type=StepType.OBSERVE,
+    )
+
+
 def normalize(
     message: Mapping[str, Any],
     *,

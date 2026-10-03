@@ -271,3 +271,29 @@ def assert_registered_conform() -> None:
     failed = [report for report in (run(spec) for spec in specs) if not report.ok]
     if failed:
         raise ConformanceError("\n".join(report.summary() for report in failed))
+
+
+def assert_packs_populated() -> None:
+    """Block CI when a registered adapter lacks a well-formed conformance pack.
+
+    A harness may claim "supported" only with a populated fixtures directory
+    whose cases define ``message`` and ``expected`` (M10 #85).
+    """
+    problems: list[str] = []
+    for spec in registered():
+        paths = sorted(spec.fixtures_dir.glob("*.json")) if spec.fixtures_dir.is_dir() else []
+        if not paths:
+            problems.append(f"{spec.name}: no conformance fixtures in {spec.fixtures_dir}")
+            continue
+        for path in paths:
+            try:
+                fixture = json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as exc:
+                problems.append(f"{spec.name}: {path.name} is not readable JSON: {exc}")
+                continue
+            if not isinstance(fixture, dict) or not {"message", "expected"} <= set(fixture):
+                problems.append(
+                    f"{spec.name}: {path.name} must define 'message' and 'expected'"
+                )
+    if problems:
+        raise ConformanceError("\n".join(problems))

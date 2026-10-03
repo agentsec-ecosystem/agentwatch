@@ -26,6 +26,10 @@ gaps, error class, fixtures dir). A shipped adapter with no registration fails C
 a deliberately-broken sample adapter is asserted to fail the runner
 (`tests/test_conformance_runner.py`).
 
+Every registered adapter must also ship a **populated pack**: `conformance.assert_packs_populated()` fails
+CI when a harness has no fixtures or a case lacks `message`/`expected`
+(`tests/test_conformance_packs.py`, M10 #85).
+
 ## Claude Code (v0.1.0)
 
 - Fixtures: `packages/python-sdk/tests/fixtures/claude-code/*.json` (`message` + `expected` records),

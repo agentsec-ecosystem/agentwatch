@@ -76,3 +76,22 @@ Every idea → PRD → milestone → GitHub issue.
 | M13 | K2 | `docs/prd/28-performance-operability.md` | #207 |
 | M13 | K3 | `docs/prd/28-performance-operability.md` | #208 |
 | M13 | K4 | `docs/prd/28-performance-operability.md` | #209 |
+
+## PRDs 31–39 — new v0.1.0 additions (2026-10-03)
+
+Source: `next-ideas.md` (39 features S1–S39, 6 CUJs, 13 quality raises Q1–Q13, 9 standards items W1–W9). All
+are added to the **v0.1.0** PRD set as feature work: PRDs [31–39](../prd/README.md) and CUJ-8–14 in
+[PRD 04](../prd/04-users-and-cujs.md). Issue numbers are TBD (not yet created).
+
+Suggested landing (all within v0.1.0; from `next-ideas.md` §6, adjusted so nothing is deferred to v0.1.x):
+
+| Milestone | Items |
+|---|---|
+| **M10** (in flight) | Q5, Q4, Q13, Q8 — CI and release plumbing before more features land |
+| **M11** | S2, S3, S5, S6, S7 |
+| **M12** | Q1, Q2, Q3, Q6, Q7, Q12, S4 |
+| **M13** | S1 (with W6, Q9), S8, S9, S12, W1, W2, W5, W7, W8 |
+| **M14–M15** | Remaining S/Q/W items (S10, S11, S13, S14–S39, Q10, Q11, W3, W4, W9) and CUJ-8–14 verification |
+
+Per-item detail lives in the PRDs; each section carries its own Why / Behavior / Data & schema impact /
+Security & privacy / Edge cases / Dependencies / Testing / Risks & mitigations / Decision.

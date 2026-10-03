@@ -40,6 +40,15 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 27 | [Harness Expansion & Conformance](27-harness-expansion.md) | MCP interposition, OTel ingestion, conformance runner, version matrix |
 | 28 | [Performance & Operability](28-performance-operability.md) | Async hooks, durability, offline proof, service units, soak, file posture, logs |
 | 29 | [LLM Explanation Layer](29-llm-explanation.md) | Local-first narrative over redacted records |
+| 31 | [Evidence & Provenance](31-evidence-and-provenance.md) | Evidence bundle, standalone verifier, Agent BOM, `producer` field, store-access audit, annotations, redaction receipts |
+| 32 | [Coverage & Recorder Trust](32-coverage-and-recorder-trust.md) | Coverage reconciliation, recorder-state audit records, harness-drift canary, quarantine tooling, recorder-attack suite |
+| 33 | [Investigation & Impact](33-investigation-and-impact.md) | Change footprint, subagent tree, blame, time window, denied-then-retried, behavior fingerprint, interrupt, digest, cost |
+| 34 | [Content-Flow Forensics](34-content-flow-forensics.md) | Untrusted content → argument flow; tracing an exposed secret |
+| 35 | [Capture Context](35-capture-context.md) | Approval provenance, context compaction, VCS revision snapshot, OS principal, `demo` |
+| 36 | [Standards & Interop](36-standards-and-interop.md) | OCSF/CloudEvents, reference consumer, OTel collector component, event sinks, MCP tool-surface drift |
+| 37 | [Configuration, Profiles & Capture Hygiene](37-config-and-capture-hygiene.md) | `config explain`, install profiles, pathological-record guard, SDK/hook union, standalone redactor |
+| 38 | [Engineering Rigor](38-engineering-rigor.md) | Property/differential/mutation/fuzz testing, whole-repo CI, perf gate, conformance vectors, compat matrix, error contract, claims ledger, executable docs, WCAG level, time correctness, release pipeline |
+| 39 | [Standards & Compliance Acceptance](39-standards-and-compliance-acceptance.md) | EU AI Act mapping, ISO/NIST appendices, open artifact standards, OTel semconv pin, schema stewardship, forensic-soundness, checkpoint notarization/signing, OpenSSF/OSV |
 
 ## Reviewers start here
 

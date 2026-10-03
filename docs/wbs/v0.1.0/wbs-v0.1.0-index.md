@@ -3,8 +3,10 @@
 **BLUF:** **v0.1.0 delivers the entire PRD scope** — port `agent-exec-trace` first (M0), add the security
 layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10, compliance) plus the reviewed
 additions (R14–R25, PRD 19–30: lifecycle, delivery guarantees, operator tooling, capture fidelity, platform
-strategy). Sixteen milestones (M0–M15), split across eight detail files (max 2 milestones per file). The
-additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) remain the last two.**
+strategy) **and the new additions (PRDs 31–39: evidence, coverage/trust, investigation, forensics, capture
+context, interop, config, engineering rigor, compliance acceptance)**. Twenty-five milestones (M0–M24), split
+across thirteen detail files (max 2 milestones per file). The additions fold into M5–M13 and **M14–M22**;
+**M23 (Field Tests) and M24 (Release Readiness) remain the last two.**
 
 ## Standard milestone exit criteria (applies to EVERY milestone)
 
@@ -32,8 +34,17 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 | M11 | Fleet aggregation (R13) + drift signals | [Part 6](wbs-v0.1.0-part6-expansion.md#milestone-m11--fleet-aggregation-r13--drift-signals) |
 | M12 | NFRs + resilience + error handling (PRD 13, 17) | [Part 7](wbs-v0.1.0-part7-hardening-release.md#milestone-m12--nfrs--resilience--error-handling) |
 | M13 | Compliance + full-parity release + predecessor retention (PRD 18, 07, 09) | [Part 7](wbs-v0.1.0-part7-hardening-release.md#milestone-m13--compliance--full-parity-release--predecessor-retention) |
-| M14 | Field Tests | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m14--field-tests) |
-| M15 | Release Readiness + predecessor retention | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m15--release-readiness) |
+| M14 | Engineering Rigor (Q1–Q13) | [Part 9](wbs-v0.1.0-part9-rigor-and-evidence.md) |
+| M15 | Evidence & Provenance (PRD 31) | [Part 9](wbs-v0.1.0-part9-rigor-and-evidence.md) |
+| M16 | Coverage & Recorder Trust (PRD 32) | [Part 10](wbs-v0.1.0-part10-trust-and-investigation.md) |
+| M17 | Investigation & Impact (PRD 33) | [Part 10](wbs-v0.1.0-part10-trust-and-investigation.md) |
+| M18 | Content-Flow Forensics (PRD 34) | [Part 11](wbs-v0.1.0-part11-forensics-and-context.md) |
+| M19 | Capture Context (PRD 35) | [Part 11](wbs-v0.1.0-part11-forensics-and-context.md) |
+| M20 | Standards & Interop (PRD 36) | [Part 12](wbs-v0.1.0-part12-interop-and-config.md) |
+| M21 | Configuration, Profiles & Capture Hygiene (PRD 37) | [Part 12](wbs-v0.1.0-part12-interop-and-config.md) |
+| M22 | Standards & Compliance Acceptance (PRD 39) | [Part 13](wbs-v0.1.0-part13-compliance-acceptance.md) |
+| M23 | Field Tests | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m23--field-tests) |
+| M24 | Release Readiness + predecessor retention | [Part 8](wbs-v0.1.0-part8-field-test-release.md#milestone-m24--release-readiness) |
 
 > **Progress:** ✅ M0 (port), ✅ M1 (foundation & identity), ✅ M2 (record + security-event schema), and
 > ✅ M3 (Claude Code adapter + daemon — `agentwatch init`/`uninstall`, `sessions`, `status` reporting; #159
@@ -59,7 +70,7 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M8 (Local stack + demo/seed + E2E) ✅** — ported compose stack, demo agent, seed/replay,
 > and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),
 > `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **8.5** (field-test
-> harness) is folded into M14 14.1 (#141) as a single Playwright harness that drives the stack.
+> harness) is folded into M23 23.1 (#141) as a single Playwright harness that drives the stack.
 >
 > **M9 (Inventory + retention) ✅** — `agentwatch inventory` (agents + MCP servers, `mcp__` attribution),
 > capture fidelity (`project` / `prompt_version` / `parent_session_id`, `--project` filters), and
@@ -74,7 +85,7 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 
 **Blocking open issues (milestones reopened):** none — M7, M8, and M9 are complete.
 
-**Deferred to M14 (Field Tests):** M8 **8.5** field-test harness → **14.1 (#141)** — delivered as a
+**Deferred to M23 (Field Tests):** M8 **8.5** field-test harness → **23.1 (#141)** — delivered as a
 single **Playwright** harness that drives the Docker/compose + seed + E2E setup.
 
 **Known limitation:** real authenticated golden-corpus capture (#199) remains deferred; the committed
@@ -82,11 +93,13 @@ corpus is synthesized-from-shape (per D-19.39) and the real-corpus test skips wi
 
 **Resolved since the last audit:** **M7 (#63)** — automated axe a11y checks now run in the UI test
 suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete. **M8 8.5**
-folded into M14 14.1.
+folded into M23 23.1.
 
-**Not started:** **M10 (phases 3–5), M11–M15** (milestones 11–16, `open`): MCP proxy + Tier-2 + ingestion/
-matrix, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
-release readiness.
+**Not started:** **M10 (phases 3–5), M11–M22** (the new additions M14–M22 are PRDs 31–39): MCP proxy + Tier-2 +
+ingestion/matrix, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, then
+**M14–M22** (Engineering Rigor, Evidence & Provenance, Coverage/Trust, Investigation, Forensics, Capture
+Context, Interop, Config/Hygiene, Compliance Acceptance). **M23 (Field Tests) and M24 (Release Readiness)
+remain the last two.**
 
 **Unverified (environment):** `docker compose up` health, `make seed-e2e` load, and Playwright
 **green** were not run — the Docker daemon was unavailable; the E2E specs are ported and validated but
@@ -106,7 +119,8 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | CLI/packaging metadata; record/trace schema; instrumentation SDK; privacy/redaction; OTLP export + replay | M1–M5 |
 | Analytics pipeline + 40 detectors; FastAPI read API + React UI | M6–M7 |
 | Docker Compose stack, demo, seed/replay, Playwright E2E | M8 |
-| Field-test harness (single Playwright harness, drives the stack) | M14 |
+| Field-test harness (single Playwright harness, drives the stack) | M23 |
+| PRD 31–39 additions (evidence, coverage/trust, investigation, forensics, capture context, interop, config, rigor, compliance acceptance) | M14–M22 |
 | CI + release tooling | M13 |
 
 > **Predecessor retention:** once **M0** lands (code fully represented, tests green), agentwatch is
@@ -114,21 +128,22 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 >
 > **M0 execution:** [m0-port-execution-plan.md](../../plans/m0-port-execution-plan.md).
 
-## PRD coverage matrix (every doc 00–18)
+## PRD coverage matrix (every doc 00–39)
 
 | PRD | Topic | Milestone(s) |
 |---|---|---|
-| **PRD 00** | Press Release / FAQ | context/narrative; validated at M13 |
+| **PRD 00** | Press Release / FAQ | context/narrative; validated at M24 |
 | **PRD 01** | Why | context (all milestones) |
 | **PRD 02** | Architecture | M0–M5 |
 | **PRD 03** | Landscape / migration / retain predecessor (private) | M0, M13 |
 | **PRD 04** | Users & CUJs (CUJ-1..7) | M3, M5, M4, M9, M7, M11 |
+| **PRD 04** | Additions (CUJ-8..14) | M14–M23 |
 | **PRD 05** | Features R1–R13 | M2–M11 |
 | **PRD 06** | Security baseline / tamper | M4, M12 |
-| **PRD 07** | Success metrics / release gate | M12, M14, M15 |
+| **PRD 07** | Success metrics / release gate | M12, M23, M24 |
 | **PRD 08** | Risks (product + build) | cross-cutting; M12 |
-| **PRD 09** | Roadmap | M15 |
-| **PRD 10** | Feature parity A1–A6 + gate | M0–M8; gate M15 |
+| **PRD 09** | Roadmap | M24 |
+| **PRD 10** | Feature parity A1–A6 + gate | M0–M8; gate M24 |
 | **PRD 11** | Decisions DD-01..DD-15 | cross-cutting (honored every milestone) |
 | **PRD 12** | Traceability (maintained) | every milestone |
 | **PRD 13** | NFR-1..NFR-12 + self-observability | M12 (a11y also M7) |
@@ -136,7 +151,7 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | **PRD 15** | Data model + lifecycle | M2, M4 |
 | **PRD 16** | Configuration | M1 |
 | **PRD 17** | Error handling F1–F10 | M12 (per-milestone fault tests too) |
-| **PRD 18** | Compliance (OWASP/NIST/ISO/SOC2/OpenSSF) | M13, M15 |
+| **PRD 18** | Compliance (OWASP/NIST/ISO/SOC2/OpenSSF) | M13, M24 |
 | **PRD 19** | Agent lifecycle coverage (R14) | M5 |
 | **PRD 20** | Usage & cost accounting (R15) | M5–M6 |
 | **PRD 21** | Data integrity & delivery guarantees (R18) | M5, M12 |
@@ -149,6 +164,15 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | **PRD 28** | Performance & operability (R24) | M5, M12 |
 | **PRD 29** | LLM explanation layer (R25) | M7 (stretch) |
 | **PRD 30** | Analytics signals | M6 |
+| **PRD 31** | Evidence & provenance (S1, S12, S9, S26, S21, S20, S32) | M15 |
+| **PRD 32** | Coverage & recorder trust (S2, S5, S19, S27, S30, S28) | M16 |
+| **PRD 33** | Investigation & impact (S3, S17, S18, S24, S25, S7, S33, S37, S6) | M17 |
+| **PRD 34** | Content-flow forensics (S22, S23) | M18 |
+| **PRD 35** | Capture context (S14, S15, S16, S29, S31) | M19 |
+| **PRD 36** | Standards & interop (S8, S38, S39, S10, S4) | M20 |
+| **PRD 37** | Configuration, profiles & capture hygiene (S34, S35, S36, S11, S13) | M21 |
+| **PRD 38** | Engineering rigor (Q1–Q13) | M14 |
+| **PRD 39** | Standards & compliance acceptance (W1–W9) | M22 |
 | Design docs / schema / reference | updated every milestone |
 
 ## Requirements detail (R1–R13, R14–R25)

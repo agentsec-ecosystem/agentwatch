@@ -451,6 +451,55 @@ def test_daemon_drains_spool_on_start(short_dir: Path) -> None:
     assert remaining == []
 
 
+def test_duplicate_frame_is_ignored(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        for _ in range(2):
+            hook.send(
+                {"phase": "pre", "harness": "claude-code", "event": PRE},
+                socket_path=str(socket_path),
+            )
+        _read_lines(records_path, 1)
+    finally:
+        daemon.stop()
+
+    acts = [
+        record
+        for record in RecordStore(records_path).records()
+        if record.tool.name == "Bash"
+    ]
+    assert len(acts) == 1
+
+
+def test_dedup_survives_restart(short_dir: Path) -> None:
+    socket_path = short_dir / "d.sock"
+    records_path = short_dir / "records.jsonl"
+    first = Daemon(socket_path=str(socket_path), records_path=records_path)
+    first.start()
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE},
+            socket_path=str(socket_path),
+        )
+        _read_lines(records_path, 1)
+    finally:
+        first.stop()
+
+    second = Daemon(socket_path=str(socket_path), records_path=records_path)
+    second.start()
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE},
+            socket_path=str(socket_path),
+        )
+        _read_lines(records_path, 1)
+        records = second.store.records()
+    finally:
+        second.stop()
+
+    assert len([record for record in records if record.tool.name == "Bash"]) == 1
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

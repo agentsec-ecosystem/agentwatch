@@ -84,6 +84,8 @@ class Daemon:
         self._owns_socket = False
         # Pre tool-call ids awaiting their Post, for F2 hook-error synthesis.
         self._pending_pre: dict[str, datetime] = {}
+        # Idempotency keys already persisted, so re-delivery appends nothing (F2).
+        self._seen: set[tuple[str, str | None, str | None]] = set()
 
     def is_alive(self) -> bool:
         """Whether the serve thread is running."""
@@ -102,6 +104,7 @@ class Daemon:
             self.store.apply_retention(retention_days=self.retention_days)
         self._record_gap_if_needed()
         self._drain_spool()
+        self._seen = {self._key(record) for record in self.store.records()}
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -282,7 +285,20 @@ class Daemon:
                 )
 
         self._sweep_pending_pre()
-        return [record for record in records if self._append(record)]
+        written: list[AgentRecord] = []
+        for record in records:
+            key = self._key(record)
+            if key in self._seen:
+                continue
+            if self._append(record):
+                self._seen.add(key)
+                written.append(record)
+        return written
+
+    @staticmethod
+    def _key(record: AgentRecord) -> tuple[str, str | None, str | None]:
+        step = record.step_type.value if record.step_type is not None else None
+        return (record.session_id, record.span_id, step)
 
     def _mark_recovered(self, record: AgentRecord) -> AgentRecord:
         arguments = record.tool.arguments

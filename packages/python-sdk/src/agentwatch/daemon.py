@@ -19,6 +19,7 @@ import socket
 import sys
 import threading
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,7 @@ from agentwatch.hook import default_socket_path
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
 from agentwatch.redact import RedactionConfig
+from agentwatch.spool import Spool
 from agentwatch.store import ChainStatus, RecordStore, StoreFullError
 from agentwatch.transcript import extract_usage
 
@@ -69,6 +71,7 @@ class Daemon:
         self.gap_threshold_seconds = gap_threshold_seconds
         self.pid_path = self.records_path.parent / "daemon.pid"
         self.quarantine = QuarantineLog(self.records_path.parent / "quarantine.jsonl")
+        self.spool = Spool(str(self.socket_path) + ".spool")
         self.chain_status: ChainStatus | None = None
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
@@ -98,6 +101,7 @@ class Daemon:
         if self.retention_days is not None:
             self.store.apply_retention(retention_days=self.retention_days)
         self._record_gap_if_needed()
+        self._drain_spool()
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -248,6 +252,9 @@ class Daemon:
             self._sweep_pending_pre()
             return [record] if persisted else []
 
+        if message.get("recovered"):
+            records = [self._mark_recovered(record) for record in records]
+
         raw_event: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
         call_id = claude_code.tool_call_id(raw_event)
         with self._lock:
@@ -276,6 +283,23 @@ class Daemon:
 
         self._sweep_pending_pre()
         return [record for record in records if self._append(record)]
+
+    def _mark_recovered(self, record: AgentRecord) -> AgentRecord:
+        arguments = record.tool.arguments
+        merged = {**(arguments or {}), "recovered": True}
+        return replace(record, tool=replace(record.tool, arguments=merged))
+
+    def _drain_spool(self) -> None:
+        """Persist frames spooled while the daemon was down (F1)."""
+        for line in self.spool.drain():
+            try:
+                message = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                self.quarantine.add(line, reason="spool-parse-error")
+                continue
+            if isinstance(message, dict):
+                message["recovered"] = True
+            self.handle_message(message)
 
     def _hook_error_record(self, event: Any) -> AgentRecord:
         raw: Mapping[str, Any] = event if isinstance(event, Mapping) else {}

@@ -16,6 +16,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, TextIO
 
+from agentwatch.spool import Spool
+
 _SOCKET_NAME = "agentwatch.sock"
 _VALID_PHASES = ("pre", "post", "denied", "prompt", "session-start", "session-end")
 _CONNECT_TIMEOUT_SECONDS = 1.0
@@ -29,6 +31,10 @@ def default_socket_path() -> str:
     runtime = os.environ.get("XDG_RUNTIME_DIR")
     base = Path(runtime) if runtime else Path("/tmp")
     return str(base / _SOCKET_NAME)
+
+
+def default_spool_path() -> str:
+    return default_socket_path() + ".spool"
 
 
 def build_message(phase: str, event: Any) -> dict[str, Any]:
@@ -74,13 +80,15 @@ def main(
     phase = args[0] if args else ""
     if phase in _VALID_PHASES:
         if event is not None:
-            send(build_message(phase, event), socket_path=socket_path)
+            message = build_message(phase, event)
         else:
             # F2: report the malformed input so the missed call is recorded, not dropped.
-            send(
-                build_message("hook-error", {"reason": "malformed hook input"}),
-                socket_path=socket_path,
-            )
+            message = build_message("hook-error", {"reason": "malformed hook input"})
+        delivered = send(message, socket_path=socket_path)
+        if not delivered:
+            # Daemon down: spool the frame so the event is recorded late, never lost (F1).
+            spool_path = (socket_path + ".spool") if socket_path else default_spool_path()
+            Spool(spool_path).append(message)
 
     # Never block the agent: a missed event is the daemon's to record (M3 3.7).
     return 0

@@ -430,6 +430,27 @@ def test_normalize_error_is_quarantined(short_dir: Path) -> None:
     assert any(entry["reason"] == "normalize-error" for entry in entries)
 
 
+def test_daemon_drains_spool_on_start(short_dir: Path) -> None:
+    from agentwatch.spool import Spool
+
+    socket_path = short_dir / "d.sock"
+    records_path = short_dir / "records.jsonl"
+    Spool(str(socket_path) + ".spool").append(
+        {"phase": "pre", "harness": "claude-code", "event": PRE}
+    )
+    daemon = Daemon(socket_path=str(socket_path), records_path=records_path)
+    daemon.start()
+    try:
+        records = daemon.store.records()
+        remaining = Spool(str(socket_path) + ".spool").drain()
+    finally:
+        daemon.stop()
+
+    assert any(record.tool.name == "Bash" for record in records)
+    assert any((record.tool.arguments or {}).get("recovered") for record in records)
+    assert remaining == []
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

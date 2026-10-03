@@ -122,3 +122,16 @@ def test_default_socket_path_falls_back_to_tmp(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.delenv("AGENTWATCH_SOCKET", raising=False)
     monkeypatch.delenv("XDG_RUNTIME_DIR", raising=False)
     assert hook.default_socket_path() == "/tmp/agentwatch.sock"
+
+
+def test_hook_spools_when_daemon_is_down(tmp_path: Path) -> None:
+    from agentwatch.spool import Spool
+
+    socket_path = tmp_path / "nope.sock"
+
+    rc = hook.main(["pre"], stdin=StringIO(json.dumps(EVENT)), socket_path=str(socket_path))
+
+    assert rc == 0
+    lines = Spool(str(socket_path) + ".spool").drain()
+    assert lines
+    assert json.loads(lines[0])["phase"] == "pre"

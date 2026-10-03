@@ -202,6 +202,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--json", action="store_true", help="emit the retention report as JSON"
     )
 
+    purge = sub.add_parser("purge", help="tombstone every record of one session (M9 I5)")
+    purge.add_argument("session_id", help="session id to purge")
+    purge.add_argument("--yes", action="store_true", help="confirm irreversible tombstoning")
+    purge.add_argument(
+        "--reason", default=None, help="metadata-only reason recorded with the purge"
+    )
+
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
     export_sub.add_parser("enable", help="enable export")
@@ -537,7 +544,7 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 _COMMANDS_FOR_COMPLETION = (
     "init status sessions replay export verify-store verify-privacy event doctor tail "
-    "completions uninstall inventory search diff view explain import retention"
+    "completions uninstall inventory search diff view explain import retention purge"
 )
 
 
@@ -634,6 +641,24 @@ def _run_search(args: argparse.Namespace) -> int:
     )
     for record in records:
         print(json.dumps(record.to_dict()) if args.json else render_record(record))
+    return 0
+
+
+def _run_purge(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    if not args.yes:
+        print("agentwatch: refusing to purge without --yes", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = store.purge_session(args.session_id, reason=args.reason)
+    if not report.found:
+        print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    print(f"agentwatch: purged {report.purged} record(s) for session {args.session_id}")
     return 0
 
 
@@ -793,4 +818,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_inventory(args)
     if args.command == "retention":
         return _run_retention(args)
+    if args.command == "purge":
+        return _run_purge(args)
     return _run_deferred(str(args.command))

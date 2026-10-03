@@ -21,7 +21,15 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from agentwatch.records import AgentRecord, RecordValidationError, validate_record
+from agentwatch.records import (
+    AgentIdentity,
+    AgentRecord,
+    Outcome,
+    RecordPrivacyMode,
+    RecordValidationError,
+    ToolCall,
+    validate_record,
+)
 
 GENESIS_HASH = "0" * 64
 _BYTES_PER_MB = 1024 * 1024
@@ -72,6 +80,15 @@ class RetentionReport:
     kept: int
 
 
+@dataclass(frozen=True)
+class PurgeReport:
+    """Outcome of a single-session purge (right to erasure)."""
+
+    purged: int
+    found: bool
+    marker_seq: int | None
+
+
 class RecordStore:
     """Append-only JSONL store with a hash chain over its entries."""
 
@@ -83,7 +100,7 @@ class RecordStore:
         self.parse_errors: list[int] = []
         self.parse_error_lines: list[int] = []
         self._entries: list[ChainEntry] = self._load()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     # -- reading -----------------------------------------------------------
 
@@ -275,3 +292,91 @@ class RecordStore:
                 os.replace(tmp, self.path)
                 self._entries = self._load()
             return RetentionReport(purged=purged, kept=kept)
+
+    def purge_session(
+        self,
+        session_id: str,
+        *,
+        now: datetime | None = None,
+        reason: str | None = None,
+    ) -> PurgeReport:
+        """Tombstone every live record of one session; append a purge marker.
+
+        Chain links are preserved (D-K: tombstone, never hard delete). The
+        marker is a metadata-only record so the erasure is auditable. A session
+        with no live records is a no-op (no marker written).
+        """
+        with self._lock:
+            moment = now or datetime.now(timezone.utc)
+            matched = [
+                entry
+                for entry in self._entries
+                if not entry.tombstone
+                and entry.record is not None
+                and entry.record.session_id == session_id
+            ]
+            if not matched:
+                return PurgeReport(purged=0, found=False, marker_seq=None)
+
+            lines: list[str] = []
+            for entry in self._entries:
+                if (
+                    not entry.tombstone
+                    and entry.record is not None
+                    and entry.record.session_id == session_id
+                ):
+                    lines.append(
+                        json.dumps(
+                            {
+                                "seq": entry.seq,
+                                "prev_hash": entry.prev_hash,
+                                "hash": entry.hash,
+                                "tombstone": True,
+                                "purged_at": moment.isoformat(),
+                            },
+                            ensure_ascii=False,
+                        )
+                    )
+                    continue
+                payload = entry.record.to_dict() if entry.record is not None else None
+                lines.append(
+                    json.dumps(
+                        {
+                            "seq": entry.seq,
+                            "prev_hash": entry.prev_hash,
+                            "hash": entry.hash,
+                            "tombstone": entry.tombstone,
+                            "record": payload,
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_name(self.path.name + ".tmp")
+            tmp.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+            os.replace(tmp, self.path)
+            self._entries = self._load()
+
+            entry = self.append(
+                self._purge_marker(session_id, moment, reason),
+            )
+            return PurgeReport(purged=len(matched), found=True, marker_seq=entry.seq)
+
+    @staticmethod
+    def _purge_marker(
+        session_id: str, moment: datetime, reason: str | None
+    ) -> AgentRecord:
+        arguments: dict[str, Any] = {"session_id": session_id}
+        if reason:
+            arguments["reason"] = reason
+        return AgentRecord(
+            session_id=session_id,
+            agent=AgentIdentity(identity="agentwatch"),
+            tool=ToolCall(
+                name="session-purge",
+                arguments=arguments,
+                privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+            ),
+            outcome=Outcome.OK,
+            started_at=moment,
+        )

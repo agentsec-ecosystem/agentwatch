@@ -259,7 +259,7 @@ def test_retention_apply_json_shape(...): ...
 - Produces: `RecordStore.purge_session(session_id: str, *, now: datetime | None = None) -> PurgeReport` (`PurgeReport(purged: int, found: bool, marker_seq: int | None)`), tombstoning only that session's live entries and appending one live `purge` marker record (`tool.name="session-purge"`, `arguments={"session_id", "reason"?}`, `security_event` omitted). CLI: `agentwatch purge <session-id> [--yes] [--reason TEXT]`; exit 1 when the session is not found.
 - Consumes: existing tombstone envelope.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_purge_tombstones_only_that_session(...): ...
@@ -268,10 +268,10 @@ def test_purge_writes_a_marker_record(...): ...
 def test_purge_unknown_session_is_a_noop(tmp_path): ...
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_purge.py -v` → FAIL.
-- [ ] **Step 3: Implement** — select live entries for the session, rewrite as tombstones (same pattern as `apply_retention`), then append the marker; `verify()` must be green.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_purge.py tests/test_store.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(store): session purge with tombstone + marker (M9 #202,#77)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_purge.py -v` → FAIL.
+- [x] **Step 3: Implement** — select live entries for the session, rewrite as tombstones (same pattern as `apply_retention`), then append the marker; `verify()` must be green.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_purge.py tests/test_store.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(store): session purge with tombstone + marker (M9 #202,#77)"`
 
 ---
 

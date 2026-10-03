@@ -52,8 +52,9 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M6 (Analytics + detector engine) ✅** — ported analytics service verified (706 tests), plus
 > `tool.response` (#198) and the Claude Code detector pack (#210).
 >
-> **M7 (Read API + operator UI) ✅** — ported FastAPI read API (42 tests) and React/Vite operator UI
-> verified, plus `agentwatch view` (#195) and `agentwatch explain` (#211).
+> **M7 (Read API + operator UI) 🚧 partial** — ported FastAPI read API (42 tests) and React/Vite
+> operator UI; plus `agentwatch view` (#195) and `agentwatch explain` (#211). **Reopened:** #63
+> (automated a11y checks not implemented). **Milestone reopened.**
 >
 > **M8 (Local stack + demo/seed + E2E) 🚧 partial** — ported compose stack, demo agent, seed/replay,
 > and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),

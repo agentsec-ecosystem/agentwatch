@@ -83,6 +83,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="install hooks only; do not start the daemon",
     )
+    init.add_argument(
+        "--sync-hooks",
+        action="store_true",
+        help="install synchronous (blocking) hooks instead of the default async",
+    )
 
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
@@ -181,7 +186,11 @@ def _run_init(args: argparse.Namespace) -> int:
 
     target = resolve_scope(args.scope)
     try:
-        install_hooks(target.settings_path, resolve_hook_command())
+        install_hooks(
+            target.settings_path,
+            resolve_hook_command(),
+            async_hooks=not args.sync_hooks,
+        )
     except InstallError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR

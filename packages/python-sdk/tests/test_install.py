@@ -51,7 +51,7 @@ def _read(path: Path) -> dict[str, Any]:
 
 
 def _handler(phase: str) -> dict[str, object]:
-    return {"type": "command", "command": HOOK.command, "args": [phase]}
+    return {"type": "command", "command": HOOK.command, "args": [phase], "async": True}
 
 
 def _group(phase: str) -> dict[str, object]:
@@ -83,10 +83,19 @@ def test_install_hooks_wires_session_boundaries(tmp_path: Path) -> None:
 
     hooks = _read(settings)["hooks"]
     assert isinstance(hooks, dict)
-    start = {"type": "command", "command": HOOK.command, "args": ["session-start"]}
-    end = {"type": "command", "command": HOOK.command, "args": ["session-end"]}
+    start = {"type": "command", "command": HOOK.command, "args": ["session-start"], "async": True}
+    end = {"type": "command", "command": HOOK.command, "args": ["session-end"], "async": True}
     assert hooks["SessionStart"] == [{"matcher": "*", "hooks": [start]}]
     assert hooks["SessionEnd"] == [{"matcher": "*", "hooks": [end]}]
+
+
+def test_install_hooks_sync_mode_omits_async(tmp_path: Path) -> None:
+    settings = tmp_path / "settings.local.json"
+
+    install_hooks(settings, HOOK, async_hooks=False)
+
+    handler = _read(settings)["hooks"]["PreToolUse"][0]["hooks"][0]
+    assert "async" not in handler
 
 
 def test_install_hooks_preserves_unrelated_settings(tmp_path: Path) -> None:

@@ -57,8 +57,15 @@ class HookCommand:
     command: str
     args_prefix: tuple[str, ...] = ()
 
-    def handler(self, phase: str) -> dict[str, Any]:
-        return {"type": "command", "command": self.command, "args": [*self.args_prefix, phase]}
+    def handler(self, phase: str, *, async_hooks: bool = True) -> dict[str, Any]:
+        handler: dict[str, Any] = {
+            "type": "command",
+            "command": self.command,
+            "args": [*self.args_prefix, phase],
+        }
+        if async_hooks:
+            handler["async"] = True
+        return handler
 
 
 def resolve_hook_command(executable: str | None = None) -> HookCommand:
@@ -140,7 +147,9 @@ def _strip_owned(hooks: dict[str, Any]) -> bool:
     return removed
 
 
-def install_hooks(settings_path: Path, command: HookCommand) -> None:
+def install_hooks(
+    settings_path: Path, command: HookCommand, *, async_hooks: bool = True
+) -> None:
     """Merge agentwatch hooks into a Claude Code settings file, idempotently."""
     data = _load_settings(settings_path)
     hooks = data.setdefault("hooks", {})
@@ -151,7 +160,7 @@ def install_hooks(settings_path: Path, command: HookCommand) -> None:
         groups = hooks.setdefault(event, [])
         if not isinstance(groups, list):  # pragma: no cover - guarded by _strip_owned
             raise InstallError(f"{settings_path}: 'hooks.{event}' must be a list")
-        groups.append({"matcher": "*", "hooks": [command.handler(phase)]})
+        groups.append({"matcher": "*", "hooks": [command.handler(phase, async_hooks=async_hooks)]})
     _write_settings(settings_path, data)
 
 

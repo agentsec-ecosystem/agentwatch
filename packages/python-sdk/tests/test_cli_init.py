@@ -44,6 +44,15 @@ def test_init_installs_project_hooks(isolated: Path, capsys: pytest.CaptureFixtu
     assert "installed" in capsys.readouterr().out.lower()
 
 
+def test_init_sync_hooks_omits_async(isolated: Path) -> None:
+    main(["init", "--no-daemon", "--sync-hooks"])
+
+    settings = isolated / ".claude" / "settings.local.json"
+    data = json.loads(settings.read_text(encoding="utf-8"))
+    handler = data["hooks"]["PreToolUse"][0]["hooks"][0]
+    assert "async" not in handler
+
+
 def test_init_user_scope_writes_user_settings(isolated: Path) -> None:
     rc = main(["init", "--no-daemon", "--scope", "user"])
 

@@ -11,6 +11,15 @@
 | Disk | ~1–10 MB/day (active user); 30-day retention 30–120 MB | under the 1024 MB cap |
 | Network | 0 by default; export opt-in | R6 |
 
+### Hook latency (measured)
+
+Each Claude Code tool call spawns `agentwatch-hook`, which forwards one frame and exits 0
+(fire-and-forget). Installed handlers use `"async": true`, so this does **not** block the agent's
+tool-call path. The hook's own wall time (spawn → socket send → exit) is bounded by
+`tests/test_hook.py::test_hook_latency_is_bounded` at **< 2 s**; a typical local run is well under
+that. This is the honest number for the hook path — distinct from NFR-1's in-process SDK figure
+(≤5 ms/step), which does not cover a process spawn.
+
 ## v0.2.0+ (services stack)
 
 - ~1–2 GB RAM with the full stack (Jaeger/Tempo + Postgres + API + analytics + web).

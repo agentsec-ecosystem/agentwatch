@@ -11,6 +11,7 @@ import shutil
 import socket
 import tempfile
 import threading
+import time
 from io import StringIO
 from pathlib import Path
 
@@ -135,3 +136,23 @@ def test_hook_spools_when_daemon_is_down(tmp_path: Path) -> None:
     lines = Spool(str(socket_path) + ".spool").drain()
     assert lines
     assert json.loads(lines[0])["phase"] == "pre"
+
+
+def test_hook_latency_is_bounded() -> None:
+    """The fire-and-forget hook must return quickly (async install = non-blocking)."""
+    directory = Path(tempfile.mkdtemp(prefix="awh-", dir="/tmp"))
+    try:
+        socket_path = directory / "h.sock"
+        received: list[bytes] = []
+        thread = _serve_once(socket_path, received)
+
+        start = time.perf_counter()
+        rc = hook.main(["pre"], stdin=StringIO(json.dumps(EVENT)), socket_path=str(socket_path))
+        elapsed = time.perf_counter() - start
+        thread.join(timeout=2)
+    finally:
+        shutil.rmtree(directory, ignore_errors=True)
+
+    assert rc == 0
+    assert received
+    assert elapsed < 2.0

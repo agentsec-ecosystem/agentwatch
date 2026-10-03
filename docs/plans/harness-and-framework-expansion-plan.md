@@ -92,7 +92,7 @@ def test_daemon_frame_shapes_match_the_published_protocol():
 - Produces: documentation of the plugin contract (`AdapterSpec` fields, `normalize(message) -> list[AgentRecord]`, capabilities/gaps, error class, fixtures dir, registration, conformance invocation, version commitment).
 - Consumes: `agentwatch.conformance` (public: `AdapterSpec`, `register`, `run`, `ConformanceError`).
 
-- [ ] **Step 1: Write the failing test** — a sample adapter defined with only the public contract must pass `conformance.run`, and a mutated copy must fail.
+- [x] **Step 1: Write the failing test** — a sample adapter defined with only the public contract must pass `conformance.run`, and a mutated copy must fail.
 
 ```python
 def test_sample_community_adapter_conforms():
@@ -105,10 +105,12 @@ def test_broken_adapter_is_rejected():
     assert not conformance.run(spec).ok
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_community_adapter.py -v` → FAIL (module missing).
-- [ ] **Step 3: Implement** — `sample_adapter.py` implements a tiny harness (e.g. `sample-tool-use` phase) with `HARNESS_ID`/`CAPABILITIES`/`DOCUMENTED_GAPS`/`normalize` + a matching fixture + `spec()`/`broken_spec()`; `adapter-api.md` documents the contract and the compatibility commitment.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_community_adapter.py tests/test_conformance.py tests/test_conformance_runner.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "test(conformance): sample community adapter proves the plugin contract (M10 #79,#203)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_community_adapter.py -v` → FAIL (module missing).
+- [x] **Step 3: Implement** — `sample_adapter.py` implements a tiny harness (e.g. `sample-tool-use` phase) with `HARNESS_ID`/`CAPABILITIES`/`DOCUMENTED_GAPS`/`normalize` + a matching fixture + `spec()`/`broken_spec()`; `adapter-api.md` documents the contract and the compatibility commitment.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_community_adapter.py tests/test_conformance.py tests/test_conformance_runner.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "test(conformance): sample community adapter proves the plugin contract (M10 #79,#203)"`
+
+> Ruling: the sample adapter lives at `tests/community_adapter.py` (not `tests/community/`) to match the existing `tests/conformance_registry.py` import pattern; fixtures live at `tests/fixtures/community/`. Cost if wrong: one file move.
 
 ### Task 3: Per-harness conformance pack manifest
 
@@ -119,7 +121,7 @@ def test_broken_adapter_is_rejected():
 **Interfaces:**
 - Produces: a CI check that every registered adapter ships a non-empty, well-formed conformance pack (fixtures dir, `message`+`expected`), so "supported" cannot be claimed without one.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 @pytest.mark.parametrize("spec", conformance.registered(), ids=lambda s: s.name)
@@ -131,18 +133,18 @@ def test_each_registered_adapter_has_a_populated_conformance_pack(spec):
         assert set(fixture) >= {"message", "expected"}
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_conformance_packs.py -v` → FAIL (module missing).
-- [ ] **Step 3: Implement** — the test + a paragraph in `adapter-conformance.md` naming the pack definition.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_conformance_packs.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "test(conformance): per-harness pack manifest check (M10 #85)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_conformance_packs.py -v` → FAIL (module missing).
+- [x] **Step 3: Implement** — the test + a paragraph in `adapter-conformance.md` naming the pack definition.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_conformance_packs.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "test(conformance): per-harness pack manifest check (M10 #85)"`
 
 ### Task 4: Phase docs + WBS + CHANGELOG
 
 **Files:** `docs/reference/README.md` (if it indexes references), `docs/wbs/v0.1.0/wbs-v0.1.0-part6-expansion.md`, `docs/wbs/v0.1.0/wbs-v0.1.0-index.md`, `CHANGELOG.md`
 
-- [ ] **Step 1: Update** M10 progress (Phase 1 done), link the new reference docs, add CHANGELOG entries.
-- [ ] **Step 2: Verify** — repo guard `python3 -m pytest tests -q` (link-check).
-- [ ] **Step 3: Commit** — `git commit -s -m "docs(m10): adapter contract + plumbing specs (M10 #79,#203,#85)"`
+- [x] **Step 1: Update** M10 progress (Phase 1 done), link the new reference docs, add CHANGELOG entries.
+- [x] **Step 2: Verify** — repo guard `python3 -m pytest tests -q` (link-check).
+- [x] **Step 3: Commit** — `git commit -s -m "docs(m10): adapter contract + plumbing specs (M10 #79,#203,#85)"`
 
 ---
 

@@ -64,6 +64,11 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M9 (Inventory + retention) ✅** — `agentwatch inventory` (agents + MCP servers, `mcp__` attribution),
 > capture fidelity (`project` / `prompt_version` / `parent_session_id`, `--project` filters), and
 > `retention apply` / `purge` (tombstone + marker; chain stays green).
+>
+> **M10 (Harness + framework expansion) 🚧 partial** — Phase 1 (adapter plugin contract) landed:
+> `agentwatch.protocol` + published store-format / daemon-protocol / adapter-api specs, a sample
+> community adapter proving the contract, and a per-harness conformance pack check. Phases 2–5
+> (Cursor/Codex/Gemini, MCP proxy, Tier-2, ingestion/matrix) remain.
 
 ## Remaining (as of 2026-10-03)
 
@@ -79,8 +84,8 @@ corpus is synthesized-from-shape (per D-19.39) and the real-corpus test skips wi
 suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete. **M8 8.5**
 folded into M14 14.1.
 
-**Not started:** **M10–M15** (milestones 11–16, all `open`): harness/framework
-expansion, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
+**Not started:** **M10 (phases 2–5), M11–M15** (milestones 11–16, `open`): harness adapters + MCP proxy +
+Tier-2, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
 release readiness.
 
 **Unverified (environment):** `docker compose up` health, `make seed-e2e` load, and Playwright

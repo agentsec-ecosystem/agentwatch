@@ -47,6 +47,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 - Retention & erasure (M9, R11): `agentwatch retention apply` runs a tombstoning pass on demand and reports
   the chain status; `agentwatch purge <id> --yes [--reason]` tombstones one session (chain links preserved)
   and writes a metadata-only `session-purge` marker — never a hard delete.
+- Published plumbing contract (M10 #79/#203): `agentwatch.protocol` pins the store envelope, tombstone,
+  and daemon frames; reference specs `store-format.md`, `daemon-protocol.md`, and `adapter-api.md` describe
+  them. `conformance.assert_packs_populated()` requires every registered adapter to ship a conformance
+  pack; a sample out-of-tree adapter (`tests/community_adapter.py`) proves the plugin contract is usable.
 
 ### Fixed
 - Operator UI accessibility (#63): corrected heading order (h1 skipped to h3 on Dashboard and

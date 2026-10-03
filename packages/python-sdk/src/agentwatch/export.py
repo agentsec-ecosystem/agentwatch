@@ -14,14 +14,18 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor, SpanExporter
+from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+from opentelemetry.sdk.trace.export import (
+    SimpleSpanProcessor,
+    SpanExporter,
+    SpanExportResult,
+)
 from opentelemetry.trace import NonRecordingSpan, SpanContext, Status, StatusCode, TraceFlags
 
 from agentwatch.attrs import (
@@ -166,19 +170,40 @@ _STATUS_BY_OUTCOME = {
 }
 
 
+class _TrackingExporter(SpanExporter):
+    """Wrap an exporter synchronously and remember the last delivery result (F5)."""
+
+    def __init__(self, inner: SpanExporter) -> None:
+        self._inner = inner
+        self.last_result = SpanExportResult.SUCCESS
+
+    def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
+        self.last_result = self._inner.export(spans)
+        return self.last_result
+
+    def shutdown(self) -> None:
+        self._inner.shutdown()
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return self._inner.force_flush(timeout_millis)
+
+
 class OTelSpanSink:
     """An :class:`SpanSink` that forwards each record as one OTel span.
 
     When an ``exporter`` is supplied it is attached synchronously (via
-    ``SimpleSpanProcessor``) so delivery failures are observable in-process; the
-    OTLP gRPC exporter is built lazily by :func:`otlp_sink`.
+    ``SimpleSpanProcessor``) so delivery failures are observable in-process and
+    surfaced as :class:`ExportError` (F5); the OTLP gRPC exporter is built lazily
+    by :func:`otlp_sink`.
     """
 
     def __init__(self, provider: TracerProvider, *, exporter: SpanExporter | None = None) -> None:
         self._provider = provider
         self._tracer = provider.get_tracer("agentwatch.export")
+        self._tracker: _TrackingExporter | None = None
         if exporter is not None:
-            provider.add_span_processor(SimpleSpanProcessor(exporter))
+            self._tracker = _TrackingExporter(exporter)
+            provider.add_span_processor(SimpleSpanProcessor(self._tracker))
 
     def emit(self, record: AgentRecord, *, seq: int) -> None:
         """Export one record as an OTel span (and its security event, if any)."""
@@ -198,6 +223,8 @@ class OTelSpanSink:
         span.set_status(Status(_STATUS_BY_OUTCOME.get(record.outcome, StatusCode.UNSET)))
         end = record.ended_at or record.started_at
         span.end(end_time=_to_ns(end))
+        if self._tracker is not None and self._tracker.last_result is SpanExportResult.FAILURE:
+            raise ExportError(f"backend rejected record at seq {seq}")
 
 
 class ExportOrchestrator:
@@ -220,7 +247,12 @@ class ExportOrchestrator:
         self._self_test: Callable[[], bool] = self_test if self_test is not None else export_allowed
 
     def export_pending(self) -> ExportReport:
-        """Export every live record currently in the store, in order."""
+        """Export every live record currently in the store, in order.
+
+        A sink failure stops the pass and is reported (F5); no store mutation
+        ever happens and no record is considered successfully delivered after the
+        failure, so a later pass can resume.
+        """
         if not self._self_test():
             return ExportReport(exported=0, attempted=0, last_seq=-1, blocked=True)
         exported = 0
@@ -230,7 +262,15 @@ class ExportOrchestrator:
             if entry.record is None:
                 continue
             attempted += 1
-            self._sink.emit(entry.record, seq=entry.seq)
+            try:
+                self._sink.emit(entry.record, seq=entry.seq)
+            except ExportError as exc:
+                return ExportReport(
+                    exported=exported,
+                    attempted=attempted,
+                    last_seq=last_seq,
+                    error=str(exc),
+                )
             exported += 1
             last_seq = entry.seq
         return ExportReport(exported=exported, attempted=attempted, last_seq=last_seq)

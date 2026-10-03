@@ -10,10 +10,12 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import pytest
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import StatusCode
 
@@ -25,7 +27,13 @@ from agentwatch.attrs import (
     GEN_AI_TOOL_NAME,
     SPAN_KIND_TOOL,
 )
-from agentwatch.export import ExportOrchestrator, OTelSpanSink, record_to_attributes
+from agentwatch.export import (
+    ExportError,
+    ExportOrchestrator,
+    OTelSpanSink,
+    _TrackingExporter,
+    record_to_attributes,
+)
 from agentwatch.records import (
     EVENT_VERSION,
     AgentIdentity,
@@ -71,6 +79,7 @@ def test_otel_sink_emits_an_execute_tool_span() -> None:
     spans = exporter.get_finished_spans()
     assert len(spans) == 1
     span = spans[0]
+    assert span.attributes is not None
     assert span.name == "Bash"
     assert span.attributes[GEN_AI_OPERATION_NAME] == SPAN_KIND_TOOL
     assert span.attributes[GEN_AI_TOOL_NAME] == "Bash"
@@ -189,6 +198,7 @@ def test_otel_sink_preserves_valid_hex_ids_and_hashes_others() -> None:
 
     spans = exporter.get_finished_spans()
     assert spans[0].context.trace_id == int("1" * 32, 16)
+    assert spans[0].parent is not None
     assert spans[0].parent.span_id == int("3" * 16, 16)
     # Non-hex -> hashed deterministically; the two records stay in distinct traces.
     assert spans[1].context.trace_id != spans[0].context.trace_id
@@ -244,6 +254,7 @@ def test_security_event_is_exported_as_a_span_event() -> None:
     span = exporter.get_finished_spans()[0]
     assert len(span.events) == 1
     event = span.events[0]
+    assert event.attributes is not None
     assert event.name == SecurityEventType.SECRET_DETECTED.value
     assert event.attributes["emitter"] == "agentwatch"
     assert event.attributes["reason"] == "detected"
@@ -267,6 +278,7 @@ def test_record_without_a_security_event_has_no_span_events() -> None:
     sink.emit(replace(_record(), security_event=minimal), seq=1)
 
     event = exporter.get_finished_spans()[1].events[0]
+    assert event.attributes is not None
     assert event.name == "halted"
     assert set(event.attributes) == {"event_version"}
 
@@ -320,3 +332,101 @@ def test_default_gate_uses_the_redaction_self_test(
 
     assert report.blocked is True
     assert exporter.get_finished_spans() == ()
+
+
+class _FailingSink:
+    """A sink that rejects the record at ``fail_at`` and counts attempts."""
+
+    def __init__(self, fail_at: int) -> None:
+        self.fail_at = fail_at
+        self.seen: list[int] = []
+
+    def emit(self, record: AgentRecord, *, seq: int) -> None:
+        if seq == self.fail_at:
+            raise ExportError("endpoint down")
+        self.seen.append(seq)
+
+
+def test_endpoint_failure_keeps_local_records_and_stops(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("first"))
+    store.append(_record("second"))
+    store.append(_record("third"))
+    sink = _FailingSink(fail_at=1)
+
+    report = ExportOrchestrator(store, sink).export_pending()
+
+    assert report.exported == 1
+    assert report.attempted == 2
+    assert report.last_seq == 0
+    assert report.error == "endpoint down"
+    # F5: no record was lost or removed locally; the third was never attempted.
+    assert [record.tool.name for record in store.records()] == ["first", "second", "third"]
+    assert sink.seen == [0]
+
+
+def test_export_resumes_after_the_endpoint_recovers(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("first"))
+    store.append(_record("second"))
+    failing = _FailingSink(fail_at=1)
+
+    first = ExportOrchestrator(store, failing).export_pending()
+    recovered = _RecordingSink()
+    second = ExportOrchestrator(store, recovered).export_pending()
+
+    assert first.exported == 1
+    # Without a cursor a fresh pass re-reads everything (at-least-once); the
+    # resilience guarantee is that nothing was dropped from the store.
+    assert second.exported == 2
+    assert recovered.seen == [0, 1]
+    assert [record.tool.name for record in store.records()] == ["first", "second"]
+
+
+class _RecordingSink:
+    def __init__(self) -> None:
+        self.seen: list[int] = []
+
+    def emit(self, record: AgentRecord, *, seq: int) -> None:
+        self.seen.append(seq)
+
+
+class _FailingExporter(SpanExporter):
+    def export(self, spans: Any) -> SpanExportResult:
+        return SpanExportResult.FAILURE
+
+    def shutdown(self) -> None:
+        return None
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return True
+
+
+def test_otel_sink_raises_when_the_exporter_reports_failure() -> None:
+    provider = TracerProvider(resource=Resource.create({"service.name": "test"}))
+    sink = OTelSpanSink(provider, exporter=_FailingExporter())
+
+    with pytest.raises(ExportError):
+        sink.emit(_record(), seq=0)
+
+
+def test_orchestrator_surfaces_a_failing_otel_exporter(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record())
+    provider = TracerProvider(resource=Resource.create({"service.name": "test"}))
+    sink = OTelSpanSink(provider, exporter=_FailingExporter())
+
+    report = ExportOrchestrator(store, sink).export_pending()
+
+    assert report.exported == 0
+    assert report.error is not None
+    assert store.records() != []
+
+
+def test_tracking_exporter_delegates_lifecycle() -> None:
+    inner = InMemorySpanExporter()
+    tracker = _TrackingExporter(inner)
+
+    assert tracker.force_flush() is True
+    tracker.shutdown()
+    assert tracker.last_result is SpanExportResult.SUCCESS

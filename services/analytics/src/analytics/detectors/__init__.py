@@ -29,6 +29,11 @@ method (optionally async via ``detect_async``).
 from __future__ import annotations
 
 from analytics.detectors.base import BaseDetector
+from analytics.detectors.claude_code import (
+    DeniedClusterDetector,
+    NetworkToolDetector,
+    WriteStormDetector,
+)
 from analytics.detectors.cost import (
     CostEfficiencyDetector,
     CostSpikeDetector,
@@ -133,6 +138,10 @@ def create_all_detectors() -> list[BaseDetector]:
         AnomalyClusterDetector(),
         RunFrequencyAnomalyDetector(),
         FirstRunHeuristicDetector(),
+        # Claude Code hook records (3, M6 addition L1)
+        WriteStormDetector(),
+        DeniedClusterDetector(),
+        NetworkToolDetector(),
     ]
 
 
@@ -173,5 +182,8 @@ __all__ = [
     "AnomalyClusterDetector",
     "RunFrequencyAnomalyDetector",
     "FirstRunHeuristicDetector",
+    "WriteStormDetector",
+    "DeniedClusterDetector",
+    "NetworkToolDetector",
     "create_all_detectors",
 ]

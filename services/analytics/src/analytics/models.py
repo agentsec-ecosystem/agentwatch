@@ -84,6 +84,10 @@ class AnomalyType(str, Enum):
     goal_drift = "goal_drift"
     quality_degradation = "quality_degradation"
     confusion_pattern = "confusion_pattern"
+    # Claude Code hook records (M6 addition L1)
+    write_storm = "write-storm"
+    denied_cluster = "denied-cluster"
+    network_tool = "network-tool"
 
 
 class RunSummary(BaseModel):

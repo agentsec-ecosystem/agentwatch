@@ -80,7 +80,7 @@ class TestWorkerInit:
         assert w.retry_detector is not None
         assert w.cost_detector is not None
         assert w.detectors is not None
-        assert len(w.detectors) == 35
+        assert len(w.detectors) == 38
         assert w.fleet_materializer is not None
         assert w.cohort_materializer is not None
         assert w.alerter is not None

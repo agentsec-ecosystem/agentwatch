@@ -771,9 +771,9 @@ class TestWorkerAnomalyIntegration:
 class TestDetectorFactory:
     """Verify all 35 rule-based detectors are registered and instantiable."""
 
-    def test_creates_35_detectors(self) -> None:
+    def test_creates_all_detectors(self) -> None:
         detectors = create_all_detectors()
-        assert len(detectors) == 35
+        assert len(detectors) == 38
 
     def test_all_have_unique_anomaly_types(self) -> None:
         detectors = create_all_detectors()
@@ -1679,11 +1679,11 @@ class TestLLMDetectorsGracefulDegradation:
 class TestAnomalyTypeEnum:
     """Verify the AnomalyType enum covers all detector anomaly_type values."""
 
-    def test_has_40_members(self) -> None:
+    def test_has_all_members(self) -> None:
         from analytics.models import AnomalyType
 
         values = list(AnomalyType)
-        assert len(values) == 40
+        assert len(values) == 43
 
     def test_all_values_unique(self) -> None:
         from analytics.models import AnomalyType

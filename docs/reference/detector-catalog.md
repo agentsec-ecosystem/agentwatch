@@ -30,3 +30,16 @@ per workload. Method: trailing baselines over fixed thresholds (AgentWatch lesso
 ## Status
 
 Thresholds + false-positive-risk table to be backfilled from the shipped project during v0.2.0.
+
+## Claude Code hook detectors (M6 addition L1)
+
+Purpose-built for Claude Code hook records (observability only, never enforcement — PRD 14):
+
+| Type | Fires when | Evidence |
+|---|---|---|
+| `write-storm` | ≥ 8 file-modifying tool calls (`Write`/`Edit`/`MultiEdit`/`NotebookEdit`) in one run | count, threshold, tools |
+| `denied-cluster` | ≥ 3 denied/errored tool calls in one run | count, threshold |
+| `network-tool` | network-capable tools used (`curl`/`wget`/`http`/`fetch`/`webfetch`) | count, tools |
+
+Implemented in `services/analytics/src/analytics/detectors/claude_code.py`; registered by
+`create_all_detectors()` (38 rule+LLM detectors total).

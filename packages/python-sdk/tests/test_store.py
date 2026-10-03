@@ -32,6 +32,30 @@ def _record(
     )
 
 
+def test_new_store_writes_a_format_marker(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    RecordStore(path).append(_record("A"))
+
+    first = json.loads(path.read_text(encoding="utf-8").splitlines()[0])
+    assert first == {"format": 1}
+
+
+def test_unknown_format_is_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    path.write_text(json.dumps({"format": 99}) + "\n", encoding="utf-8")
+
+    assert RecordStore(path).verify().ok is False
+
+
+def test_legacy_store_without_a_marker_still_verifies(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    RecordStore(path).append(_record("A"))
+    lines = path.read_text(encoding="utf-8").splitlines()
+    path.write_text("\n".join(lines[1:]) + "\n", encoding="utf-8")  # drop the marker
+
+    assert RecordStore(path).verify().ok is True
+
+
 def test_append_chains_entries_and_reload_returns_records(tmp_path: Path) -> None:
     path = tmp_path / "records.jsonl"
     store = RecordStore(path)
@@ -53,7 +77,7 @@ def test_each_line_is_a_hash_chain_envelope(tmp_path: Path) -> None:
     store = RecordStore(path)
     store.append(_record("A"))
 
-    line = path.read_text(encoding="utf-8").splitlines()[0]
+    line = path.read_text(encoding="utf-8").splitlines()[1]
     envelope = json.loads(line)
 
     assert set(envelope) == {"seq", "prev_hash", "hash", "record"}
@@ -134,9 +158,9 @@ def test_verify_detects_an_edited_record(tmp_path: Path) -> None:
     store.append(_record("B"))
 
     lines = path.read_text(encoding="utf-8").splitlines()
-    envelope = json.loads(lines[0])
+    envelope = json.loads(lines[1])
     envelope["record"]["tool"]["name"] = "Tampered"
-    lines[0] = json.dumps(envelope)
+    lines[1] = json.dumps(envelope)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     status = RecordStore(path).verify()
@@ -153,7 +177,7 @@ def test_verify_detects_a_deleted_middle_line(tmp_path: Path) -> None:
     store.append(_record("C"))
 
     lines = path.read_text(encoding="utf-8").splitlines()
-    del lines[1]
+    del lines[2]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     status = RecordStore(path).verify()

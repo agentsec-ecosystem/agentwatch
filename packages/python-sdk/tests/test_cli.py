@@ -183,9 +183,9 @@ def test_verify_store_reports_clean_and_tampered(
     assert "chain ok" in capsys.readouterr().out
 
     lines = store_path.read_text(encoding="utf-8").splitlines()
-    envelope = json.loads(lines[0])
+    envelope = json.loads(lines[1])
     envelope["record"]["tool"]["name"] = "Tampered"
-    lines[0] = json.dumps(envelope)
+    lines[1] = json.dumps(envelope)
     store_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     assert main(["--set", f"store.path={isolated}", "verify-store"]) == 1

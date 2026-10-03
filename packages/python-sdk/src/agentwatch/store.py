@@ -78,6 +78,8 @@ class RecordStore:
     def __init__(self, path: Path | str, *, max_size_mb: int | None = None) -> None:
         self.path = Path(path)
         self.max_size_mb = max_size_mb
+        self.format = 1
+        self.unsupported_format = False
         self.parse_errors: list[int] = []
         self.parse_error_lines: list[int] = []
         self._entries: list[ChainEntry] = self._load()
@@ -98,7 +100,14 @@ class RecordStore:
                 continue
             try:
                 envelope = json.loads(line)
-                if not isinstance(envelope, dict) or "seq" not in envelope:
+                if not isinstance(envelope, dict):
+                    raise ValueError("not an envelope")
+                if "format" in envelope and "seq" not in envelope:
+                    self.format = int(envelope["format"])
+                    if self.format != 1:
+                        self.unsupported_format = True
+                    continue
+                if "seq" not in envelope:
                     raise ValueError("not an envelope")
                 record_data = envelope.get("record")
                 tombstone = bool(envelope.get("tombstone", False))
@@ -131,6 +140,8 @@ class RecordStore:
     def verify(self) -> ChainStatus:
         """Recompute the chain and report the first break (F4), never raising."""
         entries = self._entries
+        if self.unsupported_format:
+            return ChainStatus(ok=False, checked=len(entries), broken_at=None, line=1)
         if self.parse_errors:
             return ChainStatus(
                 ok=False,
@@ -173,6 +184,7 @@ class RecordStore:
                     "raise store.max_size_mb or run retention"
                 )
             self.path.parent.mkdir(parents=True, exist_ok=True)
+            new_file = not self.path.exists() or self.path.stat().st_size == 0
             seq = self._entries[-1].seq + 1 if self._entries else 0
             prev_hash = self._entries[-1].hash if self._entries else GENESIS_HASH
             record_data = record.to_dict()
@@ -186,6 +198,8 @@ class RecordStore:
             # new line so the next valid record is not concatenated onto it.
             needs_separator = self._ends_without_newline()
             with self.path.open("a", encoding="utf-8") as handle:
+                if new_file:
+                    handle.write(json.dumps({"format": self.format}) + "\n")
                 if needs_separator:
                     handle.write("\n")
                 handle.write(json.dumps(envelope, ensure_ascii=False) + "\n")

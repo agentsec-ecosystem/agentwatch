@@ -48,14 +48,28 @@ def short_dir() -> Iterator[Path]:
 
 
 def _read_lines(path: Path, count: int, timeout: float = 3.0) -> list[str]:
+    def _records() -> list[str]:
+        if not path.exists():
+            return []
+        result: list[str] = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                obj = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                result.append(line)
+                continue
+            if isinstance(obj, dict) and "format" in obj and "seq" not in obj:
+                continue  # format marker
+            result.append(line)
+        return result
+
     deadline = time.time() + timeout
     while time.time() < deadline:
-        if path.exists():
-            lines = path.read_text(encoding="utf-8").splitlines()
-            if len(lines) >= count:
-                return lines
+        lines = _records()
+        if len(lines) >= count:
+            return lines
         time.sleep(0.02)
-    return path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    return _records()
 
 
 def _send_raw(socket_path: Path, payload: bytes) -> None:
@@ -441,9 +455,9 @@ def test_daemon_surfaces_a_broken_chain(short_dir: Path) -> None:
     store = RecordStore(records_path)
     store.append(_record("A"))
     lines = records_path.read_text(encoding="utf-8").splitlines()
-    envelope = json.loads(lines[0])
+    envelope = json.loads(lines[1])
     envelope["record"]["tool"]["name"] = "Tampered"
-    lines[0] = json.dumps(envelope)
+    lines[1] = json.dumps(envelope)
     records_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     daemon = Daemon(socket_path=str(socket_path), records_path=records_path)

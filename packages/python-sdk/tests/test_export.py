@@ -30,6 +30,8 @@ from agentwatch.attrs import (
 from agentwatch.export import (
     ExportError,
     ExportOrchestrator,
+    ExportState,
+    ExportWatermark,
     OTelSpanSink,
     _TrackingExporter,
     record_to_attributes,
@@ -376,10 +378,9 @@ def test_export_resumes_after_the_endpoint_recovers(tmp_path: Path) -> None:
     second = ExportOrchestrator(store, recovered).export_pending()
 
     assert first.exported == 1
-    # Without a cursor a fresh pass re-reads everything (at-least-once); the
-    # resilience guarantee is that nothing was dropped from the store.
-    assert second.exported == 2
-    assert recovered.seen == [0, 1]
+    # The cursor resumes past the last delivered record: no double-export.
+    assert second.exported == 1
+    assert recovered.seen == [1]
     assert [record.tool.name for record in store.records()] == ["first", "second"]
 
 
@@ -430,3 +431,127 @@ def test_tracking_exporter_delegates_lifecycle() -> None:
     assert tracker.force_flush() is True
     tracker.shutdown()
     assert tracker.last_result is SpanExportResult.SUCCESS
+
+
+def test_export_state_round_trips_a_watermark(tmp_path: Path) -> None:
+    state = ExportState(tmp_path / "export.state.json")
+    stamp = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+
+    state.save(ExportWatermark(last_seq=4, updated_at=stamp))
+
+    assert state.load() == ExportWatermark(last_seq=4, updated_at=stamp)
+
+
+def test_export_state_defaults_when_missing_or_corrupt(tmp_path: Path) -> None:
+    state = ExportState(tmp_path / "export.state.json")
+    assert state.load() == ExportWatermark()
+
+    state.path.write_text("{ not json", encoding="utf-8")
+    assert state.load() == ExportWatermark()
+
+
+def test_export_state_reset_clears_the_cursor(tmp_path: Path) -> None:
+    state = ExportState(tmp_path / "export.state.json")
+    state.save(ExportWatermark(last_seq=9, updated_at=datetime.now(timezone.utc)))
+
+    state.reset()
+
+    assert state.load() == ExportWatermark()
+
+
+def test_export_state_from_store_sits_beside_the_store(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+
+    state = ExportState.from_store(store)
+
+    assert state.path == tmp_path / "export.state.json"
+
+
+def test_cursor_prevents_double_export(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("first"))
+    store.append(_record("second"))
+    state = ExportState(tmp_path / "export.state.json")
+    sink, _ = _sink()
+
+    first = ExportOrchestrator(store, sink, state=state).export_pending()
+    again, _ = _sink()
+    second = ExportOrchestrator(store, again, state=state).export_pending()
+
+    assert first.exported == 2
+    assert first.last_seq == 1
+    assert second.exported == 0
+    assert again.get_finished_spans() == ()
+
+
+def test_cursor_resumes_with_only_new_records(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("first"))
+    state = ExportState(tmp_path / "export.state.json")
+    ExportOrchestrator(store, _sink()[0], state=state).export_pending()
+
+    store.append(_record("second"))
+    sink, exporter = _sink()
+    report = ExportOrchestrator(store, sink, state=state).export_pending()
+
+    assert report.exported == 1
+    assert [span.name for span in exporter.get_finished_spans()] == ["second"]
+
+
+def test_cursor_persists_across_a_fresh_state_object(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("first"))
+    ExportOrchestrator(
+        store, _sink()[0], state=ExportState(tmp_path / "export.state.json")
+    ).export_pending()
+
+    restarted = ExportState(tmp_path / "export.state.json")
+    report = ExportOrchestrator(
+        store, _RecordingSink(), state=restarted
+    ).export_pending()
+
+    assert report.exported == 0
+
+
+def test_repaired_store_resets_the_cursor_with_notice(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("only"))
+    state = ExportState(tmp_path / "export.state.json")
+    state.save(ExportWatermark(last_seq=99, updated_at=datetime.now(timezone.utc)))
+    sink, exporter = _sink()
+
+    report = ExportOrchestrator(store, sink, state=state).export_pending()
+
+    assert report.reset is True
+    assert report.exported == 1
+    assert [span.name for span in exporter.get_finished_spans()] == ["only"]
+    assert state.load().last_seq == 0
+
+
+def test_blocked_export_reports_the_current_position(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record())
+    state = ExportState(tmp_path / "export.state.json")
+    state.save(ExportWatermark(last_seq=0, updated_at=datetime.now(timezone.utc)))
+
+    report = ExportOrchestrator(
+        store, _RecordingSink(), state=state, self_test=lambda: False
+    ).export_pending()
+
+    assert report.blocked is True
+    assert report.last_seq == 0
+    assert state.load().last_seq == 0
+
+
+def test_cursor_advances_past_tombstoned_records(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("old"))
+    store.append(_record("fresh", session="other"))
+    store.apply_retention(retention_days=0, now=datetime(2030, 1, 1, tzinfo=timezone.utc))
+    state = ExportState(tmp_path / "export.state.json")
+    sink, _ = _sink()
+
+    report = ExportOrchestrator(store, sink, state=state).export_pending()
+
+    assert report.attempted == 0
+    assert state.load().last_seq == 1

@@ -11,6 +11,7 @@ from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -280,3 +281,42 @@ def test_orchestrator_forwards_security_events_for_each_record(tmp_path: Path) -
 
     spans = exporter.get_finished_spans()
     assert [len(span.events) for span in spans] == [1, 0]
+
+
+def test_export_is_blocked_when_the_self_test_fails(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record())
+    sink, exporter = _sink()
+
+    report = ExportOrchestrator(store, sink, self_test=lambda: False).export_pending()
+
+    assert report.blocked is True
+    assert report.exported == 0
+    assert report.attempted == 0
+    assert exporter.get_finished_spans() == ()
+
+
+def test_export_proceeds_when_the_self_test_passes(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record())
+    sink, exporter = _sink()
+
+    report = ExportOrchestrator(store, sink, self_test=lambda: True).export_pending()
+
+    assert report.blocked is False
+    assert report.exported == 1
+    assert len(exporter.get_finished_spans()) == 1
+
+
+def test_default_gate_uses_the_redaction_self_test(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record())
+    sink, exporter = _sink()
+    monkeypatch.setattr("agentwatch.export.export_allowed", lambda: False)
+
+    report = ExportOrchestrator(store, sink).export_pending()
+
+    assert report.blocked is True
+    assert exporter.get_finished_spans() == ()

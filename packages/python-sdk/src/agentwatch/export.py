@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
@@ -32,6 +33,7 @@ from agentwatch.attrs import (
     SPAN_KIND_TOOL,
 )
 from agentwatch.records import AgentRecord, Outcome, SecurityEvent
+from agentwatch.selftest import export_allowed
 from agentwatch.store import RecordStore
 
 
@@ -199,14 +201,28 @@ class OTelSpanSink:
 
 
 class ExportOrchestrator:
-    """Reads the store and forwards :class:`SpanSink` emissions in chain order."""
+    """Reads the store and forwards :class:`SpanSink` emissions in chain order.
 
-    def __init__(self, store: RecordStore, sink: SpanSink) -> None:
+    Export is gated on the redaction self-test (DD-09): if the self-test fails,
+    nothing is exported (F6) and the store is untouched. Recording continues
+    locally regardless.
+    """
+
+    def __init__(
+        self,
+        store: RecordStore,
+        sink: SpanSink,
+        *,
+        self_test: Callable[[], bool] | None = None,
+    ) -> None:
         self._store = store
         self._sink = sink
+        self._self_test: Callable[[], bool] = self_test if self_test is not None else export_allowed
 
     def export_pending(self) -> ExportReport:
         """Export every live record currently in the store, in order."""
+        if not self._self_test():
+            return ExportReport(exported=0, attempted=0, last_seq=-1, blocked=True)
         exported = 0
         attempted = 0
         last_seq = -1

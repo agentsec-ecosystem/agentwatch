@@ -19,6 +19,7 @@ from pathlib import Path
 from agentwatch import hook
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.doctor import all_passed, run_checks, to_json
+from agentwatch.explain import explain_session
 from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.install import (
     EVENT_PHASES,
@@ -39,6 +40,7 @@ from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
 from agentwatch.tail import Tail, TailLine, follow, render_record
 from agentwatch.verify_privacy import verify_privacy
+from agentwatch.view import list_sessions, render_session
 
 # Documented subcommands still deferred to a later milestone
 # ([cli-reference](../../../../docs/reference/cli-reference.md)).
@@ -144,6 +146,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
     replay = sub.add_parser("replay", help="reconstruct a session timeline (M5)")
     replay.add_argument("session_id", help="session id to replay")
+
+    view = sub.add_parser("view", help="terminal timeline of a session (M7)")
+    view.add_argument(
+        "session_id", nargs="?", default=None, help="session id (omit to list sessions)"
+    )
+
+    explain = sub.add_parser("explain", help="summarize a session (deterministic, local-first)")
+    explain.add_argument("session_id", help="session id to summarize")
 
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -516,6 +526,46 @@ def _run_verify_privacy(args: argparse.Namespace) -> int:
     return _EXIT_INSTALL_ERROR
 
 
+def _run_view(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.session_id:
+        text = render_session(store, args.session_id)
+        if not text:
+            print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        print(text)
+        return 0
+    sessions = list_sessions(store)
+    if not sessions:
+        print("agentwatch: no sessions recorded")
+        return 0
+    for session_id in sessions:
+        print(session_id)
+    return 0
+
+
+def _run_explain(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    result = explain_session(store, args.session_id)
+    if result.summary.endswith("no records"):
+        print(result.summary, file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    print(result.summary)
+    if result.narrative is not None:
+        print("\n[AI narrative]\n" + result.narrative)
+    return 0
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -550,4 +600,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_verify_privacy(args)
     if args.command == "completions":
         return _run_completions(args)
+    if args.command == "view":
+        return _run_view(args)
+    if args.command == "explain":
+        return _run_explain(args)
     return _run_deferred(str(args.command))

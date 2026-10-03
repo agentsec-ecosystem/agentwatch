@@ -65,6 +65,11 @@ threshold configurability; migration up/down.
 
 ## Milestone M7 — Read API + operator UI
 
+**Status:** ✅ **implemented** — ported FastAPI read API (`/runs`, `/runs/{id}`, `/fleet`, `/compare`,
+`/anomalies`; 42 tests) and the React/Vite operator UI (five views + Playwright e2e) verified.
+Additions: `agentwatch view` terminal timeline (#195) and `agentwatch explain` deterministic,
+local-first summary (#211).
+
 **Goal:** adapt the **ported** FastAPI read API and React operator UI (Fleet Health, Run Timeline, Version
 Compare, Anomaly Inbox, Agent Detail) wired to analytics.
 

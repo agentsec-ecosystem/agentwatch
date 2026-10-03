@@ -10,9 +10,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentwatch import conformance
-from agentwatch.adapters import claude_code
+from agentwatch.adapters import claude_code, cursor
 
-CLAUDE_CODE_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "claude-code"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 def claude_code_spec() -> conformance.AdapterSpec:
@@ -22,14 +22,29 @@ def claude_code_spec() -> conformance.AdapterSpec:
         capabilities=claude_code.CAPABILITIES,
         documented_gaps=claude_code.DOCUMENTED_GAPS,
         error_cls=claude_code.ClaudeCodeAdapterError,
-        fixtures_dir=CLAUDE_CODE_FIXTURES,
+        fixtures_dir=FIXTURES / "claude-code",
     )
 
 
+def cursor_spec() -> conformance.AdapterSpec:
+    return conformance.AdapterSpec(
+        name=cursor.HARNESS_ID,
+        normalize=cursor.normalize,
+        capabilities=cursor.CAPABILITIES,
+        documented_gaps=cursor.DOCUMENTED_GAPS,
+        error_cls=cursor.CursorAdapterError,
+        fixtures_dir=FIXTURES / "cursor",
+    )
+
+
+def _shipped_specs() -> list[conformance.AdapterSpec]:
+    return [claude_code_spec(), cursor_spec()]
+
+
 def register_shipped_adapters() -> None:
-    spec = claude_code_spec()
-    if spec.name not in conformance.registered_names():
-        conformance.register(spec)
+    for spec in _shipped_specs():
+        if spec.name not in conformance.registered_names():
+            conformance.register(spec)
 
 
 register_shipped_adapters()

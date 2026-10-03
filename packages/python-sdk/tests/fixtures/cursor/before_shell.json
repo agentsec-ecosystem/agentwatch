@@ -1,0 +1,28 @@
+{
+  "message": {
+    "phase": "beforeShellExecution",
+    "harness": "cursor",
+    "event": {
+      "session_id": "sess-c",
+      "call_id": "call-1",
+      "command": "npm test",
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "agent": { "identity": "cursor" },
+      "tool": { "name": "Shell" },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "harness": "cursor",
+      "trace_id": "sess-c",
+      "span_id": "call-1",
+      "project": "/repo",
+      "step_type": "act"
+    }
+  ]
+}

@@ -151,7 +151,7 @@ def test_fingerprint_multi_file_order_is_path_sorted(tmp_path):
 - Produces: `build_inventory(store: RecordStore, *, session_id: str | None = None, project: str | None = None) -> Inventory`; frozen dataclasses `AgentSummary(identity, name, version, project, sessions, records, last_seen)`, `ServerSummary(server, tools, calls, last_seen, sessions)`, `Inventory(agents, servers)`; `render_inventory(inv) -> str`; `inventory_to_json(inv) -> dict`. CLI: `agentwatch inventory [--session-id ID] [--project PATH] [--json]`.
 - Consumes: Task 1/2 fields.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_inventory_lists_agents_and_servers(tmp_path):
@@ -166,10 +166,10 @@ def test_inventory_session_filter(...): ...
 def test_inventory_project_filter(...): ...
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_inventory.py -v` → FAIL (module missing).
-- [ ] **Step 3: Implement** — aggregate over `store.records()`; ignore tombstoned entries; server summary keyed on `record.tool.server`; sort deterministically; register the `inventory` subcommand + `_run_inventory` handler.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_inventory.py tests/test_cli.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(cli): agentwatch inventory for agents + MCP servers (M9 #72-#75,#177)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_inventory.py -v` → FAIL (module missing).
+- [x] **Step 3: Implement** — aggregate over `store.records()`; ignore tombstoned entries; server summary keyed on `record.tool.server`; sort deterministically; register the `inventory` subcommand + `_run_inventory` handler.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_inventory.py tests/test_cli.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(cli): agentwatch inventory for agents + MCP servers (M9 #72-#75,#177)"`
 
 ---
 

@@ -37,6 +37,7 @@ from agentwatch.install import (
     stop_daemon,
     uninstall_hooks,
 )
+from agentwatch.inventory import build_inventory, inventory_to_json, render_inventory
 from agentwatch.query import search
 from agentwatch.records import EVENT_VERSION, SecurityEventType, validate_event
 from agentwatch.redact import redaction_config_from_mode
@@ -183,6 +184,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="how much tool content to capture (default: metadata-only)",
     )
     import_cmd.add_argument("--json", action="store_true", help="emit the import stats as JSON")
+
+    inventory = sub.add_parser("inventory", help="list recorded agents + MCP servers (M9 R9)")
+    inventory.add_argument("--session-id", default=None, help="only this session")
+    inventory.add_argument("--project", default=None, help="only this project (cwd)")
+    inventory.add_argument("--json", action="store_true", help="emit the inventory as JSON")
 
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -517,7 +523,7 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 _COMMANDS_FOR_COMPLETION = (
     "init status sessions replay export verify-store verify-privacy event doctor tail "
-    "completions uninstall"
+    "completions uninstall inventory search diff view explain import"
 )
 
 
@@ -613,6 +619,21 @@ def _run_search(args: argparse.Namespace) -> int:
     )
     for record in records:
         print(json.dumps(record.to_dict()) if args.json else render_record(record))
+    return 0
+
+
+def _run_inventory(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    inventory = build_inventory(store, session_id=args.session_id, project=args.project)
+    if args.json:
+        print(json.dumps(inventory_to_json(inventory)))
+    else:
+        print(render_inventory(inventory))
     return 0
 
 
@@ -720,4 +741,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_diff(args)
     if args.command == "import":
         return _run_import(args)
+    if args.command == "inventory":
+        return _run_inventory(args)
     return _run_deferred(str(args.command))

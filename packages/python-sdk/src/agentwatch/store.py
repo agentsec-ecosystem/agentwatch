@@ -21,6 +21,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from agentwatch.protocol import GENESIS_PREV_HASH, STORE_FORMAT_VERSION
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
@@ -31,7 +32,7 @@ from agentwatch.records import (
     validate_record,
 )
 
-GENESIS_HASH = "0" * 64
+GENESIS_HASH = GENESIS_PREV_HASH
 _BYTES_PER_MB = 1024 * 1024
 
 
@@ -95,7 +96,7 @@ class RecordStore:
     def __init__(self, path: Path | str, *, max_size_mb: int | None = None) -> None:
         self.path = Path(path)
         self.max_size_mb = max_size_mb
-        self.format = 1
+        self.format = STORE_FORMAT_VERSION
         self.unsupported_format = False
         self.parse_errors: list[int] = []
         self.parse_error_lines: list[int] = []
@@ -121,7 +122,7 @@ class RecordStore:
                     raise ValueError("not an envelope")
                 if "format" in envelope and "seq" not in envelope:
                     self.format = int(envelope["format"])
-                    if self.format != 1:
+                    if self.format != STORE_FORMAT_VERSION:
                         self.unsupported_format = True
                     continue
                 if "seq" not in envelope:

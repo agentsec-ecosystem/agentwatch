@@ -234,7 +234,7 @@ def test_replay_guards_against_parent_cycle(...): ...  # terminates; no infinite
 - Produces: `agentwatch retention apply [--json]` → prints purged/kept and the resulting `verify()` status; exit 1 if the chain is not green. Uses `cfg.store.retention_days`.
 - Consumes: existing `RecordStore.apply_retention`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_retention_apply_tombstones_and_reports(tmp_path, capsys): ...
@@ -242,10 +242,10 @@ def test_apply_retention_keeps_chain_green(tmp_path): ...
 def test_retention_apply_json_shape(...): ...
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_retention_cli.py -v` → FAIL.
-- [ ] **Step 3: Implement** — subparser + handler; reuse `apply_retention`; assert `store.verify().ok` after the pass.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_retention_cli.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(cli): agentwatch retention apply + chain check (M9 #76,#77)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_retention_cli.py -v` → FAIL.
+- [x] **Step 3: Implement** — subparser + handler; reuse `apply_retention`; assert `store.verify().ok` after the pass.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_retention_cli.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(cli): agentwatch retention apply + chain check (M9 #76,#77)"`
 
 ---
 

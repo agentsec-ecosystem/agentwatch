@@ -193,6 +193,15 @@ def _build_parser() -> argparse.ArgumentParser:
     inventory.add_argument("--project", default=None, help="only this project (cwd)")
     inventory.add_argument("--json", action="store_true", help="emit the inventory as JSON")
 
+    retention = sub.add_parser("retention", help="store retention controls (M9 R11)")
+    retention_sub = retention.add_subparsers(dest="action", metavar="ACTION", required=True)
+    retention_apply = retention_sub.add_parser(
+        "apply", help="tombstone records older than store.retention_days"
+    )
+    retention_apply.add_argument(
+        "--json", action="store_true", help="emit the retention report as JSON"
+    )
+
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
     export_sub.add_parser("enable", help="enable export")
@@ -528,7 +537,7 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 _COMMANDS_FOR_COMPLETION = (
     "init status sessions replay export verify-store verify-privacy event doctor tail "
-    "completions uninstall inventory search diff view explain import"
+    "completions uninstall inventory search diff view explain import retention"
 )
 
 
@@ -626,6 +635,39 @@ def _run_search(args: argparse.Namespace) -> int:
     for record in records:
         print(json.dumps(record.to_dict()) if args.json else render_record(record))
     return 0
+
+
+def _run_retention(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(
+        Path(cfg.store.path).expanduser() / "records.jsonl", max_size_mb=cfg.store.max_size_mb
+    )
+    report = store.apply_retention(retention_days=cfg.store.retention_days)
+    status = store.verify()
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "purged": report.purged,
+                    "kept": report.kept,
+                    "chain_ok": status.ok,
+                    "broken_at": status.broken_at,
+                    "retention_days": cfg.store.retention_days,
+                }
+            )
+        )
+    else:
+        print(
+            f"agentwatch: retention purged {report.purged}, kept {report.kept} "
+            f"({cfg.store.retention_days} day window)"
+        )
+        if not status.ok:
+            print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
+    return 0 if status.ok else _EXIT_INSTALL_ERROR
 
 
 def _run_inventory(args: argparse.Namespace) -> int:
@@ -749,4 +791,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_import(args)
     if args.command == "inventory":
         return _run_inventory(args)
+    if args.command == "retention":
+        return _run_retention(args)
     return _run_deferred(str(args.command))

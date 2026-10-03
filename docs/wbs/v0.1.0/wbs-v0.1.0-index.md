@@ -48,6 +48,9 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M5 (OTel export + replay) 🚧** — additions **P1–P5 ✅ complete** (lifecycle #165–#169, delivery
 > #172/#173/#182/#183/#217, M4 minors #181, format #185, export/replay #39–#46/#123/#124/#184,
 > observability/tooling #170/#175/#176/#188/#190/#191/#197, ecosystem/conformance #171/#216).
+>
+> **M6 (Analytics + detector engine) ✅** — ported analytics service verified (706 tests), plus
+> `tool.response` (#198) and the Claude Code detector pack (#210).
 
 ## Porting map (agent-exec-trace → agentwatch)
 

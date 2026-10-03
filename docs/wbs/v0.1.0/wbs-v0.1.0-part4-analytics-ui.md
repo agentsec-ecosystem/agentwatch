@@ -10,6 +10,12 @@ bulk of the shipped-feature parity. Two milestones.
 
 ## Milestone M6 — Analytics + detector engine
 
+**Status:** ✅ **implemented** — the ported analytics service satisfies 6.1–6.9 (706 tests, coverage
+97.79%): trace-ingestion poller, run-summary materialization, fleet rollup + version cohorts, 35
+rule detectors (+5 LLM, default off), Postgres schema + Alembic migration, and 30 configurable
+threshold settings. Additions: `tool.response` capture (#198) and the Claude Code detector pack
+(#210: `write-storm`, `denied-cluster`, `network-tool`; 38 detectors registered).
+
 **Goal:** adapt the **ported** analytics pipeline (ingestion, run summaries, fleet rollup, version cohorts,
 thresholds) and the **40 detectors** (35 rule + 5 LLM), backed by Postgres.
 

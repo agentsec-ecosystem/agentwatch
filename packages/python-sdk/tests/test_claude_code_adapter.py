@@ -60,6 +60,58 @@ def test_capabilities_and_gaps_are_declared() -> None:
     assert "mcp-server-events" in claude_code.DOCUMENTED_GAPS
 
 
+def test_user_prompt_is_a_reason_step_without_content_by_default() -> None:
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "do the thing",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "user-prompt"
+    assert record.step_type is StepType.REASON
+    assert record.tool.arguments is None
+    assert record.tool.privacy_mode is RecordPrivacyMode.METADATA_ONLY
+    validate_record(record.to_dict())
+
+
+def test_user_prompt_captured_when_opted_in() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_prompts=True)
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "do the thing",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message, redaction=cfg)
+
+    assert record.tool.arguments == {"prompt": "do the thing"}
+    assert record.tool.privacy_mode is RecordPrivacyMode.TRUNCATED
+
+
+def test_user_prompt_secret_fires_secret_detected() -> None:
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "deploy with sk-abcdefgh",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
 def test_permission_denied_records_a_denied_event() -> None:
     message = {
         "phase": "denied",

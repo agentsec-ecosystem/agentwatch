@@ -44,6 +44,7 @@ CAPABILITIES = frozenset(
         "post-tool-use-failure",
         "session-boundaries",
         "permission-denied",
+        "user-prompt",
     }
 )
 
@@ -136,9 +137,9 @@ def normalize(
         raise ClaudeCodeAdapterError("hook message must be an object")
 
     phase = message.get("phase")
-    if phase not in ("pre", "post", "denied", "session-start", "session-end"):
+    if phase not in ("pre", "post", "denied", "prompt", "session-start", "session-end"):
         raise ClaudeCodeAdapterError(
-            f"unsupported hook phase {phase!r}; expected 'pre', 'post', 'denied', "
+            f"unsupported hook phase {phase!r}; expected 'pre', 'post', 'denied', 'prompt', "
             "'session-start', or 'session-end'"
         )
 
@@ -208,6 +209,43 @@ def normalize(
             span_id=call_id,
             step_type=StepType.OBSERVE,
             security_event=denial,
+        )
+        return [record]
+
+    if phase == "prompt":
+        # A user prompt as the opening reason step of a turn (M5 A3).
+        masked_prompt, prompt_kinds = redact_mapping(event.get("prompt"))
+        if prompt_kinds:
+            security_event = SecurityEvent(
+                type=SecurityEventType.SECRET_DETECTED,
+                emitted_at=event_time,
+                emitter="agentwatch",
+                tool="user-prompt",
+                evidence={"kinds": list(prompt_kinds)},
+            )
+        prompt_args: dict[str, Any] | None = None
+        prompt_mode = RecordPrivacyMode.METADATA_ONLY
+        if (
+            isinstance(masked_prompt, str)
+            and redaction is not None
+            and redaction.mode is not PrivacyMode.METADATA_ONLY
+            and redaction.capture_prompts
+        ):
+            applied = redaction.apply(masked_prompt, allowed=True)
+            if applied is not None:
+                prompt_args = {"prompt": applied}
+                prompt_mode = _PRIVACY_MAP[redaction.mode]
+        record = AgentRecord(
+            session_id=session_id,
+            agent=identity_from(event.get("agent")),
+            tool=ToolCall(name="user-prompt", arguments=prompt_args, privacy_mode=prompt_mode),
+            outcome=Outcome.OK,
+            started_at=event_time,
+            harness=HARNESS_ID,
+            trace_id=trace_id,
+            span_id=call_id,
+            step_type=StepType.REASON,
+            security_event=security_event,
         )
         return [record]
 

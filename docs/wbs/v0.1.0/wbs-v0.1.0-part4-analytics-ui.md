@@ -65,11 +65,11 @@ threshold configurability; migration up/down.
 
 ## Milestone M7 — Read API + operator UI
 
-**Status:** 🚧 **partial** — ported FastAPI read API (`/runs`, `/runs/{id}`, `/fleet`, `/compare`,
+**Status:** ✅ **implemented** — ported FastAPI read API (`/runs`, `/runs/{id}`, `/fleet`, `/compare`,
 `/anomalies`; 42 tests) and the React/Vite operator UI (five views + 34 Playwright cases) are in
 place. Additions: `agentwatch view` terminal timeline (#195) and `agentwatch explain` deterministic,
-local-first summary (#211). **Reopened:** #63 — the a11y design promises automated checks (axe) that
-are not implemented. **Milestone reopened.** E2E not run green here (Docker daemon unavailable).
+local-first summary (#211). A11y baseline automated: axe checks for all five views live in
+`apps/web/src/__tests__/a11y.test.tsx` (#63). E2E not run green here (Docker daemon unavailable).
 
 **Goal:** adapt the **ported** FastAPI read API and React operator UI (Fleet Health, Run Timeline, Version
 Compare, Anomaly Inbox, Agent Detail) wired to analytics.

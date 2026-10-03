@@ -60,7 +60,7 @@ function DashboardCard({ group, index }: { group: FleetGroup; index: number }) {
             <span className="flex size-8 items-center justify-center rounded-xl bg-slate-100 text-sm">{names[index % names.length]}</span>
             <div>
               {/* Agent name: underscores → spaces, capitalized */}
-              <h3 className="text-sm font-bold text-slate-800 capitalize">{group.agent_name.replace(/_/g, " ")}</h3>
+              <h2 className="text-sm font-bold text-slate-800 capitalize">{group.agent_name.replace(/_/g, " ")}</h2>
               <p className="text-[11px] text-slate-400">v{group.agent_version} · {group.workload_type}</p>
             </div>
           </div>

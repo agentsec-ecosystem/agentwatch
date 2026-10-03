@@ -14,7 +14,7 @@
 and local dev flow are in place; demo-agent tests pass (12). Additions: transcript import (#192, now
 idempotent), `diff` (#193), `search` (#194), `tail --alert` (#196), golden corpus (#199), and the
 investigation cookbook (#205). **Reopened:** #69 (no runnable field-test harness exists — only the
-plan/report docs) and #63 (the a11y design promises automated checks that are not implemented).
+plan/report docs). #63 (a11y automated checks) is resolved.
 Not verified here: `docker compose up` health, `make seed-e2e` load, and E2E green (Docker daemon
 was not available).
 

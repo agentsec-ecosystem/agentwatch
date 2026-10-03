@@ -14,5 +14,11 @@ Status: **draft**.
 
 ## Verification
 
-Manual keyboard pass and review against the baseline above. Automated a11y checks
-(e.g. axe) are **not yet wired into the UI test suite** — tracked by #63.
+Automated axe checks run in the UI test suite
+(`apps/web/src/__tests__/a11y.test.tsx`): each operator view renders with fixture
+data and the suite fails on any violation. jsdom has no layout engine, so the
+`color-contrast` rule is disabled there and contrast remains a manual/Playwright
+check; a seeded-violation test proves the harness fails on a real violation.
+
+Manual keyboard pass and review against the baseline above complement the
+automated checks.

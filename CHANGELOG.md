@@ -39,6 +39,11 @@ versioning: [Semantic Versioning](https://semver.org/).
   (execution, testing & parity), release/migration, runbooks, tutorials, ADRs.
 - Governance/DCO/OpenSSF Scorecard automation.
 
+### Fixed
+- Operator UI accessibility (#63): corrected heading order (h1 skipped to h3 on Dashboard and
+  Version Compare) and associated the Version Compare input labels; now guarded by automated
+  axe checks for all five views in `apps/web/src/__tests__/a11y.test.tsx`.
+
 ### Changed
 - `AGENTWATCH_SOCKET` (the daemon socket selector from the hook contract) is now a reserved environment
   variable and is no longer parsed as a configuration key.

@@ -52,23 +52,25 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M6 (Analytics + detector engine) ✅** — ported analytics service verified (706 tests), plus
 > `tool.response` (#198) and the Claude Code detector pack (#210).
 >
-> **M7 (Read API + operator UI) 🚧 partial** — ported FastAPI read API (42 tests) and React/Vite
-> operator UI; plus `agentwatch view` (#195) and `agentwatch explain` (#211). **Reopened:** #63
-> (automated a11y checks not implemented). **Milestone reopened.**
+> **M7 (Read API + operator UI) ✅** — ported FastAPI read API (42 tests) and React/Vite
+> operator UI; plus `agentwatch view` (#195), `agentwatch explain` (#211), and automated axe a11y
+> checks for all five views (#63, `apps/web/src/__tests__/a11y.test.tsx`).
 >
 > **M8 (Local stack + demo/seed + E2E) 🚧 partial** — ported compose stack, demo agent, seed/replay,
 > and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),
 > `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **Reopened:** #69
-> (field-test harness runner) and #63 (a11y automated checks).
+> (field-test harness runner).
 
 ## Remaining (as of 2026-10-02)
 
 **Blocking open issues (milestones reopened):**
 
-- **M7 (#63)** — implemented automated a11y checks (axe) in the UI test suite; milestone 8 is `open`.
-- **M8 (#69)** — implemented runnable field-test harness; milestone 9 is `open`.
+- **M8 (#69)** — no runnable field-test harness exists yet (only plan/report docs); milestone 9 is `open`.
 - **M8 (#199)** — real authenticated golden-corpus capture still deferred; the committed corpus is
   synthesized-from-shape (per D-19.39) and the real-corpus test skips with a reason.
+
+**Resolved since the last audit:** **M7 (#63)** — automated axe a11y checks now run in the UI test
+suite for all five views (`apps/web/src/__tests__/a11y.test.tsx`); milestone 8 complete.
 
 **Not started:** **M9–M15** (milestones 10–16, all `open`): inventory + retention, harness/framework
 expansion, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,

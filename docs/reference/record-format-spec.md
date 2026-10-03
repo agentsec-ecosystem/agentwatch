@@ -16,6 +16,7 @@
 | `tool.name` | string | ✅ | Tool name |
 | `tool.server` | string | — | MCP server, if any |
 | `tool.arguments` | object | — | **Redacted per privacy mode** |
+| `tool.response` | object | — | **Redacted tool result per privacy mode** (M6 additions) |
 | `tool.privacy_mode` | enum | — | metadata-only \| truncated \| hashed \| full |
 | `outcome` | enum | ✅ | ok \| error \| denied |
 | `started_at` / `ended_at` | date-time | ✅ / — | UTC |

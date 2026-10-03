@@ -196,7 +196,11 @@ def normalize(
     # Mask secrets before any storage transform (DD-06); detection runs even when
     # content is not captured so a secret-detected event still fires (R5).
     masked_input, secret_kinds = redact_mapping(event.get("tool_input"))
+    masked_response, response_kinds = redact_mapping(event.get("tool_response"))
+    if response_kinds:
+        secret_kinds = tuple(dict.fromkeys([*secret_kinds, *response_kinds]))
     arguments, privacy_mode = _arguments(masked_input, redaction)
+    captured_response: dict[str, Any] | None = None
     event_time = _timestamp(event)
     security_event = None
     if secret_kinds:
@@ -298,9 +302,9 @@ def normalize(
         ended_at: datetime | None = None
         duration_ms: float | None = None
     else:
-        response = event.get("tool_response")
+        raw_response = event.get("tool_response")
         is_error = bool(event.get("error")) or (
-            isinstance(response, Mapping) and bool(response.get("is_error"))
+            isinstance(raw_response, Mapping) and bool(raw_response.get("is_error"))
         )
         outcome = Outcome.ERROR if is_error else Outcome.OK
         step_type = StepType.OBSERVE
@@ -312,11 +316,17 @@ def normalize(
             if isinstance(raw_duration, (int, float)) and not isinstance(raw_duration, bool)
             else None
         )
+        captured_response, _ = _arguments(masked_response, redaction)
 
     record = AgentRecord(
         session_id=session_id,
         agent=identity_for(event),
-        tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
+        tool=ToolCall(
+            name=tool_name,
+            arguments=arguments,
+            response=captured_response,
+            privacy_mode=privacy_mode,
+        ),
         outcome=outcome,
         started_at=started_at,
         harness=HARNESS_ID,

@@ -32,6 +32,7 @@
         "name": { "type": "string" },
         "server": { "type": ["string", "null"], "description": "MCP server, if any" },
         "arguments": { "type": ["object", "null"], "description": "Redacted per privacy mode" },
+        "response": { "type": ["object", "null"], "description": "Redacted tool result per privacy mode" },
         "privacy_mode": { "enum": ["metadata-only", "truncated", "hashed", "full"] }
       }
     },

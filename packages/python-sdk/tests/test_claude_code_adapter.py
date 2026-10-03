@@ -326,3 +326,24 @@ def test_secret_detected_even_in_metadata_only() -> None:
 def test_benign_input_has_no_security_event() -> None:
     (record,) = claude_code.normalize(PRE)
     assert record.security_event is None
+
+
+def test_post_metadata_only_omits_the_response() -> None:
+    (record,) = claude_code.normalize(_post())
+    assert record.tool.response is None
+
+
+def test_post_captures_the_response_under_mode() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(_post(tool_response={"output": "done"}), redaction=cfg)
+    assert record.tool.response == {"output": "done"}
+
+
+def test_post_secret_in_response_is_masked() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(
+        _post(tool_response={"output": "sk-abcdefgh"}), redaction=cfg
+    )
+    assert record.tool.response == {"output": "<REDACTED:api-key>"}
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED

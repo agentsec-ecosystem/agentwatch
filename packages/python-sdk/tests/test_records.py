@@ -321,3 +321,31 @@ def test_record_validation_is_pure() -> None:
     original = copy.deepcopy(data)
     validate_record(data)
     assert data == original
+
+
+def _record_with_response(response: Any) -> AgentRecord:
+    return AgentRecord(
+        session_id="s",
+        agent=AgentIdentity(identity="a"),
+        tool=ToolCall(name="Bash", response=response),
+        outcome=Outcome.OK,
+        started_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+    )
+
+
+def test_tool_response_round_trips() -> None:
+    record = _record_with_response({"output": "ok"})
+
+    data = record.to_dict()
+
+    assert data["tool"]["response"] == {"output": "ok"}
+    assert AgentRecord.from_dict(data) == record
+    validate_record(data)
+
+
+def test_tool_response_must_be_an_object() -> None:
+    data = _record_with_response({"output": "ok"}).to_dict()
+    data["tool"]["response"] = "not-an-object"
+
+    with pytest.raises(RecordValidationError):
+        validate_record(data)

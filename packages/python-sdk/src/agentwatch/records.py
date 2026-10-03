@@ -130,6 +130,7 @@ class ToolCall:
     name: str
     server: str | None = None
     arguments: dict[str, Any] | None = None
+    response: dict[str, Any] | None = None
     privacy_mode: RecordPrivacyMode | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -138,6 +139,8 @@ class ToolCall:
             data["server"] = self.server
         if self.arguments is not None:
             data["arguments"] = self.arguments
+        if self.response is not None:
+            data["response"] = self.response
         if self.privacy_mode is not None:
             data["privacy_mode"] = self.privacy_mode.value
         return data
@@ -149,6 +152,7 @@ class ToolCall:
             name=data["name"],
             server=data.get("server"),
             arguments=data.get("arguments"),
+            response=data.get("response"),
             privacy_mode=RecordPrivacyMode(mode) if mode is not None else None,
         )
 
@@ -321,7 +325,7 @@ _AGENT_FIELDS = frozenset(
         "workload_type",
     }
 )
-_TOOL_FIELDS = frozenset({"name", "server", "arguments", "privacy_mode"})
+_TOOL_FIELDS = frozenset({"name", "server", "arguments", "response", "privacy_mode"})
 _EVENT_FIELDS = frozenset(
     {
         "event_version",
@@ -426,6 +430,8 @@ def _validate_tool_dict(data: Any) -> None:
         _check_str(data["server"], "tool", "server", nullable=True)
     if "arguments" in data:
         _check_table(data["arguments"], "tool", "arguments", nullable=True)
+    if "response" in data:
+        _check_table(data["response"], "tool", "response", nullable=True)
     if "privacy_mode" in data:
         _check_enum(data["privacy_mode"], "tool", "privacy_mode", RecordPrivacyMode, nullable=True)
 

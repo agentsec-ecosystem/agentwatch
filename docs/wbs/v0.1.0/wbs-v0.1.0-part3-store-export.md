@@ -122,6 +122,9 @@ These share the M5 adapter/daemon/CLI surface; full specs in the referenced PRDs
 | 5.O1 | Shared adapter conformance runner | reusable runner | a broken adapter fails CI | [27](../../prd/27-harness-expansion.md) | #216 |
 | 5.P1 | Async hooks + published latency | async default + benchmark | under ceiling; ordering test | [28](../../prd/28-performance-operability.md) | #217 |
 
+> **Additions progress — M5 P1 ✅ complete:** A1 #165, A2 #166, A3 #167, A4 #168, A5 #169,
+> B3 #172, B4 #173, E3 #181, F4 #185 (all implemented, tests green, issues closed). P2–P5 pending.
+
 ---
 
 Part 3 green ⇒ proceed to [Part 4 (M6–M7)](wbs-v0.1.0-part4-analytics-ui.md).

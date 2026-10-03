@@ -44,6 +44,9 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > **M4 (Local store + redaction) ✅** — hash-chained store, secret/PII redaction, `verify-store`,
 > retention/F3/F4, export self-test. Execution plan:
 > [m4-store-redaction-execution-plan.md](../../plans/m4-store-redaction-execution-plan.md).
+>
+> **M5 (OTel export + replay) 🚧** — additions P1 ✅ complete (lifecycle hooks #165–#169, gaps #172,
+> quarantine #173, M4 minors #181, format version #185); P2–P5 pending.
 
 ## Porting map (agent-exec-trace → agentwatch)
 

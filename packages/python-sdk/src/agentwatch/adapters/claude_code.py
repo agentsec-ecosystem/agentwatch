@@ -97,6 +97,20 @@ def identity_from(value: Any) -> AgentIdentity:
     return AgentIdentity(identity="unknown")
 
 
+def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
+    """Agent identity for an event: explicit ``agent`` first, else subagent ids."""
+    if event.get("agent") is not None:
+        return identity_from(event["agent"])
+    agent_id = event.get("agent_id")
+    agent_type = event.get("agent_type")
+    if agent_id is not None or agent_type is not None:
+        return AgentIdentity(
+            identity=str(agent_id if agent_id is not None else agent_type),
+            name=str(agent_type) if agent_type is not None else None,
+        )
+    return AgentIdentity(identity="unknown")
+
+
 def _parse_optional_timestamp(value: Any) -> datetime | None:
     """Parse an optional ISO timestamp, rejecting a malformed one explicitly."""
     if not isinstance(value, str):
@@ -172,7 +186,7 @@ def normalize(
         boundary_args = {"reason": str(reason)} if reason is not None else None
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_from(event.get("agent")),
+            agent=identity_for(event),
             tool=ToolCall(
                 name=phase,
                 arguments=boundary_args,
@@ -200,7 +214,7 @@ def normalize(
         )
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_from(event.get("agent")),
+            agent=identity_for(event),
             tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
             outcome=Outcome.DENIED,
             started_at=event_time,
@@ -237,7 +251,7 @@ def normalize(
                 prompt_mode = _PRIVACY_MAP[redaction.mode]
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_from(event.get("agent")),
+            agent=identity_for(event),
             tool=ToolCall(name="user-prompt", arguments=prompt_args, privacy_mode=prompt_mode),
             outcome=Outcome.OK,
             started_at=event_time,
@@ -273,7 +287,7 @@ def normalize(
 
     record = AgentRecord(
         session_id=session_id,
-        agent=identity_from(event.get("agent")),
+        agent=identity_for(event),
         tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
         outcome=outcome,
         started_at=started_at,

@@ -1,0 +1,20 @@
+{
+  "message": {
+    "phase": "pre", "harness": "claude-code",
+    "event": {
+      "session_id": "sess-s", "tool_name": "Bash", "tool_use_id": "call-s",
+      "timestamp": "2026-01-02T03:04:03+00:00",
+      "agent_id": "agent-7", "agent_type": "general-purpose"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0", "session_id": "sess-s",
+      "agent": { "identity": "agent-7", "name": "general-purpose" },
+      "tool": { "name": "Bash", "privacy_mode": "metadata-only" },
+      "outcome": "ok", "started_at": "2026-01-02T03:04:03+00:00",
+      "harness": "claude-code", "trace_id": "sess-s", "span_id": "call-s",
+      "step_type": "act"
+    }
+  ]
+}

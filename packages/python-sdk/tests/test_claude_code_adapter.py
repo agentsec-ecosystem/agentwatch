@@ -60,6 +60,45 @@ def test_capabilities_and_gaps_are_declared() -> None:
     assert "mcp-server-events" in claude_code.DOCUMENTED_GAPS
 
 
+def test_subagent_records_are_attributed() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-s",
+            "tool_name": "Bash",
+            "tool_use_id": "call-s",
+            "timestamp": "2026-01-02T03:04:03+00:00",
+            "agent_id": "agent-7",
+            "agent_type": "general-purpose",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.identity == "agent-7"
+    assert record.agent.name == "general-purpose"
+    validate_record(record.to_dict())
+
+
+def test_explicit_agent_field_wins_over_agent_id() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-s",
+            "tool_name": "Bash",
+            "tool_use_id": "call-s",
+            "timestamp": "2026-01-02T03:04:03+00:00",
+            "agent": "triage",
+            "agent_id": "agent-7",
+            "agent_type": "general-purpose",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.identity == "triage"
+
+
 def test_user_prompt_is_a_reason_step_without_content_by_default() -> None:
     message = {
         "phase": "prompt",

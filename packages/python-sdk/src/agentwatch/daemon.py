@@ -241,7 +241,7 @@ class Daemon:
                 started_at = _parse_iso(timestamp)
         return AgentRecord(
             session_id=session_id,
-            agent=claude_code.identity_from(raw.get("agent")),
+            agent=claude_code.identity_for(raw),
             tool=ToolCall(name=HOOK_ERROR_TOOL),
             outcome=Outcome.ERROR,
             started_at=started_at,

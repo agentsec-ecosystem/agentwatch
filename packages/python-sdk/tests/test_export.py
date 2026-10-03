@@ -7,6 +7,7 @@ the SDK's in-memory exporter so the span shape is asserted without a network.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,7 +25,15 @@ from agentwatch.attrs import (
     SPAN_KIND_TOOL,
 )
 from agentwatch.export import ExportOrchestrator, OTelSpanSink, record_to_attributes
-from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
+from agentwatch.records import (
+    EVENT_VERSION,
+    AgentIdentity,
+    AgentRecord,
+    Outcome,
+    SecurityEvent,
+    SecurityEventType,
+    ToolCall,
+)
 from agentwatch.store import RecordStore
 
 
@@ -209,3 +218,65 @@ def test_orchestrator_skips_tombstoned_records(tmp_path: Path) -> None:
     assert names == []
     assert report.attempted == 0
     assert report.last_seq == -1
+
+
+def _event_record() -> AgentRecord:
+    event = SecurityEvent(
+        type=SecurityEventType.SECRET_DETECTED,
+        emitted_at=datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc),
+        emitter="agentwatch",
+        tool="Bash",
+        reason="detected",
+        policy_id="p-1",
+        credential_ref="cred-1",
+        evidence={"kinds": ["api-key"]},
+    )
+    base = _record()
+    return replace(base, security_event=event)
+
+
+def test_security_event_is_exported_as_a_span_event() -> None:
+    sink, exporter = _sink()
+
+    sink.emit(_event_record(), seq=0)
+
+    span = exporter.get_finished_spans()[0]
+    assert len(span.events) == 1
+    event = span.events[0]
+    assert event.name == SecurityEventType.SECRET_DETECTED.value
+    assert event.attributes["emitter"] == "agentwatch"
+    assert event.attributes["reason"] == "detected"
+    assert event.attributes["policy_id"] == "p-1"
+    assert event.attributes["credential_ref"] == "cred-1"
+    assert event.attributes["event_version"] == EVENT_VERSION
+    assert event.attributes["evidence"] == '{"kinds": ["api-key"]}'
+
+
+def test_record_without_a_security_event_has_no_span_events() -> None:
+    sink, exporter = _sink()
+
+    sink.emit(_record(), seq=0)
+
+    assert exporter.get_finished_spans()[0].events == ()
+
+    minimal = SecurityEvent(
+        type=SecurityEventType.HALTED,
+        emitted_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+    )
+    sink.emit(replace(_record(), security_event=minimal), seq=1)
+
+    event = exporter.get_finished_spans()[1].events[0]
+    assert event.name == "halted"
+    assert set(event.attributes) == {"event_version"}
+
+
+def test_orchestrator_forwards_security_events_for_each_record(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_event_record())
+    store.append(_record("plain"))
+    sink, exporter = _sink()
+
+    ExportOrchestrator(store, sink).export_pending()
+
+    spans = exporter.get_finished_spans()
+    assert [len(span.events) for span in spans] == [1, 0]

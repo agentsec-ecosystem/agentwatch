@@ -13,6 +13,7 @@ by :func:`otlp_sink`, keeping the core SDK dependency-light.
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
@@ -30,7 +31,7 @@ from agentwatch.attrs import (
     GEN_AI_TOOL_NAME,
     SPAN_KIND_TOOL,
 )
-from agentwatch.records import AgentRecord, Outcome
+from agentwatch.records import AgentRecord, Outcome, SecurityEvent
 from agentwatch.store import RecordStore
 
 
@@ -140,6 +141,23 @@ def record_to_attributes(record: AgentRecord, seq: int) -> dict[str, Any]:
     return attributes
 
 
+def security_event_attributes(event: SecurityEvent) -> dict[str, Any]:
+    """Map a security event to attributes for an OTel span event (DD-14)."""
+    attributes: dict[str, Any] = {"event_version": event.event_version}
+    for key, value in {
+        "emitter": event.emitter,
+        "reason": event.reason,
+        "policy_id": event.policy_id,
+        "tool": event.tool,
+        "credential_ref": event.credential_ref,
+    }.items():
+        if value is not None:
+            attributes[key] = value
+    if event.evidence is not None:
+        attributes["evidence"] = json.dumps(event.evidence, sort_keys=True)
+    return attributes
+
+
 _STATUS_BY_OUTCOME = {
     Outcome.ERROR: StatusCode.ERROR,
     Outcome.DENIED: StatusCode.ERROR,
@@ -170,6 +188,11 @@ class OTelSpanSink:
         )
         for key, value in record_to_attributes(record, seq).items():
             span.set_attribute(key, value)
+        if record.security_event is not None:
+            span.add_event(
+                record.security_event.type.value,
+                security_event_attributes(record.security_event),
+            )
         span.set_status(Status(_STATUS_BY_OUTCOME.get(record.outcome, StatusCode.UNSET)))
         end = record.ended_at or record.started_at
         span.end(end_time=_to_ns(end))

@@ -380,6 +380,42 @@ def test_daemon_does_not_record_a_gap_without_a_pid(short_dir: Path) -> None:
     assert "recording-gap" not in names
 
 
+def test_malformed_line_is_quarantined(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        _send_raw(socket_path, b"not json at all\n")
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        _read_lines(records_path, 1)
+        entries = daemon.quarantine.entries()
+        mode = os.stat(daemon.quarantine.path).st_mode & 0o777
+    finally:
+        daemon.stop()
+
+    assert entries
+    assert entries[0]["raw"] == "not json at all"
+    assert mode == 0o600
+
+
+def test_normalize_error_is_quarantined(short_dir: Path) -> None:
+    daemon, socket_path, _ = _started(short_dir)
+    try:
+        hook.send({"phase": "pre", "harness": "claude-code"}, socket_path=str(socket_path))
+        deadline = time.time() + 3.0
+        while time.time() < deadline:
+            if any(
+                entry["reason"] == "normalize-error" for entry in daemon.quarantine.entries()
+            ):
+                break
+            time.sleep(0.05)
+        entries = daemon.quarantine.entries()
+    finally:
+        daemon.stop()
+
+    assert any(entry["reason"] == "normalize-error" for entry in entries)
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

@@ -26,6 +26,7 @@ from typing import Any
 from agentwatch.adapters import claude_code
 from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
 from agentwatch.hook import default_socket_path
+from agentwatch.quarantine import QuarantineLog
 from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
 from agentwatch.redact import RedactionConfig
 from agentwatch.store import ChainStatus, RecordStore, StoreFullError
@@ -67,6 +68,7 @@ class Daemon:
         self.retention_days = retention_days
         self.gap_threshold_seconds = gap_threshold_seconds
         self.pid_path = self.records_path.parent / "daemon.pid"
+        self.quarantine = QuarantineLog(self.records_path.parent / "quarantine.jsonl")
         self.chain_status: ChainStatus | None = None
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
@@ -213,6 +215,7 @@ class Daemon:
         try:
             message = json.loads(line.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError):
+            self.quarantine.add(line, reason="malformed-line")
             return
         self.handle_message(message)
 
@@ -236,7 +239,10 @@ class Daemon:
         try:
             records = claude_code.normalize(message, redaction=self.redaction)
         except (ClaudeCodeAdapterError, ValueError, TypeError, KeyError):
-            # A recognized phase that fails to normalize is a missed call: record it.
+            # A recognized phase that fails to normalize is a missed call: record it,
+            # and preserve the raw frame for diagnosis/reprocessing (F8).
+            with contextlib.suppress(TypeError, ValueError):
+                self.quarantine.add(json.dumps(message, default=str), reason="normalize-error")
             record = self._hook_error_record(event)
             persisted = self._append(record)
             self._sweep_pending_pre()

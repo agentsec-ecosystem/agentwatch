@@ -208,17 +208,19 @@ def test_project_filter_missing_cwd_is_unknown(...): ...
 - Produces: `replay_session(store, session_id, *, follow_parents=True) -> list[AgentRecord]` — walks `parent_session_id` from resume/fork boundary records, oldest-first, and returns the merged timeline; guarded against cycles (visited set).
 - Consumes: Task 2 `parent_session_id`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 def test_replay_follows_parent_into_one_timeline(...): ...
 def test_replay_guards_against_parent_cycle(...): ...  # terminates; no infinite loop
 ```
 
-- [ ] **Step 2: Run to verify it fails** — `pytest tests/test_session_correlation.py -v` → FAIL.
-- [ ] **Step 3: Implement** — collect the chain via a visited set; concatenate each session's `replay_session` ordering.
-- [ ] **Step 4: Run to verify it passes** — `pytest tests/test_session_correlation.py tests/test_replay.py -v`.
-- [ ] **Step 5: Commit** — `git commit -s -m "feat(replay): follow parent-session chain for resumed/forked runs (M9 #200)"`
+- [x] **Step 2: Run to verify it fails** — `pytest tests/test_session_correlation.py -v` → FAIL.
+- [x] **Step 3: Implement** — collect the chain via a visited set; concatenate each session's `replay_session` ordering.
+- [x] **Step 4: Run to verify it passes** — `pytest tests/test_session_correlation.py tests/test_replay.py -v`.
+- [x] **Step 5: Commit** — `git commit -s -m "feat(replay): follow parent-session chain for resumed/forked runs (M9 #200)"`
+
+> Ruling: the CLI `replay` handler needs no change — it calls `replay_session` without `follow_parents`, so the default (follow) applies. Cost if wrong: a `--no-follow` flag is missing until asked for.
 
 ---
 

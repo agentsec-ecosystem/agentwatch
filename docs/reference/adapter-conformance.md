@@ -45,3 +45,16 @@ CI when a harness has no fixtures or a case lacks `message`/`expected`
 
 Ecosystem tool **agentdrill** runs per-harness attack packs; a tool is compatible only when its pack passes
 in CI. Release notes carry the compatibility table.
+
+## Provisional adapters (M10, modeled)
+
+Cursor, Codex CLI, and Gemini CLI ship **provisional (modeled)** adapters — no native event surface is
+documented in-repo yet, so the fixtures are synthesized from an assumed shape and must be replaced by real
+captures (M14/N4). Each is registered and passes the shared runner; capabilities and the `mcp-server-events`
+gap are declared the same way as Claude Code.
+
+| Harness | Module | Fixtures |
+|---|---|---|
+| Cursor | `agentwatch.adapters.cursor` | `tests/fixtures/cursor/*.json` |
+| Codex CLI | `agentwatch.adapters.codex_cli` | `tests/fixtures/codex-cli/*.json` |
+| Gemini CLI | `agentwatch.adapters.gemini_cli` | `tests/fixtures/gemini-cli/*.json` |

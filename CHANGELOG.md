@@ -51,6 +51,9 @@ versioning: [Semantic Versioning](https://semver.org/).
   and daemon frames; reference specs `store-format.md`, `daemon-protocol.md`, and `adapter-api.md` describe
   them. `conformance.assert_packs_populated()` requires every registered adapter to ship a conformance
   pack; a sample out-of-tree adapter (`tests/community_adapter.py`) proves the plugin contract is usable.
+- Provisional harness adapters (M10 #80–#82): modeled **Cursor**, **Codex CLI**, and **Gemini CLI** adapters
+  (shared `agentwatch.adapters.modeled` helper), registered in the conformance runner with fixture packs.
+  Shapes are assumed, not captured — replace the fixtures with real captures (M14/N4).
 
 ### Fixed
 - Operator UI accessibility (#63): corrected heading order (h1 skipped to h3 on Dashboard and

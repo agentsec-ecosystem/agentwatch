@@ -66,10 +66,10 @@
 
 **Files:** Modify `tests/conformance_registry.py`, `tests/test_conformance.py` (shipped-adapter coverage), `docs/design/harness-adapter-design.md`, `docs/reference/adapter-conformance.md`, `docs/reference/compatibility.md`, `docs/reference/known-limitations.md`, `docs/wbs/v0.1.0/wbs-v0.1.0-part6-expansion.md`, `docs/wbs/v0.1.0/wbs-v0.1.0-index.md`, `CHANGELOG.md`.
 
-- [ ] **Step 1: Register** the three adapters in `conformance_registry.py`; extend the "all shipped adapters registered" test.
-- [ ] **Step 2: Docs** — mark each adapter **provisional (modeled)**, note the shape-replacement follow-up (M14/N4), update the compatibility table and known limitations, WBS, CHANGELOG.
-- [ ] **Step 3: Verify** — `make test` (coverage ≥ 95% + guard).
-- [ ] **Step 4: Commit** — `git commit -s -m "docs(m10): register modeled adapters + mark provisional (M10 #80-#82)"`
+- [x] **Step 1: Register** the three adapters in `conformance_registry.py`; extend the "all shipped adapters registered" test.
+- [x] **Step 2: Docs** — mark each adapter **provisional (modeled)**, note the shape-replacement follow-up (M14/N4), update the compatibility table and known limitations, WBS, CHANGELOG.
+- [x] **Step 3: Verify** — `make test` (coverage ≥ 95% + guard).
+- [x] **Step 4: Commit** — `git commit -s -m "docs(m10): register modeled adapters + mark provisional (M10 #80-#82)"`
 
 ---
 

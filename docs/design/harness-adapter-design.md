@@ -3,7 +3,8 @@
 **BLUF:** A small adapter contract converts a harness's native surface into the agentwatch record format.
 Claude Code hooks are the first implementation.
 
-Status: **implemented** for Claude Code (v0.1.0 M3).
+Status: **implemented** for Claude Code (v0.1.0 M3); Cursor, Codex CLI, and Gemini CLI are **provisional
+(modeled)** in M10.
 
 ## Contract
 
@@ -32,8 +33,21 @@ Claude Code `PreToolUse` / `PostToolUse` hooks → local daemon over a local soc
 ([hook contract](claude-code-hook-contract.md)). PostToolUse captures outcome; PreToolUse captures
 intent (enables future enforcement to plug in). Redaction runs before a record is emitted (DD-06).
 
+## Provisional harnesses (M10, modeled)
+
+No native event surface is documented in-repo for these harnesses, so each adapter maps an **assumed**
+shape and ships synthesized-from-shape fixtures. They are **provisional**: the fixtures and capabilities
+are replaced when real captures land (M14 field tests / N4 version matrix). Each registers in the shared
+conformance runner with a `mcp-server-events` declared gap.
+
+| Harness | Module | Capability classes |
+|---|---|---|
+| Cursor | `agentwatch.adapters.cursor` | `beforeShellExecution`, `afterShellExecution`, `beforeFileEdit`, `afterFileEdit` |
+| Codex CLI | `agentwatch.adapters.codex_cli` | `exec_begin`, `exec_end`, `patch_apply` |
+| Gemini CLI | `agentwatch.adapters.gemini_cli` | `tool_call`, `tool_result`, `session_start`, `session_end` |
+
 ## Future
 
-- Cursor, Codex CLI, Gemini CLI (config/wrapper).
-- Generic MCP clients via proxy tap.
-- Frameworks via OTLP/SDK ingestion.
+- Full-fidelity Cursor/Codex CLI/Gemini CLI adapters once real events are captured (v0.1.x/later).
+- Generic MCP clients via proxy tap (N1, M10).
+- Frameworks via OTLP/SDK ingestion (N2).

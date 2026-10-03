@@ -15,5 +15,10 @@
 
 > **B1:** v0.1.0 is Claude Code only (meta-MVP); the ecosystem ≥2-Tier-1 threshold is met by v0.3.0.
 >
+> **Provisional (M10, modeled):** Cursor, Codex CLI, and Gemini CLI also ship **provisional** adapters in
+> v0.1.0 — their native event shapes are assumed, not captured, so the roadmap placement above still governs
+> *full-fidelity* support. Replace the modeled fixtures with real captures (M14/N4) before treating them as
+> mature.
+>
 > Claude Code recording via `PreToolUse`/`PostToolUse` hooks + the local daemon is implemented in M3
 > (see the [hook contract](../design/claude-code-hook-contract.md)); declared gaps apply.

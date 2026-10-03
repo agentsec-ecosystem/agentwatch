@@ -10,10 +10,9 @@ drift signals — built on the ported SDK/analytics. Two milestones.
 
 ## Milestone M10 — Harness + framework expansion (R10)
 
-**Status:** 🚧 **partial** — Phase 1 (adapter plugin contract) landed: published store-format,
-daemon-protocol, and adapter-api specs (`agentwatch.protocol`), a sample community adapter proving the
-contract, and a per-harness conformance pack check. Native Cursor/Codex/Gemini adapters, the generic MCP
-proxy, Tier-2 adapters, and the ingestion/version-matrix tooling remain.
+**Status:** 🚧 **partial** — Phases 1–2 landed: published adapter/store/daemon contract (Phase 1) and
+provisional (modeled) Cursor, Codex CLI, and Gemini CLI adapters registered in the conformance runner
+(Phase 2). The generic MCP proxy, Tier-2 adapters, and the ingestion/version-matrix tooling remain.
 
 **Goal:** extend beyond Claude Code + LangGraph/raw-Python: Cursor, Codex CLI, Gemini CLI, generic MCP
 clients, and Tier-2 framework adapters — via the **ported** adapter/SDK boundary.

@@ -15,7 +15,9 @@ Status: living.
 
 ## agentwatch-specific (v0.1.0)
 
-- Claude Code only; Cursor/Codex/Gemini not yet supported.
+- Claude Code is fully supported (v0.1.0 M3). Cursor, Codex CLI, and Gemini CLI have **provisional
+  (modeled)** adapters in v0.1.0 — their native event shapes are assumed, not captured; full-fidelity
+  support and real fixtures land in v0.1.x/later (M14 field tests / N4 version matrix).
 - Hash chain is detect-only (no signing key) at v0.1.0.
 - Security-event schema v1 is draft; naming may move upstream to OTel (DD-14).
 

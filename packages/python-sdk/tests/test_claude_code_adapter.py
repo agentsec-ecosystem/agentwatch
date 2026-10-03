@@ -56,7 +56,34 @@ def test_capabilities_and_gaps_are_declared() -> None:
     assert "post-tool-use" in claude_code.CAPABILITIES
     assert "post-tool-use-failure" in claude_code.CAPABILITIES
     assert "session-boundaries" in claude_code.CAPABILITIES
+    assert "permission-denied" in claude_code.CAPABILITIES
     assert "mcp-server-events" in claude_code.DOCUMENTED_GAPS
+
+
+def test_permission_denied_records_a_denied_event() -> None:
+    message = {
+        "phase": "denied",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-d",
+            "tool_name": "Bash",
+            "tool_input": {"command": "rm -rf /"},
+            "tool_use_id": "call-d1",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "reason": "auto-denied",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.outcome is Outcome.DENIED
+    assert record.step_type is StepType.OBSERVE
+    assert record.tool.name == "Bash"
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.DENIED
+    assert record.security_event.emitter == "claude-code"
+    assert record.security_event.tool == "Bash"
+    assert record.security_event.reason == "auto-denied"
+    validate_record(record.to_dict())
 
 
 def test_session_start_produces_a_boundary_record() -> None:

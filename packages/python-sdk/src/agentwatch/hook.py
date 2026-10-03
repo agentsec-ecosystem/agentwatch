@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 _SOCKET_NAME = "agentwatch.sock"
-_VALID_PHASES = ("pre", "post", "session-start", "session-end")
+_VALID_PHASES = ("pre", "post", "denied", "session-start", "session-end")
 _CONNECT_TIMEOUT_SECONDS = 1.0
 
 

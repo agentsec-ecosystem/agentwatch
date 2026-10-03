@@ -31,6 +31,7 @@ EVENT_PHASES: dict[str, str] = {
     "PreToolUse": "pre",
     "PostToolUse": "post",
     "PostToolUseFailure": "post",
+    "PermissionDenied": "denied",
     "SessionStart": "session-start",
     "SessionEnd": "session-end",
 }

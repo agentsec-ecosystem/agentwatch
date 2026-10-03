@@ -38,7 +38,13 @@ HARNESS_ID = "claude-code"
 
 # Capability classes this adapter implements; anything else is a documented gap.
 CAPABILITIES = frozenset(
-    {"pre-tool-use", "post-tool-use", "post-tool-use-failure", "session-boundaries"}
+    {
+        "pre-tool-use",
+        "post-tool-use",
+        "post-tool-use-failure",
+        "session-boundaries",
+        "permission-denied",
+    }
 )
 
 # Honest, declared gaps (R3) — never dropped silently.
@@ -130,9 +136,9 @@ def normalize(
         raise ClaudeCodeAdapterError("hook message must be an object")
 
     phase = message.get("phase")
-    if phase not in ("pre", "post", "session-start", "session-end"):
+    if phase not in ("pre", "post", "denied", "session-start", "session-end"):
         raise ClaudeCodeAdapterError(
-            f"unsupported hook phase {phase!r}; expected 'pre', 'post', "
+            f"unsupported hook phase {phase!r}; expected 'pre', 'post', 'denied', "
             "'session-start', or 'session-end'"
         )
 
@@ -178,6 +184,30 @@ def normalize(
             span_id=call_id,
             step_type=None,
             security_event=security_event,
+        )
+        return [record]
+
+    if phase == "denied":
+        # A harness-native permission denial (M5 A2): record it and emit `denied`.
+        reason = event.get("reason")
+        denial = SecurityEvent(
+            type=SecurityEventType.DENIED,
+            emitted_at=event_time,
+            emitter="claude-code",
+            tool=tool_name,
+            reason=str(reason) if reason is not None else None,
+        )
+        record = AgentRecord(
+            session_id=session_id,
+            agent=identity_from(event.get("agent")),
+            tool=ToolCall(name=tool_name, arguments=arguments, privacy_mode=privacy_mode),
+            outcome=Outcome.DENIED,
+            started_at=event_time,
+            harness=HARNESS_ID,
+            trace_id=trace_id,
+            span_id=call_id,
+            step_type=StepType.OBSERVE,
+            security_event=denial,
         )
         return [record]
 

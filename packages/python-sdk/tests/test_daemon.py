@@ -281,6 +281,26 @@ def test_daemon_records_session_boundaries(short_dir: Path) -> None:
     assert record.tool.arguments == {"reason": "startup"}
 
 
+def test_permission_denied_retires_the_pending_pre(short_dir: Path) -> None:
+    daemon, socket_path, records_path = _started(short_dir)
+    try:
+        hook.send(
+            {"phase": "pre", "harness": "claude-code", "event": PRE}, socket_path=str(socket_path)
+        )
+        denied_event = {**PRE, "reason": "auto-denied"}
+        hook.send(
+            {"phase": "denied", "harness": "claude-code", "event": denied_event},
+            socket_path=str(socket_path),
+        )
+        _read_lines(records_path, 2)
+    finally:
+        daemon.stop()
+
+    records = RecordStore(records_path).records()
+    assert any(record.outcome.value == "denied" for record in records)
+    assert HOOK_ERROR_TOOL not in [record.tool.name for record in records]
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

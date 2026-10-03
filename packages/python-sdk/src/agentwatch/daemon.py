@@ -199,7 +199,7 @@ class Daemon:
             self._sweep_pending_pre()
             return [record] if persisted else []
 
-        if phase not in ("pre", "post", "session-start", "session-end"):
+        if phase not in ("pre", "post", "denied", "session-start", "session-end"):
             return []
 
         try:
@@ -223,6 +223,9 @@ class Daemon:
                 and self._pending_pre.pop(call_id, None) is None
             ):
                 records.append(self._hook_error_record(raw_event))
+            elif phase == "denied" and call_id is not None:
+                # A denial retires the matching intent; no false hook-error.
+                self._pending_pre.pop(call_id, None)
 
         self._sweep_pending_pre()
         return [record for record in records if self._append(record)]

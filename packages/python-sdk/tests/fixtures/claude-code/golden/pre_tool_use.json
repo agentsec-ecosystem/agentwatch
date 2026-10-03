@@ -1,0 +1,20 @@
+{
+  "harness_version": "synthesized-2026-10-02",
+  "message": {
+    "phase": "pre", "harness": "claude-code",
+    "event": {
+      "session_id": "golden-1", "tool_name": "Bash", "tool_input": { "command": "ls" },
+      "tool_use_id": "golden-c1", "timestamp": "2026-01-03T10:00:00+00:00", "agent": "triage"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0", "session_id": "golden-1",
+      "agent": { "identity": "triage", "name": "triage" },
+      "tool": { "name": "Bash", "privacy_mode": "metadata-only" },
+      "outcome": "ok", "started_at": "2026-01-03T10:00:00+00:00",
+      "harness": "claude-code", "trace_id": "golden-1", "span_id": "golden-c1",
+      "step_type": "act"
+    }
+  ]
+}

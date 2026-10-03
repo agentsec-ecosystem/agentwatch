@@ -1,0 +1,7 @@
+{
+  "harness": "claude-code",
+  "harness_version": "synthesized-2026-10-02",
+  "captured_from_real_harness": false,
+  "note": "Synthesized from the documented Claude Code hook shape (D-19.39: synthesize-from-shape when no authenticated capture is available). Refresh with scripts/capture-golden.py on an authenticated machine; scrub + scan before commit. Real captures live under golden/real/ and are replayed or explicitly skipped.",
+  "cases": ["pre_tool_use.json", "post_tool_use.json", "post_denied.json"]
+}

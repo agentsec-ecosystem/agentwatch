@@ -55,6 +55,7 @@ class Daemon:
         redaction: RedactionConfig | None = None,
         pre_timeout_seconds: float = 300.0,
         sweep_interval_seconds: float = 5.0,
+        gap_threshold_seconds: float = 300.0,
     ) -> None:
         self.socket_path = (
             Path(socket_path) if socket_path is not None else Path(default_socket_path())
@@ -64,6 +65,8 @@ class Daemon:
         )
         self.store = store if store is not None else RecordStore(self.records_path)
         self.retention_days = retention_days
+        self.gap_threshold_seconds = gap_threshold_seconds
+        self.pid_path = self.records_path.parent / "daemon.pid"
         self.chain_status: ChainStatus | None = None
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
@@ -92,6 +95,7 @@ class Daemon:
             )
         if self.retention_days is not None:
             self.store.apply_retention(retention_days=self.retention_days)
+        self._record_gap_if_needed()
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -104,6 +108,32 @@ class Daemon:
         self._thread.start()
         self._sweeper = threading.Thread(target=self._sweep_loop, daemon=True)
         self._sweeper.start()
+
+    def _record_gap_if_needed(self) -> None:
+        """Synthesize a recording-gap record after a crash (F1)."""
+        if not self.pid_path.exists():
+            return
+        records = self.store.records()
+        if not records:
+            return
+        last = records[-1]
+        now = datetime.now(timezone.utc)
+        gap_seconds = (now - last.started_at).total_seconds()
+        if gap_seconds < self.gap_threshold_seconds:
+            return
+        gap = AgentRecord(
+            session_id=last.session_id,
+            agent=last.agent,
+            tool=ToolCall(name="recording-gap", arguments={"reason": "daemon-restart"}),
+            outcome=Outcome.ERROR,
+            started_at=last.started_at,
+            ended_at=now,
+            duration_ms=gap_seconds * 1000.0,
+            harness=claude_code.HARNESS_ID,
+            trace_id=last.trace_id,
+            step_type=StepType.ACT,
+        )
+        self._append(gap)
 
     def _prepare_socket_path(self) -> None:
         """Refuse to clobber a live daemon; replace a stale socket file."""

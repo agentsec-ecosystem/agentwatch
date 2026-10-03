@@ -341,6 +341,45 @@ def test_daemon_emits_session_usage_from_transcript(short_dir: Path) -> None:
     assert "CANARY" not in json.dumps(usage[0].to_dict())
 
 
+def test_daemon_records_a_gap_when_a_previous_pid_exists(short_dir: Path) -> None:
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path)
+    store.append(_record("old"))
+    (short_dir / "daemon.pid").write_text("12345", encoding="utf-8")
+    daemon = Daemon(
+        socket_path=str(short_dir / "d.sock"),
+        records_path=records_path,
+        store=store,
+        gap_threshold_seconds=1.0,
+    )
+    daemon.start()
+    try:
+        names = [r.tool.name for r in daemon.store.records()]
+    finally:
+        daemon.stop()
+
+    assert "recording-gap" in names
+
+
+def test_daemon_does_not_record_a_gap_without_a_pid(short_dir: Path) -> None:
+    records_path = short_dir / "records.jsonl"
+    store = RecordStore(records_path)
+    store.append(_record("old"))
+    daemon = Daemon(
+        socket_path=str(short_dir / "d.sock"),
+        records_path=records_path,
+        store=store,
+        gap_threshold_seconds=1.0,
+    )
+    daemon.start()
+    try:
+        names = [r.tool.name for r in daemon.store.records()]
+    finally:
+        daemon.stop()
+
+    assert "recording-gap" not in names
+
+
 def test_records_are_persisted_in_a_hash_chained_store(short_dir: Path) -> None:
     daemon, socket_path, records_path = _started(short_dir)
     try:

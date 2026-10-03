@@ -47,6 +47,14 @@ threshold configurability; migration up/down.
 [detector-catalog.md](../../reference/detector-catalog.md), [observability.md](../../design/observability.md),
 [known-limitations.md](../../reference/known-limitations.md), [CHANGELOG](../../../CHANGELOG.md).
 
+**Additions (PRD 19–30) landing in M6**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 6.A5 | Cost rollup from tokens + model | pricing table + rollup | per-run/agent cost computed | [20](../../prd/20-usage-accounting.md) | #169 |
+| 6.I1 | Tool responses (both directions) | additive `tool.response` | mode-gated; secret-masked; schema contract | [25](../../prd/25-capture-fidelity.md) | #198 |
+| 6.L1 | Claude-Code detector starter pack | rule detectors | fire/no-fire fixtures; signals only | [30](../../prd/30-analytics-signals.md) | #210 |
+
 ---
 
 ## Milestone M7 — Read API + operator UI
@@ -86,6 +94,13 @@ Compare, Anomaly Inbox, Agent Detail) wired to analytics.
 **Design docs to update:** [api.md](../../reference/api.md), [ui-accessibility.md](../../design/ui-accessibility.md),
 [ui-interaction-observability.md](../../design/ui-interaction-observability.md), [comparison.md](../../reference/comparison.md),
 [CHANGELOG](../../../CHANGELOG.md).
+
+**Additions (PRD 19–30) landing in M7**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 7.H4 | `agentwatch view` — terminal timeline (R12) | stdlib-curses TUI | renders fixture store; non-TTY fallback | [26](../../prd/26-investigation.md) | #195 |
+| 7.M1 | LLM `explain` (local-first; stretch) | explain command | citations; no egress by default; deterministic summary | [29](../../prd/29-llm-explanation.md) | #211 |
 
 ---
 

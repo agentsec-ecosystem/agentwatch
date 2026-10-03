@@ -29,6 +29,17 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 16 | [Configuration Model](16-configuration.md) | Configurables, defaults, locations, validation, fail-closed |
 | 17 | [Error Handling & Failure Modes](17-error-handling.md) | Operational failures: detection, fail-closed, recovery |
 | 18 | [Security & Compliance Controls](18-security-compliance.md) | OWASP/ATLAS/NIST/ISO/SOC2/OpenSSF mapping + release-gate evidence |
+| 19 | [Agent Lifecycle Coverage](19-agent-lifecycle.md) | Session boundaries, denied calls, prompt reason steps, subagent attribution |
+| 20 | [Usage & Cost Accounting](20-usage-accounting.md) | Token/model capture; cost computable |
+| 21 | [Data Integrity & Delivery Guarantees](21-data-integrity.md) | Spooling, exactly-once, gaps, quarantine, export cursor, format version, checkpoints, repair, least privilege |
+| 22 | [Recorder Self-Observability](22-self-observability.md) | `/healthz`, `doctor`, `tail`, continuous chain verification |
+| 23 | [Ecosystem Event Interchange](23-event-interchange.md) | Event ingestion, store/socket contract, session export |
+| 24 | [Operator Trust & Consent](24-operator-trust.md) | `verify-privacy`, consent-first `init`, harness preflight |
+| 25 | [Capture Fidelity & Data Model](25-capture-fidelity.md) | Tool responses, MCP attribution, prompt fingerprint, resumed sessions, project filter |
+| 26 | [Query & Investigation Experience](26-investigation.md) | Import, diff, search, terminal view, alerts, purge, cookbook |
+| 27 | [Harness Expansion & Conformance](27-harness-expansion.md) | MCP interposition, OTel ingestion, conformance runner, version matrix |
+| 28 | [Performance & Operability](28-performance-operability.md) | Async hooks, durability, offline proof, service units, soak, file posture, logs |
+| 29 | [LLM Explanation Layer](29-llm-explanation.md) | Local-first narrative over redacted records |
 
 ## Reviewers start here
 

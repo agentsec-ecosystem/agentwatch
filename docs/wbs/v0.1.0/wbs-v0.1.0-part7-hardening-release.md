@@ -51,6 +51,21 @@ behavior, accessibility, and i18n.
 [PRD 13](../../prd/13-non-functional-requirements.md), [PRD 17](../../prd/17-error-handling.md),
 [resource-cost.md](../../reference/resource-cost.md), [CHANGELOG](../../../CHANGELOG.md).
 
+**Additions (PRD 19–30) landing in M12**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 12.B5 | Clock-skew detection (F9) | skew flag | future/past timestamp fixtures | [21](../../prd/21-data-integrity.md) | #174 |
+| 12.E1 | Chain checkpoints | checkpoint entries | verify green; tamper detected at edit | [21](../../prd/21-data-integrity.md) | #179 |
+| 12.E2 | `verify-store --repair` | repair command | corrupt→repair→verify green; evidence kept | [21](../../prd/21-data-integrity.md) | #180 |
+| 12.F5 | Least-privilege file posture | 0700/0600 enforcement | creation modes; doctor flags loose | [28](../../prd/28-performance-operability.md) | #186 |
+| 12.F6 | Bounded, rotated daemon logs | rotation | rotates at cap; size reported | [28](../../prd/28-performance-operability.md) | #187 |
+| 12.G2 | Continuous chain verification | incremental verify | mid-session tamper surfaces | [22](../../prd/22-self-observability.md) | #189 |
+| 12.K1 | Adaptive durability (fsync policy) | durability modes | each mode asserted; default per-record | [28](../../prd/28-performance-operability.md) | #206 |
+| 12.K2 | No-network E2E proof | offline CI job | E2E passes offline; audit gate | [28](../../prd/28-performance-operability.md) | #207 |
+| 12.K3 | Optional service supervision | `init --service` | unit files for macOS/Linux | [28](../../prd/28-performance-operability.md) | #208 |
+| 12.K4 | Nightly soak test (NFR-7) | soak job | bounded memory/verify/size | [28](../../prd/28-performance-operability.md) | #209 |
+
 ---
 
 ## Milestone M13 — Compliance + full-parity release + predecessor retention
@@ -97,6 +112,12 @@ and **make the `agent-exec-trace` repo private** (retained, never deleted).
 [versioning-policy.md](../../reference/versioning-policy.md), [backwards-compatibility-policy.md](../../reference/backwards-compatibility-policy.md),
 [PRD 12](../../prd/12-traceability.md), [PRD 10](../../prd/10-feature-parity.md),
 [THIRD_PARTY_NOTICES](../../../THIRD_PARTY_NOTICES.md), [maintenance backlog](../../maintenance-backlog.md).
+
+**Additions (PRD 19–30) landing in M13**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 13.J2 | Replay as code — session export for agentdrill | `export-session --format ndjson` | round-trips through a reference consumer | [23](../../prd/23-event-interchange.md) | #204 |
 
 ---
 

@@ -39,3 +39,13 @@ ecosystem [ROADMAP](https://github.com/agentsec-ecosystem/.github/blob/main/ROAD
 
 Each version ships with: release notes, a compatibility table, and a security audit (org governance floor).
 Articles accompany each release per the ecosystem content plan.
+
+## Beyond v0.1.0 — additions (PRD 19–30)
+
+- **v0.1.x:** Cursor (native first, proxy only where needed), Codex CLI, Gemini CLI, more
+  frameworks, fleet aggregation — plus the MCP-proxy and OTel-ingestion horizontals (PRD 27) as
+  the shape.
+- **later:** CrewAI / PydanticAI, Copilot via OTel (i.e., via ingestion), Windows, AgentWatch-#66
+  bonus ideas (per-step metrics, trailing baselines, deploy correlation, Slack alerts), the LLM
+  assistant (PRD 29) once the local-model story is solid.
+- **v0.2.0:** Postgres analytics; the local hash-chained store stays the source of truth.

@@ -51,3 +51,28 @@
 - **Blocking v0.1.0 build:** resolved (DD-02..DD-09, B1, C1, C4, C7).
 - **Finalize during build:** DD-14 (event naming), DD-15 (Cursor recording).
 - **Before first release:** D1 (notices), D2 (name reservation).
+
+## E. Additions decisions (proposed, PRD 19–30)
+
+Recommendations pending a ruling; each is referenced as `D-19.x` in the PRD that needs it.
+
+| ID | Decision |
+|---|---|
+| D-A | Boundary/external/event records reuse the existing record convention vs. a new envelope type — **reuse `tool.name`** |
+| D-B | Emitter for harness-native denials — **`claude-code`; agentpolicy stays canonical** |
+| D-C | Async hooks by default — **yes, with an out-of-order Pre/Post test** |
+| D-D | Store rotation vs single file — **single file for v0.1.0** |
+| D-E | Where cost is computed — **SDK records tokens+model; analytics owns pricing** |
+| D-F | Quarantine shape — **same chained envelope, owner-only, beside the store** |
+| D-G | Subagent trace identity — **share session trace; spans distinguish** |
+| D-H | CLAUDE.md hash as `prompt_version` — **allow; hash-only, documented** |
+| D-I | Tool responses — **extend schema 0.1.0 now, pre-release** |
+| D-J | Spool semantics — **size-bounded, drained in order, records marked recovered** |
+| D-K | Purge — **tombstone, never hard delete** (PRD 15 invariant) |
+| D-L | `view` TUI — **stdlib curses only; any dependency needs an explicit ruling** |
+| D-M | Import — **explicit opt-in command, never automatic; never scan without consent** |
+| D-N | Durability default — **keep per-record fsync; offer documented modes** |
+| D-O | LLM assistant — **local model or explicit endpoint only; never silent egress; deterministic summary always printed** |
+| D-P | MCP proxy — **opt-in install with explicit interposition consent; async forwarding; uninstall restores config** |
+| D-Q | Ingestion scope — **records + security events first; not a general OTel backend** |
+| D-R | Conformance runner — **blocking CI gate for every adapter, community included** |

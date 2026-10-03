@@ -44,6 +44,16 @@ clients, and Tier-2 framework adapters — via the **ported** adapter/SDK bounda
 [adapter-conformance.md](../../reference/adapter-conformance.md), [harness-adapter-design.md](../../design/harness-adapter-design.md),
 [known-limitations.md](../../reference/known-limitations.md), [CHANGELOG](../../../CHANGELOG.md).
 
+**Additions (PRD 19–30) landing in M10**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 10.J1 | Publish the plumbing contract | store + socket specs | sample external adapter passes conformance | [23](../../prd/23-event-interchange.md) | #203 |
+| 10.N1 | MCP-client interposition adapter | `init --mcp-proxy` | records both directions; restores config exactly | [27](../../prd/27-harness-expansion.md) | #212 |
+| 10.N2 | OTel GenAI ingestion | `ingest --format otel` | fixture trace chains + validates | [27](../../prd/27-harness-expansion.md) | #213 |
+| 10.N3 | Fake-harness emitters | per-platform generators | long-running paths covered deterministically | [27](../../prd/27-harness-expansion.md) | #214 |
+| 10.N4 | Generated compatibility table + version matrix | version-tagged fixtures + drift job | drift opens an issue; table generated | [27](../../prd/27-harness-expansion.md) | #215 |
+
 ---
 
 ## Milestone M11 — Fleet aggregation (R13) + drift signals

@@ -93,6 +93,35 @@ replay fidelity diff.
 [runbooks/export-to-otel.md](../../runbooks/export-to-otel.md), [record-format-spec.md](../../reference/record-format-spec.md),
 [CHANGELOG](../../../CHANGELOG.md).
 
+**Additions (PRD 19–30) landing in M5**
+
+These share the M5 adapter/daemon/CLI surface; full specs in the referenced PRDs.
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 5.A1 | Session boundaries (`SessionStart`/`SessionEnd`) | boundary records | replay brackets sessions; `session-boundaries` gap retired | [19](../../prd/19-agent-lifecycle.md) | #165 |
+| 5.A2 | Denied calls (`PermissionDenied`) | `denied` event + record | blocked call recorded; pending Pre retired | [19](../../prd/19-agent-lifecycle.md) | #166 |
+| 5.A3 | Prompts as reason steps (`UserPromptSubmit`) | `user-prompt` records | mode-gated; secret-safe | [19](../../prd/19-agent-lifecycle.md) | #167 |
+| 5.A4 | Subagent attribution (`agent_id`/`agent_type`) | identity populated | records attributed to subagents | [19](../../prd/19-agent-lifecycle.md) | #168 |
+| 5.A5 | Token/model capture from transcript | `session-usage` records | canary test; totals match | [20](../../prd/20-usage-accounting.md) | #169 |
+| 5.B1 | `/healthz` self-observability (NFR-12) | health surface | PRD 13 fields; `recording` only when chain intact | [22](../../prd/22-self-observability.md) | #170 |
+| 5.B2 | Ecosystem event ingestion | `event emit` | validated, chained, appears in `sessions` | [23](../../prd/23-event-interchange.md) | #171 |
+| 5.B3 | Recording gaps as events (F1) | gap records | crash/restart gap chained | [21](../../prd/21-data-integrity.md) | #172 |
+| 5.B4 | Quarantine undecodable events (F8) | `quarantine.jsonl` | raw frame preserved; verify green | [21](../../prd/21-data-integrity.md) | #173 |
+| 5.C1 | `agentwatch doctor` | doctor command | per-check pass/fail + hint; `--json` | [22](../../prd/22-self-observability.md) | #175 |
+| 5.C2 | `agentwatch tail` | tail command | live read-only stream; `-f` | [22](../../prd/22-self-observability.md) | #176 |
+| 5.E3 | Four deferred M4 minors | atomic retention, parse errors, Mapping, card regex | four hygiene tests | [21](../../prd/21-data-integrity.md) | #181 |
+| 5.F1 | Hook-side spooling | spool + drain | events survive daemon outage | [21](../../prd/21-data-integrity.md) | #182 |
+| 5.F2 | Exactly-once ingestion | idempotency key | duplicates no-op; survives restart | [21](../../prd/21-data-integrity.md) | #183 |
+| 5.F3 | Export resume cursor (F5) | watermark | no double-export/skip on restart | [21](../../prd/21-data-integrity.md) | #184 |
+| 5.F4 | Store format version marker | genesis marker | unknown format rejected | [21](../../prd/21-data-integrity.md) | #185 |
+| 5.G1 | `agentwatch verify-privacy` | command | verdict on own config + store | [24](../../prd/24-operator-trust.md) | #188 |
+| 5.G3 | Consent-first `init` (+ `--dry-run`) | plan/diff | dry-run writes nothing; uninstall restores exactly | [24](../../prd/24-operator-trust.md) | #190 |
+| 5.G4 | `init` preflight | version + trust check | warns with fix hint | [24](../../prd/24-operator-trust.md) | #191 |
+| 5.H6 | CLI polish | completions, examples, `--json`, exit codes | completion generates; examples tested | [26](../../prd/26-investigation.md) | #197 |
+| 5.O1 | Shared adapter conformance runner | reusable runner | a broken adapter fails CI | [27](../../prd/27-harness-expansion.md) | #216 |
+| 5.P1 | Async hooks + published latency | async default + benchmark | under ceiling; ordering test | [28](../../prd/28-performance-operability.md) | #217 |
+
 ---
 
 Part 3 green ⇒ proceed to [Part 4 (M6–M7)](wbs-v0.1.0-part4-analytics-ui.md).

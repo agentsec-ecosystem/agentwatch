@@ -1,8 +1,10 @@
 # WBS — agentwatch v0.1.0 (Index)
 
 **BLUF:** **v0.1.0 delivers the entire PRD scope** — port `agent-exec-trace` first (M0), add the security
-layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10, compliance). Sixteen milestones
-(M0–M15), split across eight detail files (max 2 milestones per file).
+layer, then the full feature set (R1–R13, parity A1–A6, NFR-1..12, F1–F10, compliance) plus the reviewed
+additions (R14–R25, PRD 19–30: lifecycle, delivery guarantees, operator tooling, capture fidelity, platform
+strategy). Sixteen milestones (M0–M15), split across eight detail files (max 2 milestones per file). The
+additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) remain the last two.**
 
 ## Standard milestone exit criteria (applies to EVERY milestone)
 
@@ -84,9 +86,21 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | **PRD 16** | Configuration | M1 |
 | **PRD 17** | Error handling F1–F10 | M12 (per-milestone fault tests too) |
 | **PRD 18** | Compliance (OWASP/NIST/ISO/SOC2/OpenSSF) | M13, M15 |
+| **PRD 19** | Agent lifecycle coverage (R14) | M5 |
+| **PRD 20** | Usage & cost accounting (R15) | M5–M6 |
+| **PRD 21** | Data integrity & delivery guarantees (R18) | M5, M12 |
+| **PRD 22** | Recorder self-observability (R16) | M5, M12 |
+| **PRD 23** | Ecosystem event interchange (R17, R22) | M5, M10, M13 |
+| **PRD 24** | Operator trust & consent (R19) | M5 |
+| **PRD 25** | Capture fidelity & data model (R21) | M6–M9 |
+| **PRD 26** | Query & investigation experience (R20) | M7–M9 |
+| **PRD 27** | Harness expansion & conformance (R22, R23) | M5, M8, M10 |
+| **PRD 28** | Performance & operability (R24) | M5, M12 |
+| **PRD 29** | LLM explanation layer (R25) | M7 (stretch) |
+| **PRD 30** | Analytics signals | M6 |
 | Design docs / schema / reference | updated every milestone |
 
-## Requirements detail (R1–R13)
+## Requirements detail (R1–R13, R14–R25)
 
 | Req | Milestone(s) |
 |---|---|
@@ -103,6 +117,23 @@ Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, m
 | R11 retention + hash-chaining | M9 |
 | R12 local replay viewer | M7 |
 | R13 fleet aggregation | M11 |
+
+**Additions (PRD 19–30, R14–R25):**
+
+| Req | Milestone(s) |
+|---|---|
+| R14 lifecycle completeness (session boundaries, denied, prompts, subagents) | M5 |
+| R15 usage & cost accounting (tokens, model) | M5–M6 |
+| R16 self-observability `/healthz` | M5, M12 |
+| R17 ecosystem event ingestion | M5 |
+| R18 delivery guarantees (spool, dedup, gaps, quarantine, cursor, format version) | M5, M12 |
+| R19 operator tooling (doctor, verify-privacy, consent init, preflight, CLI polish) | M5 |
+| R20 query & investigation (import, diff, search, view, alerts, cookbook) | M7–M9 |
+| R21 capture fidelity (tool responses, golden corpus) | M6–M9 |
+| R22 platform plumbing (contract, conformance runner, session export, compatibility matrix) | M5, M8, M10, M13 |
+| R23 harness expansion horizontals (MCP interposition, OTel ingestion) | M10 |
+| R24 performance honesty (async hooks, durability, offline proof, service units, soak) | M5, M12 |
+| R25 LLM explanation layer (local-first) | M7 (stretch) |
 
 ## NFRs (PRD 13) → M12
 

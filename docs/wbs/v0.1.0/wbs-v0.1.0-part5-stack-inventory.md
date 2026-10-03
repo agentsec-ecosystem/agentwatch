@@ -42,6 +42,17 @@ field-test harness, so the whole system runs locally and is demoable.
 **Design docs to update:** [deployment.md](../../deployment.md), [demo-and-seed.md](../../plans/demo-and-seed.md),
 [runbooks/deploy-local-stack.md](../../runbooks/deploy-local-stack.md), [CHANGELOG](../../../CHANGELOG.md).
 
+**Additions (PRD 19–30) landing in M8**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 8.H1 | Import existing transcripts | `import transcripts` | reproduces known counts; no unredacted secret; idempotent | [26](../../prd/26-investigation.md) | #192 |
+| 8.H2 | `agentwatch diff <a> <b>` | diff command | hand-derived diff; reorder vs change | [26](../../prd/26-investigation.md) | #193 |
+| 8.H3 | `agentwatch search` / `query` | filter engine | filter matrix; stable `--json` | [26](../../prd/26-investigation.md) | #194 |
+| 8.H5 | Real-time security signals in `tail` | highlight/alert | fires on security-event record | [26](../../prd/26-investigation.md) | #196 |
+| 8.I2 | Golden corpus of real harness events | version-tagged fixtures | CI fails on harness shape change; no secrets | [27](../../prd/27-harness-expansion.md) | #199 |
+| 8.J3 | Investigation cookbook | `docs/examples/investigations/*` | each narrative reproducible | [26](../../prd/26-investigation.md) | #205 |
+
 ---
 
 ## Milestone M9 — Inventory + retention (R9, R11)
@@ -77,6 +88,16 @@ tamper-evident hash-chaining** (R11) — net-new capabilities beyond the port.
 
 **Design docs to update:** [storage-design.md](../../design/storage-design.md), [PRD 15](../../prd/15-data-model.md),
 [cli-reference.md](../../reference/cli-reference.md), [CHANGELOG](../../../CHANGELOG.md).
+
+**Additions (PRD 19–30) landing in M9**
+
+| # | Addition | Deliverable | Acceptance | PRD | Issue |
+|---|---|---|---|---|---|
+| 9.D1 | MCP server attribution + `inventory` | `tool.server` populated | mcp_tool fixture; per-server readout | [25](../../prd/25-capture-fidelity.md) | #177 |
+| 9.D2 | Prompt-version fingerprint | `prompt_version` digest | stable digest; absent-file omits | [25](../../prd/25-capture-fidelity.md) | #178 |
+| 9.I3 | Resumed/forked session correlation | parent-session link | resume/fork fixtures link; replay follows | [25](../../prd/25-capture-fidelity.md) | #200 |
+| 9.I4 | Per-project session filtering | project (cwd) filter | two-project fixture; cwd-missing case | [25](../../prd/25-capture-fidelity.md) | #201 |
+| 9.I5 | `agentwatch purge <session-id>` | tombstone purge | only that session; verify green; purge record | [26](../../prd/26-investigation.md) | #202 |
 
 ---
 

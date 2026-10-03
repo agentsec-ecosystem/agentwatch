@@ -21,10 +21,13 @@ from agentwatch.configuration import AgentwatchConfig, ConfigError, default_path
 from agentwatch.doctor import all_passed, run_checks, to_json
 from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.install import (
+    EVENT_PHASES,
     InstallError,
+    detect_claude_version,
     hooks_installed,
     install_hooks,
     is_daemon_alive,
+    preflight,
     resolve_hook_command,
     resolve_scope,
     start_daemon,
@@ -32,8 +35,10 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.records import EVENT_VERSION, SecurityEventType, validate_event
+from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
-from agentwatch.tail import Tail, TailLine, follow
+from agentwatch.tail import Tail, TailLine, follow, render_record
+from agentwatch.verify_privacy import verify_privacy
 
 # Documented subcommands still deferred to a later milestone
 # ([cli-reference](../../../../docs/reference/cli-reference.md)).
@@ -97,9 +102,22 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="install synchronous (blocking) hooks instead of the default async",
     )
+    init.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="print the hooks that would be written and write nothing",
+    )
+    init.add_argument(
+        "--yes",
+        action="store_true",
+        help="assume yes for non-interactive installs",
+    )
 
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
+    sub.add_parser("verify-privacy", help="verify redaction and scan the store for leaks (M5)")
+    completions = sub.add_parser("completions", help="print a shell completion script (M5)")
+    completions.add_argument("shell", choices=("bash", "zsh", "fish"))
 
     doctor = sub.add_parser(
         "doctor", help="run an ordered health checklist with fix hints (M5)"
@@ -240,19 +258,38 @@ def _run_status(args: argparse.Namespace) -> int:
 
 
 def _run_init(args: argparse.Namespace) -> int:
+    target = resolve_scope(args.scope)
+    command = resolve_hook_command()
+
+    if args.dry_run:
+        planned = {
+            "settings_path": str(target.settings_path),
+            "scope": target.scope,
+            "hooks": {
+                event: [
+                    {
+                        "matcher": "*",
+                        "hooks": [command.handler(phase, async_hooks=not args.sync_hooks)],
+                    }
+                ]
+                for event, phase in EVENT_PHASES.items()
+            },
+        }
+        print(f"agentwatch: dry-run — would write {target.settings_path}")
+        print(json.dumps(planned, indent=2))
+        return 0
+
     try:
         _load(args)
     except ConfigError as exc:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
 
-    target = resolve_scope(args.scope)
+    for warning in preflight(detect_claude_version()):
+        print(f"agentwatch: warning: {warning}", file=sys.stderr)
+
     try:
-        install_hooks(
-            target.settings_path,
-            resolve_hook_command(),
-            async_hooks=not args.sync_hooks,
-        )
+        install_hooks(target.settings_path, command, async_hooks=not args.sync_hooks)
     except InstallError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
@@ -421,6 +458,64 @@ def _run_event_emit(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_replay(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    records = replay_session(store, args.session_id)
+    if not records:
+        print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    for record in records:
+        print(render_record(record))
+    return 0
+
+
+_COMMANDS_FOR_COMPLETION = (
+    "init status sessions replay export verify-store verify-privacy event doctor tail "
+    "completions uninstall"
+)
+
+
+def _run_completions(args: argparse.Namespace) -> int:
+    commands = _COMMANDS_FOR_COMPLETION
+    if args.shell == "bash":
+        script = (
+            "_agentwatch_complete() {\n"
+            f"  COMPREPLY=( $(compgen -W \"{commands}\" -- \"${{COMP_WORDS[1]}}\") )\n"
+            "}\n"
+            "complete -F _agentwatch_complete agentwatch"
+        )
+    elif args.shell == "zsh":
+        script = f"#compdef agentwatch\n_arguments '1:command:({commands})'"
+    else:
+        script = f"complete -c agentwatch -f -a '{commands}'"
+    print(script)
+    return 0
+
+
+def _run_verify_privacy(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store_path = Path(cfg.store.path).expanduser() / "records.jsonl"
+    verdict = verify_privacy(store_path)
+    if verdict.passed:
+        print(f"agentwatch: privacy ok ({verdict.checks} checks)")
+        if verdict.quarantine_present:
+            print("  note: quarantine holds raw frames (owner-only, never exported)")
+        return 0
+    print(f"agentwatch: privacy FAILED ({len(verdict.leaks)} leaks)", file=sys.stderr)
+    for leak in verdict.leaks:
+        print(f"  leak: {leak}", file=sys.stderr)
+    return _EXIT_INSTALL_ERROR
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -449,4 +544,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_tail(args)
     if args.command == "event":
         return _run_event_emit(args)
+    if args.command == "replay":
+        return _run_replay(args)
+    if args.command == "verify-privacy":
+        return _run_verify_privacy(args)
+    if args.command == "completions":
+        return _run_completions(args)
     return _run_deferred(str(args.command))

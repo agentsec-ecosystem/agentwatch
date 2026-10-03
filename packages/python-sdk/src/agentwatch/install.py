@@ -14,6 +14,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import shutil
 import signal
 import socket
@@ -320,3 +321,45 @@ def stop_daemon(paths: DaemonPaths | None = None) -> bool:
         time.sleep(0.05)
     resolved.pid.unlink(missing_ok=True)
     return True
+
+
+_TESTED_CLAUDE_MAJOR = 2
+
+
+def preflight(claude_version: str | None) -> list[str]:
+    """Return non-blocking warnings about the harness environment (G4).
+
+    Warns (never blocks): a missing/unparseable/untested Claude Code version, and
+    (via the caller) project-scope hooks not firing in untrusted headless runs.
+    """
+    warnings: list[str] = []
+    if claude_version is None:
+        warnings.append(
+            "claude CLI not found on PATH; install Claude Code before relying on recording"
+        )
+        return warnings
+    match = re.search(r"(\d+)\.(\d+)", claude_version)
+    if match is None:
+        warnings.append(f"could not parse claude version {claude_version!r}")
+        return warnings
+    if int(match.group(1)) != _TESTED_CLAUDE_MAJOR:
+        warnings.append(
+            f"claude {claude_version} is outside the tested {_TESTED_CLAUDE_MAJOR}.x range; "
+            "hook behavior may differ"
+        )
+    return warnings
+
+
+def detect_claude_version() -> str | None:
+    """Return the installed ``claude --version`` string, or None if unavailable."""
+    executable = shutil.which("claude")
+    if executable is None:
+        return None
+    try:
+        result = subprocess.run(
+            [executable, "--version"], capture_output=True, text=True, timeout=5
+        )
+    except (OSError, subprocess.SubprocessError):  # pragma: no cover - environment-specific
+        return None
+    text = result.stdout.strip() or result.stderr.strip()
+    return text or None

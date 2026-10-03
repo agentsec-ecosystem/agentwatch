@@ -158,12 +158,12 @@ def test_deferred_subcommands_fail_closed(
     assert "not implemented" in capsys.readouterr().err.lower()
 
 
-def test_replay_deferred_fails_closed(
+def test_replay_unknown_session_fails_closed(
     isolated: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     rc = main(["replay", "session-123"])
     assert rc != 0
-    assert "not implemented" in capsys.readouterr().err.lower()
+    assert "not implemented" not in capsys.readouterr().err.lower()
 
 
 def test_verify_store_reports_clean_and_tampered(

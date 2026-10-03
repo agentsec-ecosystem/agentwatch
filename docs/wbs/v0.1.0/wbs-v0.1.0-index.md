@@ -61,6 +61,26 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 > `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **Reopened:** #69
 > (field-test harness runner) and #63 (a11y automated checks).
 
+## Remaining (as of 2026-10-02)
+
+**Blocking open issues (milestones reopened):**
+
+- **M7 (#63)** — implemented automated a11y checks (axe) in the UI test suite; milestone 8 is `open`.
+- **M8 (#69)** — implemented runnable field-test harness; milestone 9 is `open`.
+- **M8 (#199)** — real authenticated golden-corpus capture still deferred; the committed corpus is
+  synthesized-from-shape (per D-19.39) and the real-corpus test skips with a reason.
+
+**Not started:** **M9–M15** (milestones 10–16, all `open`): inventory + retention, harness/framework
+expansion, fleet aggregation + drift, NFRs/resilience, compliance + full-parity release, field tests,
+release readiness.
+
+**Unverified (environment):** `docker compose up` health, `make seed-e2e` load, and Playwright
+**green** were not run — the Docker daemon was unavailable; the E2E specs are ported and validated but
+not executed end-to-end.
+
+**Verified this session (unit/integration):** SDK 501 passed (+1 skipped); analytics 706; API 42;
+docs link-check 5; demo-agent 12; web vitest 4; Playwright 34 cases discovered.
+
 ## Porting map (agent-exec-trace → agentwatch)
 
 Source: https://github.com/agentsec-ecosystem/agent-exec-trace (MIT; archived, made private and retained). The port is a **bulk move**

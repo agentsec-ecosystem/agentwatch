@@ -10,6 +10,14 @@
 
 ## Milestone M8 — Local stack + demo/seed + E2E
 
+**Status:** 🚧 **partial** — the ported stack, demo agent, seed/replay workflow, Playwright E2E (6 specs)
+and local dev flow are in place; demo-agent tests pass (12). Additions: transcript import (#192, now
+idempotent), `diff` (#193), `search` (#194), `tail --alert` (#196), golden corpus (#199), and the
+investigation cookbook (#205). **Reopened:** #69 (no runnable field-test harness exists — only the
+plan/report docs) and #63 (the a11y design promises automated checks that are not implemented).
+Not verified here: `docker compose up` health, `make seed-e2e` load, and E2E green (Docker daemon
+was not available).
+
 **Goal:** adapt the **ported** Docker Compose stack, demo agent, seed/replay workflow, and E2E (Playwright) +
 field-test harness, so the whole system runs locally and is demoable.
 

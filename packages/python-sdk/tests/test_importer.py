@@ -43,6 +43,18 @@ def test_truncated_import_masks_secrets(tmp_path: Path) -> None:
     assert write.tool.arguments["content"] == "<REDACTED:api-key>"
 
 
+def test_import_is_idempotent(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+
+    first = import_transcripts([_FIXTURE], store)
+    second = import_transcripts([_FIXTURE], store)
+
+    assert first.records == 3
+    assert second.records == 0
+    assert second.duplicates == 3
+    assert len(store.records()) == 3
+
+
 def test_resolve_paths_expands_directory(tmp_path: Path) -> None:
     nested = tmp_path / "projects" / "p"
     nested.mkdir(parents=True)

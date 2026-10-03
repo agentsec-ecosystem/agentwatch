@@ -54,6 +54,11 @@ additions fold into M5–M13; **M14 (Field Tests) and M15 (Release Readiness) re
 >
 > **M7 (Read API + operator UI) ✅** — ported FastAPI read API (42 tests) and React/Vite operator UI
 > verified, plus `agentwatch view` (#195) and `agentwatch explain` (#211).
+>
+> **M8 (Local stack + demo/seed + E2E) 🚧 partial** — ported compose stack, demo agent, seed/replay,
+> and Playwright E2E specs verified; plus transcript import (#192), `diff` (#193), `search` (#194),
+> `tail --alert` (#196), golden corpus (#199), and investigation cookbook (#205). **Reopened:** #69
+> (field-test harness runner) and #63 (a11y automated checks).
 
 ## Porting map (agent-exec-trace → agentwatch)
 

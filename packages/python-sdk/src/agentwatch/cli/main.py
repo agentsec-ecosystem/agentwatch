@@ -660,13 +660,18 @@ def _run_import(args: argparse.Namespace) -> int:
     if args.json:
         print(
             json.dumps(
-                {"files": stats.files, "records": stats.records, "skipped": stats.skipped}
+                {
+                    "files": stats.files,
+                    "records": stats.records,
+                    "skipped": stats.skipped,
+                    "duplicates": stats.duplicates,
+                }
             )
         )
     else:
         print(
             f"imported {stats.records} records from {stats.files} file(s); "
-            f"{stats.skipped} skipped"
+            f"{stats.skipped} skipped; {stats.duplicates} already present"
         )
     return 0
 

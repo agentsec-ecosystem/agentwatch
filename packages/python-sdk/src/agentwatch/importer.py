@@ -23,11 +23,12 @@ from agentwatch.store import RecordStore
 
 @dataclass(frozen=True)
 class ImportStats:
-    """Outcome of an import run (skips are reported, never silent)."""
+    """Outcome of an import run (skips and duplicates are reported, never silent)."""
 
     files: int
     records: int
     skipped: int
+    duplicates: int = 0
 
 
 def _session_id(entry: Mapping[str, Any], fallback: str) -> str:
@@ -143,23 +144,35 @@ def import_transcripts(
     *,
     redaction: RedactionConfig | None = None,
 ) -> ImportStats:
-    """Import transcripts into ``store``; returns counts (skips reported)."""
+    """Import transcripts into ``store``; returns counts (skips/dupes reported).
+
+    Idempotent: a record whose ``(session_id, span_id)`` is already stored is
+    counted as a duplicate and not appended again, so re-importing a transcript
+    does not inflate the store.
+    """
     files = 0
     records = 0
     skipped = 0
+    duplicates = 0
+    existing = {(record.session_id, record.span_id) for record in store.records()}
     for path in paths:
         files += 1
         try:
             for record in iter_records([path], redaction=redaction):
+                key = (record.session_id, record.span_id)
+                if record.span_id is not None and key in existing:
+                    duplicates += 1
+                    continue
                 try:
                     store.append(record)
                 except ValueError:
                     skipped += 1
                 else:
                     records += 1
+                    existing.add(key)
         except OSError:
             skipped += 1
-    return ImportStats(files=files, records=records, skipped=skipped)
+    return ImportStats(files=files, records=records, skipped=skipped, duplicates=duplicates)
 
 
 def resolve_paths(target: Path) -> list[Path]:

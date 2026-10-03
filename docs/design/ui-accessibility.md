@@ -14,5 +14,5 @@ Status: **draft**.
 
 ## Verification
 
-Automated a11y checks in the UI test suite (e.g. axe) plus manual keyboard pass in CI/manual release
-checklist.
+Manual keyboard pass and review against the baseline above. Automated a11y checks
+(e.g. axe) are **not yet wired into the UI test suite** — tracked by #63.

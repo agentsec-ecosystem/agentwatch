@@ -9,11 +9,14 @@ land in M4-M5 and fail closed here rather than pretending to succeed.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
+from agentwatch.doctor import all_passed, run_checks, to_json
+from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.install import (
     InstallError,
     hooks_installed,
@@ -26,6 +29,7 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.store import RecordStore
+from agentwatch.tail import Tail, TailLine, follow
 
 # Documented subcommands still deferred to a later milestone
 # ([cli-reference](../../../../docs/reference/cli-reference.md)).
@@ -34,6 +38,7 @@ DEFERRED_COMMANDS = ("replay", "export", "migrate")
 _EXIT_CONFIG_ERROR = 2
 _EXIT_INSTALL_ERROR = 1
 _EXIT_NOT_IMPLEMENTED = 3
+_EXIT_USAGE_ERROR = 2
 
 
 def _version() -> str:
@@ -92,6 +97,16 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("status", help="print the resolved configuration / health summary")
     sub.add_parser("sessions", help="list recorded sessions (M3)")
 
+    doctor = sub.add_parser(
+        "doctor", help="run an ordered health checklist with fix hints (M5)"
+    )
+    doctor.add_argument("--json", action="store_true", help="emit the checklist as JSON")
+
+    tail = sub.add_parser("tail", help="print a read-only stream of records (M5)")
+    tail.add_argument("-f", "--follow", action="store_true", help="follow new records (1 s poll)")
+    tail.add_argument("--session-id", default=None, help="only show records for this session")
+    tail.add_argument("--json", action="store_true", help="emit one JSON object per record")
+
     replay = sub.add_parser("replay", help="reconstruct a session timeline (M5)")
     replay.add_argument("session_id", help="session id to replay")
 
@@ -145,9 +160,39 @@ def _hooks_summary() -> str:
     return "hooks: absent"
 
 
-def _print_status(cfg: AgentwatchConfig) -> None:
+def _health_payload(cfg: AgentwatchConfig) -> dict[str, object]:
+    """Prefer the live daemon's ``/healthz``; fall back to local truth (stopped)."""
+    live = fetch_health(cfg.health.endpoint)
+    if live is not None:
+        return live
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    installed = any(
+        hooks_installed(target.settings_path)
+        for target in (resolve_scope("project"), resolve_scope("user"))
+    )
+    return local_snapshot(
+        store=store,
+        version=_version(),
+        hooks_installed=installed,
+        export_enabled=cfg.export.enabled,
+        export_endpoint=cfg.export.otlp_endpoint,
+        redaction_mode=cfg.privacy.mode,
+    ).to_dict()
+
+
+def _print_status(cfg: AgentwatchConfig, health: dict[str, object]) -> None:
+    store = health.get("store")
+    redaction = health.get("redaction")
+    store_fields = store if isinstance(store, dict) else {}
+    redaction_fields = redaction if isinstance(redaction, dict) else {}
     lines = [
         "agentwatch status",
+        f"  state: {health.get('state')}",
+        f"  state.reason: {health.get('reason') or '-'}",
+        f"  store.records: {store_fields.get('records', 0)}",
+        f"  store.chain_ok: {store_fields.get('chain_ok', True)}",
+        f"  store.size_mb: {store_fields.get('size_mb', 0.0)}",
+        f"  redaction.self_test_passing: {redaction_fields.get('self_test_passing', True)}",
         f"  harness: {cfg.harness}",
         f"  mode: {cfg.mode}",
         f"  {_hooks_summary()}",
@@ -173,7 +218,7 @@ def _run_status(args: argparse.Namespace) -> int:
     except ConfigError as exc:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
-    _print_status(cfg)
+    _print_status(cfg, _health_payload(cfg))
     return 0
 
 
@@ -264,6 +309,64 @@ def _run_sessions(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_tail(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    path = Path(cfg.store.path).expanduser() / "records.jsonl"
+    if path.exists():
+        status = RecordStore(path).verify()
+        if not status.ok:
+            print(
+                "agentwatch: warning: hash chain broken at seq "
+                f"{status.broken_at}; tailing valid records",
+                file=sys.stderr,
+            )
+
+    tail = Tail(path, session_id=args.session_id)
+
+    def emit(lines: Iterable[TailLine]) -> None:
+        for line in lines:
+            if line.is_note:
+                if not args.json:
+                    print(line.text)
+            elif args.json:
+                assert line.record is not None
+                print(json.dumps(line.record.to_dict()))
+            else:
+                print(line.text)
+
+    emit(tail.read_new())
+    if args.follow:
+        try:
+            emit(follow(tail))
+        except KeyboardInterrupt:
+            pass
+    return 0
+
+
+def _run_doctor(args: argparse.Namespace) -> int:
+    config_error: str | None = None
+    cfg: AgentwatchConfig | None = None
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        config_error = str(exc)
+    results = run_checks(cfg, config_error=config_error)
+    if args.json:
+        print(json.dumps(to_json(results), indent=2))
+    else:
+        for result in results:
+            line = f"{result.status} {result.name}: {result.detail}"
+            if result.hint:
+                line += f"  [hint: {result.hint}]"
+            print(line)
+    return 0 if all_passed(results) else _EXIT_INSTALL_ERROR
+
+
 def _run_deferred(command: str) -> int:
     print(
         f"agentwatch: '{command}' is not implemented in v0.1.0; "
@@ -286,4 +389,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_sessions(args)
     if args.command == "verify-store":
         return _run_verify_store(args)
+    if args.command == "doctor":
+        return _run_doctor(args)
+    if args.command == "tail":
+        return _run_tail(args)
     return _run_deferred(str(args.command))

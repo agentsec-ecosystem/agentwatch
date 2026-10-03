@@ -26,6 +26,11 @@ from typing import Any
 
 from agentwatch.adapters import claude_code
 from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
+from agentwatch.health import (
+    HealthServer,
+    HealthSnapshot,
+    start_health_server,
+)
 from agentwatch.hook import default_socket_path
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.records import AgentRecord, Outcome, StepType, ToolCall, _parse_iso
@@ -59,6 +64,8 @@ class Daemon:
         pre_timeout_seconds: float = 300.0,
         sweep_interval_seconds: float = 5.0,
         gap_threshold_seconds: float = 300.0,
+        health: HealthSnapshot | None = None,
+        health_endpoint: str | None = None,
     ) -> None:
         self.socket_path = (
             Path(socket_path) if socket_path is not None else Path(default_socket_path())
@@ -76,6 +83,13 @@ class Daemon:
         self.redaction = redaction
         self.pre_timeout_seconds = pre_timeout_seconds
         self.sweep_interval_seconds = sweep_interval_seconds
+        self.health = (
+            health
+            if health is not None
+            else HealthSnapshot(store_path=self.records_path)
+        )
+        self.health_endpoint = health_endpoint
+        self._health_server: HealthServer | None = None
         self._server: socket.socket | None = None
         self._thread: threading.Thread | None = None
         self._sweeper: threading.Thread | None = None
@@ -91,10 +105,16 @@ class Daemon:
         """Whether the serve thread is running."""
         return self._thread is not None and self._thread.is_alive()
 
+    @property
+    def health_address(self) -> tuple[str, int] | None:
+        """The bound health endpoint, or ``None`` when health is not serving."""
+        return self._health_server.address if self._health_server is not None else None
+
     def start(self) -> None:
         """Bind the socket (0600) and start serving in a background thread."""
         self.records_path.parent.mkdir(parents=True, exist_ok=True)
         self.chain_status = self.store.verify()
+        self.health.set_chain(self.chain_status)
         if not self.chain_status.ok:
             print(
                 f"agentwatch-daemon: hash chain broken at seq {self.chain_status.broken_at} (F4)",
@@ -105,6 +125,9 @@ class Daemon:
         self._record_gap_if_needed()
         self._drain_spool()
         self._seen = {self._key(record) for record in self.store.records()}
+        self.health.set_store_stats(
+            records=len(self.store.records()), size_bytes=self.store.size_bytes()
+        )
         self._prepare_socket_path()
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(str(self.socket_path))
@@ -117,6 +140,9 @@ class Daemon:
         self._thread.start()
         self._sweeper = threading.Thread(target=self._sweep_loop, daemon=True)
         self._sweeper.start()
+        if self.health_endpoint is not None:
+            # Health is best-effort: a busy port logs and recording continues.
+            self._health_server = start_health_server(self.health, self.health_endpoint)
 
     def _record_gap_if_needed(self) -> None:
         """Synthesize a recording-gap record after a crash (F1)."""
@@ -143,6 +169,7 @@ class Daemon:
             step_type=StepType.ACT,
         )
         self._append(gap)
+        self.health.note_gap({"reason": "daemon-restart", "at": now.isoformat()})
 
     def _prepare_socket_path(self) -> None:
         """Refuse to clobber a live daemon; replace a stale socket file."""
@@ -169,6 +196,9 @@ class Daemon:
     def stop(self) -> None:
         """Stop serving, flush pending intents, and remove an owned socket."""
         self._stop.set()
+        if self._health_server is not None:
+            self._health_server.stop()
+            self._health_server = None
         if self._server is not None:
             self._server.close()
         if self._thread is not None:
@@ -233,8 +263,10 @@ class Daemon:
 
         phase = message.get("phase")
         event = message.get("event")
+        harness = str(message.get("harness") or claude_code.HARNESS_ID)
 
         if phase == "hook-error":
+            self.health.note_hook_fire(harness)
             record = self._hook_error_record(event)
             persisted = self._append(record)
             self._sweep_pending_pre()
@@ -243,6 +275,7 @@ class Daemon:
         if phase not in ("pre", "post", "denied", "prompt", "session-start", "session-end"):
             return []
 
+        self.health.note_hook_fire(harness)
         try:
             records = claude_code.normalize(message, redaction=self.redaction)
         except (ClaudeCodeAdapterError, ValueError, TypeError, KeyError):
@@ -357,18 +390,44 @@ class Daemon:
             self.store.append(record)
         except StoreFullError as exc:
             # F3: fail closed and surface; never overwrite or drop silently.
+            self.health.set_stopped(str(exc))
             print(f"agentwatch-daemon: {exc}", file=sys.stderr)
             return False
+        self.health.record_appended(record, size_bytes=self.store.size_bytes())
+        if record.tool.name == HOOK_ERROR_TOOL:
+            self.health.note_hook_error(record.harness or claude_code.HARNESS_ID)
         return True
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the daemon until interrupted (SIGINT/SIGTERM stop it cleanly)."""
     from agentwatch.configuration import load_config
+    from agentwatch.install import hooks_installed, resolve_scope
+    from agentwatch.redact import redaction_config_from_mode
+    from agentwatch.selftest import run_redaction_self_test
 
     cfg = load_config()
-    store = RecordStore(default_records_path(), max_size_mb=cfg.store.max_size_mb)
-    daemon = Daemon(store=store, retention_days=cfg.store.retention_days)
+    records_path = default_records_path()
+    store = RecordStore(records_path, max_size_mb=cfg.store.max_size_mb)
+    redaction = redaction_config_from_mode(cfg.privacy.mode)
+    hooks_installed_any = any(
+        hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
+    )
+    health = HealthSnapshot(
+        store_path=records_path,
+        export_enabled=cfg.export.enabled,
+        export_endpoint=cfg.export.otlp_endpoint,
+        redaction_mode=cfg.privacy.mode,
+        self_test_passing=run_redaction_self_test(redaction).passed,
+        hooks_installed=hooks_installed_any,
+    )
+    daemon = Daemon(
+        store=store,
+        retention_days=cfg.store.retention_days,
+        redaction=redaction,
+        health=health,
+        health_endpoint=cfg.health.endpoint,
+    )
     daemon.start()
     stop = threading.Event()
 

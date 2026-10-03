@@ -251,3 +251,26 @@ class RedactionConfig:
 
         # Value fits within truncate_at: return it unchanged.
         return value
+
+
+# Operator-config privacy mode strings (PRD 16) -> SDK privacy modes.
+_CONFIG_MODES: dict[str, PrivacyMode] = {
+    "metadata-only": PrivacyMode.METADATA_ONLY,
+    "truncated": PrivacyMode.TRUNCATED,
+    "hashed": PrivacyMode.HASHED,
+    "full": PrivacyMode.FULL,
+}
+
+
+def redaction_config_from_mode(
+    mode: str, *, capture_tool_args: bool = True
+) -> RedactionConfig:
+    """Build a :class:`RedactionConfig` from an operator-config privacy mode.
+
+    Unknown modes fall back to ``METADATA_ONLY`` (the safest posture), matching
+    the configuration loader's fail-closed default.
+    """
+    return RedactionConfig(
+        mode=_CONFIG_MODES.get(mode, PrivacyMode.METADATA_ONLY),
+        capture_tool_args=capture_tool_args,
+    )

@@ -1,0 +1,2463 @@
+[
+  {
+    "trace_id": "s_BlipZorp_000000",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000001",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000002",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000003",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000004",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000005",
+    "anomalies": [
+      {
+        "type": "cost_efficiency"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000006",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000008",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000009",
+    "anomalies": [
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000010",
+    "anomalies": [
+      {
+        "type": "cost_efficiency"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000011",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000012",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000013",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000014",
+    "anomalies": [
+      {
+        "type": "cost_efficiency"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000015",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000016",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000017",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000018",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000019",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000020",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000021",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000022",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000023",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000024",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000025",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000026",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000027",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000028",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000029",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000030",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000031",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000032",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000033",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000034",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000035",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000036",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000037",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000038",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000039",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000040",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000041",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000042",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000043",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000044",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000045",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000046",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000048",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000049",
+    "anomalies": [
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000050",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000051",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000052",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000053",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000054",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000055",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000056",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000057",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000058",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000059",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000060",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000061",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000062",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000063",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000064",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000065",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000066",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000067",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000068",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000069",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "argument_loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000070",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000071",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000072",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000073",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000074",
+    "anomalies": [
+      {
+        "type": "pattern_loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000075",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000076",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "token_explosion"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000077",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000078",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000079",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000080",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000081",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000082",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000083",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000084",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "intervention_frequency"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000085",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000086",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000087",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      },
+      {
+        "type": "confusion_pattern"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000088",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "cost_efficiency"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000089",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "retry_storm"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000090",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000091",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000092",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000093",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      },
+      {
+        "type": "quality_degradation"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000094",
+    "anomalies": [
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000095",
+    "anomalies": [
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000096",
+    "anomalies": [
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000097",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000098",
+    "anomalies": [
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  },
+  {
+    "trace_id": "s_BlipZorp_000099",
+    "anomalies": [
+      {
+        "type": "loop"
+      },
+      {
+        "type": "specific_tool_error"
+      },
+      {
+        "type": "tool_latency"
+      },
+      {
+        "type": "tool_timeout"
+      },
+      {
+        "type": "wasted_tool_calls"
+      },
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "inactivity"
+      },
+      {
+        "type": "recovery_path"
+      },
+      {
+        "type": "low_output"
+      },
+      {
+        "type": "denied-cluster"
+      },
+      {
+        "type": "hallucination"
+      },
+      {
+        "type": "confusion_pattern"
+      }
+    ]
+  }
+]

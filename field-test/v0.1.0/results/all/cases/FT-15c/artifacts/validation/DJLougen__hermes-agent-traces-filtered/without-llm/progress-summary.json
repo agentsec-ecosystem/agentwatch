@@ -1,0 +1,53 @@
+{
+  "traces_processed": 5000,
+  "traces_with_anomalies": 3012,
+  "anomaly_count": 2764,
+  "anomaly_by_type": {
+    "loop": 2709,
+    "step_efficiency": 48,
+    "pattern_loop": 5,
+    "wasted_tool_calls": 2
+  },
+  "anomaly_by_severity": {
+    "warning": 5114,
+    "critical": 983
+  },
+  "detector_fire_rate": {
+    "loop": 54.2,
+    "pattern_loop": 0.1,
+    "step_efficiency": 1.0,
+    "wasted_tool_calls": 0.0
+  },
+  "suspicious_patterns": {
+    "loop": 54.2
+  },
+  "cross_detector_correlation": {
+    "top_co_fires": [
+      {
+        "pair": [
+          "loop",
+          "wasted_tool_calls"
+        ],
+        "count": 2,
+        "pct": 0.1
+      },
+      {
+        "pair": [
+          "wasted_tool_calls",
+          "loop"
+        ],
+        "count": 2,
+        "pct": 100.0
+      }
+    ],
+    "type_counts": {
+      "loop": 2709,
+      "step_efficiency": 166,
+      "pattern_loop": 137,
+      "wasted_tool_calls": 2
+    }
+  },
+  "skipped_detectors": {},
+  "detector_errors": {},
+  "partial": true
+}

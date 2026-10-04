@@ -1,0 +1,7 @@
+{
+  "id": "FT-03",
+  "status": "pass",
+  "run_id": "all",
+  "assertions": [{"name":"emit-spans","ok":true},{"name":"jaeger-services","ok":true}
+]
+}

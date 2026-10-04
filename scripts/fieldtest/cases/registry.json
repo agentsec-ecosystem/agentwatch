@@ -1,0 +1,466 @@
+[
+  {
+    "id": "FT-01",
+    "title": "Fresh install \u2192 first record",
+    "kind": "recorder_smoke",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-4,R2"
+  },
+  {
+    "id": "FT-01b",
+    "title": "First-run timing \u2264 15 min",
+    "kind": "first_run_timing",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "python",
+    "prd": "13 NFR-4,R2"
+  },
+  {
+    "id": "FT-02",
+    "title": "Replay matches transcript",
+    "kind": "recorder_replay",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "R8"
+  },
+  {
+    "id": "FT-03",
+    "title": "OTLP export \u2192 Jaeger",
+    "kind": "otel_export",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker,jaeger",
+    "prd": "R4"
+  },
+  {
+    "id": "FT-04",
+    "title": "Redaction attack, 0 leaks",
+    "kind": "redaction",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "R7,06"
+  },
+  {
+    "id": "FT-05",
+    "title": "Store tamper \u2192 fail closed",
+    "kind": "tamper",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F4"
+  },
+  {
+    "id": "FT-06",
+    "title": "Long session / soak",
+    "kind": "soak",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-1",
+    "count": "1000"
+  },
+  {
+    "id": "FT-06b",
+    "title": "In-repo corpus soak + validate",
+    "kind": "bulk_corpus",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-1,30"
+  },
+  {
+    "id": "FT-07",
+    "title": "agentwatch demo proof",
+    "kind": "demo",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "S31"
+  },
+  {
+    "id": "FT-08",
+    "title": "Checkpoint notarize + sign",
+    "kind": "checkpoint",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "W7/W9"
+  },
+  {
+    "id": "FT-09",
+    "title": "Product E2E (Playwright)",
+    "kind": "analyst",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker,node",
+    "prd": "A5"
+  },
+  {
+    "id": "FT-10",
+    "title": "Offline / no egress",
+    "kind": "offline",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "R6,NFR-9"
+  },
+  {
+    "id": "FT-11",
+    "title": "LLM agent loop (OMLX)",
+    "kind": "llm",
+    "layer": "recorder",
+    "llm": "yes",
+    "requires": "docker,omlx",
+    "prd": "S11,30"
+  },
+  {
+    "id": "FT-11b",
+    "title": "3-way LLM detector validation (OMLX)",
+    "kind": "llm_validation",
+    "layer": "analyst",
+    "llm": "yes",
+    "requires": "docker,omlx",
+    "prd": "29,30"
+  },
+  {
+    "id": "FT-11c",
+    "title": "Cross-framework agent traces",
+    "kind": "cross_framework",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker,jaeger",
+    "prd": "27,12 R10"
+  },
+  {
+    "id": "FT-11d",
+    "title": "1M synthetic corpus LLM pilot (M13.1)",
+    "kind": "synthetic_llm",
+    "layer": "analyst",
+    "llm": "yes",
+    "requires": "docker,omlx",
+    "prd": "29,30"
+  },
+  {
+    "id": "FT-12",
+    "title": "Bad config \u2192 fail closed",
+    "kind": "config_bad",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F7,06 #1"
+  },
+  {
+    "id": "FT-13",
+    "title": "Store tamper + repair",
+    "kind": "tamper_repair",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F4"
+  },
+  {
+    "id": "FT-14",
+    "title": "Daemon SIGKILL \u2192 recording-gap",
+    "kind": "gap",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F1,21 B3"
+  },
+  {
+    "id": "FT-15",
+    "title": "Detector validation (ported matrix)",
+    "kind": "detector",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker,node",
+    "prd": "30,12 A2",
+    "spec": "custom"
+  },
+  {
+    "id": "FT-15b",
+    "title": "Detector corpus compatibility diagnostic",
+    "kind": "detector_corpus",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "30,12 A2"
+  },
+  {
+    "id": "FT-15c",
+    "title": "Full 100k-trace corpus validation",
+    "kind": "full_corpus",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "30,12 A2"
+  },
+  {
+    "id": "FT-16",
+    "title": "Spool + exactly-once",
+    "kind": "spool",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F2,21 B1"
+  },
+  {
+    "id": "FT-17",
+    "title": "Quarantine + reprocess",
+    "kind": "quarantine",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F8,21 B4"
+  },
+  {
+    "id": "FT-18",
+    "title": "Store full \u2192 stop + surface",
+    "kind": "store_full",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F3"
+  },
+  {
+    "id": "FT-19",
+    "title": "Export endpoint down \u2192 resume",
+    "kind": "otel_export_down",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker,jaeger",
+    "prd": "17 F5"
+  },
+  {
+    "id": "FT-20",
+    "title": "Self-test fail \u2192 export blocked",
+    "kind": "selftest_gate",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F6"
+  },
+  {
+    "id": "FT-20b",
+    "title": "Self-test visible in health",
+    "kind": "health_selftest",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-9"
+  },
+  {
+    "id": "FT-22",
+    "title": "Clock skew \u2192 degraded",
+    "kind": "clock_skew",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F9"
+  },
+  {
+    "id": "FT-23",
+    "title": "Partial session incomplete",
+    "kind": "partial_session",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "17 F10"
+  },
+  {
+    "id": "FT-24",
+    "title": "/healthz states never lie",
+    "kind": "health",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-12"
+  },
+  {
+    "id": "FT-25",
+    "title": "Hook latency + async ordering",
+    "kind": "soak",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "28 P1",
+    "count": "500"
+  },
+  {
+    "id": "FT-26",
+    "title": "Bounded store/logs + posture",
+    "kind": "posture",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "28 F5/F6"
+  },
+  {
+    "id": "FT-27",
+    "title": "Portability: host-native run",
+    "kind": "portability",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "python",
+    "prd": "13 NFR-6"
+  },
+  {
+    "id": "FT-28",
+    "title": "Scale 10k/day",
+    "kind": "soak",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-7",
+    "count": "10000",
+    "min": "0.99",
+    "interval": "0.01"
+  },
+  {
+    "id": "FT-29",
+    "title": "Multi-harness adapters conformance",
+    "kind": "conformance",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "27,12 R10"
+  },
+  {
+    "id": "FT-30",
+    "title": "Store-format migration",
+    "kind": "migrate",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "21"
+  },
+  {
+    "id": "FT-31",
+    "title": "Least-privilege on shared box",
+    "kind": "posture",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "28 F5"
+  },
+  {
+    "id": "FT-32",
+    "title": "UI a11y",
+    "kind": "a11y",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker,node",
+    "prd": "13 NFR-10"
+  },
+  {
+    "id": "FT-33",
+    "title": "Self-observability contract",
+    "kind": "metrics",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "13 NFR-12"
+  },
+  {
+    "id": "FT-34",
+    "title": "Usage/cost accounting",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "20,S6",
+    "cmd": "cost --by tool"
+  },
+  {
+    "id": "FT-35",
+    "title": "Capture-fidelity matrix",
+    "kind": "fidelity",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "25"
+  },
+  {
+    "id": "FT-36",
+    "title": "Playwright E2E screenshots",
+    "kind": "playwright_shots",
+    "layer": "analyst",
+    "llm": "no",
+    "requires": "docker,node",
+    "prd": "A5,NFR-10"
+  },
+  {
+    "id": "CUJ-08",
+    "title": "Incident \u2192 evidence (flagship)",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-8",
+    "cmd": "search --tool Bash --outcome error"
+  },
+  {
+    "id": "CUJ-09",
+    "title": "Recorder trust report",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-9",
+    "cmd": "coverage"
+  },
+  {
+    "id": "CUJ-10",
+    "title": "Cost answer",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-10",
+    "cmd": "cost --by project"
+  },
+  {
+    "id": "CUJ-11",
+    "title": "SDK \u2194 harness union",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-11",
+    "cmd": "union --json"
+  },
+  {
+    "id": "CUJ-12",
+    "title": "Erase and prove it",
+    "kind": "erase",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-12"
+  },
+  {
+    "id": "CUJ-13",
+    "title": "MCP surface drift",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-13",
+    "cmd": "inventory --diff",
+    "cmd2": "agentwatch inventory --diff | grep -qv 'no tool-surface changes'"
+  },
+  {
+    "id": "CUJ-14",
+    "title": "\"Did a human approve?\"",
+    "kind": "cli_seed",
+    "layer": "recorder",
+    "llm": "no",
+    "requires": "docker",
+    "prd": "CUJ-14",
+    "cmd": "search --approval user"
+  }
+]

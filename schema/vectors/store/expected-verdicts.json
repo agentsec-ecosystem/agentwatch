@@ -1,0 +1,55 @@
+{
+  "description": "Store/chain conformance vectors; see schema/vectors/README.md.",
+  "schema": "agentwatch.store-vectors/0.1.0",
+  "vectors": [
+    {
+      "broken_at": null,
+      "file": "valid.jsonl",
+      "id": "valid",
+      "line": null,
+      "ok": true
+    },
+    {
+      "broken_at": 1,
+      "file": "tampered.jsonl",
+      "id": "tampered",
+      "line": null,
+      "ok": false
+    },
+    {
+      "broken_at": null,
+      "file": "tombstoned.jsonl",
+      "id": "tombstoned",
+      "line": null,
+      "ok": true
+    },
+    {
+      "broken_at": null,
+      "file": "purged.jsonl",
+      "id": "purged",
+      "line": null,
+      "ok": true
+    },
+    {
+      "broken_at": 2,
+      "file": "gap.jsonl",
+      "id": "gap",
+      "line": null,
+      "ok": false
+    },
+    {
+      "broken_at": null,
+      "file": "checkpoint.jsonl",
+      "id": "checkpoint",
+      "line": null,
+      "ok": true
+    },
+    {
+      "broken_at": null,
+      "file": "unsupported-format.jsonl",
+      "id": "unsupported-format",
+      "line": 1,
+      "ok": false
+    }
+  ]
+}

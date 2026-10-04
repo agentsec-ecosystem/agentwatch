@@ -1,0 +1,31 @@
+# Executable documentation — the J3 cookbook commands run offline against the
+# synthetic seed dataset (PRD 38 §Q10, issue #227). Blocks opt in with a `run`
+# fence annotation; a broken command fails the build. The check proves it fails
+# on a broken command before running the real docs.
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - "docs/examples/investigations/**"
+      - "scripts/seed-investigations.py"
+      - "scripts/check_docs_commands.py"
+      - "packages/python-sdk/tests/test_doc_commands.py"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  executable-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Prove a broken command fails the check
+        run: python scripts/check_docs_commands.py --self-test
+      - name: Executable docs (seed dataset)
+        run: python scripts/check_docs_commands.py

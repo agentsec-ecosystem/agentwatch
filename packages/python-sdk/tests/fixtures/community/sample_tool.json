@@ -1,0 +1,23 @@
+{
+  "message": {
+    "phase": "sample-tool-use",
+    "event": {
+      "session_id": "sess-sample",
+      "agent": "sample",
+      "tool_name": "do",
+      "timestamp": "2026-01-02T03:04:05+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-sample",
+      "agent": { "identity": "sample" },
+      "tool": { "name": "do" },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "harness": "sample-harness",
+      "step_type": "act"
+    }
+  ]
+}

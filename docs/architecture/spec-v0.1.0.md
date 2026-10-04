@@ -1,0 +1,819 @@
+# agentwatch v0.1.0 Technical Specification
+
+## Scope
+
+### Repository shape
+
+`v0.1.0` will be built in a monorepo with these top-level units:
+
+- `packages/python-sdk/`
+- `services/api/`
+- `services/analytics/`
+- `apps/web/`
+- `deploy/`
+- `examples/`
+- `docs/`
+
+This specification covers only `v0.1.0`.
+
+Included product capabilities:
+
+- LangGraph instrumentation
+- raw Python instrumentation
+- OTel GenAI semantic convention mapping
+- OTLP export
+- Tempo / Jaeger local support
+- run timeline view
+- run summary view
+- fleet health view
+- version compare view
+- anomaly inbox for loop / retry / cost anomalies
+
+Excluded from `v0.1.0`:
+
+- PydanticAI adapter
+- policy overlays
+- multi-agent topology views
+- memory audit review surface
+- intervention review dashboard
+- pluggable custom detectors
+
+## Assumptions Register
+
+| Assumption | Why it matters |
+|---|---|
+| LangGraph exposes enough lifecycle hooks to create useful behavior spans | If false, adapter scope changes materially |
+| Jaeger trace access is sufficient for early normalization and replay workflows | If false, ingestion strategy needs redesign |
+| Cost estimation can be computed consistently enough to support cost-spike detection | If false, cost anomaly scope may narrow |
+| Metadata-only mode still leaves enough evidence for useful run debugging | If false, privacy defaults and view design need adjustment |
+| One demo workload plus one more realistic workload is enough for early product validation | If false, field-test scope expands sooner |
+
+## Open Questions Register
+
+| Question | Current stance |
+|---|---|
+| What exact Jaeger read/query path should analytics use in `v0.1.0`? | Open; implementation detail to resolve during analytics work |
+| How much run detail should be stored in Postgres vs fetched from backend on demand? | Open; likely hybrid approach |
+| Should drift scoring be a placeholder field or minimally implemented in `v0.1.0`? | Open; fleet summaries should at least leave room for it |
+| How should estimated cost be derived when provider billing detail is incomplete? | Open; likely documented best-effort logic |
+| What is the minimum acceptable replay/rebuild flow for first release? | Open; must be good enough for seeded scenarios and detector reprocessing |
+
+## Configuration Surface Inventory
+
+The implementation should treat configuration as a deliberate product surface.
+
+### SDK config
+
+- OTLP endpoint
+- agent name default
+- agent version default
+- workload type
+- privacy mode
+- content capture toggles
+
+### Analytics config
+
+- Postgres DSN
+- backend read endpoint
+- loop threshold
+- retry threshold
+- cost thresholds
+- polling interval / replay controls
+- webhook target and credentials if used
+
+### API config
+
+- Postgres DSN
+- service host/port
+- pagination defaults
+
+### Web config
+
+- API base URL
+- local stack routing values
+
+---
+
+## Product Entities
+
+### Agent
+
+A named runtime workload that is instrumented and versioned.
+
+Required fields:
+
+- `agent_name: str`
+- `agent_version: str | None`
+- `runtime_type: Literal["langgraph", "python"]`
+- `provider_name: str | None`
+- `model_name: str | None`
+
+### Run
+
+One end-to-end invocation of an agent.
+
+Required fields:
+
+- `run_id: str`
+- `agent_name: str`
+- `agent_version: str | None`
+- `started_at: datetime`
+- `ended_at: datetime | None`
+- `status: Literal["ok", "error", "cancelled"]`
+- `workload_type: str | None`
+- `conversation_id: str | None`
+- `estimated_cost_usd: float | None`
+- `retry_count: int`
+- `intervention_count: int`
+
+### Span
+
+One unit of behavior inside a run.
+
+Supported `operation_name` values in `v0.1.0`:
+
+- `invoke_agent`
+- `plan`
+- `execute_tool`
+- `retrieval`
+- `create_memory`
+- `search_memory`
+- `update_memory`
+- `delete_memory`
+
+### Anomaly
+
+A computed signal linked to one run or one cohort.
+
+Required fields:
+
+- `anomaly_id: str`
+- `type: Literal["loop", "retry_storm", "cost_spike"]`
+- `severity: Literal["low", "medium", "high"]`
+- `run_id: str | None`
+- `agent_name: str`
+- `summary: str`
+- `explanation: str`
+- `created_at: datetime`
+
+---
+
+## Runtime Instrumentation Requirements
+
+### LangGraph Adapter
+
+The LangGraph adapter must:
+
+- start a root `invoke_agent` span per graph execution
+- create child spans for planning/tool/retrieval/memory phases where observable
+- propagate run-level metadata through the graph lifecycle
+- capture repeated tool-call patterns that feed anomaly rules later
+
+### Raw Python Adapter
+
+The raw Python adapter must provide:
+
+- `@trace_agent(...)` decorator for a full run
+- helper context managers or functions for nested spans such as tool execution and planning
+
+The raw Python path exists to guarantee the product is not trapped inside one framework.
+
+---
+
+## Service Topology Requirements
+
+### API Service
+
+The API service must:
+
+- expose product-facing read endpoints
+- read from the normalized Postgres read model
+- avoid owning anomaly computation logic
+- avoid coupling UI contracts to Jaeger or Tempo query syntax
+
+### Analytics Service
+
+The analytics service must:
+
+- run separately from the API service
+- process traces asynchronously
+- compute and materialize summaries into Postgres
+- compute anomaly records into Postgres
+- support replay or reprocessing of seeded demo traces
+
+### Read Model Database
+
+The normalized product read model must use Postgres in `v0.1.0`.
+
+Minimum stored entities:
+
+- run summaries
+- anomaly records
+- fleet summary rows
+- version cohort summary rows
+
+---
+
+## Semantic Convention Rules
+
+### Standard attributes first
+
+The system must emit OTel GenAI attributes whenever applicable.
+
+Mandatory-first list:
+
+- `gen_ai.operation.name`
+- `gen_ai.agent.name`
+- `gen_ai.agent.version` when available
+- `gen_ai.provider.name` when available
+- `gen_ai.request.model` when available
+- `gen_ai.conversation.id` when available
+
+### Extension attributes in v0.1.0
+
+The following extensions are allowed and must be documented:
+
+- `gen_ai.agent.run.id`
+- `gen_ai.agent.run.cost.total`
+- `gen_ai.agent.loop.count`
+- `gen_ai.agent.loop.detected`
+- `gen_ai.agent.retry.count`
+- `gen_ai.agent.workload.type`
+- `gen_ai.agent.intervention.count`
+
+### Content capture defaults
+
+Defaults:
+
+- full prompt/message content: off
+- full tool arguments: off
+- full tool responses: off
+- full memory values: off
+
+Allowed by opt-in configuration:
+
+- truncated prompt content
+- hashed payload fields
+- explicit allow-listed content capture
+
+---
+
+## Analytics Rules
+
+### Loop Detection
+
+Initial v0.1.0 rule:
+
+- flag a loop when the same tool is called repeatedly above a configurable threshold within the same run without an intervening successful state transition that changes the execution path materially
+
+Minimum configuration:
+
+- `loop_same_tool_threshold: int`
+- `loop_window_size: int`
+
+### Retry Storm Detection
+
+Initial v0.1.0 rule:
+
+- flag when retries exceed a configurable threshold for a run
+
+Minimum configuration:
+
+- `retry_count_threshold: int`
+
+### Cost Spike Detection
+
+Initial v0.1.0 rule:
+
+- flag when a run cost exceeds either a static threshold or a baseline multiplier for the same agent/workload cohort
+
+Minimum configuration:
+
+- `absolute_cost_threshold_usd: float | None`
+- `baseline_multiplier_threshold: float | None`
+
+### LLM Use in Anomaly Detection
+
+`v0.1.0` does not require an LLM for anomaly detection.
+
+Rules:
+
+- detection logic must be deterministic and reproducible
+- alert firing must not depend on model judgment
+- operators must be able to explain why an anomaly fired from stored evidence alone
+
+Allowed later:
+
+- LLM-assisted explanation of anomaly context
+- LLM-assisted clustering or summarization of many anomaly records
+- LLM-assisted operator guidance layered on top of deterministic detections
+
+Not allowed in `v0.1.0`:
+
+- model-only anomaly classification
+- opaque anomaly scoring that cannot be inspected or tuned
+
+---
+
+## API Surfaces
+
+### Run Timeline API
+
+Purpose: return a normalized run and span tree for a single run.
+
+Response must include:
+
+- run summary
+- ordered span tree
+- anomaly markers linked to spans when possible
+- aggregate counters: tool calls, retries, cost, interventions
+
+Example response shape:
+
+```json
+{
+  "run": {
+    "run_id": "run_123",
+    "agent_name": "demo-agent",
+    "agent_version": "v1",
+    "status": "error",
+    "estimated_cost_usd": 1.82,
+    "retry_count": 3,
+    "intervention_count": 0
+  },
+  "summary": {
+    "tool_call_count": 9,
+    "loop_detected": true,
+    "duration_ms": 18420
+  },
+  "spans": [],
+  "anomalies": []
+}
+```
+
+### Fleet Health API
+
+Purpose: return fleet-level rollups grouped by agent/version/workload.
+
+Response must include:
+
+- total runs
+- success/error counts
+- average cost per run
+- anomaly counts
+- drift-ready comparison fields even if drift scoring is not fully implemented yet
+
+Example response shape:
+
+```json
+{
+  "rows": [
+    {
+      "agent_name": "demo-agent",
+      "agent_version": "v1",
+      "workload_type": "code-review",
+      "run_count": 42,
+      "success_rate": 0.83,
+      "avg_cost_usd": 0.41,
+      "anomaly_count": 5
+    }
+  ]
+}
+```
+
+### Version Compare API
+
+Purpose: compare two version cohorts.
+
+Response must include:
+
+- run count by version
+- success/error deltas
+- cost deltas
+- retry deltas
+- top tool usage deltas
+
+Example response shape:
+
+```json
+{
+  "left": {"version": "v1", "run_count": 30},
+  "right": {"version": "v2", "run_count": 28},
+  "deltas": {
+    "avg_cost_usd": 0.14,
+    "retry_rate": -0.07,
+    "success_rate": 0.08
+  },
+  "tool_deltas": []
+}
+```
+
+### Anomaly Inbox API
+
+Purpose: return anomaly records with enough context to triage.
+
+Response must include:
+
+- anomaly type
+- severity
+- run reference
+- short explanation
+- direct trace link key
+
+Example response shape:
+
+```json
+{
+  "items": [
+    {
+      "anomaly_id": "anom_1",
+      "type": "loop",
+      "severity": "high",
+      "agent_name": "demo-agent",
+      "run_id": "run_123",
+      "summary": "Tool repeated 7 times",
+      "explanation": "Same tool executed repeatedly without meaningful state change"
+    }
+  ]
+}
+```
+
+## API Model Variants
+
+Each endpoint should handle predictable edge cases and error states.
+
+### Run Timeline — additional variants
+
+Run not found:
+```json
+{ "error": "run_not_found", "run_id": "unknown", "message": "No run with this ID exists in the system" }
+```
+
+Run present but no behavior spans captured:
+```json
+{
+  "run": { "run_id": "run_456", "agent_name": "demo", "status": "ok" },
+  "summary": { "tool_call_count": 0, "duration_ms": 1200 },
+  "spans": [],
+  "anomalies": [],
+  "warning": "no_behavior_spans"
+}
+```
+
+### Fleet Health — additional variants
+
+No runs yet:
+```json
+{ "rows": [], "message": "no_data", "hint": "Instrument an agent and generate some runs first" }
+```
+
+Filter returns no results:
+```json
+{ "rows": [], "message": "no_results", "hint": "Try broadening your filter" }
+```
+
+### Version Compare — additional variants
+
+Sparse cohort warning:
+```json
+{
+  "left": { "version": "v1", "run_count": 3 },
+  "right": { "version": "v2", "run_count": 2 },
+  "deltas": {},
+  "warning": "sparse_cohorts",
+  "note": "Cohorts are small; deltas may not be statistically meaningful"
+}
+```
+
+One version not found:
+```json
+{ "error": "version_not_found", "version": "v3", "message": "No runs exist for this version identifier" }
+```
+
+### Anomaly Inbox — additional variants
+
+No anomalies:
+```json
+{ "items": [], "message": "no_anomalies", "note": "No anomalies detected in the current window" }
+```
+
+Filter returns nothing:
+```json
+{ "items": [], "message": "no_results", "hint": "Try broadening your type, severity, or agent filter" }
+```
+
+## View Definitions
+
+### Run Timeline View
+
+Required fields:
+
+- header: agent name, version, run ID, status, duration, cost
+- filters: span type, anomaly-only toggle
+- main body: ordered span tree / timeline
+- actions: expand/collapse, open details, jump to anomaly-linked span
+- states: loading, no run found, no spans available
+
+### Fleet Health View
+
+Required cards:
+
+- total runs
+- total anomalies
+- avg cost per run
+- success rate
+
+Required filters:
+
+- agent
+- version
+- workload type
+- time window
+
+Required table columns:
+
+- agent name
+- version
+- workload type
+- run count
+- anomaly count
+- avg cost
+- success rate
+
+### Version Compare View
+
+Required inputs:
+
+- left cohort selector
+- right cohort selector
+- time window
+
+Required outputs:
+
+- cost delta
+- retry delta
+- success delta
+- top tool usage shifts
+- exemplar run links
+
+### Anomaly Inbox View
+
+Required fields:
+
+- anomaly type
+- severity
+- agent name
+- run ID
+- explanation summary
+
+Required filters:
+
+- type
+- severity
+- agent
+- time window
+
+## Per-View UI State Matrices
+
+### Run Timeline states
+
+| State | What to render |
+|---|---|
+| Loading | Skeleton timeline with placeholder rows |
+| Empty (no run ID entered) | Prompt to enter a run ID or select from anomalies / fleet |
+| Run not found | Error message with link back to fleet or anomaly inbox |
+| Run loaded with data | Full timeline with spans, summary header, anomaly markers |
+| Run loaded but spans are empty | Summary header only, note that no behavior spans were captured |
+| Error fetching run | Retry prompt with error detail |
+
+### Fleet Health states
+
+| State | What to render |
+|---|---|
+| Loading | Skeleton cards and table |
+| Empty (no runs yet) | Prompt to instrument an agent and start generating traces |
+| Data available | Cards + table with populated rows |
+| Filter returns no results | Message suggesting broader filter |
+| Error | Retry prompt |
+
+### Version Compare states
+
+| State | What to render |
+|---|---|
+| Initial (no versions selected) | Two version selectors visible, summary area empty |
+| One version selected | Prompt to select second version |
+| Both selected, loading | Skeleton deltas |
+| Both selected, data available | Delta cards and tool usage section |
+| Sparse cohort warning | Low-count notice if either cohort is too small for confidence |
+| Error | Retry prompt |
+
+### Anomaly Inbox states
+
+| State | What to render |
+|---|---|
+| Loading | Skeleton rows |
+| Empty (no anomalies) | Positive message: no anomalies detected in current window |
+| Items present | Sortable/filterable list |
+| Filter returns nothing | Message to broaden filter |
+| Error | Retry prompt |
+
+## Detector Contracts
+
+### Loop detector
+
+- inputs: ordered tool spans within one run
+- configurable threshold: yes
+- output: loop anomaly record + loop count on run summary
+- explanation requirement: must identify repeated tool pattern
+- known risk: false positives for legitimate retry-like workflows
+
+### Retry storm detector
+
+- inputs: retry counts or repeated failure transitions within one run
+- configurable threshold: yes
+- output: retry anomaly record
+- explanation requirement: must explain why retry count was considered excessive
+- known risk: some agents intentionally retry under expected transient conditions
+
+### Cost spike detector
+
+- inputs: estimated cost per run + baseline or threshold
+- configurable threshold: yes
+- output: cost anomaly record
+- explanation requirement: must explain absolute or relative threshold breach
+- known risk: sparse baselines may overreact early
+
+## Detector False-Positive Case Catalog
+
+Knowing what should NOT fire is as important as knowing what should fire.
+
+### Loop detector — expected safe cases
+
+| Case | Why it should not fire |
+|---|---|
+| Agent intentionally polls for status updates (e.g., wait-for-deploy) | Health-check tool calls are legitimate repeated behavior with slow external state changes |
+| Tool is called twice with different arguments and useful output each time | Not a loop; meaningful work happened between calls |
+| Model retries with different reasoning when a tool returns an error | Repeated tool use under explicit error-handling logic is productive, not stuck |
+| Tool is called N times across M distinct planning phases | Repetition across phases is architecturally different from repetition inside one stuck phase |
+
+### Retry storm detector — expected safe cases
+
+| Case | Why it should not fire |
+|---|---|
+| Agent retries a transient network error and succeeds on second or third attempt | Low retry counts under real transient conditions are normal |
+| Retry count thresholds are tuned per workload | A one-size threshold will misfire; the detector should support workload-aware tuning |
+
+### Cost spike detector — expected safe cases
+
+| Case | Why it should not fire |
+|---|---|
+| Agent deliberately processes a large input or complex workflow | Cost can legitimately spike when work scales without being wasteful |
+| Early cold-start runs with small baselines | A sparse baseline overreacts; detector should either defer or note low-confidence |
+| Model switch from cheap to expensive tier for a legitimate business reason | Cost spike is expected after intentional model changes |
+
+## Version Comparison Semantics
+
+Rules:
+
+- `agent_version` is required for compare workflows
+- prompt/model/tool-schema versions are optional supporting dimensions
+- compare cohorts should be large enough to be meaningful; sparse cohorts should be marked as low-confidence in docs or UI later
+- overlapping time windows are acceptable if version identity remains distinct
+- compare output should favor understandable deltas over statistical sophistication in `v0.1.0`
+
+## Field-Testing Dimensions Catalog
+
+The future field-test plan should cover at least:
+
+- workload types
+- failure types
+- anomaly usefulness judged by a human
+- false positive review
+- metadata-only mode usefulness
+- replay/rebuild behavior
+- Jaeger-first and Tempo-compatible interop checks
+
+---
+
+## UI View Requirements
+
+### Run Timeline
+
+Must show:
+
+- ordered span tree
+- durations
+- cost overlay when available
+- tool call counts
+- anomaly markers
+- click-through detail panel per span
+
+### Run Summary
+
+Must show:
+
+- run outcome
+- total duration
+- estimated cost
+- retry count
+- loop flag
+- intervention count
+
+### Fleet Health
+
+Must show:
+
+- agents ranked by anomaly count or recent change
+- cost-per-run and success rate
+- grouping by agent/version/workload
+
+### Version Compare
+
+Must show:
+
+- version A vs version B
+- runs compared
+- cost delta
+- retry delta
+- top tool usage shifts
+
+### Anomaly Inbox
+
+Must show:
+
+- anomaly type
+- severity
+- affected agent
+- summary explanation
+- click-through to exact run
+
+---
+
+## Deployment Requirements
+
+`v0.1.0` must support one local reference stack with:
+
+- sample instrumented app
+- OTel Collector
+- Jaeger as primary backend
+- Tempo as compatibility backend
+- analytics service
+- API service
+- React UI
+- Postgres read-model database
+
+The product is not done unless this stack can be run locally as a documented demo.
+
+## Security Model
+
+`v0.1.0` does not need enterprise-grade security breadth, but it does need a clear stance.
+
+Rules:
+
+- metadata-only is the default trace content posture
+- secrets, prompts, tool args, and memory contents must not be logged casually in local service logs
+- webhook integrations should assume authenticated or signed delivery will be needed later
+- local stack docs should call out where sensitive data could leak if content capture is enabled
+
+## Not Yet List
+
+These are legitimate product ideas, but they are intentionally not required for `v0.1.0`:
+
+- LLM-assisted anomaly explanation
+- multi-agent topology maps
+- policy overlay and governance review views
+- full memory audit UI
+- pluggable detector ecosystem
+- PydanticAI adapter
+
+---
+
+## Testable Acceptance Conditions
+
+### Instrumentation
+
+- one LangGraph demo emits valid OTel-style agent spans
+- one raw Python demo emits valid OTel-style agent spans
+
+### Storage / transport
+
+- traces are visible in Tempo
+- traces are visible in Jaeger
+
+### Product views
+
+- one bad run can be opened in the timeline view
+- one synthetic loop anomaly appears in anomaly inbox
+- fleet view loads grouped summaries for at least two agents or two workloads
+- version compare returns a meaningful delta for two seeded cohorts
+
+### Privacy defaults
+
+- raw content is absent by default
+- metadata-only mode still produces usable run and anomaly views
+
+### Field testing
+
+- seeded demo scenarios must validate each detector against expected outcomes
+- at least one more realistic workload beyond the smallest happy-path demo should be instrumented before release sign-off
+- detector usefulness and false-positive behavior must be reviewed as part of release validation

@@ -1,0 +1,36 @@
+{
+  "message": {
+    "phase": "tool_call",
+    "harness": "pydantic-ai",
+    "event": {
+      "session_id": "sess-pa",
+      "call_id": "pa-1",
+      "tool_name": "get_weather",
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-pa",
+      "agent": {
+        "identity": "pydantic-ai"
+      },
+      "tool": {
+        "name": "get_weather"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "trace_id": "sess-pa",
+      "span_id": "pa-1",
+      "harness": "pydantic-ai",
+      "project": "/repo",
+      "producer": {
+        "kind": "sdk",
+        "name": "pydantic-ai"
+      },
+      "step_type": "act"
+    }
+  ]
+}

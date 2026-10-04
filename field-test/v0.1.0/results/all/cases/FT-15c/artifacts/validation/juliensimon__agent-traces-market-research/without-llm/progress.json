@@ -1,0 +1,116 @@
+{
+  "completed_traces": [
+    [
+      "tr_0956f1b5e43a4af7",
+      "tr_0956f1b5e43a4af7"
+    ],
+    [
+      "tr_1344aa533e744675",
+      "tr_1344aa533e744675"
+    ],
+    [
+      "tr_16e82739e3354a51",
+      "tr_16e82739e3354a51"
+    ],
+    [
+      "tr_2363ef4b94a5463d",
+      "tr_2363ef4b94a5463d"
+    ],
+    [
+      "tr_25dbf6fed8444cfb",
+      "tr_25dbf6fed8444cfb"
+    ],
+    [
+      "tr_2754178ae1724df9",
+      "tr_2754178ae1724df9"
+    ],
+    [
+      "tr_2c1fa79b33064ceb",
+      "tr_2c1fa79b33064ceb"
+    ],
+    [
+      "tr_2f5adc42b0774b52",
+      "tr_2f5adc42b0774b52"
+    ],
+    [
+      "tr_34cce2f300414a4c",
+      "tr_34cce2f300414a4c"
+    ],
+    [
+      "tr_3f496be8f6524d93",
+      "tr_3f496be8f6524d93"
+    ],
+    [
+      "tr_4309f13ac4d04d03",
+      "tr_4309f13ac4d04d03"
+    ],
+    [
+      "tr_73e18cf93b5342f9",
+      "tr_73e18cf93b5342f9"
+    ],
+    [
+      "tr_782d5597711b4c12",
+      "tr_782d5597711b4c12"
+    ],
+    [
+      "tr_80ab01c45c0b4894",
+      "tr_80ab01c45c0b4894"
+    ],
+    [
+      "tr_851b19e950894dfe",
+      "tr_851b19e950894dfe"
+    ],
+    [
+      "tr_8ce2034aaf334023",
+      "tr_8ce2034aaf334023"
+    ],
+    [
+      "tr_952360cd59424d25",
+      "tr_952360cd59424d25"
+    ],
+    [
+      "tr_a384da9ad11a41a7",
+      "tr_a384da9ad11a41a7"
+    ],
+    [
+      "tr_a4426235a8ad4e27",
+      "tr_a4426235a8ad4e27"
+    ],
+    [
+      "tr_b19a83ed52bb4327",
+      "tr_b19a83ed52bb4327"
+    ],
+    [
+      "tr_b5bbdbbb6118406c",
+      "tr_b5bbdbbb6118406c"
+    ],
+    [
+      "tr_c590d9367f83423a",
+      "tr_c590d9367f83423a"
+    ],
+    [
+      "tr_ca8c0d19ee624859",
+      "tr_ca8c0d19ee624859"
+    ],
+    [
+      "tr_f18ee291650e4115",
+      "tr_f18ee291650e4115"
+    ],
+    [
+      "tr_fb0d09a8f6eb42e4",
+      "tr_fb0d09a8f6eb42e4"
+    ]
+  ],
+  "completed_count": 25,
+  "total_in_batch": 25,
+  "anomaly_count": 2,
+  "anomaly_by_type": {
+    "low_output": 2
+  },
+  "anomaly_by_severity": {
+    "warning": 2
+  },
+  "detector_fire_rate": {
+    "low_output": 8.0
+  }
+}

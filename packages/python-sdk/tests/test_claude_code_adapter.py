@@ -1,0 +1,466 @@
+"""Tests for the Claude Code adapter (M3 #27).
+
+PreToolUse -> intent record, PostToolUse -> outcome record; both validate against
+the M2 record contract. Redaction is applied before a record is produced.
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Any
+
+import pytest
+
+from agentwatch.adapters import claude_code
+from agentwatch.records import (
+    Outcome,
+    RecordPrivacyMode,
+    SecurityEventType,
+    StepType,
+    validate_record,
+)
+from agentwatch.redact import PrivacyMode, RedactionConfig
+
+PRE: dict[str, Any] = {
+    "phase": "pre",
+    "harness": "claude-code",
+    "event": {
+        "session_id": "sess-1",
+        "tool_name": "Bash",
+        "tool_input": {"cmd": "ls"},
+        "tool_use_id": "call-1",
+        "timestamp": "2026-01-02T03:04:05+00:00",
+        "agent": "triage",
+    },
+}
+
+
+def _post(**event_overrides: Any) -> dict[str, Any]:
+    event = {
+        "session_id": "sess-1",
+        "tool_name": "Bash",
+        "tool_input": {"cmd": "ls"},
+        "tool_use_id": "call-1",
+        "timestamp": "2026-01-02T03:04:05.120000+00:00",
+        "agent": "triage",
+        "duration_ms": 12.5,
+        "tool_response": {"ok": True},
+    }
+    event.update(event_overrides)
+    return {"phase": "post", "harness": "claude-code", "event": event}
+
+
+def test_capabilities_and_gaps_are_declared() -> None:
+    assert claude_code.HARNESS_ID == "claude-code"
+    assert "pre-tool-use" in claude_code.CAPABILITIES
+    assert "post-tool-use" in claude_code.CAPABILITIES
+    assert "post-tool-use-failure" in claude_code.CAPABILITIES
+    assert "session-boundaries" in claude_code.CAPABILITIES
+    assert "permission-denied" in claude_code.CAPABILITIES
+    assert "mcp-server-events" in claude_code.DOCUMENTED_GAPS
+
+
+def test_subagent_records_are_attributed() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-s",
+            "tool_name": "Bash",
+            "tool_use_id": "call-s",
+            "timestamp": "2026-01-02T03:04:03+00:00",
+            "agent_id": "agent-7",
+            "agent_type": "general-purpose",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.identity == "agent-7"
+    assert record.agent.name == "general-purpose"
+    validate_record(record.to_dict())
+
+
+def test_explicit_agent_field_wins_over_agent_id() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-s",
+            "tool_name": "Bash",
+            "tool_use_id": "call-s",
+            "timestamp": "2026-01-02T03:04:03+00:00",
+            "agent": "triage",
+            "agent_id": "agent-7",
+            "agent_type": "general-purpose",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.identity == "triage"
+
+
+def test_user_prompt_is_a_reason_step_without_content_by_default() -> None:
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "do the thing",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "user-prompt"
+    assert record.step_type is StepType.REASON
+    assert record.tool.arguments is None
+    assert record.tool.privacy_mode is RecordPrivacyMode.METADATA_ONLY
+    validate_record(record.to_dict())
+
+
+def test_user_prompt_captured_when_opted_in() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_prompts=True)
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "do the thing",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message, redaction=cfg)
+
+    assert record.tool.arguments == {"prompt": "do the thing"}
+    assert record.tool.privacy_mode is RecordPrivacyMode.TRUNCATED
+
+
+def test_user_prompt_secret_fires_secret_detected() -> None:
+    message = {
+        "phase": "prompt",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-p",
+            "prompt": "deploy with sk-abcdefgh",
+            "timestamp": "2026-01-02T03:04:02+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
+def test_permission_denied_records_a_denied_event() -> None:
+    message = {
+        "phase": "denied",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-d",
+            "tool_name": "Bash",
+            "tool_input": {"command": "rm -rf /"},
+            "tool_use_id": "call-d1",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "reason": "auto-denied",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.outcome is Outcome.DENIED
+    assert record.step_type is StepType.OBSERVE
+    assert record.tool.name == "Bash"
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.DENIED
+    assert record.security_event.emitter == "claude-code"
+    assert record.security_event.tool == "Bash"
+    assert record.security_event.reason == "auto-denied"
+    validate_record(record.to_dict())
+
+
+def test_session_start_produces_a_boundary_record() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "reason": "startup",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "session-start"
+    assert record.tool.arguments == {"reason": "startup"}
+    assert record.step_type is None
+    assert record.outcome is Outcome.OK
+    assert record.ended_at is None
+    validate_record(record.to_dict())
+
+
+def test_session_end_records_the_reason() -> None:
+    message = {
+        "phase": "session-end",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "reason": "prompt_input_exit",
+            "timestamp": "2026-01-02T03:05:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "session-end"
+    assert record.tool.arguments == {"reason": "prompt_input_exit"}
+    assert record.step_type is None
+    validate_record(record.to_dict())
+
+
+def test_pre_event_produces_an_intent_record() -> None:
+    (record,) = claude_code.normalize(PRE)
+
+    assert record.harness == "claude-code"
+    assert record.session_id == "sess-1"
+    assert record.tool.name == "Bash"
+    assert record.step_type is StepType.ACT
+    assert record.ended_at is None
+    assert record.agent.identity == "triage"
+    validate_record(record.to_dict())
+
+
+def test_post_event_produces_an_outcome_record() -> None:
+    (record,) = claude_code.normalize(_post())
+
+    assert record.outcome is Outcome.OK
+    assert record.step_type is StepType.OBSERVE
+    assert record.ended_at is not None
+    assert record.duration_ms == 12.5
+    validate_record(record.to_dict())
+
+
+def test_post_error_response_sets_outcome_error() -> None:
+    (record,) = claude_code.normalize(_post(tool_response={"is_error": True, "error": "boom"}))
+    assert record.outcome is Outcome.ERROR
+
+
+def test_pre_and_post_share_a_span_id_for_the_same_tool_call() -> None:
+    (pre,) = claude_code.normalize(PRE)
+    (post,) = claude_code.normalize(_post())
+
+    assert pre.span_id is not None
+    assert pre.span_id == post.span_id
+
+
+def test_different_tool_calls_get_different_span_ids() -> None:
+    (first,) = claude_code.normalize(PRE)
+    (second,) = claude_code.normalize(_post(tool_use_id="call-2"))
+    assert first.span_id != second.span_id
+
+
+def test_unknown_phase_is_rejected() -> None:
+    with pytest.raises(claude_code.ClaudeCodeAdapterError):
+        claude_code.normalize({"phase": "sideways", "event": PRE["event"]})
+
+
+def test_missing_event_is_rejected() -> None:
+    with pytest.raises(claude_code.ClaudeCodeAdapterError):
+        claude_code.normalize({"phase": "pre"})
+
+
+def test_default_metadata_only_omits_arguments() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.tool.arguments is None
+    assert record.tool.privacy_mode is RecordPrivacyMode.METADATA_ONLY
+
+
+def test_truncated_mode_captures_redacted_arguments() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(PRE, redaction=cfg)
+
+    assert record.tool.arguments == {"cmd": "ls"}
+    assert record.tool.privacy_mode is RecordPrivacyMode.TRUNCATED
+
+
+def test_hashed_mode_hashes_string_arguments() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.HASHED, capture_tool_args=True, hash_salt="s")
+    (record,) = claude_code.normalize(PRE, redaction=cfg)
+
+    assert record.tool.arguments is not None
+    assert record.tool.arguments["cmd"] != "ls"
+    assert record.tool.privacy_mode is RecordPrivacyMode.HASHED
+
+
+SECRET_PRE: dict[str, Any] = {
+    "phase": "pre",
+    "harness": "claude-code",
+    "event": {
+        "session_id": "sess-sec",
+        "tool_name": "Bash",
+        "tool_input": {"cmd": "export TOKEN=sk-abcdefgh"},
+        "tool_use_id": "call-sec",
+        "timestamp": "2026-01-02T03:04:06+00:00",
+    },
+}
+
+
+def test_secret_in_tool_input_emits_secret_detected_event() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(SECRET_PRE, redaction=cfg)
+
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+    assert record.security_event.emitter == "agentwatch"
+    assert record.security_event.tool == "Bash"
+    assert record.security_event.evidence == {"kinds": ["api-key"]}
+    assert "sk-abcdefgh" not in json.dumps(record.to_dict())
+    validate_record(record.to_dict())
+
+
+def test_secret_detected_even_in_metadata_only() -> None:
+    (record,) = claude_code.normalize(SECRET_PRE)
+
+    assert record.tool.arguments is None
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
+def test_benign_input_has_no_security_event() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.security_event is None
+
+
+def test_post_metadata_only_omits_the_response() -> None:
+    (record,) = claude_code.normalize(_post())
+    assert record.tool.response is None
+
+
+def test_post_captures_the_response_under_mode() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(_post(tool_response={"output": "done"}), redaction=cfg)
+    assert record.tool.response == {"output": "done"}
+
+
+def test_post_secret_in_response_is_masked() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.TRUNCATED, capture_tool_args=True)
+    (record,) = claude_code.normalize(
+        _post(tool_response={"output": "sk-abcdefgh"}), redaction=cfg
+    )
+    assert record.tool.response == {"output": "<REDACTED:api-key>"}
+    assert record.security_event is not None
+    assert record.security_event.type is SecurityEventType.SECRET_DETECTED
+
+
+# ---------------------------------------------------------------------------
+# M9: MCP server attribution + capture-fidelity fields (PRD 25 D1/D2/I3/I4)
+# ---------------------------------------------------------------------------
+
+
+def test_split_mcp_tool_extracts_server() -> None:
+    assert claude_code.split_mcp_tool("mcp__github__create_issue") == ("github", "create_issue")
+
+
+def test_split_mcp_tool_defensive() -> None:
+    assert claude_code.split_mcp_tool("mcp__x__") == (None, "mcp__x__")
+    assert claude_code.split_mcp_tool("npm__bad__name") == (None, "npm__bad__name")
+    assert claude_code.split_mcp_tool("Bash") == (None, "Bash")
+
+
+def test_split_mcp_tool_plugin_scoped() -> None:
+    assert claude_code.split_mcp_tool("mcp__plugin_p_s__t") == ("plugin_p_s", "t")
+    assert claude_code.split_mcp_tool("mcp__a__b__c") == ("a", "b__c")
+
+
+def test_normalize_tags_mcp_server_and_project() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-mcp",
+            "tool_name": "mcp__github__create_issue",
+            "tool_input": {"title": "bug"},
+            "tool_use_id": "call-mcp",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "agent": "triage",
+            "cwd": "/repo/a",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.tool.name == "create_issue"
+    assert record.tool.server == "github"
+    assert record.project == "/repo/a"
+    validate_record(record.to_dict())
+
+
+def test_normalize_non_mcp_tool_has_no_server() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.tool.server is None
+
+
+def test_project_missing_is_none() -> None:
+    (record,) = claude_code.normalize(PRE)
+    assert record.project is None
+
+
+def test_normalize_carries_prompt_version() -> None:
+    message = {
+        "phase": "pre",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-pv",
+            "tool_name": "Bash",
+            "tool_use_id": "call-pv",
+            "timestamp": "2026-01-02T03:04:05+00:00",
+            "agent": {"identity": "triage", "name": "triage", "prompt_version": "a1b2c3d4"},
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.agent.prompt_version == "a1b2c3d4"
+
+
+def test_resume_session_links_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-child",
+            "source": "resume",
+            "parent_session_id": "sess-parent",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id == "sess-parent"
+    validate_record(record.to_dict())
+
+
+def test_fork_session_links_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-fork",
+            "source": "fork",
+            "source_session_id": "sess-parent",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id == "sess-parent"
+
+
+def test_startup_session_has_no_parent() -> None:
+    message = {
+        "phase": "session-start",
+        "harness": "claude-code",
+        "event": {
+            "session_id": "sess-b",
+            "source": "startup",
+            "timestamp": "2026-01-02T03:04:00+00:00",
+        },
+    }
+    (record,) = claude_code.normalize(message)
+
+    assert record.parent_session_id is None

@@ -1,0 +1,55 @@
+# Security scan — first-party secrets + dependency audit (M24 24.3 / 24.5).
+#
+# Runs the same `make security-scan` a developer runs locally:
+#   - gitleaks over the full git history (.gitleaks.toml)
+#   - trufflehog over the first-party working tree (scripts/security/trufflehog-exclude.txt)
+#   - pip-audit per package (python-sdk, api, analytics)
+#   - static egress audit (scripts/dependency_egress_audit.py)
+#
+# Evidence is written to a temp dir and uploaded as a build artifact; the job
+# fails on a real first-party secret leak or a known dependency vulnerability.
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    env:
+      SECURITY_SCAN_OUT: ${{ runner.temp }}/security-scan
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # gitleaks scans the full history
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install scanners
+        run: |
+          python -m pip install --upgrade pip "pip-audit==2.10.1"
+          curl -sSfL -o gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          curl -sSfL -o trufflehog.tar.gz \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.4/trufflehog_3.97.4_linux_amd64.tar.gz
+          tar -xzf trufflehog.tar.gz trufflehog
+          sudo install -m 0755 trufflehog /usr/local/bin/trufflehog
+          gitleaks version
+          trufflehog --version
+      - name: Run security scan
+        run: make security-scan
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: security-scan-evidence
+          path: ${{ runner.temp }}/security-scan/
+          if-no-files-found: warn

@@ -1,0 +1,34 @@
+# Offline E2E — prove local-first recording works with networking disabled
+# (M12 K2, R6/NFR-9). Also runs a static dependency egress audit.
+name: Offline E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Dependency egress audit
+        run: python scripts/dependency_egress_audit.py
+      - name: Offline record -> verify -> replay
+        run: |
+          if command -v unshare >/dev/null && unshare --net --map-root-user true 2>/dev/null; then
+            unshare --net --map-root-user python scripts/offline_e2e.py
+          else
+            echo "network namespace unavailable; running without isolation"
+            python scripts/offline_e2e.py
+          fi

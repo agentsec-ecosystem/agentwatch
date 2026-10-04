@@ -1,0 +1,10 @@
+{
+  "baseline_ms": {
+    "daemon_handle_message": 0.1584999999977299,
+    "normalize": 0.010917000054178061,
+    "redaction": 0.0047909998102113605
+  },
+  "budget_ms": 5.0,
+  "generated_at": "2026-10-03T20:21:15.809088+00:00",
+  "tolerance": 3.0
+}

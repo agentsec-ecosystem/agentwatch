@@ -1,0 +1,28 @@
+# OTel Collector config for the agentwatch receiver (M20 S39)
+#
+# Point `path` at the local agentwatch store (records.jsonl). The receiver emits
+# GenAI-semconv spans; the mapping lives in agentwatch (`otel_component.py`), so
+# this component stays thin.
+#
+# The pinned semantic-convention version is carried on every span's resource
+# attributes as `otel.semconv.version` (currently 1.29.0).
+
+receivers:
+  agentwatch:
+    path: ~/.local/share/agentwatch/records.jsonl
+    poll_interval: 5s
+
+processors:
+  batch: {}
+
+exporters:
+  # Replace with your backend; the local debug exporter prints spans.
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [agentwatch]
+      processors: [batch]
+      exporters: [debug]

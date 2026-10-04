@@ -1,0 +1,38 @@
+{
+  "message": {
+    "phase": "afterFileEdit",
+    "harness": "cursor",
+    "event": {
+      "session_id": "sess-c",
+      "call_id": "call-2",
+      "file": "a.py",
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "duration_ms": 12.5,
+      "error": "boom"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "agent": {
+        "identity": "cursor"
+      },
+      "tool": {
+        "name": "Edit"
+      },
+      "outcome": "error",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "trace_id": "sess-c",
+      "span_id": "call-2",
+      "harness": "cursor",
+      "producer": {
+        "kind": "sdk",
+        "name": "cursor"
+      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "duration_ms": 12.5,
+      "step_type": "observe"
+    }
+  ]
+}

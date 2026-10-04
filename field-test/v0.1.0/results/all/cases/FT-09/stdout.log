@@ -1,0 +1,234 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [analytics internal] load build definition from Dockerfile
+#2 transferring dockerfile: 394B done
+#2 DONE 0.0s
+
+#3 [recorder internal] load build definition from recorder.Dockerfile
+#3 transferring dockerfile: 1.19kB done
+#3 DONE 0.0s
+
+#4 [api internal] load build definition from Dockerfile
+#4 transferring dockerfile: 425B done
+#4 DONE 0.0s
+
+#5 [web internal] load build definition from Dockerfile
+#5 transferring dockerfile: 327B done
+#5 DONE 0.0s
+
+#6 [api internal] load metadata for docker.io/library/python:3.12-slim
+#6 ...
+
+#7 [web internal] load metadata for docker.io/library/node:22-alpine
+#7 DONE 0.6s
+
+#6 [api internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.6s
+
+#8 [web internal] load .dockerignore
+#8 transferring context: 67B done
+#8 DONE 0.0s
+
+#9 [analytics internal] load .dockerignore
+#9 transferring context: 129B done
+#9 DONE 0.0s
+
+#10 [api internal] load .dockerignore
+#10 transferring context: 116B done
+#10 DONE 0.0s
+
+#11 [recorder internal] load .dockerignore
+#11 transferring context: 2B done
+#11 DONE 0.0s
+
+#12 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#12 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 0.0s done
+#12 DONE 0.0s
+
+#13 [api 1/5] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#13 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 0.0s done
+#13 DONE 0.0s
+
+#14 [api internal] load build context
+#14 transferring context: 1.23kB done
+#14 DONE 0.0s
+
+#15 [analytics internal] load build context
+#15 transferring context: 4.76kB done
+#15 DONE 0.0s
+
+#16 [api 3/5] COPY pyproject.toml ./
+#16 CACHED
+
+#17 [api 4/5] COPY src/ src/
+#17 CACHED
+
+#18 [api 5/5] RUN pip install --no-cache-dir -e .
+#18 CACHED
+
+#19 [analytics 3/5] COPY pyproject.toml ./
+#19 CACHED
+
+#20 [analytics 2/5] WORKDIR /app
+#20 CACHED
+
+#21 [analytics 4/5] COPY src/ src/
+#21 CACHED
+
+#22 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#22 CACHED
+
+#23 [recorder internal] load build context
+#23 transferring context: 199.76kB 0.0s done
+#23 DONE 0.0s
+
+#24 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#24 CACHED
+
+#25 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#25 CACHED
+
+#26 [recorder 3/7] WORKDIR /work
+#26 CACHED
+
+#27 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#27 CACHED
+
+#28 [web internal] load build context
+#28 transferring context: 4.26MB 0.0s done
+#28 DONE 0.1s
+
+#29 [web 2/5] WORKDIR /app
+#29 CACHED
+
+#30 [web 3/5] COPY package.json package-lock.json ./
+#30 CACHED
+
+#31 [web 4/5] RUN npm ci
+#31 CACHED
+
+#32 [api] exporting to image
+#32 exporting layers done
+#32 exporting manifest sha256:4909c924a9b275cf07742c2a073181bcd236abf5dc9f6b2c95cc7b9bc662723e done
+#32 exporting config sha256:76d20316a05bcec7585210f86d59c9aad15b8a7cd584c0713692f1f15d0a08a6 done
+#32 exporting attestation manifest sha256:0524f5315399406276869b4839601d130032291c573b0484db2b1e4d9e7b25d2 0.0s done
+#32 exporting manifest list sha256:2886e7f94a7b7838013995189bc2765f633a1ff44404b12ed923011e5c7aef1c 0.0s done
+#32 naming to docker.io/library/agentwatch-api:latest
+#32 naming to docker.io/library/agentwatch-api:latest done
+#32 unpacking to docker.io/library/agentwatch-api:latest done
+#32 DONE 0.1s
+
+#33 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#33 DONE 0.0s
+
+#34 [analytics] exporting to image
+#34 exporting layers done
+#34 exporting manifest sha256:6e924aa1e298fcbd35c9bb430cfb70487ece4f323c5c4bc0d55f1d8991676bd4 done
+#34 exporting config sha256:8d19c3862115f6cfbbf7de0097a002baf35eb40ddc79882f4a79f6e55e30b3a3 done
+#34 exporting attestation manifest sha256:d56d9e2d4e11b7e201f16fcbe328c011fd01c24ce9df1b3e07b5088d88c27afe 0.0s done
+#34 exporting manifest list sha256:c052885e0e48ea27a103b8214655d26e799bfbcf9b797ded821265c19baa2968 0.0s done
+#34 naming to docker.io/library/agentwatch-analytics:latest done
+#34 unpacking to docker.io/library/agentwatch-analytics:latest done
+#34 DONE 0.1s
+
+#35 [web 5/5] COPY . .
+#35 DONE 0.1s
+
+#36 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#36 DONE 0.1s
+
+#37 [web] exporting to image
+#37 ...
+
+#38 [analytics] resolving provenance for metadata file
+#38 DONE 0.0s
+
+#39 [api] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#40 [recorder] exporting to image
+#40 exporting layers 0.0s done
+#40 exporting manifest sha256:48ea271cee21c00a50c1393ce98174a7591992735b27cc585431d6daf2ecf23e done
+#40 exporting config sha256:77d5f331d0d5289360322f02a234e3e58f259d5df0ab1b9cb6dfdedfa94430a4 done
+#40 exporting attestation manifest sha256:d7ad8ca970d301eb2d39dde1fcfdf06eb5eebafd19c0eacbc3c613f7961b2de9 done
+#40 exporting manifest list sha256:8c413769fcc989dc3b795172ccc16b95df5664427efab4c7639577e3411ae0c3 done
+#40 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#40 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local 0.0s done
+#40 DONE 0.1s
+
+#37 [web] exporting to image
+#37 exporting layers 0.1s done
+#37 exporting manifest sha256:8ec785e00d5f44657e8bee02db0acae50ec102c54945c87c3cf1834d29491185 done
+#37 exporting config sha256:eb632e25315f992ccb58f788e131c0e2291471f27fdd3ae5a08e5b77ad1ea4e1 done
+#37 exporting attestation manifest sha256:a9ce2f4cd3e7dfce73d007092a89363b4bbad9c50e880fe6892ce7d007a7b7a3 done
+#37 exporting manifest list sha256:d7de68dfc8a5ee8dd640b709d7324290258db2c7eb779089ca4b45c957271ef1 done
+#37 naming to docker.io/library/agentwatch-web:latest done
+#37 unpacking to docker.io/library/agentwatch-web:latest
+#37 unpacking to docker.io/library/agentwatch-web:latest 0.0s done
+#37 DONE 0.2s
+
+#41 [recorder] resolving provenance for metadata file
+#41 DONE 0.0s
+
+#42 [web] resolving provenance for metadata file
+#42 DONE 0.0s
+Migration complete: all read-model tables created.
+Seeded 99 runs, 246 anomalies across 4 agents.
+
+added 135 packages in 956ms
+
+Running 49 tests using 5 workers
+
+  ✓   2 [chromium] › tests/e2e/acceptance.spec.ts:4:3 › Demo Acceptance › ACC-01 success and error runs distinguishable in fleet (614ms)
+  ✓   4 [chromium] › tests/e2e/anomalies.spec.ts:8:3 › Anomaly Inbox › ANM-01 default list loads with anomaly items (652ms)
+  ✓   5 [chromium] › tests/e2e/dashboard.spec.ts:4:3 › Dashboard › DASH-01 overview cards show non-zero aggregates (619ms)
+  ✓   6 [chromium] › tests/e2e/acceptance.spec.ts:22:3 › Demo Acceptance › ACC-02 fleet shows multiple agent names and versions (356ms)
+  ✓   8 [chromium] › tests/e2e/dashboard.spec.ts:16:3 › Dashboard › DASH-02 agent cards grid shows agent name, version, workload (383ms)
+  ✓   1 [chromium] › tests/e2e/a11y.spec.ts:47:5 › WCAG 2.2 AA — automated checks › Dashboard has no axe violations (including contrast) (1.3s)
+  ✓  10 [chromium] › tests/e2e/dashboard.spec.ts:29:3 › Dashboard › DASH-03 card click navigates to fleet filtered by agent (363ms)
+  ✓   3 [chromium] › tests/e2e/compare.spec.ts:8:3 › Version Compare › CMP-01 two versions produce non-empty deltas (1.5s)
+  ✓   7 [chromium] › tests/e2e/anomalies.spec.ts:22:3 › Anomaly Inbox › ANM-02 type filter reduces to loop-only items (940ms)
+  ✓  12 [chromium] › tests/e2e/dashboard.spec.ts:41:3 › Dashboard › DASH-04 empty state shown when fleet API returns empty (319ms)
+  ✓  13 [chromium] › tests/e2e/compare.spec.ts:24:3 › Version Compare › CMP-02 version selectors are populated and functional (345ms)
+  ✓  15 [chromium] › tests/e2e/fleet.spec.ts:9:3 › Fleet Health › FLEET-01 default table renders with rows and columns (339ms)
+  ✓   9 [chromium] › tests/e2e/acceptance.spec.ts:36:3 › Demo Acceptance › ACC-03 version compare shows non-zero deltas (1.2s)
+  ✓  11 [chromium] › tests/e2e/a11y.spec.ts:47:5 › WCAG 2.2 AA — automated checks › Fleet Health has no axe violations (including contrast) (992ms)
+  ✓  14 [chromium] › tests/e2e/anomalies.spec.ts:35:3 › Anomaly Inbox › ANM-03 severity filter shows critical-only (954ms)
+  ✓  16 [chromium] › tests/e2e/compare.spec.ts:32:3 › Version Compare › CMP-03 single version shows appropriate message, no crash (725ms)
+  ✓  17 [chromium] › tests/e2e/fleet.spec.ts:22:3 › Fleet Health › FLEET-02 agent filter narrows results to selected agent (791ms)
+  ✓  18 [chromium] › tests/e2e/acceptance.spec.ts:50:3 › Demo Acceptance › ACC-04 anomaly inbox filters change visible rows (879ms)
+  ✓  19 [chromium] › tests/e2e/a11y.spec.ts:47:5 › WCAG 2.2 AA — automated checks › Run Timeline has no axe violations (including contrast) (978ms)
+  ✓  20 [chromium] › tests/e2e/anomalies.spec.ts:49:3 › Anomaly Inbox › ANM-04 agent filter narrows results (880ms)
+  ✓  22 [chromium] › tests/e2e/fleet.spec.ts:36:3 › Fleet Health › FLEET-03 version filter shows only matching versions (753ms)
+  ✓  25 [chromium] › tests/e2e/anomalies.spec.ts:63:3 › Anomaly Inbox › ANM-05 click-through navigates to run timeline (381ms)
+  ✓  23 [chromium] › tests/e2e/screenshots.spec.ts:19:3 › Field-test screenshots (user guide) › dashboard-overview (872ms)
+  ✓  24 [chromium] › tests/e2e/a11y.spec.ts:47:5 › WCAG 2.2 AA — automated checks › Version Compare has no axe violations (including contrast) (965ms)
+  ✓  27 [chromium] › tests/e2e/anomalies.spec.ts:71:3 › Anomaly Inbox › ANM-06 loading skeletons visible on slow response (443ms)
+  ✓  21 [chromium] › tests/e2e/compare.spec.ts:41:3 › Version Compare › CMP-04 sparse cohort warning for small cohort (<5 runs) (1.8s)
+  ✓  30 [chromium] › tests/e2e/anomalies.spec.ts:81:3 › Anomaly Inbox › ANM-07 error state with retry on 500 (384ms)
+  ✓  26 [chromium] › tests/e2e/fleet.spec.ts:48:3 › Fleet Health › FLEET-04 combined filters produce intersection subset (1.1s)
+  ✓  28 [chromium] › tests/e2e/screenshots.spec.ts:25:3 › Field-test screenshots (user guide) › dashboard-to-fleet (1.1s)
+  ✓  33 [chromium] › tests/e2e/fleet.spec.ts:63:3 › Fleet Health › FLEET-05 empty filter result shows EmptyState (423ms)
+  ✓  29 [chromium] › tests/e2e/a11y.spec.ts:47:5 › WCAG 2.2 AA — automated checks › Anomaly Inbox has no axe violations (including contrast) (1.1s)
+  ✓  35 [chromium] › tests/e2e/fleet.spec.ts:79:3 › Fleet Health › FLEET-06 row click navigates to run timeline (362ms)
+  ✓  32 [chromium] › tests/e2e/anomalies.spec.ts:90:3 › Anomaly Inbox › ANM-08 empty filters show empty state (870ms)
+  ✓  31 [chromium] › tests/e2e/compare.spec.ts:54:3 › Version Compare › CMP-05 zero-delta when comparing same version to itself (1.2s)
+  ✓  34 [chromium] › tests/e2e/screenshots.spec.ts:37:3 › Field-test screenshots (user guide) › fleet-default (848ms)
+  ✓  37 [chromium] › tests/e2e/fleet.spec.ts:85:3 › Fleet Health › FLEET-07 loading skeletons visible while fetching (394ms)
+  ✓  38 [chromium] › tests/e2e/timeline.spec.ts:8:3 › Run Timeline › TL-01 enter run ID navigates to timeline view (608ms)
+  ✓  36 [chromium] › tests/e2e/a11y.spec.ts:89:3 › Keyboard-only operator journey (CUJ-8) › navigates every view and opens a run with the keyboard alone (955ms)
+  ✓  40 [chromium] › tests/e2e/fleet.spec.ts:95:3 › Fleet Health › FLEET-08 error state with retry on 500 (414ms)
+  ✓  42 [chromium] › tests/e2e/a11y.spec.ts:111:3 › Keyboard-only operator journey (CUJ-8) › activates a span in the timeline with Enter (368ms)
+  ✓  39 [chromium] › tests/e2e/screenshots.spec.ts:43:3 › Field-test screenshots (user guide) › anomalies-default (887ms)
+  ✓  41 [chromium] › tests/e2e/timeline.spec.ts:23:3 › Run Timeline › TL-02 empty spans shows placeholder text (1.3s)
+  ✓  43 [chromium] › tests/e2e/screenshots.spec.ts:49:3 › Field-test screenshots (user guide) › anomalies-critical (830ms)
+  ✓  45 [chromium] › tests/e2e/screenshots.spec.ts:59:3 › Field-test screenshots (user guide) › timeline-normal (879ms)
+  ✓  44 [chromium] › tests/e2e/timeline.spec.ts:37:3 › Run Timeline › TL-03 stubbed span tree with expand/collapse interaction (1.3s)
+  ✓  46 [chromium] › tests/e2e/screenshots.spec.ts:72:3 › Field-test screenshots (user guide) › timeline-spans (851ms)
+  ✓  47 [chromium] › tests/e2e/timeline.spec.ts:107:3 › Run Timeline › TL-04 anomaly badges shown on anomalous runs (1.1s)
+  ✓  49 [chromium] › tests/e2e/timeline.spec.ts:126:3 › Run Timeline › TL-05 back navigation preserves context (862ms)
+  ✓  48 [chromium] › tests/e2e/screenshots.spec.ts:88:3 › Field-test screenshots (user guide) › compare-deltas (1.4s)
+
+  49 passed (11.2s)

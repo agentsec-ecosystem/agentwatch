@@ -1,0 +1,107 @@
+# Release — build artifacts, CycloneDX SBOM, checksums, keyless Sigstore/cosign
+# signatures, and SLSA L3 provenance, then publish (M13 13.1/13.5, M14 Q13,
+# PRD 38 §Q13, PRD 18 §D/§F). Triggered by a v* tag.
+#
+# Actions are pinned by commit SHA (with the human version in a trailing
+# comment) so a moved tag cannot change what runs. The workflow refuses to
+# publish an artifact that `agentwatch verify-release` cannot confirm.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      hashes: ${{ steps.subjects.outputs.hashes }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install hash-pinned build tools
+        run: python -m pip install --require-hashes -r scripts/release/requirements-build.txt
+      - name: Install agentwatch (for verify-release)
+        run: python -m pip install -e packages/python-sdk
+      - name: Build sdist + wheel
+        run: python -m build --no-isolation packages/python-sdk --outdir dist
+      - name: Generate SBOM (CycloneDX)
+        run: python scripts/release/generate_sbom.py
+      - name: Checksums
+        run: python scripts/release/checksums.py
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+      - name: Sign artifacts (keyless Sigstore cosign)
+        working-directory: dist
+        run: |
+          for file in *.whl *.tar.gz sbom.cdx.json SHA256SUMS; do
+            cosign sign-blob --yes --bundle "${file}.sigstore.json" "${file}"
+          done
+      - name: Verify the release before publishing
+        run: >-
+          agentwatch verify-release dist
+          --cosign-identity-regexp "https://github.com/${GITHUB_REPOSITORY}/.*"
+          --cosign-issuer "https://token.actions.githubusercontent.com"
+      - name: Attest build provenance (GitHub)
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: "dist/*.whl,dist/*.tar.gz"
+      - name: Compute provenance subjects
+        id: subjects
+        working-directory: dist
+        run: echo "hashes=$(sha256sum *.whl *.tar.gz | base64 -w0)" >> "$GITHUB_OUTPUT"
+      - name: Publish release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: "dist/*"
+          generate_release_notes: true
+      - name: Upload distributions (for PyPI)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dist
+          path: dist/*
+
+  pypi:
+    name: Publish to PyPI
+    needs: [build]
+    # Trusted publishing (OIDC, no token). Enable after configuring a PyPI trusted
+    # publisher for: owner agentsec-ecosystem, repo agentwatch, workflow release.yml,
+    # environment "pypi" — then set repository variable PYPI_TRUSTED_PUBLISHING=true.
+    if: ${{ vars.PYPI_TRUSTED_PUBLISHING == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/agentsec-agentwatch/
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1
+        with:
+          packages-dir: dist
+          skip-existing: true # the version may already exist (e.g. seeded manually)
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@5a775b367a56d5bd118a224a811bba288150a563 # v2.0.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      upload-assets: true

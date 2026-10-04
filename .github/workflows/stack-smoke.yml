@@ -1,0 +1,30 @@
+# Docker stack smoke — the whole compose stack builds, boots, and serves the API
+# and web app (M14 Q5, #222). Fast signal that the deployment surface still works.
+name: Stack smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "docker-compose.yml"
+      - "services/**"
+      - "apps/web/**"
+      - "deploy/**"
+      - "scripts/stack-smoke.sh"
+      - ".github/workflows/stack-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Boot the stack and check health
+        run: bash scripts/stack-smoke.sh
+      - name: Compose logs (failure)
+        if: failure()
+        run: docker compose logs --no-color || true

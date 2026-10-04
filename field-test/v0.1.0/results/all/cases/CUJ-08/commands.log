@@ -1,0 +1,4 @@
++ compose up -d --build (all services)
++ compose exec recorder python3 /ft/scripts/seed-fixtures.py --store /data/agentwatch/records.jsonl --out /tmp/ft-fixtures
++ compose exec recorder bash -lc agentwatch search --tool Bash --outcome error >/dev/null
++ compose exec recorder bash -lc agentwatch verify-store

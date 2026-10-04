@@ -1,0 +1,3 @@
++ compose up -d --build (all services)
++ python3 /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/migrate-db.py
++ python3 /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/seed-e2e-data.py

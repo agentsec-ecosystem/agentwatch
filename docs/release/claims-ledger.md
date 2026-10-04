@@ -1,0 +1,46 @@
+# Claims Ledger — v0.1.0
+
+**BLUF:** Every public claim agentwatch makes is traced to **live evidence**. `scripts/check_claims.py`
+fails when a claim has no evidence link, when a link is broken (a renamed test, a deleted file), or when
+this table drifts from the ledger. A claim we cannot prove is removed, not softened.
+
+Status: **enforced** (M14 Q9) · Ledger: [`claims-ledger.json`](claims-ledger.json) ·
+Check: `python scripts/check_claims.py` (CI: `.github/workflows/claims.yml`)
+
+## Claims
+
+<!-- BEGIN GENERATED: claims -->
+| ID | Claim | Source | Evidence | Last verified |
+|---|---|---|---|---|
+| `C1` | Every tool call is recorded redacted by default. | `README.md#what-it-does` | `test:packages/python-sdk/tests/test_redact.py::test_metadata_only_returns_none`<br>`test:packages/python-sdk/tests/test_secrets.py::test_api_key_masked_to_redacted_kind` | 2026-10-03 |
+| `C2` | The redaction attack pack leaves zero secrets in the store. | `docs/release/v0.1.0/security-audit.md` | `test:packages/python-sdk/tests/test_secrets.py::test_private_key_block_masks_the_key_material`<br>`file:docs/release/v0.1.0/security-audit.md` | 2026-10-03 |
+| `C3` | Local-first: no egress-capable runtime imports by default. | `README.md#what-it-does` | `test:packages/python-sdk/tests/test_egress_audit.py::test_sdk_source_is_egress_clean`<br>`script:scripts/dependency_egress_audit.py` | 2026-10-03 |
+| `C4` | The local store is hash-chained and tamper-evident. | `README.md#what-it-does` | `test:packages/python-sdk/tests/test_store_vectors.py::test_store_verify_matches_the_verdict_table`<br>`test:packages/python-sdk/tests/test_store_hardening.py::test_manual_checkpoint_and_tamper_detection`<br>`file:schema/vectors/store/expected-verdicts.json` | 2026-10-03 |
+| `C5` | OTLP export is gated on a redaction self-test. | `docs/release/v0.1.0/release-notes.md` | `test:packages/python-sdk/tests/test_selftest.py::test_self_test_blocks_export_when_pipeline_leaks`<br>`test:packages/python-sdk/tests/test_fault_injection.py::test_f6_self_test_failure_blocks_export` | 2026-10-03 |
+| `C6` | A fresh machine reaches its first recorded tool call in 15 minutes or less with zero agent-side code changes. | `docs/release/v0.1.0/first-run-evidence.md` | `script:scripts/first_run_timing.py`<br>`file:docs/release/v0.1.0/first-run-evidence.md` | 2026-10-03 |
+| `C7` | Session replay reconstructs a session's action timeline. | `README.md#what-it-does` | `test:packages/python-sdk/tests/test_replay.py::test_replay_orders_by_time_then_chain`<br>`test:packages/python-sdk/tests/test_replay.py::test_replay_matches_the_stored_records` | 2026-10-03 |
+| `C8` | Replay-as-code exports a session with its chain segment for CI. | `docs/release/v0.1.0/release-notes.md` | `test:packages/python-sdk/tests/test_session_export.py::test_export_selects_one_session_with_chain_segment`<br>`test:packages/python-sdk/tests/test_session_export.py::test_ndjson_round_trips_through_reference_consumer` | 2026-10-03 |
+| `C9` | Fault injection F1-F10 fail closed. | `docs/release/v0.1.0/security-audit.md` | `test:packages/python-sdk/tests/test_fault_injection.py::test_f3_store_full_fails_closed`<br>`test:packages/python-sdk/tests/test_fault_injection.py::test_f4_corrupt_chain_is_stopped_and_repairable` | 2026-10-03 |
+| `C10` | Every CLI failure carries a machine-readable error code. | `docs/reference/errors.md` | `test:packages/python-sdk/tests/test_error_contract.py::test_every_subcommand_failure_emits_an_envelope` | 2026-10-03 |
+| `C11` | The operator UI targets WCAG 2.2 Level AA, with axe coverage for every view and a keyboard-only journey. | `docs/reference/accessibility.md` | `file:docs/reference/accessibility.md`<br>`file:apps/web/src/__tests__/a11y.test.tsx`<br>`file:apps/web/tests/e2e/a11y.spec.ts` | 2026-10-03 |
+| `C12` | Times are stored and compared in UTC; local rendering carries an explicit UTC offset. | `docs/reference/time.md` | `file:docs/reference/time.md`<br>`test:packages/python-sdk/tests/test_time_properties.py::test_relative_since_is_an_exact_utc_duration`<br>`test:packages/python-sdk/tests/test_time_properties.py::test_records_persist_and_reload_as_utc` | 2026-10-03 |
+| `C13` | Releases ship with a CycloneDX SBOM, keyless Sigstore signatures, and SLSA L3 provenance, verifiable with agentwatch verify-release. | `docs/reference/release-integrity.md` | `file:docs/reference/release-integrity.md`<br>`file:.github/workflows/release.yml`<br>`test:packages/python-sdk/tests/test_release_pipeline.py::test_release_workflow_builds_signs_and_verifies` | 2026-10-03 |
+<!-- END GENERATED: claims -->
+
+## Evidence syntax
+
+| Reference | Must resolve to |
+|---|---|
+| `test:<path>::<function>` | A pytest test that still exists (checked by parsing the file's AST). |
+| `file:<path>` | A committed file. |
+| `script:<path>` | A committed script. |
+| `workflow:<path>` | A committed CI workflow. |
+| `doc:<path>` | A committed doc. |
+
+## Rules
+
+- A claim with **no evidence** fails the check — add evidence or remove the claim.
+- A **renamed test** or **deleted file** breaks the link and fails the check.
+- `last_verified` is an ISO date and may not be in the future.
+- Regenerate the table with `python scripts/check_claims.py --write`; prove the check catches broken
+  claims with `python scripts/check_claims.py --self-test`.

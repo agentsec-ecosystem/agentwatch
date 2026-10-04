@@ -1,0 +1,7 @@
+{
+  "id": "FT-10",
+  "status": "pass",
+  "run_id": "all",
+  "assertions": [{"name":"offline-record-verify","ok":true}
+]
+}

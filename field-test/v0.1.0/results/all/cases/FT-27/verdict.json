@@ -1,0 +1,7 @@
+{
+  "id": "FT-27",
+  "status": "pass",
+  "run_id": "all",
+  "assertions": [{"name":"host-native-demo","ok":true}
+]
+}

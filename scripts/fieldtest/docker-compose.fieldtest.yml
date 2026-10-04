@@ -1,0 +1,64 @@
+# Field-test overlay — adds the recorder stack (system under test) to the base
+# analyst stack. Compose with the base file:
+#
+#   docker compose -f docker-compose.yml \
+#                  -f scripts/fieldtest/docker-compose.fieldtest.yml up -d recorder
+#
+# The recorder image is built from the repo root (scripts/fieldtest/recorder.Dockerfile).
+# Results are written to field-test/v0.1.0/results/<UTC-ts>/ by the run scripts,
+# never into a container volume.
+#
+# Services (FT-11 will add an `agent` service sharing the socket volume):
+#   recorder  — agentwatch SDK/CLI + daemon, store at /data/agentwatch
+#   verifier  — clean, no-install auditor for evidence bundles
+#
+# `scripts/fieldtest/` is bind-mounted at /ft/scripts so cases can run helper
+# scripts inside the recorder container without rebuilding the image.
+
+services:
+  recorder:
+    build:
+      # Context is the repo root (Compose resolves overlay-relative paths against
+      # the project directory, which is the repo root when both files are passed
+      # from here). Dockerfile path is relative to this context.
+      context: .
+      dockerfile: scripts/fieldtest/recorder.Dockerfile
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      AGENTWATCH_SOCKET: /run/agentwatch/agentwatch.sock
+      AGENTWATCH_PRIVACY__MODE: ${FT_PRIVACY_MODE:-truncated}
+      AGENTWATCH_LOG__LEVEL: info
+      OMLX_BASE_URL: ${OMLX_BASE_URL:-http://host.docker.internal:8000/v1}
+      OMLX_MODEL: ${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}
+      OMLX_API_KEY: ${OMLX_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - awdata:/data/agentwatch
+      - awsock:/run/agentwatch
+      - ./scripts/fieldtest:/ft/scripts:ro
+    command: ["sleep", "infinity"]
+
+  # Clean, no-install auditor (FT-08/CUJ-08): verifies bundles offline.
+  verifier:
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    depends_on:
+      - recorder
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+    command: ["sleep", "infinity"]
+
+  # OMLX env for the analytics service so its semantic (LLM) detectors reach
+  # the host OMLX server. The base compose does not set these; the analytics
+  # default (127.0.0.1:8000) does not escape the container.
+  analytics:
+    environment:
+      ANALYTICS_LLM_BASE_URL: ${OMLX_BASE_URL:-http://host.docker.internal:8000/v1}
+      ANALYTICS_LLM_CHAT_MODEL: ${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}
+      ANALYTICS_LLM_API_KEY: ${OMLX_API_KEY:-omlx-test}
+      ANALYTICS_LLM_TIMEOUT_SECONDS: ${OMLX_TIMEOUT_SECONDS:-120}
+
+volumes:
+  awdata:
+  awsock:

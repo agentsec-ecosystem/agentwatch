@@ -1,0 +1,33 @@
+{
+  "message": {
+    "phase": "agent_run_start",
+    "harness": "pydantic-ai",
+    "event": {
+      "session_id": "sess-pa",
+      "call_id": "pa-3",
+      "timestamp": "2026-01-02T03:04:07+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-pa",
+      "agent": {
+        "identity": "pydantic-ai"
+      },
+      "tool": {
+        "name": "Agent"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:07+00:00",
+      "trace_id": "sess-pa",
+      "span_id": "pa-3",
+      "harness": "pydantic-ai",
+      "producer": {
+        "kind": "sdk",
+        "name": "pydantic-ai"
+      },
+      "step_type": "act"
+    }
+  ]
+}

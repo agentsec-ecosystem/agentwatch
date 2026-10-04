@@ -1,0 +1,43 @@
+
+################ FT-15 ################
+== case FT-15 ==
+  PASS stack-up
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+  PASS anomalies-api
+  PASS detector-full-matrix
+  PASS detector-tpr-fpr
+== case FT-15: pass ==
+==> Tearing down the stack (and volumes)
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/ft15
+collect-results: 1 pass / 0 fail -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/ft15/summary.{json,md}

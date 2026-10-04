@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "anomalies-api",
+          "ok": true
+        },
+        {
+          "name": "detector-full-matrix",
+          "ok": true
+        },
+        {
+          "name": "detector-tpr-fpr",
+          "ok": true
+        }
+      ],
+      "id": "FT-15",
+      "run_id": "ft15",
+      "status": "pass"
+    }
+  ],
+  "env": {
+    "compose": "5.5.1",
+    "docker": "Docker version 29.5.2, build 79eb04c7d8",
+    "omlx_base_url": "http://host.docker.internal:8000/v1",
+    "omlx_model": "Qwen3.5-9B-MLX-4bit",
+    "run_id": "ft15"
+  },
+  "generated_at": "2026-10-04T09:41:23.936642+00:00",
+  "green": true,
+  "run_id": "ft15",
+  "totals": {
+    "fail": 0,
+    "pass": 1
+  }
+}

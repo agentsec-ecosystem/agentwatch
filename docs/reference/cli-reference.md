@@ -1,0 +1,103 @@
+# Reference — CLI Reference (v0.1.0)
+
+**BLUF:** The `agentwatch` command: install, global flags, subcommands, and how configuration resolves.
+M1 wires the framework and every documented subcommand; `status` is implemented and the daemon/store
+subcommands are filled in by M3–M5 (they fail closed, with a non-zero exit, until then).
+
+## Install
+
+```sh
+pip install agentsec-agentwatch        # Python CLI on PyPI (import + CLI: agentwatch)
+npx @agentsec-ecosystem/cli <command>  # thin launcher that invokes the Python CLI
+```
+
+The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m agentwatch.cli`; set
+`AGENTWATCH_PYTHON` to choose another interpreter.
+
+## Global flags
+
+| Flag | Purpose |
+|---|---|
+| `--config PATH` | Add a config file at the highest file precedence (repeatable). |
+| `--set KEY=VALUE` | Override one config key, e.g. `--set log.level=debug` (repeatable). |
+| `--version` | Print the version and exit. |
+| `-h`, `--help` | Show help for `agentwatch` or any subcommand. |
+
+## Subcommands
+
+| Command | Purpose | M1 status |
+|---|---|---|
+| `agentwatch init [--scope project\|user] [--profile solo\|team\|compliance\|ci] [--no-daemon] [--service] [--mcp-proxy] [--mcp-scope project\|user] [--mcp-servers A,B] [--mcp-port N]` | Install hooks + start the daemon; `--profile` applies a named config bundle consent-first; `--service` writes a launchd/systemd user unit (opt-in); `--mcp-proxy` also re-points MCP server config at the interposition proxy (monitor-only default) | **implemented** (M3; `--service` M12; `--mcp-proxy` M10; `--profile` M21) |
+| `agentwatch status` | Print the resolved configuration / health summary | **implemented** |
+| `agentwatch config explain [KEY] [--diff] [--json]` | Show each config key's effective value, winning precedence layer, and overrides (S34 M21) | **implemented** (M21) |
+| `agentwatch union [--session-id ID] [--source hook\|sdk] [--json]` | Read-time union of hook records and SDK spans; `source` + chain-protection stated (S11 M21) | **implemented** (M21) |
+| `agentwatch checkpoint export [--sign] [--tsa URL] [--output PATH] [--json]` | Emit the latest checkpoint digest; optional ed25519 signature and RFC 3161 token (W7/W9 M22) | **implemented** (M22) |
+| `agentwatch checkpoint verify FILE --public-key PATH [--json]` | Verify a signed checkpoint export with a raw ed25519 public key (W9 M22) | **implemented** (M22) |
+| `agentwatch redact [--preview SAMPLE] [--mode MODE] [--json]` | Preview redaction, or filter stdin→stdout with findings on stderr (S13 M21) | **implemented** (M15; filter M21) |
+| `agentwatch sessions [--project PATH] [--tag NAME]` | List recorded sessions | **implemented** (M3; `--project` M9; `--tag` M15) |
+| `agentwatch replay <id> [--receipts] [--json]` | Reconstruct a session timeline; `--receipts` shows what redaction did per record (M15 S32) | **implemented** (M5; receipts M15) |
+| `agentwatch redact --preview SAMPLE [--json]` | Run a sample through the active redaction config (before/after, stores nothing) | **implemented** (M15 S32) |
+| `agentwatch export enable/disable` | Opt-in OTLP export (gated on self-test) | **implemented** (M5) |
+| `agentwatch export-session <id> [--format ndjson\|ocsf\|cloudevents] [--output PATH]` | Export one session; OCSF/CloudEvents transcode its security events (S8 M20) | **implemented** (M13; M20) |
+| `agentwatch verify-store [--repair --yes]` | Check the store hash chain; `--repair` rebuilds from the intact prefix, preserving corrupt evidence (F4) | **implemented** (M4; repair M12) |
+| `agentwatch verify-release [DIR] [--checksums PATH] [--sbom PATH] [--allow-unsigned] [--json]` | Verify a built release: checksums, CycloneDX SBOM, and keyless cosign / SLSA provenance | **implemented** (M14 Q13) |
+| `agentwatch verify-privacy` | Verify redaction and scan the store for leaks | **implemented** (M5) |
+| `agentwatch tail [-f] [--session-id ID] [--project PATH] [--json] [--alert]` | Read-only record stream; `--alert` marks security signals | **implemented** (M5/M8; `--project` M9) |
+| `agentwatch doctor [--json]` | Ordered health checklist with fix hints | **implemented** (M5) |
+| `agentwatch view [<id>]` | Terminal timeline: list sessions or show a session | **implemented** (M7) |
+| `agentwatch explain <id>` | Deterministic, local-first session summary (no egress by default) | **implemented** (M7) |
+| `agentwatch search [--tool T] [--outcome O] [--session S] [--project PATH] [--producer KIND] [--approval A] [--since WHEN] [--json]` | Filter stored records | **implemented** (M8; `--project` M9; `--producer` M15; `--approval` M19) |
+| `agentwatch diff <a> <b> [--json]` | Behavioral diff of two sessions | **implemented** (M8) |
+| `agentwatch import <path> [--capture MODE] [--json]` | Import Claude Code transcripts (redacted before storage) | **implemented** (M8) |
+| `agentwatch ingest <path> [--format otel\|ndjson] [--capture MODE] [--json]` | Ingest foreign OTel GenAI / NDJSON traces (redacted, chained, quarantines unmappable input) | **implemented** (M10 N2) |
+| `agentwatch fleet ingest HOST=PATH ...` / `fleet show [--json] [--no-group-by-host]` | Opt-in multi-host fleet aggregation (R13) | **implemented** (M11) |
+| `agentwatch drift --metric M [--bucket session\|hour] [--window N] [--z-threshold Z] [--emit] [--deploys FILE] [--json]` | Trailing-baseline drift signals, optional `drift-detected` events + deployment correlation | **implemented** (M11) |
+| `agentwatch inventory [--session-id ID] [--project PATH] [--snapshot] [--diff] [--server NAME] [--json]` | List recorded agents + MCP servers; `--snapshot`/`--diff` show tool-surface drift (R9; S4 M20) | **implemented** (M9; M20) |
+| `agentwatch retention apply [--json]` | Tombstone records older than `store.retention_days` | **implemented** (M9) |
+| `agentwatch purge <id> --yes [--reason TEXT]` | Tombstone one session (right to erasure) | **implemented** (M9) |
+| `agentwatch evidence <session-id> [--out PATH] [--include-bom] [--redact-paths]` | Build a self-contained, offline-verifiable bundle | **implemented** (M15 S1) |
+| `agentwatch evidence verify bundle.zip` | Re-verify a bundle offline (intact/complete/leak-free) | **implemented** (M15 S1) |
+| `agentwatch-verify <bundle.zip\|store.jsonl>` | Standalone stdlib verifier (zipapp), no install | **implemented** (M15 S12) |
+| `agentwatch bom [--session-id ID \| --project PATH \| --machine] [--format cyclonedx\|json]` | Agent Bill of Materials, observed (CycloneDX 1.5) | **implemented** (M15 S9) |
+| `agentwatch annotate <id> --note TEXT [--tag NAME]` | Append an operator note in the chain (M15 S20) | **implemented** (M15) |
+| `agentwatch coverage [--since WHEN] [--project PATH] [--session ID] [--transcripts DIR] [--json]` | Reconcile the store against transcript ground truth; classify every gap by cause (M16 S2) | **implemented** (M16) |
+| `agentwatch quarantine list\|inspect <id>\|requeue [--all]\|clear --yes` | Operator tooling for the dead-letter queue; `inspect` redacted by default, `--raw` audited (M16 S27) | **implemented** (M16) |
+| `agentwatch archive --before DATE [--out DIR] [--json]` | Seal an old chain prefix into an independently verifiable segment + anchor (M16 S28) | **implemented** (M16) |
+| `agentwatch impact <id> [--since WHEN] [--json]` | A session's change footprint / blast radius (M17 S3) | **implemented** (M17) |
+| `agentwatch blame <path> [--since WHEN] [--project PATH] [--sessions] [--json]` | File-centric reverse index: who touched a path, newest first (M17 S18) | **implemented** (M17) |
+| `agentwatch tree <id> [--by-cost] [--json]` | Subagent fan-out with per-node counts/outcomes/tokens (M17 S17) | **implemented** (M17) |
+| `agentwatch at "TIME" [--window 30m] [--json]` | Every record in a cross-session time window, with a gap header (M17 S24) | **implemented** (M17) |
+| `agentwatch cost [--by session\|project\|model\|tool\|day] [--since 30d] [--json]` | Token/cost rollup against a versioned local pricing table (M17 S6) | **implemented** (M17) |
+| `agentwatch digest [--since 7d]` | Local markdown weekly readout (sessions/tools/cost/gaps) (M17 S37) | **implemented** (M17) |
+| `agentwatch sessions --group-by-behavior` | Group sessions by their `bd1:` behavior fingerprint (M17 S7) | **implemented** (M17) |
+| `agentwatch flow <id> [--record] [--json]` | Content → argument flow edges (keyed HMAC; fingerprints only) (M18 S22) | **implemented** (M18) |
+| `agentwatch secrets [--session-id ID] [--json]` | Trace exposed secrets across a session without values (M18 S23) | **implemented** (M18) |
+| `agentwatch demo [--purge] [--json]` | Prove the hook→daemon→store→chain pipeline with synthetic events (M19 S31) | **implemented** (M19) |
+| `agentwatch mcp-proxy --server NAME -- <command> [args...]` | Run the stdio MCP interposition proxy | **implemented** (M10) |
+| `agentwatch mcp-proxy --http [--host H] [--port P] --route NAME=URL ...` | Run the loopback HTTP/SSE MCP interposition proxy | **implemented** (M10) |
+| `agentwatch migrate [--rollback]` | Store-format migration (v0.2.0+) | wired, implemented in M9+ |
+| `agentwatch uninstall [--scope project\|user] [--mcp-scope project\|user]` | Remove hooks, stop the daemon, restore MCP config byte-identically, stop the MCP proxy | **implemented** (M3; MCP M10) |
+
+## Configuration
+
+`agentwatch` resolves configuration from, lowest to highest precedence:
+
+1. system — `/etc/agentwatch/config.toml`
+2. user — `$XDG_CONFIG_HOME/agentwatch/config.toml` (default `~/.config/agentwatch/config.toml`)
+3. project — `./.agentwatch/config.toml`
+4. environment — `AGENTWATCH_*` (nested keys use a double underscore, e.g. `AGENTWATCH_STORE__RETENTION_DAYS`)
+5. CLI flags — `--config` files, then `--set` overrides
+
+Objects merge recursively; scalars are replaced by the higher-precedence source. Loading is **strict and
+fail-closed**: an unknown key, an invalid value, or an unsafe export setup prints
+`agentwatch: configuration error: …` and exits `2` rather than running with bad settings (F7). An explicit
+`--config` file that is missing is also a configuration error. `AGENTWATCH_PYTHON` (the launcher's
+interpreter override) is reserved and ignored. See [PRD 16 — Configuration](../prd/16-configuration.md)
+for the full key list and defaults.
+
+## Exit codes
+
+Exit statuses come from the one [error contract](errors.md): every failure emits a machine-readable
+envelope with a stable `code`, and the code's process status is fixed by the catalog. `0` is success; a
+failure is `1` (runtime/install/input), `2` (configuration or usage), or `3` (not implemented). The full
+code→exit table is generated in [errors.md](errors.md#exit-codes).

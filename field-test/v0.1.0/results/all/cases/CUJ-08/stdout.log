@@ -1,0 +1,171 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 425B done
+#2 DONE 0.0s
+
+#3 [recorder internal] load build definition from recorder.Dockerfile
+#3 transferring dockerfile: 1.19kB done
+#3 DONE 0.0s
+
+#4 [analytics internal] load build definition from Dockerfile
+#4 transferring dockerfile: 394B done
+#4 DONE 0.0s
+
+#5 [web internal] load build definition from Dockerfile
+#5 transferring dockerfile: 327B done
+#5 DONE 0.0s
+
+#6 [analytics internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.2s
+
+#7 [recorder internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [api internal] load .dockerignore
+#8 transferring context: 116B done
+#8 DONE 0.0s
+
+#9 [analytics internal] load .dockerignore
+#9 transferring context: 129B done
+#9 DONE 0.0s
+
+#10 [api 1/7] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#10 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 0.0s done
+#10 DONE 0.0s
+
+#11 [analytics internal] load build context
+#11 transferring context: 4.76kB done
+#11 DONE 0.0s
+
+#12 [api internal] load build context
+#12 transferring context: 1.23kB done
+#12 DONE 0.0s
+
+#13 [api 3/5] COPY pyproject.toml ./
+#13 CACHED
+
+#14 [api 4/5] COPY src/ src/
+#14 CACHED
+
+#15 [api 5/5] RUN pip install --no-cache-dir -e .
+#15 CACHED
+
+#16 [analytics 4/5] COPY src/ src/
+#16 CACHED
+
+#17 [api 2/5] WORKDIR /app
+#17 CACHED
+
+#18 [analytics 3/5] COPY pyproject.toml ./
+#18 CACHED
+
+#19 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#19 CACHED
+
+#20 [recorder internal] load build context
+#20 transferring context: 79.99kB 0.0s done
+#20 DONE 0.0s
+
+#21 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#21 CACHED
+
+#22 [recorder 3/7] WORKDIR /work
+#22 CACHED
+
+#23 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#23 CACHED
+
+#24 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#24 CACHED
+
+#25 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#25 CACHED
+
+#26 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#26 CACHED
+
+#27 [recorder] exporting to image
+#27 exporting layers done
+#27 exporting manifest sha256:7528bc414afa6087d82b8cab49f022bd352cf0737186ce0cac217beb7698a226 done
+#27 exporting config sha256:0d4433ca6f5e54ee5525d28318ce9d22631e3073ba04071080f0342fd6238a2e done
+#27 exporting attestation manifest sha256:2a09580359472fc134edb17eff7a77aa15050ac4eb3fed2c103d4ba4b16ac71b 0.0s done
+#27 exporting manifest list sha256:7ebcf040d66b31e52f8a31d4801c260f6e156e598744cdb2912f366c09f98852 done
+#27 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#27 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#27 DONE 0.1s
+
+#28 [api] exporting to image
+#28 exporting layers done
+#28 exporting manifest sha256:4909c924a9b275cf07742c2a073181bcd236abf5dc9f6b2c95cc7b9bc662723e done
+#28 exporting config sha256:76d20316a05bcec7585210f86d59c9aad15b8a7cd584c0713692f1f15d0a08a6 done
+#28 exporting attestation manifest sha256:fe068a9f0ebeca5a32f2012989f597594377da41a5032338a1ec6007c3362d5f 0.0s done
+#28 exporting manifest list sha256:6dbb16cf851a61ca09398392aef395ed7e9aa877af10f0f1948b7396fe9f6923 done
+#28 naming to docker.io/library/agentwatch-api:latest done
+#28 unpacking to docker.io/library/agentwatch-api:latest done
+#28 DONE 0.1s
+
+#29 [analytics] exporting to image
+#29 exporting layers done
+#29 exporting manifest sha256:6e924aa1e298fcbd35c9bb430cfb70487ece4f323c5c4bc0d55f1d8991676bd4 done
+#29 exporting config sha256:8d19c3862115f6cfbbf7de0097a002baf35eb40ddc79882f4a79f6e55e30b3a3 done
+#29 exporting attestation manifest sha256:edbc954c26ca4663f85d87bf852adb96f65064f75f94da0a63630ba5f7a89af4 0.0s done
+#29 exporting manifest list sha256:1cea0c7d0ad972b040d18cd9ffbab3976d89d7ea7ddff1de078138b7796f1140 done
+#29 naming to docker.io/library/agentwatch-analytics:latest done
+#29 unpacking to docker.io/library/agentwatch-analytics:latest done
+#29 DONE 0.1s
+
+#30 [api] resolving provenance for metadata file
+#30 DONE 0.0s
+
+#31 [analytics] resolving provenance for metadata file
+#31 DONE 0.0s
+
+#32 [recorder] resolving provenance for metadata file
+#32 DONE 0.0s
+
+#33 [web internal] load metadata for docker.io/library/node:22-alpine
+#33 DONE 0.3s
+
+#34 [web internal] load .dockerignore
+#34 transferring context: 67B done
+#34 DONE 0.0s
+
+#35 [web internal] load build context
+#35 transferring context: 3.58kB done
+#35 DONE 0.0s
+
+#36 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#36 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 done
+#36 DONE 0.0s
+
+#37 [web 3/5] COPY package.json package-lock.json ./
+#37 CACHED
+
+#38 [web 2/5] WORKDIR /app
+#38 CACHED
+
+#39 [web 4/5] RUN npm ci
+#39 CACHED
+
+#40 [web 5/5] COPY . .
+#40 CACHED
+
+#41 [web] exporting to image
+#41 exporting layers done
+#41 exporting manifest sha256:1fe311890c78c1dc3e0667ff0ec1a2b7f75abaabcf81bd69d4ed7625943cb527 done
+#41 exporting config sha256:95c8132d4e760b68fc225f24d7f9e6ee034887ec467d0d491fd7961faae45bad done
+#41 exporting attestation manifest sha256:6ae42c376df7d5487f5ede2bbee4fba75c0dd2d085c2d492a284e12bed037c1e done
+#41 exporting manifest list sha256:13898a911fa19c86a80af5d5fa9bd2065ff16fabb425a6eff4b1375b566881d1 done
+#41 naming to docker.io/library/agentwatch-web:latest
+#41 naming to docker.io/library/agentwatch-web:latest done
+#41 unpacking to docker.io/library/agentwatch-web:latest done
+#41 DONE 0.0s
+
+#42 [web] resolving provenance for metadata file
+#42 DONE 0.0s
+seed-fixtures: seeded /data/agentwatch/records.jsonl
+agentwatch: chain ok (8 entries)

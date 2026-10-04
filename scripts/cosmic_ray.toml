@@ -1,0 +1,22 @@
+# Optional deep mutation run for the trust path (PRD 38 §Q2, issue #219).
+#
+# This is NOT the enforced CI gate — that is `scripts/mutation_gate.py`, which is
+# deterministic, fast, and self-testing. Use this when you want the full
+# off-the-shelf operator set over one module. Install the extra first:
+#
+#   python -m pip install -e "packages/python-sdk[mutation]"
+#   python -m cosmic_ray.cli init scripts/cosmic_ray.toml /tmp/cr.sqlite
+#   python -m cosmic_ray.cli exec scripts/cosmic_ray.toml /tmp/cr.sqlite
+#   python -m cosmic_ray.cli dump /tmp/cr.sqlite   # worker_result.test_outcome
+#
+# Note: the `cr-filter-*` tools currently fail on the supported Python/SQLAlchemy
+# combination, so this config does not use operator filters. Scope a run by
+# pointing `module-path` at one module and `test-command` at its focused tests.
+[cosmic-ray]
+module-path = "packages/python-sdk/src/agentwatch/redact.py"
+timeout = 30.0
+excluded-modules = []
+test-command = "python -m pytest packages/python-sdk/tests/test_redact.py -q"
+
+[cosmic-ray.distributor]
+name = "local"

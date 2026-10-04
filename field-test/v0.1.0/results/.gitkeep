@@ -1,0 +1,2 @@
+Field-test run outputs land here as `<UTC-ts>/` directories, written only by the harness.
+Nothing here is hand-edited; the directory is gitignored except this file.

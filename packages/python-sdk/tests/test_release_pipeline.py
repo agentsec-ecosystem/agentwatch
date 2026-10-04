@@ -163,7 +163,7 @@ def test_release_workflow_builds_signs_and_verifies() -> None:
     assert "requirements-build.txt" in text and "--require-hashes" in text
     assert "python -m build --no-isolation" in text
     assert "cosign sign-blob" in text
-    assert "slsa-github-generator/.github/workflows/generator_generic_slsa3.yml" in text
+    assert "actions/attest-build-provenance" in text
     assert "agentwatch verify-release dist" in text
 
 

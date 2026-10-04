@@ -1,6 +1,7 @@
 # Reference — Release Integrity (v0.1.0)
 
-**BLUF:** Releases are built, hashed, SBOM'd, **signed**, and carry **SLSA L3 provenance**; a consumer can
+**BLUF:** Releases are built, hashed, SBOM'd, **signed**, and carry **GitHub-native build provenance**
+(SLSA Build L2); a consumer can
 check all of it with `agentwatch verify-release`. GitHub Actions are pinned by commit SHA and the release
 build toolchain is hash-pinned, so a moved tag or an unhashed dependency cannot silently change what ships
 (PRD 38 §Q13, PRD 18 §D/§F, issue #230).

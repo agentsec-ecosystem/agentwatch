@@ -82,7 +82,7 @@ journeys exercised end to end.
 secret/dependency scan (`make security-scan`, CI-wired), SBOM + checksums verified by a local release dry-run
 (`make release-dry-run`), compliance matrix + OpenSSF checklist published, version consistency enforced,
 release notes + compatibility table published, README rebuilt, **`v0.1.0` tagged and released** (signed +
-CycloneDX SBOM + checksums + GitHub release; SLSA provenance via `release.yml`), PyPI trusted publishing
+CycloneDX SBOM + checksums + GitHub release; GitHub-native build provenance via `release.yml`), PyPI trusted publishing
 wired, and `agent-exec-trace` **retained and made private**.
 
 > **Canonical release gate:** M24 is where the **release tag is cut** and the predecessor repo is made

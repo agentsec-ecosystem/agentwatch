@@ -2,7 +2,7 @@
 
 **BLUF:** the v0.1.0 release bundle **builds, checksums, and verifies** locally. A
 CycloneDX 1.5 SBOM with resolved dependency versions is produced, and
-`agentwatch verify-release` accepts the bundle. Keyless Sigstore signing and SLSA L3
+`agentwatch verify-release` accepts the bundle. Keyless Sigstore signing and GitHub-native build
 provenance require a CI OIDC identity and run in `.github/workflows/release.yml` on the
 `v0.1.0` tag (M24 24.8), not on a workstation.
 
@@ -62,7 +62,7 @@ artifact it cannot verify**:
 | SBOM + checksums | `scripts/release/` |
 | Keyless signatures | `cosign sign-blob` (Sigstore, OIDC) |
 | Verify before publish | `agentwatch verify-release dist` with identity/issuer pins |
-| Provenance | `actions/attest-build-provenance` (GitHub) + SLSA L3 generator |
+| Provenance | `actions/attest-build-provenance` (GitHub-native, SLSA Build L2) |
 | Publish | `softprops/action-gh-release` |
 
 ## Residual (stated, not hidden)

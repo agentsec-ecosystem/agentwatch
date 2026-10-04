@@ -15,10 +15,9 @@
 > *why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
 > [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-**Status: v0.1.0 released** — feature-complete, docs complete, and validated at the M24 release gate.
-agentwatch is the **shipped-feature superset** of `agent-exec-trace`: that codebase is ported in
-(WBS M0) and the predecessor repo is **retained privately** at release (never deleted). Tagged
-`v0.1.0` — see the [release notes](docs/release/v0.1.0/release-notes.md).
+**Status: v0.1.0 released** — feature-complete, documented, and validated at the release gate. Tagged
+`v0.1.0` and published on [PyPI](https://pypi.org/project/agentsec-agentwatch/) — see the
+[release notes](docs/release/v0.1.0/release-notes.md).
 
 ---
 

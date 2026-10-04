@@ -57,5 +57,5 @@ The release tag is **cut at release readiness**, not during M13. See
 
 - [x] At **M24**: cut and push the `v0.1.0` git tag (triggers `release.yml`: build + SBOM + checksums +
       Sigstore provenance + GitHub release).
-- [ ] At **M24**: make the `agent-exec-trace` predecessor repository **private** (retained, never deleted).
+- [x] At **M24**: make the `agent-exec-trace` predecessor repository **private** (retained, never deleted).
 - [ ] At **M24**: record the OpenSSF Scorecard grade for the tag.

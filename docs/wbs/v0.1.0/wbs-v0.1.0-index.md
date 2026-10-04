@@ -6,8 +6,8 @@ additions (R14–R25, PRD 19–30: lifecycle, delivery guarantees, operator tool
 strategy) **and the new additions (PRDs 31–39: evidence, coverage/trust, investigation, forensics, capture
 context, interop, config, engineering rigor, compliance acceptance)**. Twenty-five milestones (M0–M24), split
 across thirteen detail files (max 2 milestones per file). The additions fold into M5–M13 and **M14–M22**;
-**M23 (Field Tests) ✅ complete; M24 (Release Readiness) 🔄 in progress — 24.1–24.8 done (`v0.1.0` tagged
-2026-10-04); predecessor privacy (24.9) remains.**
+**M23 (Field Tests) ✅ complete; M24 (Release Readiness) ✅ complete (2026-10-04) — `v0.1.0` tagged and
+released; predecessor repo `agent-exec-trace` retained and made private.**
 
 ## Standard milestone exit criteria (applies to EVERY milestone)
 
@@ -114,10 +114,10 @@ across thirteen detail files (max 2 milestones per file). The additions fold int
 > **M23 (Field Tests) ✅ complete** — 50/50 field-test cases, 226/226 detector scenarios across 43
 > detectors, 49/49 Playwright; four defects fixed with regression evidence; `FIELD_TEST_REPORT.md`
 > published (issues #141–#147, #104, #279–#285).
-> **M24 (Release Readiness) 🔄 in progress** — 24.1–24.8 done: security scan, SBOM/signing dry-run,
-> compliance matrix + OpenSSF checklist, versioning, release notes + compatibility table, README, and
-> **`v0.1.0` tagged** (PyPI trusted publishing wired into `release.yml`). Remaining: **24.9
-> `agent-exec-trace` private**.
+> **M24 (Release Readiness) ✅ complete** — 24.1–24.T done: security scan, SBOM/signing dry-run,
+> compliance matrix + OpenSSF checklist, versioning, release notes + compatibility table, README,
+> **`v0.1.0` tagged and released** (PyPI trusted publishing wired into `release.yml`), and
+> **`agent-exec-trace` retained and made private**.
 >
 > **M14 (Engineering Rigor, Q1–Q13) ✅ complete** — property/differential/mutation/fuzz testing, whole-repo
 > CI, enforced perf budget, conformance vectors, forward-compat matrix, machine-readable error contract,

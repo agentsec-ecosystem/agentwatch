@@ -64,7 +64,7 @@ CI runs exactly these targets. Workflows and their required/informational status
 | `fuzz.yml` | nightly parser fuzzing (M14 Q3) | informational (nightly) |
 | `soak.yml` | nightly soak (M12) | informational (nightly) |
 | `scorecard.yml` / `dco.yml` | supply-chain scorecard / DCO sign-off | **required** |
-| `release.yml` | on tag: build + SBOM + cosign signature + SLSA L3 provenance + `verify-release` gate (M14 Q13) | release gate |
+| `release.yml` | on tag: build + SBOM + cosign signature + GitHub-native build provenance + `verify-release` gate (M14 Q13) | release gate |
 
 Compose-backed jobs (`e2e.yml`, `stack-smoke.yml`) skip with an explicit reason when Docker is
 unavailable; they never silently pass. Sign commits with `git commit -s` (DCO).

@@ -259,7 +259,7 @@ versioning: [Semantic Versioning](https://semver.org/).
   works on Python 3.10; `tail`/`view` render `HH:MM:SS+HHMM`.
 - Supply chain (M14 Q13 #230): the release pipeline now **signs what it ships** —
   `.github/workflows/release.yml` builds, writes a CycloneDX SBOM + checksums, signs them with **keyless
-  Sigstore/cosign**, generates **SLSA L3 provenance** (reusable generator), and refuses to publish unless
+  Sigstore/cosign**, generates **GitHub-native build provenance** (attestation), and refuses to publish unless
   **`agentwatch verify-release`** confirms the artifacts (checksums + SBOM + signature). Every GitHub Action
   is pinned by commit SHA; the build toolchain is hash-pinned (`scripts/release/requirements-build.txt`).
 

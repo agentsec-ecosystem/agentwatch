@@ -74,15 +74,16 @@ journeys exercised end to end.
 
 ---
 
-## Milestone M24 — Release Readiness
+## Milestone M24 — Release Readiness — ✅ COMPLETE (2026-10-04)
 
 **Goal:** execute the release-readiness checklist, ship **v0.1.0**, and make `agent-exec-trace` private (retained, never deleted).
 
-**Status:** 🔄 **In progress** (2026-10-04) — 24.1–24.8 validated/done: security audit + reproducible
-first-party secret/dependency scan (`make security-scan`, CI-wired), SBOM + checksums verified by a local
-release dry-run (`make release-dry-run`), compliance matrix + OpenSSF checklist published, version
-consistency enforced, release notes + compatibility table published, README rebuilt, and **`v0.1.0` tagged**
-with PyPI trusted publishing wired into `release.yml`. **Remaining:** 24.9 predecessor privacy.
+**Status:** ✅ **Complete (2026-10-04).** 24.1–24.T done: security audit + reproducible first-party
+secret/dependency scan (`make security-scan`, CI-wired), SBOM + checksums verified by a local release dry-run
+(`make release-dry-run`), compliance matrix + OpenSSF checklist published, version consistency enforced,
+release notes + compatibility table published, README rebuilt, **`v0.1.0` tagged and released** (signed +
+CycloneDX SBOM + checksums + GitHub release; SLSA provenance via `release.yml`), PyPI trusted publishing
+wired, and `agent-exec-trace` **retained and made private**.
 
 > **Canonical release gate:** M24 is where the **release tag is cut** and the predecessor repo is made
 > private. M13 implements the release *tooling and evidence*; 24.1–24.6 **validate** the artifacts M13
@@ -105,7 +106,7 @@ with PyPI trusted publishing wired into `release.yml`. **Remaining:** 24.9 prede
 | 24.6 | Versioning + backwards-compat policy validated | policy | documented + honored | #153 | ✅ |
 | 24.7 | Release notes + compatibility table | notes | published | #154 | ✅ |
 | 24.8 | Tag v0.1.0 | tag + release | published | #155 | ✅ |
-| 24.9 | Make `agent-exec-trace` repo private | visibility | retained + `private` | #156 | ⏳ pending |
+| 24.9 | Make `agent-exec-trace` repo private | visibility | retained + `private` | #156 | ✅ |
 | 24.T | Add/expand test cases for this milestone (unit + integration + fault-injection) | tests | all new paths covered; coverage ≥ 95% | #157 | ✅ |
 | 24.D | Create/update the design + reference docs for this milestone | docs | docs updated and linked from the WBS | #158 | ✅ |
 
@@ -123,10 +124,10 @@ with PyPI trusted publishing wired into `release.yml`. **Remaining:** 24.9 prede
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
-- [ ] Full PRD coverage + shipped-feature parity A1–A6 delivered and tested
-- [ ] First-run ≤15 min; security audit + OWASP matrix + release notes published; SBOM + signed artifacts
-- [ ] v0.1.0 tagged; **`agent-exec-trace` repository retained and made private**
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · design docs updated · port tasks complete
+- [x] Full PRD coverage + shipped-feature parity A1–A6 delivered and tested
+- [x] First-run ≤15 min; security audit + OWASP matrix + release notes published; SBOM + signed artifacts
+- [x] v0.1.0 tagged; **`agent-exec-trace` repository retained and made private**
 
 **Design docs to update:** [README](../../../README.md), [CHANGELOG](../../../CHANGELOG.md),
 [release notes](../../release/v0.1.0/release-notes.md), [security audit](../../release/v0.1.0/security-audit.md),

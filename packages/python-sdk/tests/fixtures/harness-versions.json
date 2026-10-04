@@ -1,0 +1,133 @@
+{
+  "fixtures": {
+    "claude-code/mcp_tool.json": {
+      "fingerprint": "811613fba75cc889",
+      "version": "2.x"
+    },
+    "claude-code/permission_denied.json": {
+      "fingerprint": "518f1dc28d996d60",
+      "version": "2.x"
+    },
+    "claude-code/post_error.json": {
+      "fingerprint": "84de4d8e842b7914",
+      "version": "2.x"
+    },
+    "claude-code/post_failure.json": {
+      "fingerprint": "4918575ece0b7740",
+      "version": "2.x"
+    },
+    "claude-code/post_ok.json": {
+      "fingerprint": "6905ec5ea733e184",
+      "version": "2.x"
+    },
+    "claude-code/pre_basic.json": {
+      "fingerprint": "45a92b3b37d2c1cb",
+      "version": "2.x"
+    },
+    "claude-code/pre_extra_fields.json": {
+      "fingerprint": "ce0a0d0852f85934",
+      "version": "2.x"
+    },
+    "claude-code/resume_session.json": {
+      "fingerprint": "417454eef8bd43d2",
+      "version": "2.x"
+    },
+    "claude-code/secret_args.json": {
+      "fingerprint": "350b890a8d7dae08",
+      "version": "2.x"
+    },
+    "claude-code/session_end.json": {
+      "fingerprint": "d1449af4b5234920",
+      "version": "2.x"
+    },
+    "claude-code/session_start.json": {
+      "fingerprint": "d1449af4b5234920",
+      "version": "2.x"
+    },
+    "claude-code/subagent.json": {
+      "fingerprint": "ce5ab62c4f610690",
+      "version": "2.x"
+    },
+    "claude-code/user_prompt.json": {
+      "fingerprint": "5462a8d1749533dd",
+      "version": "2.x"
+    },
+    "codex-cli/exec_begin.json": {
+      "fingerprint": "d6cb1ef743ad3b72",
+      "version": "modeled"
+    },
+    "codex-cli/exec_end_error.json": {
+      "fingerprint": "53166c449d135e85",
+      "version": "modeled"
+    },
+    "codex-cli/patch_apply.json": {
+      "fingerprint": "2d2f3dba0fac7934",
+      "version": "modeled"
+    },
+    "crewai/agent_end.json": {
+      "fingerprint": "e867a8cdf462ea86",
+      "version": "modeled"
+    },
+    "crewai/agent_start.json": {
+      "fingerprint": "93eebc818ccfbbed",
+      "version": "modeled"
+    },
+    "crewai/task_end.json": {
+      "fingerprint": "fb57f8b06f461326",
+      "version": "modeled"
+    },
+    "crewai/task_start.json": {
+      "fingerprint": "b82bb98fb0c72bd3",
+      "version": "modeled"
+    },
+    "crewai/tool_usage.json": {
+      "fingerprint": "2df7496ca31edb5a",
+      "version": "modeled"
+    },
+    "cursor/after_edit_error.json": {
+      "fingerprint": "19588203ac3f8d0b",
+      "version": "modeled"
+    },
+    "cursor/before_shell.json": {
+      "fingerprint": "4fda09a55fb5c75b",
+      "version": "modeled"
+    },
+    "gemini-cli/session_start.json": {
+      "fingerprint": "3c59ff2b9fc43194",
+      "version": "modeled"
+    },
+    "gemini-cli/tool_call.json": {
+      "fingerprint": "b82bb98fb0c72bd3",
+      "version": "modeled"
+    },
+    "gemini-cli/tool_result.json": {
+      "fingerprint": "e661ccbeed2a3f75",
+      "version": "modeled"
+    },
+    "mcp-proxy/tools-call-request.json": {
+      "fingerprint": "c6fb8a13de6e1cd8",
+      "version": "2025-06-18"
+    },
+    "mcp-proxy/tools-call-response.json": {
+      "fingerprint": "461f5015038522c1",
+      "version": "2025-06-18"
+    },
+    "pydantic-ai/agent_run_end.json": {
+      "fingerprint": "e867a8cdf462ea86",
+      "version": "modeled"
+    },
+    "pydantic-ai/agent_run_start.json": {
+      "fingerprint": "2ea4fb371fda437b",
+      "version": "modeled"
+    },
+    "pydantic-ai/tool_call.json": {
+      "fingerprint": "3383ab36b34c5c06",
+      "version": "modeled"
+    },
+    "pydantic-ai/tool_result.json": {
+      "fingerprint": "e31c89a1a6ed4b53",
+      "version": "modeled"
+    }
+  },
+  "version": 1
+}

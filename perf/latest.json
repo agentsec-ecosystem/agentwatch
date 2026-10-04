@@ -1,0 +1,10 @@
+{
+  "budget_ms": 5.0,
+  "generated_at": "2026-10-03T20:21:04.035805+00:00",
+  "measured_ms": {
+    "daemon_handle_message": 0.1699169997664285,
+    "normalize": 0.009374999990541255,
+    "redaction": 0.00491599985252833
+  },
+  "tolerance": 3.0
+}

@@ -1,0 +1,39 @@
+== case FT-14 ==
+  PASS stack-up
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+  PASS emit
+  PASS gap-record
+  PASS verify-store
+  PASS store-has-records
+== case FT-14: pass ==
+==> Tearing down the stack (and volumes)

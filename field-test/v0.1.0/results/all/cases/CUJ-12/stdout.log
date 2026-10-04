@@ -1,0 +1,174 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [recorder internal] load build definition from recorder.Dockerfile
+#2 transferring dockerfile: 1.19kB done
+#2 DONE 0.0s
+
+#3 [api internal] load build definition from Dockerfile
+#3 transferring dockerfile: 425B done
+#3 DONE 0.0s
+
+#4 [analytics internal] load build definition from Dockerfile
+#4 transferring dockerfile: 394B done
+#4 DONE 0.0s
+
+#5 [web internal] load build definition from Dockerfile
+#5 transferring dockerfile: 327B done
+#5 DONE 0.0s
+
+#6 [analytics internal] load metadata for docker.io/library/python:3.12-slim
+#6 ...
+
+#7 [web internal] load metadata for docker.io/library/node:22-alpine
+#7 DONE 0.2s
+
+#8 [web internal] load .dockerignore
+#8 transferring context: 67B done
+#8 DONE 0.0s
+
+#6 [recorder internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.2s
+
+#9 [recorder internal] load .dockerignore
+#9 transferring context: 2B done
+#9 DONE 0.0s
+
+#10 [analytics internal] load .dockerignore
+#10 transferring context: 129B done
+#10 DONE 0.0s
+
+#11 [api internal] load .dockerignore
+#11 transferring context: 116B done
+#11 DONE 0.0s
+
+#12 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#12 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 0.0s done
+#12 DONE 0.0s
+
+#13 [web internal] load build context
+#13 transferring context: 3.58kB done
+#13 DONE 0.0s
+
+#14 [web 3/5] COPY package.json package-lock.json ./
+#14 CACHED
+
+#15 [web 2/5] WORKDIR /app
+#15 CACHED
+
+#16 [web 4/5] RUN npm ci
+#16 CACHED
+
+#17 [web 5/5] COPY . .
+#17 CACHED
+
+#18 [analytics 1/7] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#18 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 0.0s done
+#18 DONE 0.0s
+
+#19 [analytics internal] load build context
+#19 transferring context: 4.76kB done
+#19 DONE 0.0s
+
+#20 [api internal] load build context
+#20 transferring context: 1.23kB done
+#20 DONE 0.0s
+
+#21 [analytics 3/5] COPY pyproject.toml ./
+#21 CACHED
+
+#22 [analytics 4/5] COPY src/ src/
+#22 CACHED
+
+#23 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#23 CACHED
+
+#24 [api 3/5] COPY pyproject.toml ./
+#24 CACHED
+
+#25 [api 4/5] COPY src/ src/
+#25 CACHED
+
+#26 [api 2/5] WORKDIR /app
+#26 CACHED
+
+#27 [api 5/5] RUN pip install --no-cache-dir -e .
+#27 CACHED
+
+#28 [recorder internal] load build context
+#28 transferring context: 79.99kB 0.0s done
+#28 DONE 0.0s
+
+#29 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#29 CACHED
+
+#30 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#30 CACHED
+
+#31 [recorder 3/7] WORKDIR /work
+#31 CACHED
+
+#32 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#32 CACHED
+
+#33 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#33 CACHED
+
+#34 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#34 CACHED
+
+#35 [recorder] exporting to image
+#35 exporting layers done
+#35 exporting manifest sha256:7528bc414afa6087d82b8cab49f022bd352cf0737186ce0cac217beb7698a226 done
+#35 exporting config sha256:0d4433ca6f5e54ee5525d28318ce9d22631e3073ba04071080f0342fd6238a2e done
+#35 exporting attestation manifest sha256:406ebf39032dcb737d853ea388d37de5f9f2281313ceb7a9de7e1b4fdefcc41b 0.0s done
+#35 exporting manifest list sha256:30606605883c082f21a6512585b20a664aeb5dd26b249bc627c473938663af82 0.0s done
+#35 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#35 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#35 DONE 0.1s
+
+#36 [web] exporting to image
+#36 exporting layers done
+#36 exporting manifest sha256:1fe311890c78c1dc3e0667ff0ec1a2b7f75abaabcf81bd69d4ed7625943cb527 done
+#36 exporting config sha256:95c8132d4e760b68fc225f24d7f9e6ee034887ec467d0d491fd7961faae45bad done
+#36 exporting attestation manifest sha256:90d35710d20ab451947318f6d52aa1f2c19f267e2fde29abef733b387fd8a7d0 0.0s done
+#36 exporting manifest list sha256:4fb312c42a5a0a9a8b1a5f6775f713c667a33891e1374e13a5e8a417897832c2 done
+#36 naming to docker.io/library/agentwatch-web:latest done
+#36 unpacking to docker.io/library/agentwatch-web:latest done
+#36 DONE 0.1s
+
+#37 [analytics] exporting to image
+#37 exporting layers done
+#37 exporting manifest sha256:6e924aa1e298fcbd35c9bb430cfb70487ece4f323c5c4bc0d55f1d8991676bd4 done
+#37 exporting config sha256:8d19c3862115f6cfbbf7de0097a002baf35eb40ddc79882f4a79f6e55e30b3a3 done
+#37 exporting attestation manifest sha256:82186e32a51863d1c3143dc79f0b68b9a8f8be8b96e84fcd8092b1bea61e6ebf 0.0s done
+#37 exporting manifest list sha256:fb908fd1839e7587f6a06cac76513eed3cbf1dcbda29d751bed8ca21036b1c13 0.0s done
+#37 naming to docker.io/library/agentwatch-analytics:latest done
+#37 unpacking to docker.io/library/agentwatch-analytics:latest done
+#37 DONE 0.1s
+
+#38 [api] exporting to image
+#38 exporting layers done
+#38 exporting manifest sha256:4909c924a9b275cf07742c2a073181bcd236abf5dc9f6b2c95cc7b9bc662723e done
+#38 exporting config sha256:76d20316a05bcec7585210f86d59c9aad15b8a7cd584c0713692f1f15d0a08a6 done
+#38 exporting attestation manifest sha256:d9460d9701960f2e3242401d8e2e3b2b7393e8c820915df30d1f117dbe8a9bc6 0.0s done
+#38 exporting manifest list sha256:b21c12ab4f30c5a5cbe4a05c455cc386c9bf0caf75e459875126eceac0e4cea0 0.0s done
+#38 naming to docker.io/library/agentwatch-api:latest done
+#38 unpacking to docker.io/library/agentwatch-api:latest done
+#38 DONE 0.1s
+
+#39 [web] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#40 [analytics] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [api] resolving provenance for metadata file
+#41 DONE 0.0s
+
+#42 [recorder] resolving provenance for metadata file
+#42 DONE 0.0s
+seed-fixtures: seeded /data/agentwatch/records.jsonl
+agentwatch: purged 5 record(s) for session ft-seed-main
+agentwatch: chain ok (9 entries)

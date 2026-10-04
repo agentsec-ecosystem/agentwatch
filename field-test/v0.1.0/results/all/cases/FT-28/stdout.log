@@ -1,0 +1,174 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [web internal] load build definition from Dockerfile
+#2 transferring dockerfile: 327B done
+#2 DONE 0.0s
+
+#3 [api internal] load build definition from Dockerfile
+#3 transferring dockerfile: 425B done
+#3 DONE 0.0s
+
+#4 [analytics internal] load build definition from Dockerfile
+#4 transferring dockerfile: 394B done
+#4 DONE 0.0s
+
+#5 [recorder internal] load build definition from recorder.Dockerfile
+#5 transferring dockerfile: 1.19kB done
+#5 DONE 0.0s
+
+#6 [recorder internal] load metadata for docker.io/library/python:3.12-slim
+#6 ...
+
+#7 [web internal] load metadata for docker.io/library/node:22-alpine
+#7 DONE 0.2s
+
+#8 [web internal] load .dockerignore
+#8 transferring context: 67B done
+#8 DONE 0.0s
+
+#6 [analytics internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.2s
+
+#9 [web internal] load build context
+#9 transferring context: 2.80kB done
+#9 DONE 0.0s
+
+#10 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#10 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 0.0s done
+#10 DONE 0.0s
+
+#11 [recorder internal] load .dockerignore
+#11 transferring context: 2B done
+#11 DONE 0.0s
+
+#12 [analytics internal] load .dockerignore
+#12 transferring context: 129B done
+#12 DONE 0.0s
+
+#13 [api internal] load .dockerignore
+#13 transferring context: 116B done
+#13 DONE 0.0s
+
+#14 [web 2/5] WORKDIR /app
+#14 CACHED
+
+#15 [web 3/5] COPY package.json package-lock.json ./
+#15 CACHED
+
+#16 [web 4/5] RUN npm ci
+#16 CACHED
+
+#17 [web 5/5] COPY . .
+#17 CACHED
+
+#18 [recorder 1/7] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#18 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 0.0s done
+#18 DONE 0.0s
+
+#19 [api internal] load build context
+#19 transferring context: 1.23kB done
+#19 DONE 0.0s
+
+#20 [analytics internal] load build context
+#20 transferring context: 4.76kB done
+#20 DONE 0.0s
+
+#21 [api 3/5] COPY pyproject.toml ./
+#21 CACHED
+
+#22 [api 4/5] COPY src/ src/
+#22 CACHED
+
+#23 [api 5/5] RUN pip install --no-cache-dir -e .
+#23 CACHED
+
+#24 [analytics 2/5] WORKDIR /app
+#24 CACHED
+
+#25 [analytics 3/5] COPY pyproject.toml ./
+#25 CACHED
+
+#26 [analytics 4/5] COPY src/ src/
+#26 CACHED
+
+#27 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#27 CACHED
+
+#28 [recorder internal] load build context
+#28 transferring context: 80.05kB 0.0s done
+#28 DONE 0.0s
+
+#29 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#29 CACHED
+
+#30 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#30 CACHED
+
+#31 [recorder 3/7] WORKDIR /work
+#31 CACHED
+
+#32 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#32 CACHED
+
+#33 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#33 CACHED
+
+#34 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#34 CACHED
+
+#35 [web] exporting to image
+#35 exporting layers done
+#35 exporting manifest sha256:7246bac15e4ef0ee36597513326b492c4d72497cb8f21312cc8be37548631a1c done
+#35 exporting config sha256:6bac6f9eae42f2d5d9d3108e104447d058d6ca0ae7b109016b3cb97fb0d0df99 done
+#35 exporting attestation manifest sha256:b29b1585f82a57d7e463937b9d8fda8f36fc369625f29786f5608cfdebeb8d1a 0.0s done
+#35 exporting manifest list sha256:61f458c148c7b620fd86065fab3e1925afbb8ebb4b216f73279f71574121c32e 0.0s done
+#35 naming to docker.io/library/agentwatch-web:latest done
+#35 unpacking to docker.io/library/agentwatch-web:latest done
+#35 DONE 0.0s
+
+#36 [recorder] exporting to image
+#36 exporting layers done
+#36 exporting manifest sha256:e34f36695ca4068064f0493ff5d2f7a9ea9974da097c9f0770e0a5afa403ce97
+#36 exporting manifest sha256:e34f36695ca4068064f0493ff5d2f7a9ea9974da097c9f0770e0a5afa403ce97 done
+#36 exporting config sha256:403e4e4bc3bd565f6e018c90cf8087124fedb6ba6571c4140dff6de71f06584b done
+#36 exporting attestation manifest sha256:f263ca83100f77739b650b9970392a1af391da9251663c86d8eb2f9977a16473 0.0s done
+#36 exporting manifest list sha256:7fb0ec6fd21275f9d59c792f904a9e5c508457791d773f195e38791d6edb4bb8 done
+#36 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#36 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#36 DONE 0.1s
+
+#37 [analytics] exporting to image
+#37 exporting layers done
+#37 exporting manifest sha256:6e924aa1e298fcbd35c9bb430cfb70487ece4f323c5c4bc0d55f1d8991676bd4 done
+#37 exporting config sha256:8d19c3862115f6cfbbf7de0097a002baf35eb40ddc79882f4a79f6e55e30b3a3 done
+#37 exporting attestation manifest sha256:4fa9515467edc71ebd5292e8bf2b22c091b5d84bd2d46ce7a7eb18a6717cd57a 0.0s done
+#37 exporting manifest list sha256:64bc14794f2658b26c3e15a7f71ee10a99e8cc7af14873b912c2f011f6944f92 done
+#37 naming to docker.io/library/agentwatch-analytics:latest done
+#37 unpacking to docker.io/library/agentwatch-analytics:latest done
+#37 DONE 0.1s
+
+#38 [api] exporting to image
+#38 exporting layers done
+#38 exporting manifest sha256:4909c924a9b275cf07742c2a073181bcd236abf5dc9f6b2c95cc7b9bc662723e done
+#38 exporting config sha256:76d20316a05bcec7585210f86d59c9aad15b8a7cd584c0713692f1f15d0a08a6 done
+#38 exporting attestation manifest sha256:031a1f0883a7b3b77a430412e54cb84cb0dfa183be564d4ee18b6db48580710a 0.0s done
+#38 exporting manifest list sha256:738789df5f50d35a3ee86e5c712074daa397621536eec445dd9c4e45a8bf8d79 0.0s done
+#38 naming to docker.io/library/agentwatch-api:latest done
+#38 unpacking to docker.io/library/agentwatch-api:latest done
+#38 DONE 0.1s
+
+#39 [web] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#40 [recorder] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [analytics] resolving provenance for metadata file
+#41 DONE 0.0s
+
+#42 [api] resolving provenance for metadata file
+#42 DONE 0.0s
+run-soak: 10000/10000 calls delivered; p50=0.17ms p99=0.35ms mean=0.16ms
+agentwatch: chain ok (20023 entries)

@@ -1,0 +1,35 @@
+{
+  "message": {
+    "phase": "agent_start",
+    "harness": "crewai",
+    "event": {
+      "session_id": "sess-cr",
+      "call_id": "cr-1",
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-cr",
+      "agent": {
+        "identity": "crewai"
+      },
+      "tool": {
+        "name": "Agent"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "trace_id": "sess-cr",
+      "span_id": "cr-1",
+      "harness": "crewai",
+      "project": "/repo",
+      "producer": {
+        "kind": "sdk",
+        "name": "crewai"
+      },
+      "step_type": "act"
+    }
+  ]
+}

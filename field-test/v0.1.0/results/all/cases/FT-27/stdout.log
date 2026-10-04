@@ -1,0 +1,45 @@
+{
+  "session_id": "demo",
+  "records": 6,
+  "chain": {
+    "ok": true,
+    "checked": 6,
+    "broken_at": null
+  },
+  "redaction_kinds": [
+    "api-key"
+  ],
+  "daemon_reachable": false,
+  "timeline": [
+    {
+      "tool": "session-start",
+      "outcome": "ok",
+      "approval": null
+    },
+    {
+      "tool": "user-prompt",
+      "outcome": "ok",
+      "approval": null
+    },
+    {
+      "tool": "Bash",
+      "outcome": "ok",
+      "approval": null
+    },
+    {
+      "tool": "Bash",
+      "outcome": "ok",
+      "approval": null
+    },
+    {
+      "tool": "Bash",
+      "outcome": "denied",
+      "approval": "denied"
+    },
+    {
+      "tool": "Read",
+      "outcome": "error",
+      "approval": null
+    }
+  ]
+}

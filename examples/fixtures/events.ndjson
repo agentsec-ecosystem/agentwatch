@@ -1,0 +1,2 @@
+{"event_version": "0.1.0", "type": "denied", "emitted_at": "2026-01-02T03:04:05+00:00", "emitter": "agentwatch", "tool": "Bash", "reason": "user denied the command"}
+{"event_version": "0.1.0", "type": "secret-detected", "emitted_at": "2026-01-02T03:04:06+00:00", "emitter": "agentwatch", "evidence": {"kinds": ["api-key"]}}

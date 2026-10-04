@@ -1,0 +1,43 @@
+{
+  "resourceSpans": [
+    {
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "traceId": "tr-1",
+              "spanId": "sp-1",
+              "name": "execute_tool",
+              "startTimeUnixNano": "1760000000000000000",
+              "endTimeUnixNano": "1760000000500000000",
+              "attributes": [
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+                {"key": "gen_ai.tool.name", "value": {"stringValue": "get_weather"}},
+                {"key": "gen_ai.conversation.id", "value": {"stringValue": "conv-1"}},
+                {"key": "gen_ai.agent.name", "value": {"stringValue": "weather-bot"}}
+              ],
+              "status": {"code": 1}
+            },
+            {
+              "traceId": "tr-1",
+              "spanId": "sp-2",
+              "name": "invoke_agent",
+              "startTimeUnixNano": "1760000001000000000",
+              "endTimeUnixNano": "1760000002000000000",
+              "attributes": {
+                "gen_ai.operation.name": "invoke_agent",
+                "gen_ai.conversation.id": "conv-1",
+                "api_key": "sk-abcdefgh1234"
+              },
+              "status": {"code": 2, "message": "boom"}
+            },
+            {
+              "traceId": "tr-1",
+              "spanId": "sp-3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

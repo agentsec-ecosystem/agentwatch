@@ -1,0 +1,170 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [recorder internal] load build definition from recorder.Dockerfile
+#2 transferring dockerfile: 1.19kB done
+#2 DONE 0.0s
+
+#3 [web internal] load build definition from Dockerfile
+#3 transferring dockerfile: 327B done
+#3 DONE 0.0s
+
+#4 [analytics internal] load build definition from Dockerfile
+#4 transferring dockerfile: 394B done
+#4 DONE 0.0s
+
+#5 [api internal] load build definition from Dockerfile
+#5 transferring dockerfile: 425B done
+#5 DONE 0.0s
+
+#6 [api internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.4s
+
+#7 [analytics internal] load .dockerignore
+#7 transferring context: 129B done
+#7 DONE 0.0s
+
+#8 [recorder internal] load .dockerignore
+#8 transferring context: 2B done
+#8 DONE 0.0s
+
+#9 [api internal] load .dockerignore
+#9 transferring context: 116B done
+#9 DONE 0.0s
+
+#10 [recorder 1/5] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#10 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 0.0s done
+#10 DONE 0.0s
+
+#11 [api internal] load build context
+#11 transferring context: 1.23kB done
+#11 DONE 0.0s
+
+#12 [analytics internal] load build context
+#12 transferring context: 4.76kB done
+#12 DONE 0.0s
+
+#13 [analytics 3/5] COPY pyproject.toml ./
+#13 CACHED
+
+#14 [analytics 4/5] COPY src/ src/
+#14 CACHED
+
+#15 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#15 CACHED
+
+#16 [analytics 2/5] WORKDIR /app
+#16 CACHED
+
+#17 [api 3/5] COPY pyproject.toml ./
+#17 CACHED
+
+#18 [api 4/5] COPY src/ src/
+#18 CACHED
+
+#19 [api 5/5] RUN pip install --no-cache-dir -e .
+#19 CACHED
+
+#20 [recorder internal] load build context
+#20 transferring context: 79.99kB 0.0s done
+#20 DONE 0.0s
+
+#21 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#21 CACHED
+
+#22 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#22 CACHED
+
+#23 [recorder 3/7] WORKDIR /work
+#23 CACHED
+
+#24 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#24 CACHED
+
+#25 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#25 CACHED
+
+#26 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#26 CACHED
+
+#27 [api] exporting to image
+#27 exporting layers done
+#27 exporting manifest sha256:4909c924a9b275cf07742c2a073181bcd236abf5dc9f6b2c95cc7b9bc662723e done
+#27 exporting config sha256:76d20316a05bcec7585210f86d59c9aad15b8a7cd584c0713692f1f15d0a08a6 done
+#27 exporting attestation manifest sha256:384d3ee59599721c51c2e55150c1c5207f8441878dc59f6984cfc13349f7f1b7 0.0s done
+#27 exporting manifest list sha256:903b3c53ede7dd138edf5dd224b034ad97865722b1529309fd80ec7b25ffe606 done
+#27 naming to docker.io/library/agentwatch-api:latest done
+#27 unpacking to docker.io/library/agentwatch-api:latest done
+#27 DONE 0.0s
+
+#28 [analytics] exporting to image
+#28 exporting layers done
+#28 exporting manifest sha256:6e924aa1e298fcbd35c9bb430cfb70487ece4f323c5c4bc0d55f1d8991676bd4 done
+#28 exporting config sha256:8d19c3862115f6cfbbf7de0097a002baf35eb40ddc79882f4a79f6e55e30b3a3 done
+#28 exporting attestation manifest sha256:c2a958ff52a6755c5eb18cda4fce9d67bbe54c83b8cad93721e8bc0eb1edd1d1 0.0s done
+#28 exporting manifest list sha256:a01560ba32e82b3cf88cd83f37314193bdfbba91111a8a718be636552eb02978 done
+#28 naming to docker.io/library/agentwatch-analytics:latest done
+#28 unpacking to docker.io/library/agentwatch-analytics:latest done
+#28 DONE 0.1s
+
+#29 [recorder] exporting to image
+#29 exporting layers done
+#29 exporting manifest sha256:7528bc414afa6087d82b8cab49f022bd352cf0737186ce0cac217beb7698a226 done
+#29 exporting config sha256:0d4433ca6f5e54ee5525d28318ce9d22631e3073ba04071080f0342fd6238a2e done
+#29 exporting attestation manifest sha256:aeda0e906366f6118bf1e902ec8364cc0c72d10f96b99de0545938367060b3d5 done
+#29 exporting manifest list sha256:d4195d7bf714afa08585b00f4170d649b2832fc425792833e61f97fae55b1de6 done
+#29 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#29 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#29 DONE 0.0s
+
+#30 [web internal] load metadata for docker.io/library/node:22-alpine
+#30 DONE 0.5s
+
+#31 [web internal] load .dockerignore
+#31 transferring context: 67B done
+#31 DONE 0.0s
+
+#32 [web internal] load build context
+#32 transferring context: 14.40kB done
+#32 DONE 0.0s
+
+#33 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#33 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 done
+#33 DONE 0.0s
+
+#34 [web 4/5] RUN npm ci
+#34 CACHED
+
+#35 [web 3/5] COPY package.json package-lock.json ./
+#35 CACHED
+
+#36 [web 2/5] WORKDIR /app
+#36 CACHED
+
+#37 [web 5/5] COPY . .
+#37 CACHED
+
+#38 [web] exporting to image
+#38 exporting layers done
+#38 exporting manifest sha256:b37d2010358da9567784a1cd394b90465f2b373fdfe33d90f4ee0cdb311fd0b7 done
+#38 exporting config sha256:9bdb790da618e8d672276ecc21cc9ead551d0e308b7ef629dea9a4020c9d4e72 done
+#38 exporting attestation manifest sha256:a834d87fe6659899fbb6ba3717314d576307ff4b381c6567f1332074371efb25 done
+#38 exporting manifest list sha256:c2e152058b3785f5fe98b4db5be3512da77f7965ea3f3ca41c37c9170a1b3d67 done
+#38 naming to docker.io/library/agentwatch-web:latest done
+#38 unpacking to docker.io/library/agentwatch-web:latest done
+#38 DONE 0.0s
+
+#39 [analytics] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#40 [api] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [recorder] resolving provenance for metadata file
+#41 DONE 0.0s
+
+#42 [web] resolving provenance for metadata file
+#42 DONE 0.0s
+run-soak: 500/500 calls delivered; p50=0.02ms p99=0.08ms mean=0.03ms
+agentwatch: chain ok (1004 entries)

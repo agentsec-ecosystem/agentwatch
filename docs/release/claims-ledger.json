@@ -1,0 +1,139 @@
+{
+  "schema": "agentwatch.claims-ledger/0.1.0",
+  "generated_table": "docs/release/claims-ledger.md",
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "Every tool call is recorded redacted by default.",
+      "source": "README.md#what-it-does",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_redact.py::test_metadata_only_returns_none",
+        "test:packages/python-sdk/tests/test_secrets.py::test_api_key_masked_to_redacted_kind"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C2",
+      "claim": "The redaction attack pack leaves zero secrets in the store.",
+      "source": "docs/release/v0.1.0/security-audit.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_secrets.py::test_private_key_block_masks_the_key_material",
+        "file:docs/release/v0.1.0/security-audit.md"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C3",
+      "claim": "Local-first: no egress-capable runtime imports by default.",
+      "source": "README.md#what-it-does",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_egress_audit.py::test_sdk_source_is_egress_clean",
+        "script:scripts/dependency_egress_audit.py"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C4",
+      "claim": "The local store is hash-chained and tamper-evident.",
+      "source": "README.md#what-it-does",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_store_vectors.py::test_store_verify_matches_the_verdict_table",
+        "test:packages/python-sdk/tests/test_store_hardening.py::test_manual_checkpoint_and_tamper_detection",
+        "file:schema/vectors/store/expected-verdicts.json"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C5",
+      "claim": "OTLP export is gated on a redaction self-test.",
+      "source": "docs/release/v0.1.0/release-notes.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_selftest.py::test_self_test_blocks_export_when_pipeline_leaks",
+        "test:packages/python-sdk/tests/test_fault_injection.py::test_f6_self_test_failure_blocks_export"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C6",
+      "claim": "A fresh machine reaches its first recorded tool call in 15 minutes or less with zero agent-side code changes.",
+      "source": "docs/release/v0.1.0/first-run-evidence.md",
+      "evidence": [
+        "script:scripts/first_run_timing.py",
+        "file:docs/release/v0.1.0/first-run-evidence.md"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C7",
+      "claim": "Session replay reconstructs a session's action timeline.",
+      "source": "README.md#what-it-does",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_replay.py::test_replay_orders_by_time_then_chain",
+        "test:packages/python-sdk/tests/test_replay.py::test_replay_matches_the_stored_records"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C8",
+      "claim": "Replay-as-code exports a session with its chain segment for CI.",
+      "source": "docs/release/v0.1.0/release-notes.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_session_export.py::test_export_selects_one_session_with_chain_segment",
+        "test:packages/python-sdk/tests/test_session_export.py::test_ndjson_round_trips_through_reference_consumer"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C9",
+      "claim": "Fault injection F1-F10 fail closed.",
+      "source": "docs/release/v0.1.0/security-audit.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_fault_injection.py::test_f3_store_full_fails_closed",
+        "test:packages/python-sdk/tests/test_fault_injection.py::test_f4_corrupt_chain_is_stopped_and_repairable"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C10",
+      "claim": "Every CLI failure carries a machine-readable error code.",
+      "source": "docs/reference/errors.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_error_contract.py::test_every_subcommand_failure_emits_an_envelope"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C11",
+      "claim": "The operator UI targets WCAG 2.2 Level AA, with axe coverage for every view and a keyboard-only journey.",
+      "source": "docs/reference/accessibility.md",
+      "evidence": [
+        "file:docs/reference/accessibility.md",
+        "file:apps/web/src/__tests__/a11y.test.tsx",
+        "file:apps/web/tests/e2e/a11y.spec.ts"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C12",
+      "claim": "Times are stored and compared in UTC; local rendering carries an explicit UTC offset.",
+      "source": "docs/reference/time.md",
+      "evidence": [
+        "file:docs/reference/time.md",
+        "test:packages/python-sdk/tests/test_time_properties.py::test_relative_since_is_an_exact_utc_duration",
+        "test:packages/python-sdk/tests/test_time_properties.py::test_records_persist_and_reload_as_utc"
+      ],
+      "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C13",
+      "claim": "Releases ship with a CycloneDX SBOM, keyless Sigstore signatures, and SLSA L3 provenance, verifiable with agentwatch verify-release.",
+      "source": "docs/reference/release-integrity.md",
+      "evidence": [
+        "file:docs/reference/release-integrity.md",
+        "file:.github/workflows/release.yml",
+        "test:packages/python-sdk/tests/test_release_pipeline.py::test_release_workflow_builds_signs_and_verifies"
+      ],
+      "last_verified": "2026-10-03"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# Claims ledger — every public claim must trace to live evidence (PRD 38 §Q9,
+# issue #226). The check fails on a claim with no evidence link, a renamed test,
+# or a deleted file; it also proves a broken claim fails before checking the
+# real ledger.
+name: Claims
+
+on:
+  pull_request:
+    paths:
+      - "docs/release/claims-ledger.json"
+      - "docs/release/claims-ledger.md"
+      - "scripts/check_claims.py"
+      - "packages/python-sdk/tests/test_claims_ledger.py"
+      - ".github/workflows/claims.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  claims:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Prove a broken claim fails the check
+        run: python scripts/check_claims.py --self-test
+      - name: Claims ledger (live evidence links)
+        run: python scripts/check_claims.py

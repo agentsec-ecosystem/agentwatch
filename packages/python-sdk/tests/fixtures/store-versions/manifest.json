@@ -1,0 +1,26 @@
+{
+  "schema": "agentwatch.store-versions/0.1.0",
+  "cases": [
+    {
+      "id": "v1",
+      "dir": "v1",
+      "format": 1,
+      "supported": true,
+      "notes": "current released store format"
+    },
+    {
+      "id": "legacy-no-marker",
+      "dir": "legacy",
+      "format": null,
+      "supported": true,
+      "notes": "pre-marker store (F4 back-compat)"
+    },
+    {
+      "id": "unsupported-v99",
+      "dir": "unsupported-v99",
+      "format": 99,
+      "supported": false,
+      "notes": "unknown format must fail closed"
+    }
+  ]
+}

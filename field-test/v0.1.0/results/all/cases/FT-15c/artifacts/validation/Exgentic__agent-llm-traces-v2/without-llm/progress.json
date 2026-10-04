@@ -1,0 +1,36 @@
+{
+  "completed_traces": [
+    [
+      "tr_0c78f094967d4349",
+      "tr_0c78f094967d4349"
+    ],
+    [
+      "tr_5702dc6a541a43b0",
+      "tr_5702dc6a541a43b0"
+    ],
+    [
+      "tr_c53a68a7255041ed",
+      "tr_c53a68a7255041ed"
+    ],
+    [
+      "tr_de5d808658cc49f7",
+      "tr_de5d808658cc49f7"
+    ],
+    [
+      "tr_ff22c43666404120",
+      "tr_ff22c43666404120"
+    ]
+  ],
+  "completed_count": 5,
+  "total_in_batch": 5,
+  "anomaly_count": 5,
+  "anomaly_by_type": {
+    "empty_response": 5
+  },
+  "anomaly_by_severity": {
+    "warning": 5
+  },
+  "detector_fire_rate": {
+    "empty_response": 100.0
+  }
+}

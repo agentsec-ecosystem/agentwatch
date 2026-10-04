@@ -1,0 +1,37 @@
+# gitleaks config — agentwatch secret scanning (M24 24.5, OpenSSF checklist)
+#
+# Scope: agentwatch's OWN source. Third-party ported example code and the
+# intentional redaction/self-test fixtures are allowlisted so the scan reflects
+# only first-party code. Run: `gitleaks detect --config .gitleaks.toml`.
+title = "agentwatch"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Third-party ported predecessor agent examples (not agentwatch source)"
+paths = [
+  '''^m13-agents/''',
+]
+
+[[allowlists]]
+description = "Intentional secret material used to test redaction/self-test (must NOT be removed)"
+paths = [
+  '''^packages/python-sdk/src/agentwatch/selftest\.py$''',
+  '''^packages/python-sdk/tests/test_secrets\.py$''',
+  '''^packages/python-sdk/tests/test_redaction_properties\.py$''',
+  '''^packages/python-sdk/tests/_secret_oracle\.py$''',
+  '''^packages/python-sdk/tests/fixtures/ingest/otel_trace\.json$''',
+]
+
+[[allowlists]]
+description = "Field-test evidence (ephemeral per-run keys, decrypted stores)"
+paths = [
+  '''^field-test/v0\.1\.0/results/''',
+]
+
+[[allowlists]]
+description = "Committed security-scan output (contains the fixture matches it reports on)"
+paths = [
+  '''^docs/release/v0\.1\.0/security-scan/''',
+]

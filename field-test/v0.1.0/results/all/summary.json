@@ -1,0 +1,3872 @@
+{
+  "cases": [
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-08",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-09",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-10",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-11",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "purge",
+          "ok": true
+        },
+        {
+          "name": "chain-green",
+          "ok": true
+        },
+        {
+          "name": "marker-present",
+          "ok": true
+        },
+        {
+          "name": "tombstoned",
+          "ok": true
+        },
+        {
+          "name": "payload-gone",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-12",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "cli-extra",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-13",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "CUJ-14",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "session-present",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-01",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "first-run-timing",
+          "ok": true
+        }
+      ],
+      "id": "FT-01b",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "replay",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-02",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "emit-spans",
+          "ok": true
+        },
+        {
+          "name": "jaeger-services",
+          "ok": true
+        }
+      ],
+      "id": "FT-03",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "verify-privacy",
+          "ok": true
+        },
+        {
+          "name": "no-api-key-leak",
+          "ok": true
+        },
+        {
+          "name": "no-card-leak",
+          "ok": true
+        },
+        {
+          "name": "secret-detected",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-04",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "tamper-detected",
+          "ok": true
+        },
+        {
+          "name": "break-at-seq1",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-05",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "soak",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-06",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "corpus-validate",
+          "ok": true
+        }
+      ],
+      "id": "FT-06b",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "demo",
+          "ok": true
+        },
+        {
+          "name": "purge",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-07",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "export-signed",
+          "ok": true
+        },
+        {
+          "name": "derive-pubkey",
+          "ok": true
+        },
+        {
+          "name": "verify-ok",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-08",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "playwright",
+          "ok": true
+        },
+        {
+          "name": "guide-dashboard-overview",
+          "ok": true
+        },
+        {
+          "name": "guide-dashboard-to-fleet",
+          "ok": true
+        },
+        {
+          "name": "guide-fleet-default",
+          "ok": true
+        },
+        {
+          "name": "guide-timeline-normal",
+          "ok": true
+        },
+        {
+          "name": "guide-timeline-spans",
+          "ok": true
+        },
+        {
+          "name": "guide-anomalies-default",
+          "ok": true
+        },
+        {
+          "name": "guide-anomalies-critical",
+          "ok": true
+        },
+        {
+          "name": "guide-compare-deltas",
+          "ok": true
+        }
+      ],
+      "id": "FT-09",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "offline-record-verify",
+          "ok": true
+        }
+      ],
+      "id": "FT-10",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "drive-agent",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "records",
+          "ok": true
+        },
+        {
+          "name": "llm-io-captured",
+          "ok": true
+        },
+        {
+          "name": "llm-response-captured",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-11",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "llm-3way-validation",
+          "ok": true
+        }
+      ],
+      "id": "FT-11b",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cross-framework-raw-agent",
+          "ok": true
+        },
+        {
+          "name": "cross-framework-visible",
+          "ok": true
+        }
+      ],
+      "id": "FT-11c",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "synthetic-1m-llm-pilot",
+          "ok": true
+        }
+      ],
+      "id": "FT-11d",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "fail-closed",
+          "ok": true
+        },
+        {
+          "name": "config-error-surface",
+          "ok": true
+        }
+      ],
+      "id": "FT-12",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "tamper-detected",
+          "ok": true
+        },
+        {
+          "name": "repair",
+          "ok": true
+        },
+        {
+          "name": "chain-green-after-repair",
+          "ok": true
+        },
+        {
+          "name": "intact-prefix-kept",
+          "ok": true
+        },
+        {
+          "name": "broken-record-dropped",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-13",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "gap-record",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-14",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "anomalies-api",
+          "ok": true
+        }
+      ],
+      "id": "FT-15",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "detector-corpus-diagnostic",
+          "ok": true
+        }
+      ],
+      "id": "FT-15b",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "full-corpus-validate",
+          "ok": true
+        }
+      ],
+      "id": "FT-15c",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "spooled",
+          "ok": true
+        },
+        {
+          "name": "replayed-once",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-16",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "quarantined",
+          "ok": true
+        },
+        {
+          "name": "chain-green",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-17",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "stopped-and-surfaced",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-18",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "endpoint-down-nonfatal",
+          "ok": true
+        },
+        {
+          "name": "recover",
+          "ok": true
+        },
+        {
+          "name": "delivered-after-recovery",
+          "ok": true
+        }
+      ],
+      "id": "FT-19",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "export-blocked",
+          "ok": true
+        }
+      ],
+      "id": "FT-20",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "self-test-in-health",
+          "ok": true
+        }
+      ],
+      "id": "FT-20b",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "degraded-clock-skew",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-22",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "replay",
+          "ok": true
+        },
+        {
+          "name": "sessions",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-23",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "states-recording",
+          "ok": true
+        },
+        {
+          "name": "status-matches",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-24",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "soak",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-25",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "dir-0700",
+          "ok": true
+        },
+        {
+          "name": "records-0600",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-26",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "host-native-demo",
+          "ok": true
+        }
+      ],
+      "id": "FT-27",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "soak",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-28",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "adapters-conform",
+          "ok": true
+        }
+      ],
+      "id": "FT-29",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "migrate-not-implemented",
+          "ok": true
+        },
+        {
+          "name": "unknown-version-rejected",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        }
+      ],
+      "id": "FT-30",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "emit",
+          "ok": true
+        },
+        {
+          "name": "dir-0700",
+          "ok": true
+        },
+        {
+          "name": "records-0600",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-31",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "playwright-a11y",
+          "ok": true
+        }
+      ],
+      "id": "FT-32",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "healthz-contract",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-33",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "cli",
+          "ok": true
+        },
+        {
+          "name": "verify-store",
+          "ok": true
+        },
+        {
+          "name": "store-has-records",
+          "ok": true
+        }
+      ],
+      "id": "FT-34",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "mode-metadata-only",
+          "ok": true
+        },
+        {
+          "name": "mode-truncated",
+          "ok": true
+        },
+        {
+          "name": "mode-hashed",
+          "ok": true
+        },
+        {
+          "name": "mode-full",
+          "ok": true
+        }
+      ],
+      "id": "FT-35",
+      "run_id": "all",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "playwright-screenshots",
+          "ok": true
+        },
+        {
+          "name": "guide-dashboard-overview",
+          "ok": true
+        },
+        {
+          "name": "guide-dashboard-to-fleet",
+          "ok": true
+        },
+        {
+          "name": "guide-fleet-default",
+          "ok": true
+        },
+        {
+          "name": "guide-timeline-normal",
+          "ok": true
+        },
+        {
+          "name": "guide-timeline-spans",
+          "ok": true
+        },
+        {
+          "name": "guide-anomalies-default",
+          "ok": true
+        },
+        {
+          "name": "guide-anomalies-critical",
+          "ok": true
+        },
+        {
+          "name": "guide-compare-deltas",
+          "ok": true
+        }
+      ],
+      "id": "FT-36",
+      "run_id": "all",
+      "status": "pass"
+    }
+  ],
+  "env": {
+    "compose": "5.5.1",
+    "docker": "Docker version 29.5.2, build 79eb04c7d8",
+    "omlx_base_url": "http://host.docker.internal:8000/v1",
+    "omlx_model": "mlx-community--Qwen3.5-4B-4bit",
+    "run_id": "all"
+  },
+  "generated_at": "2026-10-04T09:05:39.291332+00:00",
+  "green": true,
+  "run_id": "all",
+  "totals": {
+    "fail": 0,
+    "pass": 50
+  }
+}

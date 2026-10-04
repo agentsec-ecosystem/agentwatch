@@ -1,0 +1,81 @@
+
+################ FT-15c ################
+== case FT-15c ==
+  PASS stack-up
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+  PASS full-corpus-validate
+== case FT-15c: pass ==
+==> Tearing down the stack (and volumes)
+
+################ FT-28 ################
+== case FT-28 ==
+  PASS stack-up
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+  PASS soak
+  FAIL verify-store
+  PASS store-has-records
+== case FT-28: fail ==
+==> Tearing down the stack (and volumes)
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/all
+collect-results: 48 pass / 2 fail -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/all/summary.{json,md}

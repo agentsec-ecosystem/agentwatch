@@ -1,0 +1,49 @@
+{
+  "harness_version": "synthesized-2026-10-02",
+  "message": {
+    "phase": "denied",
+    "harness": "claude-code",
+    "event": {
+      "session_id": "golden-2",
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rm -rf /"
+      },
+      "tool_use_id": "golden-c2",
+      "timestamp": "2026-01-03T10:01:00+00:00",
+      "reason": "policy: refused"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "golden-2",
+      "agent": {
+        "identity": "unknown"
+      },
+      "tool": {
+        "name": "Bash",
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "denied",
+      "started_at": "2026-01-03T10:01:00+00:00",
+      "trace_id": "golden-2",
+      "span_id": "golden-c2",
+      "harness": "claude-code",
+      "producer": {
+        "kind": "hook",
+        "name": "claude-code"
+      },
+      "step_type": "observe",
+      "approval": "denied",
+      "security_event": {
+        "event_version": "0.1.0",
+        "type": "denied",
+        "emitted_at": "2026-01-03T10:01:00+00:00",
+        "emitter": "claude-code",
+        "reason": "policy: refused",
+        "tool": "Bash"
+      }
+    }
+  ]
+}

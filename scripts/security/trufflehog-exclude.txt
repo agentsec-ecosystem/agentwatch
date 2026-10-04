@@ -1,0 +1,18 @@
+# trufflehog path excludes — first-party source only (M24 24.3/24.5).
+#
+# Excludes generated caches, vendored third-party code, and committed
+# field-test evidence so the scan reflects only agentwatch source. Intentional
+# redaction fixtures (selftest.py, test_secrets.py, test_config_explain.py) and
+# documentation placeholders are NOT excluded — they are surfaced and explained
+# in docs/release/v0.1.0/secret-scan-report.md.
+node_modules/
+__pycache__/
+\.mypy_cache/
+\.pytest_cache/
+\.ruff_cache/
+\.hypothesis/
+field-test/
+m13-agents/
+\.git/
+# Committed scan output (contains the fixture matches it reports on).
+docs/release/v0\.1\.0/security-scan/

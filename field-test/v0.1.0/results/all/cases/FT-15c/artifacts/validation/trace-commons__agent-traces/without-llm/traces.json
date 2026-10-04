@@ -1,0 +1,1432 @@
+[
+  {
+    "trace_id": "tr_572eacfe6fe4452f",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_6d33398b57b4483c",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_73fe214ac9f24c64",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_47a325f5f877453e",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_59c1d62eda0945b4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_23d45020143e42b0",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3bd4d588d8d640c4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_ad88fc2ac7a84dfb",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_fe516f6b9ecb4c12",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_d3c094d82d444687",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_7fb70bfcd1e94352",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_1e8fb96c919542a9",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_c77d354f0e634dfb",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_6431da016f5e42aa",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_320738bec0a34b97",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_10d9f6b8ee874867",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_0519a4328f7a4242",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_599e00dd4b614e9a",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_6c0bb979453249e3",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_71f78dca99594ab9",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3061c97c43ac4b84",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e04507b2fa954868",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_cd04b0425b424130",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_926014743be7404d",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_18ba36298f0d4ab4",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8775ada369db4bee",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_0d3eef0da0754398",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_c979e0c36ac14895",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_90dd1ecebedf45b0",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_09dd55b54a3a432e",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3ffa8a71f72e4448",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_4b3a099526824d61",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_c610ae1ef9794973",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3a6f250f1f48428b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_f7c3c37d7c704647",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e38752ed5d7b4423",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_04c96e9d5dc84e83",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_9f09f5b3840940ce",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8e0ebb96e0d648a1",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e97b4abe68304825",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_545b206529444b65",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_1bb8b77a667c44db",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_4f3bd26cf54c4b12",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_5c670934bc2e4c7f",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_ff52ce8dd6b04dcb",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_7d98b7a7a99e4f3d",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_da17616395f04050",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_da9fdeca9ff74a55",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_da5783f1e8f24ad1",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_adbbe026685a4836",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_a493edd7a99142ef",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_0e2e6ee6b13c45ff",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_039e988f96614e64",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_73fa4fd0a1884a58",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_983942b6ef514fb8",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_af7d359d0f0a4772",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_d455eb71b7b44ec0",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_f94a1c6a3062426c",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e88723b3b39f4d29",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_ab03785639274e86",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3e09b26edc3549c0",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_5545e85da708407b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e5911a62593c4a40",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_ef31ea40429c4593",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3e52db4261cc4062",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_096fea363b334e73",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8a1d454671584186",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_4861a04a2f0e4d93",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_32850862fe4a4baf",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e7d0c99d9baa42ba",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_bf29f3f19cc34c3a",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_1dc70949974f4ad6",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_d81ebc68936d449d",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_159494d5bd44456e",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_2c93cab6dfac462f",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_f23380f89ca44019",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_924c32f7e9b34001",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_f04d6d2f7fa54aa4",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_fecbfeaccc4248ab",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e61cb7f83d2647e4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_7f45dbb7f26747d1",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_79ffbe4f3a174633",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_f75956acb8514f85",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_dc8a5d756f6a4f1e",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3b49332bc9654666",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_47cfd5e36edd4b20",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_5a29c9aa306645c4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_1d6a77b53df241b9",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_c13a2acf57b04d05",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_99e0678e1a8a439b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_42edbb048fc74cb1",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3c327c7869c1484a",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_5c908b799a3f4c20",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_fafc8bbac3644155",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e0045cb61cbc4cff",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_0506624fd0874184",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_3f729d57211d4f66",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_79bb871097aa4485",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_fa324e44d51f47e1",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_7a3c8d65f0294567",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_4cce632f39e64ac2",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_92cfb58162b1480b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_85719d353e6644fc",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_a40d7c0a7c4c42c6",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_16213cc4b8e14ad4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_d6b397bcacff499b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_18dd1f8197854296",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8f852b10cbf14b46",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_7ebf534e9a784587",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_90ed55702e064f22",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_dd8b81f089d84e60",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_952d8eec5661450a",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_a413eb587cf348f7",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_6a1b9a4d9a694acd",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_c92e55fa430e42c4",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_162d22e33c1747ee",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8eaac077c03040c8",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_69e3e2058009453e",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_631c6f0197294551",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_a24e59cf73c14c0c",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_23c3433f435a4041",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_ae1eeab8f0114770",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_1c5290728e67422d",
+    "anomalies": [
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_e7f36eacf4364889",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_b1cf2731c30f4886",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_d7f46ada9b014a0b",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_fac94a51657a4899",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      },
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_145e93903d4f4326",
+    "anomalies": [
+      {
+        "type": "max_step_hit"
+      },
+      {
+        "type": "step_efficiency"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_8cf1b2675f9940cc",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_18a0794295d54769",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      }
+    ]
+  }
+]

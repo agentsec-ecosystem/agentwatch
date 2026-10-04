@@ -1,0 +1,2 @@
++ compose up -d --build (all services)
++ compose exec recorder bash -lc curl -sf http://jaeger:16686/api/services | grep -q m13-raw-agent

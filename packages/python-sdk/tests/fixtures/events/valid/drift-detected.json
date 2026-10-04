@@ -1,0 +1,1 @@
+{ "event_version": "0.1.0", "type": "drift-detected", "emitted_at": "2026-01-02T03:04:05+00:00", "emitter": "agentwatch", "tool": "errors", "reason": "z=4.1 over trailing 10", "evidence": { "metric": "errors", "value": 9.0, "baseline_mean": 2.0, "baseline_stdev": 0.5, "z_score": 14.0, "direction": "up", "window": 10 } }

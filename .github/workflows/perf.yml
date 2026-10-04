@@ -1,0 +1,35 @@
+# Performance gate — the recording path must stay within NFR-1 (≤5 ms/step) and
+# not drift beyond the committed baseline (PRD 38 §Q4, issue #221). The gate
+# itself proves a deliberate slowdown fails it before measuring.
+name: Performance
+
+on:
+  pull_request:
+    paths:
+      - "packages/python-sdk/src/agentwatch/**"
+      - "packages/python-sdk/tests/test_perf_budget.py"
+      - "scripts/perf_gate.py"
+      - "perf/**"
+      - ".github/workflows/perf.yml"
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Prove a slowdown fails the gate
+        run: python scripts/perf_gate.py --self-test
+      - name: Performance gate (NFR-1 + drift)
+        run: python scripts/perf_gate.py

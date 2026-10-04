@@ -1,0 +1,3 @@
++ host venv + native agentwatch
++ python3 -m venv /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/all/cases/FT-27/artifacts/venv
++ /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.1.0/results/all/cases/FT-27/artifacts/venv/bin/pip install -q -e /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/packages/python-sdk

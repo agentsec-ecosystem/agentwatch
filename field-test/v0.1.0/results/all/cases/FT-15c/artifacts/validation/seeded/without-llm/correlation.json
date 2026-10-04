@@ -1,0 +1,183 @@
+{
+  "matrix": {
+    "top_co_fires": [
+      {
+        "pair": [
+          "tool_error_rate",
+          "specific_tool_error"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "specific_tool_error",
+          "tool_error_rate"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "tool_error_rate",
+          "wasted_tool_calls"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "wasted_tool_calls",
+          "tool_error_rate"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "tool_error_rate",
+          "recovery_path"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "recovery_path",
+          "tool_error_rate"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "tool_error_rate",
+          "low_output"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "low_output",
+          "tool_error_rate"
+        ],
+        "count": 240,
+        "pct": 33.3
+      },
+      {
+        "pair": [
+          "tool_error_rate",
+          "denied-cluster"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "denied-cluster",
+          "tool_error_rate"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "specific_tool_error",
+          "wasted_tool_calls"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "wasted_tool_calls",
+          "specific_tool_error"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "specific_tool_error",
+          "recovery_path"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "recovery_path",
+          "specific_tool_error"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "specific_tool_error",
+          "low_output"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "low_output",
+          "specific_tool_error"
+        ],
+        "count": 240,
+        "pct": 33.3
+      },
+      {
+        "pair": [
+          "specific_tool_error",
+          "denied-cluster"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "denied-cluster",
+          "specific_tool_error"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "wasted_tool_calls",
+          "recovery_path"
+        ],
+        "count": 240,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "recovery_path",
+          "wasted_tool_calls"
+        ],
+        "count": 240,
+        "pct": 100.0
+      }
+    ],
+    "type_counts": {
+      "low_output": 720,
+      "tool_error_rate": 240,
+      "specific_tool_error": 240,
+      "wasted_tool_calls": 240,
+      "recovery_path": 240,
+      "denied-cluster": 240,
+      "pattern_loop": 10,
+      "loop": 9,
+      "argument_loop": 83,
+      "redundant_tool_call": 61,
+      "cost_spike": 79,
+      "per_tool_cost_spike": 4
+    }
+  },
+  "suspicious": {
+    "low_output": 100.0
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "FT-01b",
+  "status": "pass",
+  "run_id": "all",
+  "assertions": [{"name":"first-run-timing","ok":true}
+]
+}

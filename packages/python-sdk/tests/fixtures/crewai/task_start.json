@@ -1,0 +1,34 @@
+{
+  "message": {
+    "phase": "task_start",
+    "harness": "crewai",
+    "event": {
+      "session_id": "sess-cr",
+      "call_id": "cr-2",
+      "tool": "ResearchTask",
+      "timestamp": "2026-01-02T03:04:06+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-cr",
+      "agent": {
+        "identity": "crewai"
+      },
+      "tool": {
+        "name": "ResearchTask"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "trace_id": "sess-cr",
+      "span_id": "cr-2",
+      "harness": "crewai",
+      "producer": {
+        "kind": "sdk",
+        "name": "crewai"
+      },
+      "step_type": "act"
+    }
+  ]
+}

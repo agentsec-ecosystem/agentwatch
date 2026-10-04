@@ -1,0 +1,55 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 639B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from recorder.Dockerfile
+#2 transferring dockerfile: 1.19kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.2s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/7] FROM docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+#5 resolve docker.io/library/python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 79.99kB 0.0s done
+#6 DONE 0.0s
+
+#7 [6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#7 CACHED
+
+#8 [2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#8 CACHED
+
+#9 [4/7] COPY packages/python-sdk /work/packages/python-sdk
+#9 CACHED
+
+#10 [3/7] WORKDIR /work
+#10 CACHED
+
+#11 [5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#11 CACHED
+
+#12 [7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:7528bc414afa6087d82b8cab49f022bd352cf0737186ce0cac217beb7698a226 done
+#13 exporting config sha256:0d4433ca6f5e54ee5525d28318ce9d22631e3073ba04071080f0342fd6238a2e done
+#13 exporting attestation manifest sha256:e2831dd69aaf27cbe297b9c984a6861e41f5a855cf90167fb4a5bd130c18fa5b done
+#13 exporting manifest list sha256:5e53c642e45f6aebbafcdbebce917dd13ec2deda806e0c27d36548189cb2167a done
+#13 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#13 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#13 DONE 0.0s
+
+#14 resolving provenance for metadata file
+#14 DONE 0.0s
+otel-probe: 3 spans emitted to http://127.0.0.1:9 as agentwatch
+otel-probe: 3 spans emitted to http://otel-collector:4317 as agentwatch

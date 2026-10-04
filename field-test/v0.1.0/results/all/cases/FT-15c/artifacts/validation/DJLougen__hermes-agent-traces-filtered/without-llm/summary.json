@@ -1,0 +1,28 @@
+{
+  "traces_processed": 25,
+  "traces_skipped_resume": 0,
+  "traces_with_anomalies": 6,
+  "anomaly_count": 6,
+  "anomaly_by_type": {
+    "loop": 6,
+    "pattern_loop": 0,
+    "step_efficiency": 0
+  },
+  "anomaly_by_severity": {
+    "warning": 7
+  },
+  "detector_fire_rate": {
+    "loop": 24.0,
+    "pattern_loop": 0.0,
+    "step_efficiency": 0.0
+  },
+  "suspicious_patterns": {},
+  "cross_detector_correlation": {
+    "top_co_fires": [],
+    "type_counts": {
+      "loop": 6
+    }
+  },
+  "skipped_detectors": {},
+  "detector_errors": {}
+}

@@ -1,0 +1,43 @@
+{
+  "message": {
+    "phase": "post",
+    "harness": "claude-code",
+    "event": {
+      "session_id": "sess-c",
+      "tool_name": "Read",
+      "tool_input": {
+        "path": "/x"
+      },
+      "tool_use_id": "call-c2",
+      "timestamp": "2026-01-02T03:04:09+00:00",
+      "tool_response": {
+        "is_error": true,
+        "error": "ENOENT"
+      }
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "agent": {
+        "identity": "unknown"
+      },
+      "tool": {
+        "name": "Read",
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "error",
+      "started_at": "2026-01-02T03:04:09+00:00",
+      "trace_id": "sess-c",
+      "span_id": "call-c2",
+      "harness": "claude-code",
+      "producer": {
+        "kind": "hook",
+        "name": "claude-code"
+      },
+      "ended_at": "2026-01-02T03:04:09+00:00",
+      "step_type": "observe"
+    }
+  ]
+}

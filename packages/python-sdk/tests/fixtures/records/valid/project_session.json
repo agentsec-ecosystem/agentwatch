@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "session_id": "sess-resumed",
+  "parent_session_id": "sess-parent",
+  "project": "/repo/a",
+  "agent": {
+    "identity": "research_crew", "name": "research", "version": "1.2.0",
+    "prompt_version": "a1b2c3d4e5f60718"
+  },
+  "tool": {
+    "name": "create_issue", "server": "github", "privacy_mode": "metadata-only"
+  },
+  "outcome": "ok",
+  "started_at": "2026-01-02T03:04:05+00:00"
+}

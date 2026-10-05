@@ -35,7 +35,11 @@ def _spans(tool_names: list[str]) -> list[SpanNode]:
         )
         for i, name in enumerate(tool_names)
     ]
-    return [SpanNode(span_id="root", trace_id="t", operation_name="invoke_agent", child_spans=children)]
+    return [
+        SpanNode(
+            span_id="root", trace_id="t", operation_name="invoke_agent", child_spans=children
+        )
+    ]
 
 
 def _loop() -> LoopDetector:
@@ -43,15 +47,23 @@ def _loop() -> LoopDetector:
 
 
 def test_run_eval_is_deterministic() -> None:
-    case = DetectorCase(id="c1", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset({"loop"}))
+    case = DetectorCase(
+        id="c1", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset({"loop"})
+    )
     assert run_eval([case], detectors=[_loop()]) == run_eval([case], detectors=[_loop()])
 
 
 def test_precision_and_recall_are_computed() -> None:
     cases = [
-        DetectorCase(id="hit", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset({"loop"})),
-        DetectorCase(id="miss", summary=_summary(), spans=_spans(["Read"]), expected=frozenset({"loop"})),
-        DetectorCase(id="fp", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset()),
+        DetectorCase(
+            id="hit", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset({"loop"})
+        ),
+        DetectorCase(
+            id="miss", summary=_summary(), spans=_spans(["Read"]), expected=frozenset({"loop"})
+        ),
+        DetectorCase(
+            id="fp", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset()
+        ),
     ]
     report = run_eval(cases, detectors=[_loop()])
 
@@ -62,7 +74,14 @@ def test_precision_and_recall_are_computed() -> None:
 
 def test_loop_detector_fires_on_five_consecutive_repeats() -> None:
     report = run_eval(
-        [DetectorCase(id="hit", summary=_summary(), spans=_spans(["Bash"] * 5), expected=frozenset({"loop"}))],
+        [
+            DetectorCase(
+                id="hit",
+                summary=_summary(),
+                spans=_spans(["Bash"] * 5),
+                expected=frozenset({"loop"}),
+            )
+        ],
         detectors=[_loop()],
     )
     assert report.recall("loop") == 1.0
@@ -76,7 +95,11 @@ def test_load_corpus_builds_cases_from_a_manifest(tmp_path: Path) -> None:
             {
                 "version": "v0",
                 "cases": [
-                    {"id": "loop-5", "expect": ["loop"], "tools": ["Bash", "Bash", "Bash", "Bash", "Bash"]},
+                    {
+                        "id": "loop-5",
+                        "expect": ["loop"],
+                        "tools": ["Bash", "Bash", "Bash", "Bash", "Bash"],
+                    },
                     {"id": "clean", "expect": [], "tools": ["Read", "Write"]},
                 ],
             }

@@ -15,3 +15,6 @@ Status: living.
       [PRD 46](prd/46-platform-sdk-and-growth.md) EXA-1 (recipes); dedicated dashboards remain open
 - [ ] Backfill accessibility automated checks into CI. (shipped in v0.1.0 M14 Q11 — verify and close)
 - [ ] Add SBOM publishing to the release workflow. (shipped in v0.1.0 Q13 — verify and close)
+- [ ] Reformat `services/analytics/src/analytics/scenario_validation.py` (v0.1.0 M23 FT-15) to satisfy `E501`;
+      currently covered by a documented per-file waiver in `services/analytics/pyproject.toml` recorded at the
+      M25 review (25.R) to keep the milestone diff scoped. No behaviour change.

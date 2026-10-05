@@ -19,12 +19,19 @@ or directly::
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
+from analytics.detectors.claude_code import (
+    DeniedClusterDetector,
+    NetworkToolDetector,
+    WriteStormDetector,
+)
 from analytics.detectors.cost import (
     CostEfficiencyDetector,
     CostSpikeDetector,
@@ -32,11 +39,6 @@ from analytics.detectors.cost import (
     PerToolCostSpikeDetector,
     TokenExplosionDetector,
     WastedToolCallsDetector,
-)
-from analytics.detectors.claude_code import (
-    DeniedClusterDetector,
-    NetworkToolDetector,
-    WriteStormDetector,
 )
 from analytics.detectors.cross_run import (
     AnomalyClusterDetector,
@@ -378,8 +380,8 @@ add("CE3", CostEfficiencyDetector, False, lambda: (summ(status="success", estima
 add("CE4", CostEfficiencyDetector, False, lambda: (summ(status="failed", estimated_cost=8.0, total_tool_calls=30), []))
 
 # TokenExplosionDetector (>=4 spans, halves, ratio>=3)
-def _tok(n_early: int, n_late: int, val_early: int, val_late: int):
-    def build():
+def _tok(n_early: int, n_late: int, val_early: int, val_late: int) -> Callable[[], Any]:
+    def build() -> Any:
         spans = []
         for _ in range(n_early):
             spans.append(span("llm", attrs={"gen_ai.usage.prompt_tokens": val_early, "gen_ai.usage.completion_tokens": 0}))
@@ -436,8 +438,8 @@ add("SF3", StepEfficiencyDetector, False, lambda: (summ(status="success", total_
 add("SF4", StepEfficiencyDetector, False, lambda: (summ(status="failed", total_tool_calls=25), []))
 
 # InactivityDetector (>=2 spans, max gap >30s; warning 30-60s, critical>=60s)
-def _gap_run(gap_s: float):
-    def build():
+def _gap_run(gap_s: float) -> Callable[[], Any]:
+    def build() -> Any:
         return summ(), [span("step", start=0), span("step", start=gap_s)]
     return build
 
@@ -627,21 +629,21 @@ add("NT4", NetworkToolDetector, False, lambda: (summ(total_tool_calls=1), [tool(
 # (should fire) and a known-negative trace (should not fire).  The LLM
 # client is constructed from settings (ANALYTICS_LLM_* env vars).
 
-def _llm_client():
+def _llm_client() -> Any:
     """Build a real LLM client from analytics settings (OMLX)."""
     from analytics.llm_client import LLMClient
     return LLMClient()
 
 
-def _llm_detectors():
+def _llm_detectors() -> tuple[Any, list[Any]]:
     """Return (client, [detectors]) like create_llm_detectors."""
     from analytics.detectors.llm import (
-        EmbeddingDriftDetector,
-        SemanticLoopDetector,
-        HallucinationDetector,
-        GoalDriftDetector,
-        QualityDegradationDetector,
         ConfusionPatternDetector,
+        EmbeddingDriftDetector,
+        GoalDriftDetector,
+        HallucinationDetector,
+        QualityDegradationDetector,
+        SemanticLoopDetector,
     )
     client = _llm_client()
     return client, [
@@ -1079,13 +1081,11 @@ async def _run_llm_scenarios(out_dir: Path | None = None) -> list[dict[str, Any]
             # span's output; the real call uses the last span's output.
             baseline_spans = spans[:1]
             real_spans = spans[-1:]
-            try:
+            with contextlib.suppress(Exception):
                 await det.detect_async(
                     RunSummary(run_id="baseline", agent_name=summary.agent_name),
                     baseline_spans, pool=None,
                 )
-            except Exception:
-                pass
             # Replace spans with just the last one so detect_async extracts
             # the drifted output, not the baseline.
             spans = real_spans

@@ -9,6 +9,7 @@ ingests to validated records with secrets masked, and that the recipe ships.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from agentwatch.ingest import transcode_otel
 from agentwatch.records import SecurityEventType, validate_record
@@ -17,7 +18,7 @@ from agentwatch.redact import redaction_config_from_mode
 RECIPE = Path(__file__).resolve().parents[3] / "docs" / "guides" / "gemini-native-telemetry.md"
 
 
-def _gemini_payload() -> dict:
+def _gemini_payload() -> dict[str, Any]:
     return {
         "resourceSpans": [
             {
@@ -42,7 +43,10 @@ def _gemini_payload() -> dict:
                                         "key": "gen_ai.operation.name",
                                         "value": {"stringValue": "execute_tool"},
                                     },
-                                    {"key": "gen_ai.tool.name", "value": {"stringValue": "run_shell"}},
+                                    {
+                                        "key": "gen_ai.tool.name",
+                                        "value": {"stringValue": "run_shell"},
+                                    },
                                     {
                                         "key": "gen_ai.agent.name",
                                         "value": {"stringValue": "gemini"},

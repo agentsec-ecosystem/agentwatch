@@ -23,8 +23,8 @@
   ],
   "message": {
     "event": {
-      "response": "done",
-      "session_id": "sess-c",
+      "conversation_id": "sess-c",
+      "text": "done",
       "timestamp": "2026-01-02T03:04:05+00:00"
     },
     "harness": "cursor",

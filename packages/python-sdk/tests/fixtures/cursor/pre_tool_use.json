@@ -10,13 +10,14 @@
         "kind": "hook",
         "name": "cursor"
       },
+      "project": "/project",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-2",
+      "span_id": "tc1",
       "started_at": "2026-01-02T03:04:05+00:00",
       "step_type": "act",
       "tool": {
-        "name": "Read",
+        "name": "Shell",
         "privacy_mode": "metadata-only"
       },
       "trace_id": "sess-c"
@@ -24,10 +25,15 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-2",
-      "session_id": "sess-c",
+      "conversation_id": "sess-c",
+      "cwd": "/project",
       "timestamp": "2026-01-02T03:04:05+00:00",
-      "tool_name": "Read"
+      "tool_input": {
+        "command": "npm install",
+        "working_directory": "/project"
+      },
+      "tool_name": "Shell",
+      "tool_use_id": "tc1"
     },
     "harness": "cursor",
     "phase": "preToolUse"

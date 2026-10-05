@@ -52,9 +52,13 @@ conformance runner with a `mcp-server-events` declared gap.
 boundaries, pre/post tool use (incl. failure), shell, MCP, `beforeReadFile`, file edits, subagents, prompt
 submission, compaction, `afterAgentThought`/`afterAgentResponse`, Tab hooks, and `workspaceOpen`. Blocking
 `before*` events are recorded as observations and **never answered** (monitor-only, R2); the `ide`
-environment (`cursor-cli`/`cursor-ide`/`cursor-remote`) is tagged in `environment`; cloud-agent hook gaps
-are declared (`cloud-agent-hook-events`), never silent. The event **shapes** remain documented-shape
-fixtures until a consented live capture lands (25.CUR-1), so the matrix row stays `modeled`.
+environment (`cursor-cli`/`cursor-ide`/`cursor-remote`) is tagged in `environment`; `user_email` becomes
+the hashed `principal` (IDN-1); cloud-agent hook gaps are declared (`cloud-agent-hook-events`), never
+silent. Field names follow the published contract (`conversation_id`, `generation_id`,
+`workspace_roots`, `file_path`, `cursor_version`). The audit corpus (25.CUR-1) is a version-tagged,
+secret-scanned, MIT/vendor-documented set under `tests/testkit/` (provenance in
+`tests/testkit/PROVENANCE.md`), so the matrix row is `fixture-verified` — `live-verified` awaits a
+consented capture.
 
 ## v0.2.0 — capture levels and real harnesses
 

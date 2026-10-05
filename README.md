@@ -64,13 +64,14 @@ record every other security control needs. See [PRD 01](docs/prd/01-why.md).
 | Session replay | Reconstruct any session's action timeline, and replay-as-code for CI |
 | Detectors | 43 detectors (35 rule-based + 8 LLM/Claude Code) with structured anomalies |
 | Operator views | Fleet Health · Run Timeline · Version Compare · Anomaly Inbox · Agent Detail |
-| Harness breadth | Claude Code (full) + provisional modeled Cursor / Codex CLI / Gemini CLI / CrewAI / PydanticAI; MCP interposition proxy (stdio + HTTP/SSE) |
+| Harness breadth | Claude Code (full) + Cursor native hooks + provisional modeled Codex CLI / Gemini CLI / CrewAI / PydanticAI; MCP interposition proxy (stdio + HTTP/SSE) |
 
 ## Compatibility
 
-Claude Code is full-fidelity in v0.1.0; Cursor, Codex CLI, Gemini CLI, CrewAI, and PydanticAI ship as
-**provisional (modeled)** adapters until real captures land. Full matrix:
-[docs/reference/compatibility.md](docs/reference/compatibility.md).
+Claude Code is full-fidelity in v0.1.0; Cursor ships a **native-hooks** adapter in v0.2.0 (full agent loop,
+on the published contract, backed by a version-tagged MIT/vendor corpus — **`fixture-verified`** until a
+consented live capture lands). Codex CLI, Gemini CLI, CrewAI, and PydanticAI ship as **provisional
+(modeled)** adapters. Full matrix: [docs/reference/compatibility.md](docs/reference/compatibility.md).
 
 ## Security & supply chain
 

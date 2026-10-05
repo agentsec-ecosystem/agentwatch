@@ -73,12 +73,11 @@ SHIPPED: dict[str, HarnessInfo] = {
     "cursor": HarnessInfo(
         harness="cursor",
         tier="Tier-1",
-        tested=HarnessRange("modeled", "modeled"),
-        fidelity=FIDELITY_MODELED,
+        tested=HarnessRange("1.7", "1.x"),
+        fidelity=FIDELITY_FIXTURE,
         invocation="native hooks (`hooks.json`)",
         notes=(
-            "full loop (session/tool/shell/MCP/file/subagent/prompt/compaction/thought/Tab); "
-            "live capture pending 25.CUR-1"
+            "full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending"
         ),
     ),
     "codex-cli": HarnessInfo(

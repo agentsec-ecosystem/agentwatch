@@ -1,0 +1,4 @@
+{"timestamp":"t0","type":"session_meta","payload":{"id":"66666666-6666-6666-6666-666666666666","cwd":"/work/none"}}
+{"timestamp":"t1","type":"turn_context","payload":{"cwd":"/work/none"}}
+{"timestamp":"t2","type":"event_msg","payload":{"type":"user_message","message":"hello"}}
+{"timestamp":"t3","type":"event_msg","payload":{"type":"turn_aborted"}}

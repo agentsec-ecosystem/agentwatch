@@ -13,7 +13,6 @@
       },
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-9",
       "started_at": "2026-01-02T03:04:06+00:00",
       "step_type": "observe",
       "tool": {
@@ -25,9 +24,18 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-9",
-      "file": "a.py",
-      "session_id": "sess-c",
+      "conversation_id": "sess-c",
+      "edits": [
+        {
+          "new_string": "b",
+          "old_string": "a",
+          "range": {
+            "end_line_number": 10,
+            "start_line_number": 10
+          }
+        }
+      ],
+      "file_path": "/repo/a.py",
       "timestamp": "2026-01-02T03:04:06+00:00"
     },
     "harness": "cursor",

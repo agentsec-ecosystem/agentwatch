@@ -1,0 +1,29 @@
+{
+  "captured_from_real_harness": true,
+  "files": [
+    "rollouts/mcp-tools.jsonl",
+    "rollouts/minimal.jsonl",
+    "rollouts/multi_turn.jsonl",
+    "rollouts/noise.jsonl",
+    "rollouts/not_ongoing_exitplan.jsonl",
+    "rollouts/not_ongoing_interrupted.jsonl",
+    "rollouts/not_ongoing_interrupted_pending.jsonl",
+    "rollouts/not_ongoing_rejected.jsonl",
+    "rollouts/not_ongoing_shutdown.jsonl",
+    "rollouts/not_ongoing_text.jsonl",
+    "rollouts/ongoing_pending_task.jsonl",
+    "rollouts/ongoing_toolresult.jsonl",
+    "rollouts/ongoing_tooluse.jsonl",
+    "rollouts/restamped_title.jsonl",
+    "rollouts/streaming_dedup.jsonl",
+    "rollouts/team-parent.jsonl",
+    "rollouts/test-session.jsonl"
+  ],
+  "harness": "claude-code",
+  "kind": "rollout",
+  "license": "MIT",
+  "source": "https://github.com/kylesnowschwartz/agent-ouija",
+  "source_commit": "c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc",
+  "upstream_path": "claude/testdata",
+  "version": "ouija-c4be5b1"
+}

@@ -4,22 +4,20 @@
       "agent": {
         "identity": "unknown"
       },
-      "environment": {
-        "ide": "cursor-cli"
-      },
+      "duration_ms": 45000.0,
+      "ended_at": "2026-01-02T03:04:05+00:00",
       "harness": "cursor",
       "outcome": "ok",
-      "parent_session_id": "sess-parent",
       "producer": {
         "kind": "hook",
         "name": "cursor"
       },
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "started_at": "2026-01-02T03:10:00+00:00",
+      "started_at": "2026-01-02T03:04:05+00:00",
       "tool": {
         "arguments": {
-          "reason": "fork"
+          "reason": "user_close"
         },
         "name": "session-end",
         "privacy_mode": "metadata-only"
@@ -29,11 +27,12 @@
   ],
   "message": {
     "event": {
-      "ide": "cursor-cli",
-      "parent_session_id": "sess-parent",
-      "reason": "fork",
+      "duration_ms": 45000,
+      "final_status": "completed",
+      "is_background_agent": false,
+      "reason": "user_close",
       "session_id": "sess-c",
-      "timestamp": "2026-01-02T03:10:00+00:00"
+      "timestamp": "2026-01-02T03:04:05+00:00"
     },
     "harness": "cursor",
     "phase": "sessionEnd"

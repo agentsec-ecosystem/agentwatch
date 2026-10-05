@@ -12,7 +12,6 @@
       },
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-4",
       "started_at": "2026-01-02T03:04:05+00:00",
       "step_type": "act",
       "tool": {
@@ -25,10 +24,12 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-4",
-      "session_id": "sess-c",
+      "conversation_id": "sess-c",
+      "mcp_server_name": "github",
+      "mcp_server_url": "https://mcp.github.example",
       "timestamp": "2026-01-02T03:04:05+00:00",
-      "tool_name": "mcp__github__issue_get"
+      "tool_input": "{}",
+      "tool_name": "issue_get"
     },
     "harness": "cursor",
     "phase": "beforeMCPExecution"

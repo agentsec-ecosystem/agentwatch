@@ -35,7 +35,7 @@
 | `claude-code` | Tier-1 | 2.0–2.x | live-verified | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon |
 | `codex-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
 | `crewai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |
-| `cursor` | Tier-1 | modeled | modeled | native hooks (`hooks.json`) | full loop (session/tool/shell/MCP/file/subagent/prompt/compaction/thought/Tab); live capture pending 25.CUR-1 |
+| `cursor` | Tier-1 | 1.7–1.x | fixture-verified | native hooks (`hooks.json`) | full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending |
 | `gemini-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
 | `mcp-proxy` | proxy | 2025-06-18 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC `tools/call`, stdio + HTTP/SSE |
 | `pydantic-ai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |

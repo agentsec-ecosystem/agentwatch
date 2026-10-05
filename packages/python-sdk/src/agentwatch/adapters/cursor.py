@@ -1,4 +1,4 @@
-"""Cursor native-hooks adapter (M25 CUR-2, #304).
+"""Cursor native-hooks adapter (M25 CUR-2, #304; realigned to the Cursor contract).
 
 Cursor ships ``hooks.json`` (project ``.cursor/hooks.json``, user
 ``~/.cursor/hooks.json``, org-level) that invoke an external program with JSON on
@@ -6,14 +6,16 @@ stdin across the full agent loop. The hook binary frames each payload as::
 
     {"phase": <hook_event_name>, "harness": "cursor", "event": {...}}
 
-and this adapter normalizes that framed message into records.
+and this adapter normalizes that framed message into records. Field names follow
+the published Cursor contract (``conversation_id``, ``generation_id``,
+``hook_event_name``, ``cursor_version``, ``workspace_roots``, ``file_path``, …;
+see ``tests/fixtures/cursor/golden/manifest.json`` for the cited sources).
 
-Native hooks give fidelity the modeled shim lacked: ``beforeReadFile`` (file
-reads) and ``afterAgentThought`` (reasoning). Blocking ``before*`` events are
-recorded as **observations** and are **never answered** (monitor-only, R2) — this
-module returns records only and carries no permission decision. The
-IDE/CLI/remote environment (``ide``) is tagged in ``environment``. Cloud agents
-(cursor.com/agents) lack ``sessionStart``/``beforeSubmitPrompt``/Tab/``workspaceOpen``
+Blocking ``before*``/permission hooks are recorded as **observations** and are
+**never answered** (monitor-only, R2) — this module returns records only and
+carries no permission decision. ``user_email`` becomes the hashed ``principal``
+(IDN-1); the IDE/CLI/remote environment (``ide``) is tagged in ``environment``.
+Cloud agents do not run ``sessionStart``/``sessionEnd``/MCP/Tab/``workspaceOpen``
 hooks, a declared gap (:data:`DOCUMENTED_GAPS`), never a silent one.
 
 Redaction runs here, before a record leaves the adapter (DD-06): by default no
@@ -23,7 +25,6 @@ content is captured (metadata-only). See ``docs/design/harness-adapter-design.md
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any, cast
 
@@ -51,21 +52,21 @@ HARNESS_ID = "cursor"
 # Provenance tag for every record this adapter produces: native harness hooks.
 HOOK_PRODUCER = Producer(kind=ProducerKind.HOOK, name=HARNESS_ID)
 
-# The blocking ``before*`` hooks. We subscribe for telemetry but never answer
-# them (monitor-only, R2); the daemon writes records and exits 0.
+# Permission/blocking hooks. We subscribe for telemetry but never answer them
+# (monitor-only, R2); the daemon writes records and exits 0.
 BLOCKING_EVENTS = frozenset(
     {
         "preToolUse",
         "beforeShellExecution",
         "beforeMCPExecution",
-        "beforeFileEdit",
         "beforeReadFile",
         "beforeTabFileRead",
         "beforeSubmitPrompt",
+        "subagentStart",
     }
 )
 
-# Every native hook event this adapter normalizes.
+# Every native hook event this adapter normalizes (Cursor docs "Hook events").
 CAPABILITIES = frozenset(
     {
         "sessionStart",
@@ -77,30 +78,30 @@ CAPABILITIES = frozenset(
         "afterShellExecution",
         "beforeMCPExecution",
         "afterMCPExecution",
-        "beforeFileEdit",
-        "afterFileEdit",
         "beforeReadFile",
+        "afterFileEdit",
         "beforeTabFileRead",
         "afterTabFileEdit",
         "subagentStart",
         "subagentStop",
         "beforeSubmitPrompt",
         "preCompact",
-        "afterAgentThought",
+        "stop",
         "afterAgentResponse",
+        "afterAgentThought",
         "workspaceOpen",
     }
 )
 
-# Honest, declared gaps (R3) — never dropped silently. Cloud agents do not emit
-# the sessionStart/beforeSubmitPrompt/Tab/workspace hooks (PRD 42 edge cases).
+# Honest, declared gaps (R3) — never dropped silently. Cloud agents do not run
+# sessionStart/sessionEnd, MCP, Tab, or workspaceOpen hooks (Cursor docs
+# "Hooks not available in cloud agents").
 DOCUMENTED_GAPS = ("cloud-agent-hook-events",)
 
 # Tool name used for a phase that does not derive one from the payload.
 _TOOL_NAMES: dict[str, str] = {
     "beforeShellExecution": "Shell",
     "afterShellExecution": "Shell",
-    "beforeFileEdit": "Edit",
     "afterFileEdit": "Edit",
     "beforeReadFile": "Read",
     "beforeTabFileRead": "TabRead",
@@ -111,10 +112,29 @@ _TOOL_NAMES: dict[str, str] = {
     "afterAgentThought": "agent-thought",
     "afterAgentResponse": "agent-response",
     "preCompact": "context-compacted",
+    "stop": "agent-stop",
     "workspaceOpen": "workspace-open",
     "sessionStart": "session-start",
     "sessionEnd": "session-end",
 }
+
+_TOOL_EVENTS = frozenset(
+    {
+        "preToolUse",
+        "postToolUse",
+        "postToolUseFailure",
+        "beforeShellExecution",
+        "afterShellExecution",
+        "beforeMCPExecution",
+        "afterMCPExecution",
+        "beforeReadFile",
+        "afterFileEdit",
+        "beforeTabFileRead",
+        "afterTabFileEdit",
+        "subagentStart",
+        "subagentStop",
+    }
+)
 
 _POST_EVENTS = frozenset(
     {
@@ -131,6 +151,21 @@ _POST_EVENTS = frozenset(
 _SESSION_EVENTS = frozenset({"sessionStart", "sessionEnd"})
 _REASON_EVENTS = frozenset({"afterAgentThought", "afterAgentResponse"})
 
+# Fields whose content is scanned for secrets (never stored by default).
+_CONTENT_FIELDS = (
+    "command",
+    "prompt",
+    "tool_input",
+    "tool_output",
+    "tool_response",
+    "output",
+    "result_json",
+    "content",
+    "text",
+    "summary",
+    "edits",
+)
+
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
     PrivacyMode.TRUNCATED: RecordPrivacyMode.TRUNCATED,
@@ -144,10 +179,10 @@ class CursorAdapterError(ValueError):
 
 
 def split_mcp_tool(name: str) -> tuple[str | None, str]:
-    """Split an MCP tool id ``mcp__<server>__<tool>`` into ``(server, tool)``.
+    """Split an ``mcp__<server>__<tool>`` id into ``(server, tool)`` (defensive).
 
-    Defensive: a non-MCP name, a malformed ``mcp__`` name, or an empty
-    server/tool segment returns ``(None, name)`` so the raw name is preserved.
+    Cursor's native MCP hooks carry the server separately (``mcp_server_name``);
+    this helper covers tool names that arrive already namespaced.
     """
     parts = name.split("__")
     if len(parts) >= 3 and parts[0] == "mcp" and parts[1] and "__".join(parts[2:]):
@@ -176,10 +211,16 @@ def _identity_from(value: Any) -> AgentIdentity:
 
 
 def _identity_dimension(base: AgentIdentity, event: Mapping[str, Any]) -> AgentIdentity:
-    """Add optional identity fields a hook may expose (absent stays absent)."""
+    """Add optional identity fields the contract exposes (absent stays absent)."""
     block = event.get("agent")
     block = block if isinstance(block, Mapping) else None
-    principal = _optional_str(block, "principal") or _optional_str(event, "principal")
+    # Cursor exposes the authenticated user as ``user_email``; it is the
+    # on-behalf-of principal and is hashed by default (IDN-1).
+    principal = (
+        _optional_str(block, "principal")
+        or _optional_str(event, "principal")
+        or _optional_str(event, "user_email")
+    )
     workload_identity = _optional_str(block, "workload_identity") or _optional_str(
         event, "workload_identity"
     )
@@ -205,8 +246,14 @@ def _identity_dimension(base: AgentIdentity, event: Mapping[str, Any]) -> AgentI
         and delegation_chain is None
     ):
         return base
-    return replace(
-        base,
+    return AgentIdentity(
+        identity=base.identity,
+        name=base.name,
+        version=base.version,
+        prompt_version=base.prompt_version,
+        model_version=base.model_version,
+        tool_schema_version=base.tool_schema_version,
+        workload_type=base.workload_type,
         workload_identity=workload_identity,
         credential_class=credential_class,
         principal=principal,
@@ -217,7 +264,7 @@ def _identity_dimension(base: AgentIdentity, event: Mapping[str, Any]) -> AgentI
 def identity_for(
     event: Mapping[str, Any], *, redaction: RedactionConfig | None = None
 ) -> AgentIdentity:
-    """Agent identity for an event: explicit ``agent`` first, else subagent ids.
+    """Agent identity for an event: subagent ids first, else the base identity.
 
     The principal-hashing policy is applied for the session's privacy mode
     (hashed by default); an absent identity stays ``unknown`` — never inferred.
@@ -225,8 +272,8 @@ def identity_for(
     if event.get("agent") is not None:
         base = _identity_from(event["agent"])
     else:
-        agent_id = event.get("agent_id")
-        agent_type = event.get("agent_type")
+        agent_id = event.get("subagent_id") or event.get("agent_id")
+        agent_type = event.get("subagent_type") or event.get("agent_type")
         if agent_id is not None or agent_type is not None:
             base = AgentIdentity(
                 identity=str(agent_id if agent_id is not None else agent_type),
@@ -250,6 +297,7 @@ def _parse_timestamp(value: Any) -> datetime | None:
 
 
 def _timestamp(event: Mapping[str, Any]) -> datetime:
+    """The framing time. Cursor payloads carry no timestamp; the hook adds one."""
     parsed = _parse_timestamp(event.get("timestamp"))
     return parsed if parsed is not None else datetime.now(timezone.utc)
 
@@ -258,27 +306,63 @@ def _started_at(event: Mapping[str, Any], moment: datetime) -> datetime:
     return _parse_timestamp(event.get("started_at")) or moment
 
 
+def _session_id(event: Mapping[str, Any]) -> str:
+    return str(event.get("session_id") or event.get("conversation_id") or "unknown")
+
+
 def _call_id(event: Mapping[str, Any]) -> str | None:
-    raw = event.get("call_id") or event.get("tool_use_id") or event.get("tool_call_id")
+    raw = (
+        event.get("tool_use_id")
+        or event.get("tool_call_id")
+        or event.get("subagent_id")
+        or event.get("call_id")
+        or event.get("generation_id")
+    )
     return str(raw) if raw is not None else None
 
 
+def _project(event: Mapping[str, Any]) -> str | None:
+    cwd = event.get("cwd")
+    if isinstance(cwd, str) and cwd:
+        return cwd
+    roots = event.get("workspace_roots")
+    if isinstance(roots, list) and roots and isinstance(roots[0], str):
+        return roots[0]
+    return None
+
+
 def _duration(event: Mapping[str, Any]) -> float | None:
-    raw = event.get("duration_ms")
-    if isinstance(raw, (int, float)) and not isinstance(raw, bool):
-        return float(raw)
+    for key in ("duration_ms", "duration"):
+        raw = event.get(key)
+        if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+            return float(raw)
     return None
 
 
 def _is_error(event: Mapping[str, Any], phase: str) -> bool:
     if phase == "postToolUseFailure":
         return True
-    if event.get("error"):
+    if event.get("error") or event.get("error_message"):
         return True
     if event.get("is_error") is True or event.get("success") is False:
         return True
+    if event.get("failure_type") in ("error", "timeout", "permission_denied"):
+        return True
+    if event.get("status") in ("error", "aborted"):
+        return True
+    if event.get("reason") == "error":
+        return True
     exit_code = event.get("exit_code")
     return isinstance(exit_code, int) and not isinstance(exit_code, bool) and exit_code != 0
+
+
+def _cursor_version(event: Mapping[str, Any]) -> str | None:
+    return _optional_str(event, "cursor_version")
+
+
+def _producer_for(event: Mapping[str, Any]) -> Producer:
+    version = _cursor_version(event)
+    return Producer(kind=HOOK_PRODUCER.kind, name=HOOK_PRODUCER.name, version=version)
 
 
 def _redact(value: Any, cfg: RedactionConfig) -> Any:
@@ -294,12 +378,17 @@ def _redact(value: Any, cfg: RedactionConfig) -> Any:
 def _arguments(
     raw: Any, cfg: RedactionConfig | None, *, capture: bool
 ) -> tuple[dict[str, Any] | None, RecordPrivacyMode]:
-    if not isinstance(raw, Mapping) or not capture:
+    if not capture or cfg is None or cfg.mode is PrivacyMode.METADATA_ONLY:
         return None, RecordPrivacyMode.METADATA_ONLY
-    if cfg is None or cfg.mode is PrivacyMode.METADATA_ONLY:
-        return None, RecordPrivacyMode.METADATA_ONLY
-    redacted = cast("dict[str, Any]", _redact(raw, cfg))
-    return redacted, _PRIVACY_MAP[cfg.mode]
+    if isinstance(raw, Mapping):
+        return cast("dict[str, Any]", _redact(raw, cfg)), _PRIVACY_MAP[cfg.mode]
+    if isinstance(raw, str):
+        applied = cfg.apply(raw, allowed=True)
+        return ({"text": applied}, _PRIVACY_MAP[cfg.mode]) if applied is not None else (
+            None,
+            RecordPrivacyMode.METADATA_ONLY,
+        )
+    return None, RecordPrivacyMode.METADATA_ONLY
 
 
 def _captured_text(
@@ -320,22 +409,36 @@ def _secret_evidence(kinds: tuple[str, ...], fingerprints: tuple[str, ...]) -> d
     return evidence
 
 
-def _secret_event(
+def _scan_secrets(
+    event: Mapping[str, Any],
     tool_name: str,
-    kinds: tuple[str, ...],
     fingerprint: Callable[[str], str] | None,
-    raw: Any,
     moment: datetime,
 ) -> SecurityEvent | None:
+    kinds: list[str] = []
+    raw_values: list[Any] = []
+    for field in _CONTENT_FIELDS:
+        value = event.get(field)
+        if value is None:
+            continue
+        _, found = redact_mapping(value)
+        if found:
+            kinds.extend(found)
+            raw_values.append(value)
     if not kinds:
         return None
-    fingerprints = fingerprint_spans(raw, fingerprint) if fingerprint is not None else ()
+    fingerprints: tuple[str, ...] = ()
+    if fingerprint is not None:
+        collected: list[str] = []
+        for value in raw_values:
+            collected.extend(fingerprint_spans(value, fingerprint))
+        fingerprints = tuple(dict.fromkeys(collected))
     return SecurityEvent(
         type=SecurityEventType.SECRET_DETECTED,
         emitted_at=moment,
         emitter="agentwatch",
         tool=tool_name,
-        evidence=_secret_evidence(kinds, fingerprints),
+        evidence=_secret_evidence(tuple(dict.fromkeys(kinds)), fingerprints),
     )
 
 
@@ -347,17 +450,39 @@ def _ide_environment(event: Mapping[str, Any]) -> dict[str, Any] | None:
 
 def tool_name_for(phase: str, event: Mapping[str, Any]) -> tuple[str | None, str]:
     """Resolve ``(server, tool)`` for a tool-event phase."""
-    if phase in ("preToolUse", "postToolUse", "postToolUseFailure", "beforeMCPExecution",
-                 "afterMCPExecution"):
-        raw = event.get("tool_name") or event.get("tool") or _TOOL_NAMES.get(phase, "tool")
-    else:
-        raw = _TOOL_NAMES[phase]
-    return split_mcp_tool(str(raw))
+    if phase in ("beforeMCPExecution", "afterMCPExecution"):
+        server = _optional_str(event, "mcp_server_name")
+        tool = event.get("tool_name") or "mcp"
+        _, bare = split_mcp_tool(str(tool))
+        return server, bare
+    if phase in ("preToolUse", "postToolUse", "postToolUseFailure"):
+        raw = event.get("tool_name") or _TOOL_NAMES.get(phase, "tool")
+        return split_mcp_tool(str(raw))
+    return None, _TOOL_NAMES[phase]
+
+
+def _raw_arguments(phase: str, event: Mapping[str, Any]) -> Any:
+    if phase in ("preToolUse", "postToolUse", "postToolUseFailure"):
+        return event.get("tool_input")
+    if phase in ("beforeShellExecution", "afterShellExecution"):
+        command = event.get("command")
+        return {"command": command} if isinstance(command, str) else None
+    if phase in ("beforeMCPExecution", "afterMCPExecution"):
+        return event.get("tool_input")
+    if phase in ("beforeReadFile", "beforeTabFileRead", "afterFileEdit", "afterTabFileEdit"):
+        return {"file_path": event.get("file_path")} if event.get("file_path") else None
+    return None
+
+
+def _raw_response(phase: str, event: Mapping[str, Any]) -> Any:
+    for key in ("tool_output", "output", "result_json", "response"):
+        if event.get(key) is not None:
+            return event[key]
+    return None
 
 
 def _base(
     *,
-    phase: str,
     event: Mapping[str, Any],
     tool_name: str,
     session_id: str,
@@ -389,7 +514,7 @@ def _base(
         outcome=outcome,
         started_at=started_at,
         harness=HARNESS_ID,
-        producer=HOOK_PRODUCER,
+        producer=_producer_for(event),
         trace_id=trace_id,
         span_id=call_id,
         project=project,
@@ -420,10 +545,10 @@ def _normalize_message(
         raise CursorAdapterError("hook message is missing an 'event' object")
 
     phase = str(phase)
-    session_id = str(event.get("session_id") or "unknown")
+    session_id = _session_id(event)
     call_id = _call_id(event)
-    trace_id = str(event.get("trace_id") or session_id)
-    project = event.get("cwd") if isinstance(event.get("cwd"), str) else None
+    trace_id = str(event.get("conversation_id") or event.get("trace_id") or session_id)
+    project = _project(event)
     environment = _ide_environment(event)
     event_time = _timestamp(event)
 
@@ -435,7 +560,6 @@ def _normalize_message(
             raw_parent = event.get("parent_session_id") or event.get("source_session_id")
             parent_session_id = str(raw_parent) if raw_parent is not None else None
         record = _base(
-            phase=phase,
             event=event,
             tool_name=_TOOL_NAMES[phase],
             session_id=session_id,
@@ -446,16 +570,19 @@ def _normalize_message(
             event_time=event_time,
             redaction=redaction,
             step_type=None,
-            outcome=Outcome.OK,
+            outcome=Outcome.ERROR if _is_error(event, phase) else Outcome.OK,
             started_at=event_time,
+            ended_at=event_time if phase == "sessionEnd" else None,
+            duration_ms=_duration(event) if phase == "sessionEnd" else None,
             arguments=arguments,
         )
-        return [replace(record, parent_session_id=parent_session_id)]
+        if parent_session_id is None:
+            return [record]
+        return [AgentRecord.from_dict({**record.to_dict(), "parent_session_id": parent_session_id})]
 
     if phase == "workspaceOpen":
         return [
             _base(
-                phase=phase,
                 event=event,
                 tool_name=_TOOL_NAMES[phase],
                 session_id=session_id,
@@ -471,26 +598,47 @@ def _normalize_message(
             )
         ]
 
+    if phase == "stop":
+        status = event.get("status")
+        return [
+            _base(
+                event=event,
+                tool_name=_TOOL_NAMES[phase],
+                session_id=session_id,
+                trace_id=trace_id,
+                call_id=call_id,
+                project=project,
+                environment=environment,
+                event_time=event_time,
+                redaction=redaction,
+                step_type=None,
+                outcome=Outcome.ERROR if _is_error(event, phase) else Outcome.OK,
+                started_at=event_time,
+                ended_at=event_time,
+                arguments={"status": str(status)} if isinstance(status, str) else None,
+            )
+        ]
+
     if phase == "preCompact":
-        raw_trigger = event.get("trigger") or event.get("source")
+        raw_trigger = event.get("trigger")
         trigger = (
             raw_trigger
             if isinstance(raw_trigger, str) and raw_trigger in ("auto", "manual")
             else "unknown"
         )
         compact_args: dict[str, Any] = {"trigger": trigger}
-        for key, alternatives in (
-            ("tokens_before", ("tokens_before", "before_tokens")),
-            ("tokens_after", ("tokens_after", "after_tokens")),
+        for key in (
+            "context_usage_percent",
+            "context_tokens",
+            "context_window_size",
+            "message_count",
+            "messages_to_compact",
         ):
-            for alt in alternatives:
-                value = event.get(alt)
-                if isinstance(value, int) and not isinstance(value, bool):
-                    compact_args[key] = value
-                    break
+            value = event.get(key)
+            if isinstance(value, int) and not isinstance(value, bool):
+                compact_args[key] = value
         return [
             _base(
-                phase=phase,
                 event=event,
                 tool_name=_TOOL_NAMES[phase],
                 session_id=session_id,
@@ -509,25 +657,10 @@ def _normalize_message(
 
     if phase == "beforeSubmitPrompt":
         raw_prompt = event.get("prompt")
-        masked_prompt, prompt_kinds = redact_mapping(raw_prompt)
-        security_event = _secret_event(
-            "user-prompt", prompt_kinds, secret_fingerprint, raw_prompt, event_time
-        )
-        captured = None
-        privacy_mode = RecordPrivacyMode.METADATA_ONLY
-        if (
-            isinstance(masked_prompt, str)
-            and redaction is not None
-            and redaction.mode is not PrivacyMode.METADATA_ONLY
-            and redaction.capture_prompts
-        ):
-            applied = redaction.apply(masked_prompt, allowed=True)
-            if applied is not None:
-                captured = {"prompt": applied}
-                privacy_mode = _PRIVACY_MAP[redaction.mode]
+        security_event = _scan_secrets(event, "user-prompt", secret_fingerprint, event_time)
+        captured, privacy_mode = _captured_text(raw_prompt, redaction)
         return [
             _base(
-                phase=phase,
                 event=event,
                 tool_name=_TOOL_NAMES[phase],
                 session_id=session_id,
@@ -547,15 +680,13 @@ def _normalize_message(
         ]
 
     if phase in _REASON_EVENTS:
-        raw = event.get("thought") if phase == "afterAgentThought" else event.get("response")
-        masked, kinds = redact_mapping(raw)
-        security_event = _secret_event(
-            _TOOL_NAMES[phase], kinds, secret_fingerprint, raw, event_time
+        raw = event.get("text")
+        security_event = _scan_secrets(
+            event, _TOOL_NAMES[phase], secret_fingerprint, event_time
         )
-        captured, privacy_mode = _captured_text(masked, redaction)
+        captured, privacy_mode = _captured_text(raw, redaction)
         return [
             _base(
-                phase=phase,
                 event=event,
                 tool_name=_TOOL_NAMES[phase],
                 session_id=session_id,
@@ -568,13 +699,15 @@ def _normalize_message(
                 step_type=StepType.REASON,
                 outcome=Outcome.OK,
                 started_at=event_time,
+                ended_at=event_time if phase == "afterAgentThought" else None,
+                duration_ms=_duration(event) if phase == "afterAgentThought" else None,
                 arguments=captured,
                 privacy_mode=privacy_mode,
                 security_event=security_event,
             )
         ]
 
-    # Tool-ish events: pre/postToolUse(+Failure), shell/MCP/file/subagent.
+    # Tool-ish events: pre/postToolUse(+Failure), shell/MCP/file/subagent/Tab.
     server, tool_name = tool_name_for(phase, event)
     after = phase in _POST_EVENTS
     started_at = _started_at(event, event_time) if after else event_time
@@ -587,41 +720,23 @@ def _normalize_message(
         else StepType.ACT
     )
 
-    raw_input = event.get("tool_input")
-    if raw_input is None:
-        raw_input = event.get("input")
-    if raw_input is None and phase in ("beforeShellExecution", "afterShellExecution"):
-        raw_input = event.get("command")
-    if raw_input is None:
-        raw_input = event.get("file")
-    masked_input, input_kinds = redact_mapping(raw_input)
-    raw_response = event.get("tool_response") or event.get("response") or event.get("output")
-    masked_response, response_kinds = redact_mapping(raw_response)
-    secret_kinds = tuple(dict.fromkeys([*input_kinds, *response_kinds]))
-    security_event = _secret_event(
-        tool_name,
-        secret_kinds,
-        secret_fingerprint,
-        raw_input if input_kinds else raw_response,
-        event_time,
-    )
+    security_event = _scan_secrets(event, tool_name, secret_fingerprint, event_time)
     arguments, privacy_mode = _arguments(
-        masked_input, redaction, capture=redaction is not None and redaction.capture_tool_args
+        _raw_arguments(phase, event),
+        redaction,
+        capture=redaction is not None and redaction.capture_tool_args,
     )
-    captured_response, response_mode = _arguments(
-        masked_response, redaction, capture=redaction is not None and redaction.capture_tool_args
+    response, response_mode = _arguments(
+        _raw_response(phase, event),
+        redaction,
+        capture=redaction is not None and redaction.capture_tool_args,
     )
-
     tool = ToolCall(
         name=tool_name,
         server=server,
         arguments=arguments,
-        response=captured_response,
-        privacy_mode=(
-            response_mode
-            if privacy_mode is RecordPrivacyMode.METADATA_ONLY
-            else privacy_mode
-        ),
+        response=response,
+        privacy_mode=response_mode if response is not None else privacy_mode,
     )
     return [
         AgentRecord(
@@ -631,7 +746,7 @@ def _normalize_message(
             outcome=outcome,
             started_at=started_at,
             harness=HARNESS_ID,
-            producer=HOOK_PRODUCER,
+            producer=_producer_for(event),
             trace_id=trace_id,
             span_id=call_id,
             project=project,
@@ -652,8 +767,9 @@ def normalize(
 ) -> list[AgentRecord]:
     """Normalize one framed Cursor hook message, propagating any ``traceparent``.
 
-    A hook that reports a ``traceparent`` joins the caller's trace instead of
-    starting a new one; a malformed header is ignored.
+    A hook that reports a ``traceparent`` (e.g. a subagent fan-out or an MCP-proxy
+    hop) joins the caller's trace instead of starting a new one; a malformed
+    header is ignored.
     """
     records = _normalize_message(
         message, redaction=redaction, secret_fingerprint=secret_fingerprint
@@ -673,11 +789,13 @@ def _with_traceparent(record: AgentRecord, event: Mapping[str, Any]) -> AgentRec
     context = parse_traceparent(raw)
     if context is None:
         return record
-    return replace(
-        record,
-        trace_id=context.trace_id,
-        span_id=record.span_id or context.span_id,
-        traceparent=format_traceparent(
-            context.trace_id, context.span_id, sampled=context.sampled
-        ),
+    return AgentRecord.from_dict(
+        {
+            **record.to_dict(),
+            "trace_id": context.trace_id,
+            "span_id": record.span_id or context.span_id,
+            "traceparent": format_traceparent(
+                context.trace_id, context.span_id, sampled=context.sampled
+            ),
+        }
     )

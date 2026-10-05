@@ -64,9 +64,10 @@ gap are declared the same way as Claude Code.
 (`tests/fixtures/cursor/*.json`) covers the full loop: session boundaries, pre/post tool use (+failure),
 shell, MCP, `beforeReadFile`, file edits, subagent start/stop, prompt submission, compaction,
 `afterAgentThought`/`afterAgentResponse`, Tab hooks, and `workspaceOpen`. The declared gap is
-`cloud-agent-hook-events` (cloud agents lack sessionStart/beforeSubmitPrompt/Tab/workspace hooks), rejected
+`cloud-agent-hook-events` (cloud agents lack sessionStart/sessionEnd/MCP/Tab/workspace hooks), rejected
 explicitly. Blocking `before*` events are recorded as observations and never answered (monitor-only, R2).
-The shapes are documented (not yet a consented live capture, 25.CUR-1), so the fidelity tier stays `modeled`.
+Field names follow the published contract, and the audit corpus (25.CUR-1) is version-tagged and
+secret-scanned under `tests/testkit/` (`PROVENANCE.md`), so the fidelity tier is `fixture-verified`.
 
 ## Tier-2 framework adapters (M10 10.6, modeled)
 

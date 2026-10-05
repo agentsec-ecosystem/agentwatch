@@ -22,7 +22,7 @@ PLATFORM_PHASES: dict[str, tuple[str, ...]] = {
     "cursor": (
         "beforeShellExecution",
         "afterShellExecution",
-        "beforeFileEdit",
+        "beforeReadFile",
         "afterFileEdit",
     ),
     "codex-cli": ("exec_begin", "exec_end", "patch_apply"),

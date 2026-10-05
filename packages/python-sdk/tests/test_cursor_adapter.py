@@ -1,11 +1,11 @@
-"""Cursor native-hooks adapter tests (M25 CUR-2, #304).
+"""Cursor native-hooks adapter tests (M25 CUR-2, #304; realigned to CUR-1 corpus).
 
-Cursor ships ``hooks.json`` that invoke an external program with JSON on stdin
-across the full agent loop. The hook binary frames the payload as
-``{"phase": <hook_event_name>, "harness": "cursor", "event": {...}}``; this
-adapter normalizes that framed message.
+Field names follow the published Cursor contract (``conversation_id``,
+``generation_id``, ``hook_event_name``, ``cursor_version``, ``workspace_roots``,
+``file_path``, ``user_email``). The adapter consumes the framed message
+``{"phase": <hook_event_name>, "harness": "cursor", "event": {...}}``.
 
-Blocking before-events are recorded as observations and are **never answered**
+Blocking permission hooks are recorded as observations and are **never answered**
 (monitor-only, R2). Cloud-agent hook gaps are declared, never silent.
 """
 
@@ -23,7 +23,7 @@ from agentwatch.adapters import cursor
 from agentwatch.records import Outcome, SecurityEventType, StepType, validate_record
 
 
-def _msg(phase: str, event: dict[str, Any]) -> dict[str, Any]:
+def _msg(phase: str, **event: Any) -> dict[str, Any]:
     return {"phase": phase, "harness": "cursor", "event": event}
 
 
@@ -41,14 +41,15 @@ def test_declares_native_capabilities_and_cloud_gaps() -> None:
         "afterMCPExecution",
         "beforeReadFile",
         "afterFileEdit",
+        "beforeTabFileRead",
+        "afterTabFileEdit",
         "subagentStart",
         "subagentStop",
         "beforeSubmitPrompt",
         "preCompact",
-        "afterAgentThought",
+        "stop",
         "afterAgentResponse",
-        "beforeTabFileRead",
-        "afterTabFileEdit",
+        "afterAgentThought",
         "workspaceOpen",
     ):
         assert phase in cursor.CAPABILITIES
@@ -56,16 +57,13 @@ def test_declares_native_capabilities_and_cloud_gaps() -> None:
     assert set(cursor.DOCUMENTED_GAPS).isdisjoint(cursor.CAPABILITIES)
 
 
-def test_blocking_event_is_recorded_as_an_observation_and_never_answered() -> None:
+def test_blocking_hook_is_recorded_as_an_observation_and_never_answered() -> None:
     (record,) = cursor.normalize(
         _msg(
             "beforeShellExecution",
-            {
-                "session_id": "s1",
-                "call_id": "c1",
-                "command": "npm test",
-                "permission": "deny",  # a blocking decision we must NOT answer
-            },
+            conversation_id="s1",
+            command="npm test",
+            permission="deny",  # a blocking decision we must NOT answer
         )
     )
 
@@ -81,30 +79,28 @@ def test_after_shell_records_outcome_end_and_duration() -> None:
     (record,) = cursor.normalize(
         _msg(
             "afterShellExecution",
-            {
-                "session_id": "s1",
-                "call_id": "c1",
-                "timestamp": "2026-01-02T03:04:06+00:00",
-                "duration_ms": 12.5,
-                "error": "boom",
-            },
+            conversation_id="s1",
+            command="npm test",
+            output="boom",
+            duration=12.5,
+            timestamp="2026-01-02T03:04:06+00:00",
         )
     )
 
     assert record.step_type is StepType.OBSERVE
-    assert record.outcome is Outcome.ERROR
+    assert record.outcome is Outcome.OK
     assert record.tool.name == "Shell"
     assert record.ended_at is not None
     assert record.duration_ms == 12.5
     validate_record(record.to_dict())
 
 
-def test_pre_and_post_tool_use_share_the_tool_name() -> None:
+def test_pre_and_post_tool_use_share_the_tool_name_and_span() -> None:
     (pre,) = cursor.normalize(
-        _msg("preToolUse", {"session_id": "s1", "call_id": "c1", "tool_name": "Read"})
+        _msg("preToolUse", conversation_id="s1", tool_name="Read", tool_use_id="c1")
     )
     (post,) = cursor.normalize(
-        _msg("postToolUse", {"session_id": "s1", "call_id": "c1", "tool_name": "Read"})
+        _msg("postToolUse", conversation_id="s1", tool_name="Read", tool_use_id="c1")
     )
 
     assert pre.tool.name == "Read" and pre.step_type is StepType.ACT
@@ -115,7 +111,14 @@ def test_pre_and_post_tool_use_share_the_tool_name() -> None:
 
 def test_post_tool_use_failure_is_an_error() -> None:
     (record,) = cursor.normalize(
-        _msg("postToolUseFailure", {"session_id": "s1", "call_id": "c1", "tool_name": "Bash"})
+        _msg(
+            "postToolUseFailure",
+            conversation_id="s1",
+            tool_name="Bash",
+            tool_use_id="c1",
+            failure_type="timeout",
+            error_message="Command timed out",
+        )
     )
 
     assert record.outcome is Outcome.ERROR
@@ -126,7 +129,10 @@ def test_mcp_execution_records_server_attribution() -> None:
     (record,) = cursor.normalize(
         _msg(
             "beforeMCPExecution",
-            {"session_id": "s1", "call_id": "c1", "tool_name": "mcp__github__issue_get"},
+            conversation_id="s1",
+            tool_name="issue_get",
+            mcp_server_name="github",
+            tool_input="{}",
         )
     )
 
@@ -137,18 +143,22 @@ def test_mcp_execution_records_server_attribution() -> None:
 
 def test_before_read_file_is_an_observe_step() -> None:
     (record,) = cursor.normalize(
-        _msg("beforeReadFile", {"session_id": "s1", "call_id": "c1", "file": "a.py"})
+        _msg("beforeReadFile", conversation_id="s1", tool_use_id="c1", file_path="/repo/a.py")
     )
 
     assert record.step_type is StepType.OBSERVE
     assert record.tool.name == "Read"
+    assert record.project is None
 
 
 def test_subagent_start_sets_the_subagent_identity() -> None:
     (record,) = cursor.normalize(
         _msg(
             "subagentStart",
-            {"session_id": "s1", "call_id": "c1", "agent_id": "sub-7", "agent_type": "explore"},
+            conversation_id="s1",
+            subagent_id="sub-7",
+            subagent_type="explore",
+            task="find the auth flow",
         )
     )
 
@@ -158,9 +168,7 @@ def test_subagent_start_sets_the_subagent_identity() -> None:
 
 
 def test_before_submit_prompt_is_a_reason_step() -> None:
-    (record,) = cursor.normalize(
-        _msg("beforeSubmitPrompt", {"session_id": "s1", "prompt": "hello"})
-    )
+    (record,) = cursor.normalize(_msg("beforeSubmitPrompt", conversation_id="s1", prompt="hello"))
 
     assert record.step_type is StepType.REASON
     assert record.tool.name == "user-prompt"
@@ -170,77 +178,116 @@ def test_before_submit_prompt_is_a_reason_step() -> None:
 
 def test_after_agent_thought_is_reasoning_and_metadata_only() -> None:
     (record,) = cursor.normalize(
-        _msg("afterAgentThought", {"session_id": "s1", "thought": "let me think"})
+        _msg("afterAgentThought", conversation_id="s1", text="let me think", duration_ms=5000)
     )
 
     assert record.step_type is StepType.REASON
     assert record.tool.name == "agent-thought"
     assert record.tool.arguments is None
+    assert record.duration_ms == 5000
 
 
-def test_pre_compact_records_only_the_trigger() -> None:
+def test_pre_compact_records_only_metadata() -> None:
     (record,) = cursor.normalize(
         _msg(
             "preCompact",
-            {"session_id": "s1", "trigger": "auto", "tokens_before": 1000},
+            conversation_id="s1",
+            trigger="auto",
+            context_tokens=1000,
+            messages_to_compact=30,
         )
     )
 
     assert record.tool.name == "context-compacted"
-    assert record.tool.arguments == {"trigger": "auto", "tokens_before": 1000}
+    assert record.tool.arguments == {
+        "trigger": "auto",
+        "context_tokens": 1000,
+        "messages_to_compact": 30,
+    }
 
 
 def test_tab_hooks_are_tagged() -> None:
     (read,) = cursor.normalize(
-        _msg("beforeTabFileRead", {"session_id": "s1", "call_id": "c1", "file": "a.py"})
+        _msg("beforeTabFileRead", conversation_id="s1", file_path="/repo/a.py")
     )
     (edit,) = cursor.normalize(
-        _msg("afterTabFileEdit", {"session_id": "s1", "call_id": "c2", "file": "a.py"})
+        _msg("afterTabFileEdit", conversation_id="s1", file_path="/repo/a.py", duration=3)
     )
 
     assert read.tool.name == "TabRead" and read.step_type is StepType.OBSERVE
     assert edit.tool.name == "TabEdit" and edit.ended_at is not None
 
 
+def test_stop_is_a_lifecycle_record() -> None:
+    (completed,) = cursor.normalize(
+        _msg("stop", conversation_id="s1", status="completed", loop_count=0)
+    )
+    (errored,) = cursor.normalize(_msg("stop", conversation_id="s1", status="error"))
+
+    assert completed.tool.name == "agent-stop"
+    assert completed.step_type is None
+    assert completed.outcome is Outcome.OK
+    assert errored.outcome is Outcome.ERROR
+
+
 def test_workspace_open_is_a_lifecycle_record() -> None:
-    (record,) = cursor.normalize(_msg("workspaceOpen", {"session_id": "s1"}))
+    (record,) = cursor.normalize(
+        _msg("workspaceOpen", workspace_roots=["/repo"], cursor_version="1.7.2")
+    )
 
     assert record.tool.name == "workspace-open"
     assert record.step_type is None
+    assert record.project == "/repo"
+    assert record.producer is not None and record.producer.version == "1.7.2"
 
 
-def test_session_boundaries_are_lifecycle_records() -> None:
-    (start,) = cursor.normalize(
-        _msg("sessionStart", {"session_id": "s1", "ide": "cursor-remote"})
+def test_session_start_stores_the_ide_and_hashes_the_principal() -> None:
+    (record,) = cursor.normalize(
+        _msg(
+            "sessionStart",
+            session_id="s1",
+            ide="cursor-remote",
+            user_email="alice@example.com",
+            composer_mode="agent",
+        )
     )
-    (end,) = cursor.normalize(
-        _msg("sessionEnd", {"session_id": "s1", "reason": "fork", "parent_session_id": "p0"})
+
+    assert record.step_type is None and record.tool.name == "session-start"
+    assert record.environment == {"ide": "cursor-remote"}
+    # IDN-1: the principal is hashed by default, never stored in the clear.
+    assert record.agent.principal is not None
+    assert record.agent.principal != "alice@example.com"
+
+
+def test_session_end_carries_reason_and_duration() -> None:
+    (record,) = cursor.normalize(
+        _msg("sessionEnd", session_id="s1", reason="user_close", duration_ms=45000)
     )
 
-    assert start.step_type is None and start.tool.name == "session-start"
-    assert end.step_type is None and end.tool.name == "session-end"
-    assert end.parent_session_id == "p0"
+    assert record.step_type is None and record.tool.name == "session-end"
+    assert record.duration_ms == 45000
+    assert record.tool.arguments == {"reason": "user_close"}
 
 
 def test_ide_is_tagged_on_every_record() -> None:
     for phase, event in (
-        ("beforeShellExecution", {"session_id": "s1", "command": "ls"}),
+        ("beforeShellExecution", {"conversation_id": "s1", "command": "ls"}),
         ("sessionStart", {"session_id": "s1"}),
-        ("afterAgentThought", {"session_id": "s1"}),
+        ("afterAgentThought", {"conversation_id": "s1", "text": "x"}),
     ):
-        (record,) = cursor.normalize(_msg(phase, {**event, "ide": "cursor-cli"}))
+        (record,) = cursor.normalize(_msg(phase, ide="cursor-cli", **event))
         assert record.environment == {"ide": "cursor-cli"}
 
 
 def test_unknown_phase_is_rejected() -> None:
     with pytest.raises(cursor.CursorAdapterError):
-        cursor.normalize(_msg("sideways", {"session_id": "s1"}))
+        cursor.normalize(_msg("sideways", conversation_id="s1"))
 
 
 @pytest.mark.parametrize("gap", cursor.DOCUMENTED_GAPS)
 def test_declared_gap_is_rejected(gap: str) -> None:
     with pytest.raises(cursor.CursorAdapterError):
-        cursor.normalize(_msg(gap, {"session_id": "s1"}))
+        cursor.normalize(_msg(gap, conversation_id="s1"))
 
 
 def test_missing_event_is_rejected() -> None:
@@ -250,10 +297,7 @@ def test_missing_event_is_rejected() -> None:
 
 def test_secret_in_event_fires_secret_detected() -> None:
     (record,) = cursor.normalize(
-        _msg(
-            "beforeSubmitPrompt",
-            {"session_id": "s1", "prompt": "export TOKEN=sk-abcdefgh"},
-        )
+        _msg("beforeSubmitPrompt", conversation_id="s1", prompt="export TOKEN=sk-abcdefgh")
     )
 
     assert record.security_event is not None
@@ -262,7 +306,7 @@ def test_secret_in_event_fires_secret_detected() -> None:
 
 
 def test_normalize_does_not_mutate_input() -> None:
-    message = _msg("beforeReadFile", {"session_id": "s1", "call_id": "c", "file": "a.py"})
+    message = _msg("beforeReadFile", conversation_id="s1", file_path="/repo/a.py")
     before = copy.deepcopy(message)
 
     cursor.normalize(message)

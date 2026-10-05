@@ -4,6 +4,7 @@
       "agent": {
         "identity": "unknown"
       },
+      "duration_ms": 1234.0,
       "ended_at": "2026-01-02T03:04:06+00:00",
       "harness": "cursor",
       "outcome": "ok",
@@ -13,8 +14,7 @@
       },
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-4",
-      "started_at": "2026-01-02T03:04:05+00:00",
+      "started_at": "2026-01-02T03:04:06+00:00",
       "step_type": "observe",
       "tool": {
         "name": "issue_get",
@@ -26,11 +26,13 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-4",
-      "session_id": "sess-c",
-      "started_at": "2026-01-02T03:04:05+00:00",
+      "conversation_id": "sess-c",
+      "duration": 1234,
+      "mcp_server_name": "github",
+      "result_json": "{\"ok\":true}",
       "timestamp": "2026-01-02T03:04:06+00:00",
-      "tool_name": "mcp__github__issue_get"
+      "tool_input": "{}",
+      "tool_name": "issue_get"
     },
     "harness": "cursor",
     "phase": "afterMCPExecution"

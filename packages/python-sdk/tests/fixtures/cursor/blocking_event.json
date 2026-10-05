@@ -10,9 +10,9 @@
         "kind": "hook",
         "name": "cursor"
       },
+      "project": "/repo",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-10",
       "started_at": "2026-01-02T03:04:05+00:00",
       "step_type": "act",
       "tool": {
@@ -24,10 +24,11 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-10",
       "command": "rm -rf /",
+      "conversation_id": "sess-c",
+      "cwd": "/repo",
       "permission": "deny",
-      "session_id": "sess-c",
+      "sandbox": false,
       "timestamp": "2026-01-02T03:04:05+00:00"
     },
     "harness": "cursor",

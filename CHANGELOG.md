@@ -33,12 +33,20 @@ versioning: [Semantic Versioning](https://semver.org/).
     (M30 30.3) (#424).
   - ADR-0026 recorded: naming decision is a **full rename at v0.2.0** (target name TBD; tracked with the
     M30 30.16 rename outcome) (#312).
-  - CUR-2: Cursor native-hooks adapter (`agentwatch.adapters.cursor`) — normalizes the full agent loop
-    (session boundaries, pre/post tool use + failure, shell, MCP, `beforeReadFile`, file edits, subagents,
-    prompt submission, compaction, `afterAgentThought`/`afterAgentResponse`, Tab hooks, `workspaceOpen`),
-    records blocking `before*` events as observations and never answers them (monitor-only, R2), tags the
-    IDE/CLI/remote environment, and declares the cloud-agent hook gap; conformance pack registered. The
-    event shapes are documentation-derived until the consented live capture lands (25.CUR-1) (#304).
+  - CUR-2: Cursor native-hooks adapter (`agentwatch.adapters.cursor`), realigned to the published Cursor
+    contract (`conversation_id`, `generation_id`, `workspace_roots`, `file_path`, `cursor_version`,
+    `user_email`) — normalizes the full agent loop (session boundaries, pre/post tool use + failure,
+    shell, MCP, `beforeReadFile`, file edits, subagents, prompt submission, compaction,
+    `afterAgentThought`/`afterAgentResponse`, Tab hooks, `stop`, `workspaceOpen`), records blocking
+    `before*` events as observations and never answers them (monitor-only, R2), tags the IDE/CLI/remote
+    environment, hashes the `user_email` principal (IDN-1), and declares the cloud-agent hook gap;
+    conformance pack + compatibility row `fixture-verified` (#304).
+  - CUR-1: Cursor audit corpus — a version-tagged, secret-scanned cross-harness test kit
+    (`tests/testkit/`) adopting MIT upstream test data (agent-ouija Claude Code transcripts + Codex
+    rollouts; cursor-session-tracer session traces) and vendor-documented Cursor payloads, with a
+    content-addressed lock, per-corpus manifests, license copies, `PROVENANCE.md`, and a pinned
+    re-fetch tool (`scripts/fetch-testkit-corpus.py`); replay/containment suite
+    `tests/test_testkit_corpus.py` (XHT-1) (#303).
   - RSK-1: extended the untrusted-input fuzz suite to the v0.2.0 parsers — Cursor hook JSON,
     Gemini/OTel telemetry, and AAT bundles — plus the Codex #36937 backtick-execution regression seed,
     a static shell-reference guard, and a dynamic no-exec test; the mutation gate now covers Cursor

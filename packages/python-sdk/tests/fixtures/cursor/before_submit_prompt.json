@@ -23,8 +23,9 @@
   ],
   "message": {
     "event": {
+      "attachments": [],
+      "conversation_id": "sess-c",
       "prompt": "add a test",
-      "session_id": "sess-c",
       "timestamp": "2026-01-02T03:04:05+00:00"
     },
     "harness": "cursor",

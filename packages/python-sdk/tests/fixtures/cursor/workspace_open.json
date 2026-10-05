@@ -8,22 +8,28 @@
       "outcome": "ok",
       "producer": {
         "kind": "hook",
-        "name": "cursor"
+        "name": "cursor",
+        "version": "1.7.2"
       },
+      "project": "/repo",
       "schema_version": "0.1.0",
-      "session_id": "sess-c",
+      "session_id": "unknown",
       "started_at": "2026-01-02T03:04:05+00:00",
       "tool": {
         "name": "workspace-open",
         "privacy_mode": "metadata-only"
       },
-      "trace_id": "sess-c"
+      "trace_id": "unknown"
     }
   ],
   "message": {
     "event": {
-      "session_id": "sess-c",
-      "timestamp": "2026-01-02T03:04:05+00:00"
+      "cursor_version": "1.7.2",
+      "hook_event_name": "workspaceOpen",
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "workspace_roots": [
+        "/repo"
+      ]
     },
     "harness": "cursor",
     "phase": "workspaceOpen"

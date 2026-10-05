@@ -6,6 +6,15 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Foundations (M25):
+  - SCHEMA-1: additive record/event schema — `record_phase` (AAT-1, pre/post-execution), `traceparent`
+    (W3C Trace Context), the `agent_identity` dimension (`workload_identity`, `credential_class`,
+    `principal`, `delegation_chain`), and the `agent-delegation` observation event; record-format spec,
+    data dictionary, OCSF mapping, and a forward-compat fixture updated. The `schema_version` /
+    `event_version` read range is `0.1.0`–`0.2.0`; the emit version stays `0.1.0` until the release bump
+    (M30 30.3) (#424).
+  - ADR-0026 recorded: naming decision is a **full rename at v0.2.0** (target name TBD; tracked with the
+    M30 30.16 rename outcome) (#312).
 - Standards & Compliance Acceptance (M22, PRD 39):
   - EU AI Act (Art. 12/19/26) and ISO/IEC 27001/42001 + NIST SP 800-92 mappings, each control naming an
     evidence command, with an explicit "what we do not provide" (W1 #270, W2 #271).

@@ -6,9 +6,9 @@
   "type": "object",
   "required": ["event_version", "type", "emitted_at"],
   "properties": {
-    "event_version": { "type": "string", "const": "0.1.0" },
+    "event_version": { "type": "string", "enum": ["0.1.0", "0.2.0"] },
     "type": {
-      "enum": ["denied", "policy-fired", "secret-detected", "revoked", "halted", "drift-detected", "tool-surface-changed"]
+      "enum": ["denied", "policy-fired", "secret-detected", "revoked", "halted", "drift-detected", "tool-surface-changed", "agent-delegation"]
     },
     "emitted_at": { "type": "string", "format": "date-time" },
     "emitter": { "type": "string", "examples": ["agentwatch", "agentpolicy", "agentkeys", "agenthalt"] },

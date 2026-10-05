@@ -48,7 +48,9 @@ Exit criteria · Design docs).
 > **M29 (Field Tests) and M30 (Release Readiness) are always the last two milestones** — after the implementation
 > milestones M25–M28. Do not tag `v0.2.0` before M30.
 >
-> **Progress:** ⏳ all six milestones not started. Track status here and in each part file at milestone close.
+> **Progress:** 🚧 M25 (Foundations) in progress — **25.SCHEMA-1 ✅ complete** (#424) and **ADR-0026 decided**
+> (full rename at v0.2.0, #312); remaining M25–M30 tickets not started. Track status here and in each part
+> file at milestone close.
 
 ## Track → ticket map
 

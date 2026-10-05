@@ -46,7 +46,8 @@ def _ed25519() -> tuple[Any, Any, Any]:
         )
     except ImportError as exc:  # pragma: no cover - exercised without the extra
         raise SigningError(
-            "signing requires the optional 'cryptography' dependency; install agentsec-agentwatch[signing]"
+            "signing requires the optional 'cryptography' dependency; "
+            "install agentsec-agentwatch[signing]"
         ) from exc
     return Ed25519PrivateKey, Ed25519PublicKey, serialization
 
@@ -92,8 +93,14 @@ def load_or_create_key(path: Path) -> SigningKey:
     from agentwatch import posture
 
     if path.exists():
-        data = path.read_bytes().strip()
+        # Raw key bytes must NOT be stripped: whitespace bytes are valid key
+        # material, and stripping truncates the key (a corrupt-key bug).
+        data = path.read_bytes()
         if data:
+            if len(data) != 32:
+                raise SigningError(
+                    f"signing key {path} is malformed ({len(data)} bytes; expected 32)"
+                )
             return key_from_private(data)
     posture.secure_dir(path.parent)
     data = os.urandom(32)
@@ -138,8 +145,11 @@ def key_available(key_id: str, *, key_dir: Path | None = None) -> bool:
     if not path.exists():
         return False
     try:
-        return key_from_private(path.read_bytes().strip()).key_id == key_id
-    except (OSError, SigningError):  # pragma: no cover - unreadable key
+        data = path.read_bytes()
+        if len(data) != 32:
+            return False
+        return key_from_private(data).key_id == key_id
+    except (OSError, SigningError, ValueError):  # pragma: no cover - unreadable key
         return False
 
 

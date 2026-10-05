@@ -3,18 +3,26 @@
 **BLUF:** The normative contract for agentwatch records and security events. Machine-readable form:
 [`../../schema/`](../../schema/). Changes follow the versioning/deprecation policy below.
 
-## Record (v0.1.0)
+## Record (v0.2.0 additions)
+
+Additive minor: new optional fields (rows below) are absent on older records and read with an honest
+default. The schema version range is `0.1.0`–`0.2.0`; the current emit version stays `0.1.0` until the
+v0.2.0 release bump (M30 30.3), so `0.2.0` is accepted for forward compatibility.
 
 | Field | Type | Req | Notes |
 |---|---|---|---|
-| `schema_version` | string | ✅ | `"0.1.0"` |
+| `schema_version` | string | ✅ | `"0.1.0"` \| `"0.2.0"` (current emit: `"0.1.0"`) |
 | `session_id` | string | ✅ | Groups a session |
 | `trace_id` / `span_id` / `parent_span_id` | string | — | W3C trace context |
+| `traceparent` | string | — | W3C Trace Context traceparent (TRACE-1, additive 0.2.0) |
 | `harness` | string | — | `claude-code`, `cursor`, `langgraph`, `python` |
 | `host` | string | — | Originating host tag for fleet aggregation (M11 R13); additive |
 | `producer` | object | — | Provenance (M15 S26): `{kind, name?, version?}`. `kind` ∈ `hook` \| `import` \| `event` \| `ingest` \| `proxy` \| `sdk` \| `demo`. Optional/additive: records written before the field are read as an inferred `kind: "hook"` and are never rewritten silently. |
 | `agent.identity` | string | ✅ | Agent identity |
 | `agent.{name,version,prompt_version,model_version,tool_schema_version,workload_type}` | string | — | Correlation dimensions |
+| `agent.{workload_identity,principal}` | string | — | `agent_identity` dimension (IDN-1). `workload_identity` is a SPIFFE/WIMSE URI; `principal` is hashed by default in metadata-only. Never secret material. |
+| `agent.credential_class` | enum | — | `api-key` \| `oauth` \| `svid` \| `ambient/shared` (IDN-1) — a classification, never a credential value |
+| `agent.delegation_chain` | string[] | — | On-behalf-of chain (IDN-1); principals hashed by default; absent when the harness does not expose it (honest `unknown`) |
 | `tool.name` | string | ✅ | Tool name |
 | `tool.server` | string | — | MCP server, if any |
 | `tool.arguments` | object | — | **Redacted per privacy mode** |
@@ -24,15 +32,20 @@
 | `started_at` / `ended_at` | date-time | ✅ / — | UTC |
 | `duration_ms`, `tokens`, `cost_usd` | number | — | |
 | `step_type` | enum | — | reason \| act \| observe \| verify |
+| `record_phase` | enum | — | `pre_execution` \| `post_execution` \| `unknown` (AAT-1, additive 0.2.0). Absent on legacy records and read as `unknown` (`effective_record_phase`); never inferred from `outcome`. |
 | `approval` | enum | — | Who authorized the call (M19 S14): `user` \| `auto` \| `not-required` \| `denied` \| `unknown`. Optional/additive: absent means `unknown` on read (`effective_approval`); only written when the harness exposed a decision. |
 | `environment` | object | — | Metadata-only session-start snapshot (M19 S16/S29): `{vcs, harness?, os?, agentwatch?, context, principal?}`. No env-var values. |
 | `truncated` | object | — | Visible truncation marker when a pathological record exceeded a limit (M21 S36): `{fields:[{field, original_bytes, rule}], record_bytes?}`. Truncation is never silent. |
 | `security_event` | object | — | See below |
 
-## Security event (v0.1.0)
+## Security event (v0.2.0 additions)
 
-`event_version`, `type` ∈ {`denied`, `policy-fired`, `secret-detected`, `revoked`, `halted`, `drift-detected`}, `emitted_at`,
+`event_version` range is `0.1.0`–`0.2.0` (current emit `0.1.0`). `type` ∈ {`denied`, `policy-fired`, `secret-detected`,
+`revoked`, `halted`, `drift-detected`, `tool-surface-changed`, `agent-delegation`}, `emitted_at`,
 `emitter`, optional `reason`, `policy_id`, `tool`, `credential_ref`, `evidence`.
+
+`agent-delegation` (A2A-2, PRD 45, additive) is an **observation** that a cross-agent
+delegation occurred — never an authorization verdict.
 
 ## Python model (M2)
 
@@ -56,6 +69,9 @@ an unknown `kind` raises `RecordValidationError`.
 ## Versioning & deprecation policy
 
 - Schema is versioned with `schema_version` / `event_version`.
+- The current version is what new records/events are emitted with; readers accept a **supported range**
+  (`records.SUPPORTED_SCHEMA_VERSIONS` / `SUPPORTED_EVENT_VERSIONS`) and reject an unknown version with
+  the range named, never coercing it.
 - Additive changes bump the minor version; breaking changes bump the major and require a deprecation cycle
   (≥1 minor release of dual-emit or a documented migration).
 - Naming/versioning is proposed upstream to OTel GenAI before lock (DD-14).

@@ -17,7 +17,10 @@ import pytest
 from referencing import Registry, Resource
 
 from agentwatch.records import (
+    CredentialClass,
+    RecordPhase,
     RecordValidationError,
+    SecurityEventType,
     validate_event,
     validate_record,
 )
@@ -52,6 +55,23 @@ _EVENT_VALIDATOR = jsonschema.Draft202012Validator(_EVENT_SCHEMA)
 def test_fixture_directories_are_populated() -> None:
     # Guards against a silently-empty parametrization.
     assert RECORD_VALID and RECORD_INVALID and EVENT_VALID and EVENT_INVALID
+
+
+def test_record_schema_enums_match_the_model() -> None:
+    # W5: enum + model + JSON-Schema move together, pinned by a contract test.
+    assert set(_RECORD_SCHEMA["properties"]["record_phase"]["enum"]) == (
+        {phase.value for phase in RecordPhase} | {None}
+    )
+    agent_props = _RECORD_SCHEMA["properties"]["agent"]["properties"]
+    assert set(agent_props["credential_class"]["enum"]) == (
+        {credential.value for credential in CredentialClass} | {None}
+    )
+
+
+def test_event_schema_enum_matches_the_model() -> None:
+    assert set(_EVENT_SCHEMA["properties"]["type"]["enum"]) == {
+        member.value for member in SecurityEventType
+    }
 
 
 @pytest.mark.parametrize("path", RECORD_VALID, ids=lambda p: p.name)

@@ -16,9 +16,15 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-# Versions mirror the `const` values in the published JSON schemas.
+# Versions mirror the version range declared in the published JSON schemas. The
+# current version is what new records/events are emitted with; the supported
+# tuple is the accepted read range. Additive minors keep old readers' data
+# readable (W5); the emit-version flip to 0.2.0 lands with the v0.2.0 release
+# (M30 30.3), not per-field.
 SCHEMA_VERSION = "0.1.0"
+SUPPORTED_SCHEMA_VERSIONS = ("0.1.0", "0.2.0")
 EVENT_VERSION = "0.1.0"
+SUPPORTED_EVENT_VERSIONS = ("0.1.0", "0.2.0")
 
 
 class Outcome(str, Enum):
@@ -36,6 +42,33 @@ class StepType(str, Enum):
     ACT = "act"
     OBSERVE = "observe"
     VERIFY = "verify"
+
+
+class RecordPhase(str, Enum):
+    """Whether a record describes a decision before or after execution (AAT-1).
+
+    AAT requires pre-execution recording ("a denial logged only after execution
+    provides no evidence it was enforced"). ``UNKNOWN`` is the honest default:
+    it is used when the phase cannot be proven, and is never inferred from the
+    ``outcome`` (S14 reject-never-coerce discipline).
+    """
+
+    PRE_EXECUTION = "pre_execution"
+    POST_EXECUTION = "post_execution"
+    UNKNOWN = "unknown"
+
+
+class CredentialClass(str, Enum):
+    """The class of credential the agent acted under (IDN-1, AAT identity).
+
+    A classification, never a secret: it names *what kind* of credential was
+    used, not its value.
+    """
+
+    API_KEY = "api-key"
+    OAUTH = "oauth"
+    SVID = "svid"
+    AMBIENT_SHARED = "ambient/shared"
 
 
 class RecordPrivacyMode(str, Enum):
@@ -87,6 +120,9 @@ class SecurityEventType(str, Enum):
     # M20: the tool surface an MCP server presented changed between sessions — an
     # observation, never a malware verdict (PRD 36 S4, sixth event type via W5).
     TOOL_SURFACE_CHANGED = "tool-surface-changed"
+    # v0.2.0: a cross-agent delegation was observed (A2A-2, PRD 45). An
+    # observation of an on-behalf-of hop, never an authorization verdict.
+    AGENT_DELEGATION = "agent-delegation"
 
 
 # ---------------------------------------------------------------------------
@@ -139,7 +175,14 @@ class Producer:
 
 @dataclass(frozen=True)
 class AgentIdentity:
-    """The agent's identity and correlation dimensions."""
+    """The agent's identity and correlation dimensions.
+
+    The v0.2.0 ``agent_identity`` dimension (IDN-1) is additive on this object:
+    ``workload_identity`` (a SPIFFE/WIMSE URI when the harness exposes one),
+    ``credential_class``, ``principal`` (hashed by default in metadata-only), and
+    ``delegation_chain`` (the on-behalf-of chain, principals hashed by default).
+    Identity fields never carry secret material.
+    """
 
     identity: str
     name: str | None = None
@@ -148,6 +191,10 @@ class AgentIdentity:
     model_version: str | None = None
     tool_schema_version: str | None = None
     workload_type: str | None = None
+    workload_identity: str | None = None
+    credential_class: CredentialClass | None = None
+    principal: str | None = None
+    delegation_chain: tuple[str, ...] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return _drop_none(
@@ -159,11 +206,21 @@ class AgentIdentity:
                 "model_version": self.model_version,
                 "tool_schema_version": self.tool_schema_version,
                 "workload_type": self.workload_type,
+                "workload_identity": self.workload_identity,
+                "credential_class": (
+                    self.credential_class.value if self.credential_class is not None else None
+                ),
+                "principal": self.principal,
+                "delegation_chain": (
+                    list(self.delegation_chain) if self.delegation_chain is not None else None
+                ),
             }
         )
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AgentIdentity:
+        credential_class = data.get("credential_class")
+        delegation_chain = data.get("delegation_chain")
         return cls(
             identity=data["identity"],
             name=data.get("name"),
@@ -172,6 +229,14 @@ class AgentIdentity:
             model_version=data.get("model_version"),
             tool_schema_version=data.get("tool_schema_version"),
             workload_type=data.get("workload_type"),
+            workload_identity=data.get("workload_identity"),
+            credential_class=(
+                CredentialClass(credential_class) if credential_class is not None else None
+            ),
+            principal=data.get("principal"),
+            delegation_chain=(
+                tuple(delegation_chain) if delegation_chain is not None else None
+            ),
         )
 
 
@@ -268,6 +333,7 @@ class AgentRecord:
     trace_id: str | None = None
     span_id: str | None = None
     parent_span_id: str | None = None
+    traceparent: str | None = None
     harness: str | None = None
     project: str | None = None
     host: str | None = None
@@ -278,6 +344,7 @@ class AgentRecord:
     tokens: int | None = None
     cost_usd: float | None = None
     step_type: StepType | None = None
+    record_phase: RecordPhase | None = None
     approval: Approval | None = None
     environment: dict[str, Any] | None = None
     truncated: dict[str, Any] | None = None
@@ -298,6 +365,7 @@ class AgentRecord:
                     "trace_id": self.trace_id,
                     "span_id": self.span_id,
                     "parent_span_id": self.parent_span_id,
+                    "traceparent": self.traceparent,
                     "harness": self.harness,
                     "project": self.project,
                     "host": self.host,
@@ -320,6 +388,8 @@ class AgentRecord:
         )
         if self.step_type is not None:
             data["step_type"] = self.step_type.value
+        if self.record_phase is not None:
+            data["record_phase"] = self.record_phase.value
         if self.approval is not None:
             data["approval"] = self.approval.value
         if self.environment is not None:
@@ -334,6 +404,7 @@ class AgentRecord:
     def from_dict(cls, data: dict[str, Any]) -> AgentRecord:
         ended = data.get("ended_at")
         step = data.get("step_type")
+        phase = data.get("record_phase")
         approval = data.get("approval")
         event = data.get("security_event")
         producer = data.get("producer")
@@ -347,6 +418,7 @@ class AgentRecord:
             trace_id=data.get("trace_id"),
             span_id=data.get("span_id"),
             parent_span_id=data.get("parent_span_id"),
+            traceparent=data.get("traceparent"),
             harness=data.get("harness"),
             project=data.get("project"),
             host=data.get("host"),
@@ -357,6 +429,7 @@ class AgentRecord:
             tokens=data.get("tokens"),
             cost_usd=data.get("cost_usd"),
             step_type=StepType(step) if step is not None else None,
+            record_phase=RecordPhase(phase) if phase is not None else None,
             approval=Approval(approval) if approval is not None else None,
             environment=data.get("environment"),
             truncated=data.get("truncated"),
@@ -380,6 +453,7 @@ _RECORD_FIELDS = frozenset(
         "trace_id",
         "span_id",
         "parent_span_id",
+        "traceparent",
         "harness",
         "project",
         "host",
@@ -394,6 +468,7 @@ _RECORD_FIELDS = frozenset(
         "tokens",
         "cost_usd",
         "step_type",
+        "record_phase",
         "approval",
         "environment",
         "truncated",
@@ -409,6 +484,10 @@ _AGENT_FIELDS = frozenset(
         "model_version",
         "tool_schema_version",
         "workload_type",
+        "workload_identity",
+        "credential_class",
+        "principal",
+        "delegation_chain",
     }
 )
 _TOOL_FIELDS = frozenset({"name", "server", "arguments", "response", "privacy_mode"})
@@ -498,14 +577,27 @@ def _check_enum(
         _fail(f"{where}: {key} must be one of [{options}]")
 
 
+def _check_str_list(value: Any, where: str, key: str, *, nullable: bool = False) -> None:
+    if value is None and nullable:
+        return
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        _fail(f"{where}: {key} must be an array of strings")
+
+
 def _validate_identity_dict(data: Any) -> None:
     _require_table(data, "agent")
     _reject_unknown(data, _AGENT_FIELDS, "agent")
     _require(data, "identity", "agent")
     _check_str(data["identity"], "agent", "identity")
-    for key in _AGENT_FIELDS - {"identity"}:
+    for key in _AGENT_FIELDS - {"identity", "credential_class", "delegation_chain"}:
         if key in data:
             _check_str(data[key], "agent", key, nullable=True)
+    if "credential_class" in data:
+        _check_enum(
+            data["credential_class"], "agent", "credential_class", CredentialClass, nullable=True
+        )
+    if "delegation_chain" in data:
+        _check_str_list(data["delegation_chain"], "agent", "delegation_chain", nullable=True)
 
 
 def _validate_tool_dict(data: Any) -> None:
@@ -540,9 +632,11 @@ def _validate_event_dict(data: Any) -> None:
     _reject_unknown(data, _EVENT_FIELDS, where)
     for key in ("event_version", "type", "emitted_at"):
         _require(data, key, where)
-    if data["event_version"] != EVENT_VERSION:
+    if data["event_version"] not in SUPPORTED_EVENT_VERSIONS:
+        supported = ", ".join(repr(v) for v in SUPPORTED_EVENT_VERSIONS)
         _fail(
-            f"{where}: unknown event_version {data['event_version']!r}; expected {EVENT_VERSION!r}"
+            f"{where}: unknown event_version {data['event_version']!r}; "
+            f"supported: [{supported}]"
         )
     _check_enum(data["type"], where, "type", SecurityEventType)
     _check_datetime(data["emitted_at"], where, "emitted_at")
@@ -559,16 +653,18 @@ def _validate_record_dict(data: Any) -> None:
     _reject_unknown(data, _RECORD_FIELDS, where)
     for key in ("schema_version", "session_id", "agent", "tool", "outcome", "started_at"):
         _require(data, key, where)
-    if data["schema_version"] != SCHEMA_VERSION:
+    if data["schema_version"] not in SUPPORTED_SCHEMA_VERSIONS:
+        supported = ", ".join(repr(v) for v in SUPPORTED_SCHEMA_VERSIONS)
         _fail(
             f"{where}: unknown schema_version {data['schema_version']!r}; "
-            f"expected {SCHEMA_VERSION!r}"
+            f"supported: [{supported}]"
         )
     _check_str(data["session_id"], where, "session_id")
     for key in (
         "trace_id",
         "span_id",
         "parent_span_id",
+        "traceparent",
         "harness",
         "project",
         "host",
@@ -592,6 +688,8 @@ def _validate_record_dict(data: Any) -> None:
         _check_int(data["tokens"], where, "tokens", nullable=True)
     if "step_type" in data:
         _check_enum(data["step_type"], where, "step_type", StepType, nullable=True)
+    if "record_phase" in data:
+        _check_enum(data["record_phase"], where, "record_phase", RecordPhase, nullable=True)
     if "approval" in data:
         _check_enum(data["approval"], where, "approval", Approval, nullable=True)
     if "environment" in data:
@@ -650,3 +748,14 @@ def effective_approval(record: AgentRecord) -> Approval:
     The value is never written back silently.
     """
     return record.approval if record.approval is not None else Approval.UNKNOWN
+
+
+def effective_record_phase(record: AgentRecord) -> RecordPhase:
+    """The record's pre/post-execution phase, reading legacy records as ``unknown``.
+
+    AAT requires pre-execution evidence for denials; when the phase was not
+    proven at capture time the honest value is ``unknown`` — never inferred from
+    ``outcome`` or the tool name (AAT-1, F8 reject-never-coerce). The value is
+    never written back silently.
+    """
+    return record.record_phase if record.record_phase is not None else RecordPhase.UNKNOWN

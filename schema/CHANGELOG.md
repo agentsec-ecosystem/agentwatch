@@ -3,6 +3,23 @@
 All notable changes to the published schemas. The policy check
 (`agentwatch.schema_policy`) requires the current schema version to appear here.
 
+## 0.2.0 (schema range; additive) — 2026-10-05
+
+Additive minor (W5 schema stewardship): old readers keep working; new optional
+fields are absent on 0.1.0 records and read with an honest default. The
+`schema_version` / `event_version` **range** is extended to `0.2.0`; the current
+emit version stays `0.1.0` until the v0.2.0 release bump (M30 30.3).
+
+- `agent-record.schema.json` `schema_version` accepts `0.1.0` and `0.2.0`.
+  New optional fields: `record_phase` (`pre_execution` \| `post_execution` \|
+  `unknown`, AAT-1), `traceparent` (W3C Trace Context, TRACE-1), and the
+  `agent_identity` dimension on `agent` (IDN-1): `workload_identity`,
+  `credential_class` (`api-key` \| `oauth` \| `svid` \| `ambient/shared`),
+  `principal`, `delegation_chain`.
+- `security-event.schema.json` `event_version` accepts `0.1.0` and `0.2.0`;
+  new event type `agent-delegation` (A2A-2, PRD 45) — an observation of a
+  cross-agent delegation, never an authorization verdict.
+
 ## 0.1.0 — 2026-10-03
 
 Initial published contract.

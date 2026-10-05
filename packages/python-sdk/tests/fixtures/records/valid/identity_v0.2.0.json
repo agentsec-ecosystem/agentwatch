@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.2.0",
+  "session_id": "sess-2",
+  "trace_id": "trace-2",
+  "span_id": "span-2",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "harness": "claude-code",
+  "agent": {
+    "identity": "agent-2",
+    "name": "triage",
+    "version": "1.0",
+    "workload_identity": "spiffe://corp.example/agent/triage",
+    "credential_class": "svid",
+    "principal": "sha256:abc123",
+    "delegation_chain": ["sha256:user", "sha256:agent"]
+  },
+  "tool": { "name": "Bash", "privacy_mode": "metadata-only" },
+  "outcome": "denied",
+  "started_at": "2026-01-02T03:04:05+00:00",
+  "record_phase": "pre_execution"
+}

@@ -52,6 +52,9 @@ MAPPING_TABLE: dict[str, OcsfTarget] = {
     "halted": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
     "drift-detected": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
     "tool-surface-changed": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
+    # v0.2.0 A2A-2: an observed cross-agent delegation — a finding/observation,
+    # deliberately not an Authorize decision (never treated as authorization).
+    "agent-delegation": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
 }
 
 # OCSF cannot express these native fields directly; they ride under `unmapped`.

@@ -101,6 +101,19 @@ class LimitsSection:
 
 
 @dataclass(frozen=True)
+class SamplingSection:
+    """SDK security-relevant-always-on sampler (M25 SDK-2/CFG-1).
+
+    ``ratio`` samples ordinary successful steps deterministically; security events
+    are never sampled out (see :mod:`agentwatch.sampling`). ``enabled=False`` keeps
+    everything (the safest posture for evidence).
+    """
+
+    enabled: bool = True
+    ratio: float = 1.0
+
+
+@dataclass(frozen=True)
 class AgentwatchConfig:
     """Fully-resolved, validated operator configuration."""
 
@@ -124,6 +137,7 @@ class AgentwatchConfig:
     log: LogSection = field(default_factory=lambda: LogSection(level="info"))
     sinks: SinksSection = field(default_factory=lambda: SinksSection())
     limits: LimitsSection = field(default_factory=lambda: LimitsSection())
+    sampling: SamplingSection = field(default_factory=lambda: SamplingSection())
     warnings: tuple[str, ...] = ()
 
 
@@ -167,6 +181,16 @@ def _as_bool(value: Any) -> bool:
         if lowered in {"false", "0", "no"}:
             return False
     raise ConfigError(f"expected a boolean, got {value!r}")
+
+
+def _as_ratio(value: Any) -> float:
+    """A sampling ratio in [0.0, 1.0]; reject booleans and out-of-range values."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ConfigError(f"expected a ratio in [0.0, 1.0], got {value!r}")
+    result = float(value)
+    if not 0.0 <= result <= 1.0:
+        raise ConfigError(f"expected a ratio in [0.0, 1.0], got {result}")
+    return result
 
 
 def _as_positive_int(value: Any) -> int:
@@ -227,6 +251,7 @@ _DEFAULTS: dict[str, Any] = {
     "log": {"level": "info"},
     "sinks": {"enabled": False, "targets": []},
     "limits": {"field_bytes": 65536, "record_bytes": 1048576, "max_depth": 32},
+    "sampling": {"enabled": True, "ratio": 1.0},
 }
 
 _SCHEMA: dict[str, Any] = {
@@ -254,6 +279,7 @@ _SCHEMA: dict[str, Any] = {
         "record_bytes": _as_positive_int,
         "max_depth": _as_positive_int,
     },
+    "sampling": {"enabled": _as_bool, "ratio": _as_ratio},
 }
 
 
@@ -362,6 +388,7 @@ def _build_config(raw: dict[str, Any]) -> AgentwatchConfig:
     log = LogSection(**validated["log"])
     sinks = SinksSection(**validated["sinks"])
     limits = LimitsSection(**validated["limits"])
+    sampling = SamplingSection(**validated["sampling"])
 
     if export.enabled and not export.otlp_endpoint:
         raise ConfigError("export.enabled requires export.otlp_endpoint")
@@ -391,6 +418,7 @@ def _build_config(raw: dict[str, Any]) -> AgentwatchConfig:
         log=log,
         sinks=sinks,
         limits=limits,
+        sampling=sampling,
         warnings=tuple(warnings),
     )
 

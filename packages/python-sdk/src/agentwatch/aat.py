@@ -157,9 +157,12 @@ def write_aat(bundle: dict[str, Any], path: Path) -> None:
     tmp.replace(path)
 
 
-def verify_aat(bundle: dict[str, Any]) -> bool:
-    """Reference consumer: re-verify each entry's chain hash from its native record."""
-    if bundle.get("aat_version") != AAT_DRAFT:
+def verify_aat(bundle: Any) -> bool:
+    """Reference consumer: re-verify each entry's chain hash from its native record.
+
+    Fails closed on any malformed shape (never raises on untrusted input).
+    """
+    if not isinstance(bundle, dict) or bundle.get("aat_version") != AAT_DRAFT:
         return False
     records = bundle.get("records")
     if not isinstance(records, list):

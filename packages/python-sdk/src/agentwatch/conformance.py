@@ -293,3 +293,25 @@ def assert_packs_populated() -> None:
                 problems.append(f"{spec.name}: {path.name} must define 'message' and 'expected'")
     if problems:
         raise ConformanceError("\n".join(problems))
+
+
+def self_test() -> bool:
+    """XHT-1: prove the runner rejects a deliberately broken adapter.
+
+    A self-test is a *negative* control: a broker/normalizer that returns the wrong
+    output must fail the same checks a shipped adapter passes. Returns ``True`` when
+    the broken adapter fails and at least one shipped adapter passes.
+    """
+    specs = registered()
+    if not specs:
+        return False
+    base = specs[0]
+    broken = AdapterSpec(
+        name="__xht-self-test-broken__",
+        normalize=lambda message: [],  # never reproduces the expected records
+        capabilities=base.capabilities,
+        documented_gaps=base.documented_gaps,
+        error_cls=ValueError,
+        fixtures_dir=base.fixtures_dir,
+    )
+    return (not run(broken).ok) and run(base).ok

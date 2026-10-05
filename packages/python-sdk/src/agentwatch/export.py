@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,6 +30,7 @@ from opentelemetry.sdk.trace.export import (
 from opentelemetry.trace import NonRecordingSpan, SpanContext, Status, StatusCode, TraceFlags
 
 from agentwatch.attrs import (
+    CONTENT_ATTRIBUTE_KEYS,
     GEN_AI_AGENT_NAME,
     GEN_AI_CONVERSATION_ID,
     GEN_AI_OPERATION_NAME,
@@ -206,6 +207,15 @@ def record_to_attributes(record: AgentRecord, seq: int) -> dict[str, Any]:
     if record.cost_usd is not None:
         attributes["gen_ai.agent.run.cost.total"] = record.cost_usd
     return attributes
+
+
+def exported_content_keys(attributes: Mapping[str, Any]) -> tuple[str, ...]:
+    """Content-bearing attribute keys present in an OTel mapping (OTEL-2 guard).
+
+    Used to prove that no content escapes the active privacy mode on export: under
+    ``metadata-only`` this must always be empty.
+    """
+    return tuple(sorted(key for key in attributes if key in CONTENT_ATTRIBUTE_KEYS))
 
 
 def security_event_attributes(event: SecurityEvent) -> dict[str, Any]:

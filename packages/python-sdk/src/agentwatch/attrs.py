@@ -122,6 +122,20 @@ GEN_AI_TOOL_RESULT = "gen_ai.tool.result"
 GEN_AI_RESPONSE_CONTENT = "gen_ai.response.content"
 GEN_AI_AGENT_OUTPUT = "gen_ai.agent.output"
 
+# Every attribute key that carries *content* (never metadata). Exported only when
+# the active privacy mode allows it; used by the OTEL-2 content-leak guard.
+CONTENT_ATTRIBUTE_KEYS: frozenset[str] = frozenset(
+    {
+        GEN_AI_TOOL_ARGS,
+        GEN_AI_TOOL_RESULT,
+        GEN_AI_RESPONSE_CONTENT,
+        GEN_AI_AGENT_OUTPUT,
+        "gen_ai.plan.content",
+        "gen_ai.node.output",
+        "gen_ai.memory.content",
+    }
+)
+
 # ---------------------------------------------------------------------------
 # Span operation names.
 # ---------------------------------------------------------------------------

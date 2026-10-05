@@ -39,6 +39,7 @@ from agentwatch.records import (
 )
 from agentwatch.redact import PrivacyMode, RedactionConfig
 from agentwatch.secrets import fingerprint_spans, redact_mapping
+from agentwatch.trace_context import format_traceparent, parse_traceparent
 
 HARNESS_ID = "claude-code"
 
@@ -359,7 +360,7 @@ def _host_from(environment: Mapping[str, Any] | None) -> str | None:
     return None
 
 
-def normalize(
+def _normalize_message(
     message: Mapping[str, Any],
     *,
     redaction: RedactionConfig | None = None,
@@ -657,3 +658,49 @@ def normalize(
         security_event=security_event,
     )
     return [record]
+
+
+def normalize(
+    message: Mapping[str, Any],
+    *,
+    redaction: RedactionConfig | None = None,
+    secret_fingerprint: Callable[[str], str] | None = None,
+    pending_permission: bool = False,
+    include_principal: bool = True,
+) -> list[AgentRecord]:
+    """Normalize one hook message, propagating any W3C ``traceparent`` (TRACE-1).
+
+    A hook that reports a ``traceparent`` (e.g. a subagent fan-out or an MCP-proxy
+    hop) joins the caller's trace instead of starting a new one. A malformed header
+    is ignored — the record keeps its own trace id, never an invented correlation.
+    """
+    records = _normalize_message(
+        message,
+        redaction=redaction,
+        secret_fingerprint=secret_fingerprint,
+        pending_permission=pending_permission,
+        include_principal=include_principal,
+    )
+    if not isinstance(message, Mapping):
+        return records
+    event = message.get("event")
+    if not isinstance(event, Mapping):
+        return records
+    return [_with_traceparent(record, event) for record in records]
+
+
+def _with_traceparent(record: AgentRecord, event: Mapping[str, Any]) -> AgentRecord:
+    raw = event.get("traceparent")
+    if not isinstance(raw, str):
+        return record
+    context = parse_traceparent(raw)
+    if context is None:
+        return record
+    return replace(
+        record,
+        trace_id=context.trace_id,
+        span_id=record.span_id or context.span_id,
+        traceparent=format_traceparent(
+            context.trace_id, context.span_id, sampled=context.sampled
+        ),
+    )

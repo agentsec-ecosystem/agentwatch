@@ -1,0 +1,22 @@
+# v0.2.0 M25 surfaces (CI-1): the offline detector-eval gate (DET-1).
+# Deterministic, no network; drives the real analytics detectors over corpus v0.
+name: detector-eval
+
+on:
+  push:
+    branches: [main, "feat-*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  detector-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (make setup)
+        run: make setup
+      - name: Detector eval corpus v0 (DET-1)
+        run: python scripts/detector_eval.py --json

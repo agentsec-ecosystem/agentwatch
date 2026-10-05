@@ -3,7 +3,8 @@
 **BLUF:** How agentwatch records map onto OpenTelemetry GenAI semantic conventions. Conformance is explicit
 and versioned; improvements go upstream (DD-05).
 
-Status: **draft** (v0.1.0).
+Status: **draft** (v0.1.0); **OTEL-1 re-pinned to 1.37.0** (canonical agent spans) and **OTEL-2** added the
+privacy-mode ↔ content-capture mapping below (v0.2.0, M25).
 
 ## Span mapping
 
@@ -44,6 +45,21 @@ spans**. v0.2.0 ([PRD 41](../prd/41-standards-and-interop-ii.md) OTEL-1..4):
 - Re-pin the semconv version; carry it in `--version` + resource attributes; drift-check (W4).
 - Add **OTLP/gRPC + protobuf ingest** (streaming) alongside JSON.
 - State the privacy-mode ↔ content-capture mapping explicitly; metadata-only by default.
+
+## Privacy mode ↔ content capture (OTEL-2)
+
+| Privacy mode | Content attribute keys | Metadata attribute keys |
+|---|---|---|
+| `metadata-only` | **none, ever** | all |
+| `truncated` | capped content | all |
+| `hashed` | salted digests | all |
+| `full` | raw content (consent) | all |
+
+The record→span mapping is **metadata-only by construction**: `record_to_attributes` emits no
+content-bearing key (`gen_ai.tool.args`, `gen_ai.tool.result`, `gen_ai.response.content`,
+`gen_ai.agent.output`, `gen_ai.plan.content`, `gen_ai.node.output`, `gen_ai.memory.content`). The guard
+`export.exported_content_keys()` returns the content keys present in an attribute mapping; the OTEL-2
+property test proves it is always empty for the metadata path, so no content escapes the active mode.
 
 ## Conformance
 

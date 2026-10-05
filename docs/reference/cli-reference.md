@@ -38,7 +38,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch replay <id> [--receipts] [--json]` | Reconstruct a session timeline; `--receipts` shows what redaction did per record (M15 S32) | **implemented** (M5; receipts M15) |
 | `agentwatch redact --preview SAMPLE [--json]` | Run a sample through the active redaction config (before/after, stores nothing) | **implemented** (M15 S32) |
 | `agentwatch export enable/disable` | Opt-in OTLP export (gated on self-test) | **implemented** (M5) |
-| `agentwatch export-session <id> [--format ndjson\|ocsf\|cloudevents] [--output PATH]` | Export one session; OCSF/CloudEvents transcode its security events (S8 M20) | **implemented** (M13; M20) |
+| `agentwatch export-session <id> [--format ndjson\|ocsf\|cloudevents\|aat] [--output PATH]` | Export one session; OCSF/CloudEvents transcode its security events (S8 M20); `aat` emits the IETF Agent Audit Trail bundle with its chain segment (AAT-2) | **implemented** (M13; M20; M25) |
 | `agentwatch verify-store [--repair --yes]` | Check the store hash chain; `--repair` rebuilds from the intact prefix, preserving corrupt evidence (F4) | **implemented** (M4; repair M12) |
 | `agentwatch verify-release [DIR] [--checksums PATH] [--sbom PATH] [--allow-unsigned] [--json]` | Verify a built release: checksums, CycloneDX SBOM, and keyless cosign / SLSA provenance | **implemented** (M14 Q13) |
 | `agentwatch verify-privacy` | Verify redaction and scan the store for leaks | **implemented** (M5) |

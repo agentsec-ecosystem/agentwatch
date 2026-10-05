@@ -39,6 +39,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     records blocking `before*` events as observations and never answers them (monitor-only, R2), tags the
     IDE/CLI/remote environment, and declares the cloud-agent hook gap; conformance pack registered. The
     event shapes are documentation-derived until the consented live capture lands (25.CUR-1) (#304).
+  - RSK-1: extended the untrusted-input fuzz suite to the v0.2.0 parsers — Cursor hook JSON,
+    Gemini/OTel telemetry, and AAT bundles — plus the Codex #36937 backtick-execution regression seed,
+    a static shell-reference guard, and a dynamic no-exec test; the mutation gate now covers Cursor
+    phase/MCP normalization, AAT chain/unmapped mapping, sampler never-sample-security, and stream
+    overflow (#311).
 - Standards & Compliance Acceptance (M22, PRD 39):
   - EU AI Act (Art. 12/19/26) and ISO/IEC 27001/42001 + NIST SP 800-92 mappings, each control naming an
     evidence command, with an explicit "what we do not provide" (W1 #270, W2 #271).

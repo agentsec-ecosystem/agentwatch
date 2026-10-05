@@ -12,3 +12,4 @@ No unverified controls.
 | DoS (silent stop) | Fail-closed + health surfaced (NFR-8/12) | F1/F3 fault tests; `/healthz` |
 | EoP (poisoned hook config) | Config validation; least privilege; signed releases | bad-config test (F7); supply-chain checklist |
 | On-box tamper (kill/strip/move/skew) | Chain + recorder-state records + coverage reconciliation | anti-forensics suite; [recorder attack matrix](recorder-attack-matrix.md) |
+| Foreign-data weaponization (R5) | Untrusted-data rule ([ADR-0024](../adr/0024-foreign-data-threat-posture.md)): no shell/eval on any ingest/reader path | `test_fuzz_parsers.py` (Cursor/Gemini-OTel/AAT fuzz + the #36937 backtick seed), the static shell-reference guard, and the mutation gate |

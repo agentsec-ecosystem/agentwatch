@@ -1,0 +1,43 @@
+# Design — Derived Postgres Index
+
+**BLUF:** How the v0.2.0 analytics tier works while the **hash-chained store remains the source of truth**: Postgres
+is a derived, rebuildable index that can be dropped at any time; multi-tenant isolation lives in the index layer;
+SDK spans unify through the same store. **How** — the requirement is
+[PRD 41](../prd/41-standards-and-interop-ii.md) (PG-1..3).
+
+**Status:** proposed (2026-10-05, v0.2.0; phaseable to v0.2.1) · **Milestone:** M27 · Sources:
+[PRD 41](../prd/41-standards-and-interop-ii.md), PRD 14 (SDK unification decision), S11 `union`, `data-dictionary.md`.
+
+## Invariant: derived, never authoritative
+
+1. The JSONL chain store is the **only** source of truth. Postgres holds no fact that cannot be rebuilt from it.
+2. `agentwatch db rebuild` reproduces the index **bit-for-bit** from the chain; a rebuild divergence is a test
+   failure.
+3. **Drop-Postgres mode:** with no Postgres reachable, every read command still works (slower) directly from the
+   chain. CI runs a no-Postgres leg.
+4. `verify-store` verifies the chain, never Postgres.
+
+## Schema seeding
+
+The analytics schema follows [`data-dictionary.md`](data-dictionary.md) (the Postgres schema doc already scoped for
+v0.2.0+). Records are projected into typed tables (sessions, records, events, usage, identity, detectors) with a
+`source_seq`/`source_hash` back-reference per row for rebuild and audit.
+
+## Multi-tenancy (PG-2)
+
+- A `tenant` boundary is applied at the index layer; every query is tenant-scoped.
+- A cross-tenant read returns **nothing** and is recorded as a `store-access` audit record (S21) — a denied read is
+  evidence too.
+- The chain store remains per-tenant on disk; tenancy never weakens the integrity story.
+
+## SDK unification (PG-3)
+
+- SDK spans and hook records land in the **same unified store** (chain-protected) rather than only the read-time
+  `union` (S11).
+- The integrity distinction between sources is preserved and visible (`source: hook | sdk | import | proxy | …`).
+- The two-producer ordering/identity design is the deferred PRD-14 decision; it is recorded as an ADR (0019) before
+  implementation.
+
+## Testing
+
+- Bit-for-bit rebuild test; no-Postgres CI leg; cross-tenant denial + audit; `source` distinction preserved.

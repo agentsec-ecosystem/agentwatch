@@ -2,7 +2,7 @@
 
 **BLUF:** What agentwatch deliberately will **not** do — so scope stays honest.
 
-**Status:** v0.1.0 · **Parent:** agentsec-ecosystem #209
+**Status:** v0.1.0 + v0.2.0 additions (2026-10-05) · **Parent:** agentsec-ecosystem #209
 
 - **Not an enforcement tool.** No allow/deny/ask/rate-limit actions — those are **agentpolicy**.
 - **Not an evaluation/attack framework.** No attack packs or CI gates — those are **agentdrill**.
@@ -22,6 +22,24 @@ The additions never cross these lines: enforcement (→ agentpolicy) · attack/e
 v1 · prompt analytics · commercial fleet discovery · silent telemetry · proprietary formats.
 Several additions (`doctor`, `inventory`, evidence) stop deliberately at *local, read-only, no
 phone-home*, and the LLM explanation layer (PRD 29) keeps ML out of the trust path permanently.
+
+## v0.2.0 additions — explicitly not to add (PRD 40–48)
+
+The v0.2.0 program keeps every line above and adds these clarifications:
+
+- **Not enforcement, even when we consume enforcement output.** ACS ingest (PRD 45) records a Guardian's
+  permit/deny decisions; agentwatch never executes a decision. A2A agent-card signature verification is
+  *recorded*, never silently trusted as an authorization (ADR-0025).
+- **Not a browser extension / browser-agent capturer.** Browser-resident agents (Atlas/Comet/… ) are a declared
+  gap; capturing them needs a browser trust surface we deliberately do not build (PRD 45).
+- **Not an incident *submitter*.** `evidence --include incident-report.json` (PRD 43) emits a file; submission to
+  AIID/AIR is a human act. No auto-egress exists (proved by test).
+- **Not a general OTel backend / not OTLP/gRPC *export* as a product.** OTLP/gRPC *ingest* (PRD 41) is a
+  transcoder, not a storage backend (D-Q holds).
+- **Not a certification or conformity claim.** The compliance report (PRD 44) cites evidence; it never certifies.
+  Naming/rename is a decision (ADR-0026), not a scope expansion.
+- **No LLM in the trust path, ever.** Detector telemetry and the eval harness (PRD 43) judge detectors; detectors
+  judge nothing; the sampler (PRD 46) is deterministic.
 
 ## Considered and rejected for now (scope honesty — say why)
 

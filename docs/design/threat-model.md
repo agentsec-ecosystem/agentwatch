@@ -42,6 +42,19 @@ plaintext without the key. It does **not** prevent an attacker who also has the 
 read it by definition); the control reduces the blast radius of a store leak, not same-user access.
 See [content-flow.md](content-flow.md).
 
+## v0.2.0 additions
+
+New trust surfaces and the controls that bound them ([PRD 48](../prd/48-v0.2.0-risks-testing-and-decisions.md)):
+
+| Threat | Scenario | Control |
+|---|---|---|
+| **Foreign-data weaponization** | A rollout/transcript/gateway dump contains executable-shaped content that a consumer evaluates (Codex #36937: a rollout JSONL executed as shell input deleted a user's HOME) | Untrusted-data rule ([ADR-0024](../adr/0024-foreign-data-threat-posture.md)): no ingest/reader path spawns a shell or evaluates foreign content; redaction + B4 quarantine mandatory; `replay` render-only; bundles label content untrusted; regression seed in the fuzz suite |
+| **Streaming side-channel** | A poisoned/low-latency live view diverges from the chain | Views are derived; store is authoritative; back-fill reconciles; gaps classified (S2) — [ADR-0018](../adr/0018-streaming-views-vs-store-truth.md) |
+| **Proxy-surface growth** | More wire surface (MCP full surface + A2A) → more attacker-reachable parsing | Same containment as MCP: fuzz, bounded buffers, quarantine; **A2A card-signature verification is a recorded outcome, never silently trusted** ([ADR-0025](../adr/0025-a2a-interposition.md)) |
+| **Compliance-API pull** | Egress-adjacent vendor pull leaks credentials or expands the trust boundary | Explicit opt-in; pulls recorded as `store-access` (S21); credentials session-scoped, never stored |
+| **Identity-field abuse** | Principals/SPIFFE refs/emails create a surveillance surface | Hashed by default in metadata-only; operator consent for plaintext identity ([ADR-0020](../adr/0020-agent-identity-dimension.md)) |
+
 ## Out of scope (v1)
 
-Multi-tenant isolation; remote attackers with host access; provider-side model compromise.
+Multi-tenant isolation (addressed at the derived-index layer in v0.2.0, [ADR-0019](../adr/0019-derived-postgres-index.md));
+remote attackers with host access; provider-side model compromise.

@@ -47,3 +47,17 @@ and the mapping is published in [ocsf-mapping.md](ocsf-mapping.md).
 
 The event says "surface changed". It does not score trust, block a server, or
 call it malicious (PRD 14/36 S4 risk). Consumers such as agentpolicy decide.
+
+## v0.2.0 — protocol revision and full surface
+
+The MCP spec revised to **2026-07-28** ([PRD 42](../prd/42-harness-fidelity-and-realtime.md) MCP-1..6,
+[ADR-0023](../adr/0023-mcp-2026-07-28-posture.md)): sessions removed from Streamable HTTP (the proxy gets simpler
+and stateless), **Roots/Sampling/Logging deprecated** (SEP-2577), **MRTR** reworks server-initiated requests,
+**Tasks** added, **HTTP+SSE deprecated**.
+
+The proxy migrates to **Streamable HTTP** and records the previously-relayed surfaces — `resources/read` (incl.
+resource links in tool results), `prompts/get`, **elicitation** (linked to approval provenance S14), and **tasks**
+lifecycle — with the same redaction/chain/attribution pipeline. `sampling`/`roots`/`logging` are marked
+**closed-by-spec** in `known-limitations.md` (retired by the standard, not by us). Conformance fixtures are
+versioned per protocol revision (2025-06-18 / 2025-11-25 / 2026-07-28); an unknown method is quarantined and
+surfaced as harness-drift (S19).

@@ -23,6 +23,13 @@ Subsystem designs and architecture for agentwatch. Design decisions are centrali
 | [data-dictionary.md](data-dictionary.md) | Analytics Postgres schema (v0.2.0+) | draft |
 | [ui-accessibility.md](ui-accessibility.md) | Operator UI accessibility baseline | draft |
 | [ui-interaction-observability.md](ui-interaction-observability.md) | Local-only UI interaction signals | draft |
+| [aat-mapping.md](aat-mapping.md) | IETF Agent Audit Trail mapping, pinning, lossless-or-explicit (v0.2.0) | proposed |
+| [agent-identity.md](agent-identity.md) | Agent identity + delegation capture and hashing (v0.2.0) | proposed |
+| [streaming-views.md](streaming-views.md) | Streaming views vs store truth; reconciliation (v0.2.0) | proposed |
+| [derived-postgres.md](derived-postgres.md) | Derived, rebuildable Postgres index + tenancy (v0.2.0) | proposed |
+| [sdk-lifecycle.md](sdk-lifecycle.md) | OTel-shaped provider/lifecycle + security-relevant sampler (v0.2.0) | proposed |
+| [cross-harness-testing.md](cross-harness-testing.md) | Payload corpus, replay runner, fidelity tiers (v0.2.0) | proposed |
+| [detector-evaluation.md](detector-evaluation.md) | Detector eval harness, public corpus, registry interop (v0.2.0) | proposed |
 
 > The **record format contract** is normative reference: [`../reference/record-format-spec.md`](../reference/record-format-spec.md).
 > The former `record-format-design.md` was merged into it.

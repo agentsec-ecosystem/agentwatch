@@ -1,0 +1,81 @@
+# Design — Agent Identity & Delegation
+
+**BLUF:** How agent identity is captured, hashed, and rendered onto records so that *which non-human entity, under
+which credential, on whose behalf, with whose approval* is answerable end to end. **How** — the requirement is
+[PRD 44](../prd/44-identity-enterprise-and-compliance.md) (IDN-1..4).
+
+**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
+[PRD 44](../prd/44-identity-enterprise-and-compliance.md), PRD 35 (S14/S29), IETF AIMS/WIMSE, AAT draft.
+
+## Two-layer model
+
+Aligned to WIMSE/SPIFFE and the kagenti pattern:
+
+- **Transport layer — WHO is calling:** workload identity (SPIFFE/WIMSE URI, process attestation) when the harness
+  or gateway exposes it.
+- **Application layer — ON WHOSE BEHALF:** the delegation chain (user principal → agent → subagent), where the
+  harness exposes it (e.g. Gemini `user.email`; Claude Compliance API projects/workspaces).
+
+## Field set (additive `agent_identity` dimension)
+
+| Field | Source | Redaction |
+|---|---|---|
+| `agent.name` / `agent.version` | harness/config | plain |
+| `harness` / `model` | record | plain |
+| `workload_identity` | SPIFFE/WIMSE URI if present | plain (a URI, not a secret) |
+| `credential_class` | `api-key \| oauth \| svid \| ambient/shared` | plain |
+| `principal` | user identity if exposed | **hashed by default** in metadata-only |
+| `delegation_chain` | on-behalf-of chain if exposed | principals hashed by default |
+
+**Hard rule:** identity fields never contain secret material (property test extends the redaction suite). Hashed by
+default in `metadata-only`; plaintext only under the `full` privacy mode with operator consent.
+
+## Attribution rendering
+
+`impact` / `blame` / `tree` / `trace` show, for each action: agent identity, credential class, delegation
+(on-behalf-of), and approval provenance (S14). Where the harness does not expose a fact, the value is an honest
+`unknown` — never inferred.
+
+## Credential-hygiene observation (IDN-4)
+
+A deterministic observation flags `credential_class: ambient/shared` (agents running on shared credentials — NIST's
+pre-Q4-2026 audit ask). It is an **observation**, not a verdict; precision/recall published via the detector harness
+([detector-evaluation.md](detector-evaluation.md)).
+
+## AAT & A2A alignment
+
+- AAT export populates the identity fields ([aat-mapping.md](aat-mapping.md)).
+- A2A **signed agent cards** (v1.0) provide cryptographic workload identity; the card-signature verification outcome
+  is recorded as `verified`/`unverified` and is **never silently trusted** as authorization (PRD 45, ADR-0025).
+
+## Mapping doc
+
+A published mapping (agentwatch identity field ↔ AIMS/WIMSE ↔ NCCoE concept-paper questions) accompanies IDN-4, so
+the record layer can be cited by a federal reference architecture rather than guessed at.
+
+## Standards & vendor landscape (why this is the right field set)
+
+The 2026 stack agentwatch aligns to:
+
+- **IETF AIMS** (`draft-klrc-aiagent-auth-00`, Mar 2026) — composes **WIMSE + SPIFFE/SPIRE + OAuth 2.0** into an
+  Agent Identity Management System. Thesis: agents are workloads; treat them with workload identity, not a new
+  category. "Agents MUST be uniquely identified in order to support authentication, authorization, auditing, and
+  delegation." Identifier: WIMSE URI; credentials: X.509-SVID / JWT-SVID / WIT.
+- **WIMSE for agents** (`draft-ni-wimse-ai-agent-identity-01`, Oct 2025) — a credential denotes *both* agent
+  identity and human-owner identity (delegation binding), with cryptographic proof of user approval.
+- **NIST NCCoE** concept paper (Feb 2026) — workstreams: Identification, Access Delegation, **Logging and
+  Transparency** ("link actions to the identity of the non-human entity"), and tracking prompt/data-flow
+  provenance (which our content-flow forensics S22 already does).
+- **OpenID Foundation** — "Identity Management for Agentic AI" (Oct 2025): OAuth 2.0/2.1, OIDC, SPIFFE/SPIRE, SCIM
+  as candidates.
+- **Google Cloud Agent Identity** (2026) — productized per-agent SPIFFE IDs
+  (`spiffe://trust-domain/resources/...`), 24 h X.509 rotation, **certificate-bound tokens** (token-theft
+  prevention); end-user access events attributable to the agent's SPIFFE ID.
+- **HashiCorp Vault 1.21+** — native SPIFFE auth: issue/rotate SVIDs to agents inside the secrets layer.
+- **Red Hat kagenti** (Jun 2026) — SPIFFE mTLS + **RFC 8693 token exchange** for on-behalf-of delegation + agent
+  lifecycle policy binding.
+
+Adoption pressure (why identity is a product requirement, not a nicety): Entro reports **97%** of non-human
+identities carry excessive privileges; Obsidian reports **90%** of AI agents over-permissioned; CSA finds **>75%**
+of orgs lack AI-identity policy and only ~1 in 5 can interrupt an agent; Gartner (via Exabeam) has **37% of CISOs**
+naming AI security their #1 concern. agentwatch records and joins identity; it never enforces it.

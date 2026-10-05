@@ -46,8 +46,27 @@ conformance runner with a `mcp-server-events` declared gap.
 | Codex CLI | `agentwatch.adapters.codex_cli` | `exec_begin`, `exec_end`, `patch_apply` |
 | Gemini CLI | `agentwatch.adapters.gemini_cli` | `tool_call`, `tool_result`, `session_start`, `session_end` |
 
+## v0.2.0 — capture levels and real harnesses
+
+The v0.2.0 program ([PRD 42](../prd/42-harness-fidelity-and-realtime.md),
+[PRD 45](../prd/45-new-capture-surfaces.md)) replaces the "modeled" rows using four capture levels, in
+fidelity-per-effort order (PRD 27 strategy):
+
+| Level | Mechanism | Harnesses |
+|---|---|---|
+| Native hooks | JSON on stdin to a command; same contract as Claude Code | **Cursor** (full loop incl. blocking before-events, `beforeReadFile`, `afterAgentThought`), OpenCode (`tool.execute.before/after`, `session.*`, `file.changed`) |
+| Native OTel | built-in telemetry → OTLP/JSON/GCP, ingested | **Gemini CLI** (`telemetry` settings; approval + principal attributes) |
+| Log-read | read the files the agent already writes | **Codex** (rollout JSONL; `.jsonl.zst`, dangling sessions), long-tail CLIs |
+| Interposition | proxy the wire protocol | MCP (2026-07-28 surface), **A2A** (signed agent cards) |
+
+Contract additions: an adapter declares its **fidelity tier** (`live-verified | fixture-verified | modeled`) and
+its **capture level**; blocking-hook events are recorded as observations and **never answered** (monitor-only, R2).
+Foreign log/rollout content follows the untrusted-data rule ([ADR-0024](../adr/0024-foreign-data-threat-posture.md)).
+
+See [cross-harness-testing.md](cross-harness-testing.md) for how compatibility is verified without the CLIs.
+
 ## Future
 
-- Full-fidelity Cursor/Codex CLI/Gemini CLI adapters once real events are captured (v0.1.x/later).
+- Full-fidelity CrewAI/PydanticAI adapters (later).
 - Generic MCP clients via proxy tap (N1, M10).
-- Frameworks via OTLP/SDK ingestion (N2).
+- Framework SDKs via OTLP/SDK ingestion (N2).

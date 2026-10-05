@@ -18,4 +18,15 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0012](0012-api-compat.md) | Preserve shipped API/instrumentation | accepted |
 | [0013](0013-license.md) | Apache-2.0 + third-party notices | accepted |
 | [0014](0014-event-naming.md) | Event naming via upstream | deferred |
-| [0015](0015-cursor-recording.md) | Cursor recording approach | deferred |
+| [0015](0015-cursor-recording.md) | Cursor recording approach | superseded by 0021 |
+| [0016](0016-aat-mapping.md) | AAT mapping & lossless-or-explicit policy | proposed |
+| [0017](0017-security-relevant-sampling.md) | Security-relevant sampling | proposed |
+| [0018](0018-streaming-views-vs-store-truth.md) | Streaming views vs store truth | proposed |
+| [0019](0019-derived-postgres-index.md) | Derived Postgres index | proposed |
+| [0020](0020-agent-identity-dimension.md) | Agent identity dimension | proposed |
+| [0021](0021-cursor-capture-contract.md) | Cursor capture contract | proposed |
+| [0022](0022-gemini-native-telemetry-ingest.md) | Gemini CLI native-telemetry ingest | proposed |
+| [0023](0023-mcp-2026-07-28-posture.md) | MCP 2026-07-28 posture | proposed |
+| [0024](0024-foreign-data-threat-posture.md) | Foreign-data threat posture | proposed |
+| [0025](0025-a2a-interposition.md) | A2A interposition | proposed |
+| [0026](0026-naming-decision.md) | Naming decision (`agentwatch`) | **decision required pre-launch** |

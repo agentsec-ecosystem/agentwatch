@@ -4,9 +4,11 @@
 before they will trust any enforcement. The v0.1.0 journey is deliberately small: install, record, replay,
 export — on Claude Code, in ≤15 minutes, with zero agent-side code changes. The v0.1.0 additions extend it to
 **evidence hand-off, trust proof, cost, SDK union, erasure, MCP drift, and approval provenance** (CUJ-8–14,
-PRDs 31–39).
+PRDs 31–39). The **v0.2.0 additions** extend it further to **standards-compliant audit export, cross-agent/host
+attribution, live watching, continuous compliance, detector evaluation, and cross-org delegation** (CUJ-15–20,
+PRDs 40–48).
 
-**Status:** v0.1.0 · **Parent:** agentsec-ecosystem #209
+**Status:** v0.1.0 + v0.2.0 additions (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **v0.2.0:** PRD 40
 
 ## Users
 
@@ -112,6 +114,62 @@ J3 (the investigation cookbook) has nowhere to go next.
 *Why it matters:* the record answers "what happened" and cannot yet answer "who allowed it," which is the
 question that decides whether an incident is a bug or a process failure.
 
+## Critical user journeys (v0.2.0 additions — PRD 40–48)
+
+These extend the v0.1.0 set. Same format, same standing guarantees. Owners: the PRD in parentheses.
+
+### CUJ-15 — "My auditor accepts my agent logs" (P2) · PRD 41 (AAT)
+1. `agentwatch export-session <id> --format aat --out session-4471.aat.json`.
+2. A third-party AAT consumer (not agentwatch) validates the records and the chain.
+3. **Success:** the artifact is accepted by a tool that has never heard of agentwatch; unmapped fields are explicit,
+   never invented.
+
+*Why:* EU AI Act Art. 12(2) requires logs conforming to "recognized standards." Evidence in a vendor format argues;
+evidence in the IETF format complies.
+
+### CUJ-16 — "Follow one action across agents and hosts" (P2) · PRD 41 (TRACE) + PRD 44 (IDN)
+1. An incident spans a Claude Code session, an MCP hop, and a PydanticAI backend agent on another host (opt-in fleet).
+2. `agentwatch trace <trace-id>` reconstructs the causal chain across processes and hosts.
+3. Each hop shows identity, delegation (on whose behalf), and approval provenance.
+4. **Success:** "which agent, on which machine, under whose approval, on whose behalf" is complete or an honest
+   `unknown` — never an inference.
+
+*Why:* the multi-agent attribution problem NIST/CSA call structurally unsolved.
+
+### CUJ-17 — "Watch a live agent" (P1) · PRD 42 (STR)
+1. An operator opens the timeline while an agent works (or `agentwatch tail -f`).
+2. Records stream in; anomalies land in the live inbox.
+3. **Success:** p99 hook → view ≤ 1 s; a dropped view reconciles via back-fill with every gap classified; zero store
+   loss on consumer crash.
+
+*Why:* batch polling (~30 s) is the most visible released limitation; SOC consumers expect streamable telemetry.
+
+### CUJ-18 — "Prove compliance continuously" (P2) · PRD 44 (CMP)
+1. `agentwatch compliance report --framework iso-42001 --period Q3-2026 --out audit/`.
+2. The report lists each control: verdict, the evidence command that regenerates it, bundle refs, retention +
+   chain/signature status.
+3. **Success:** runs offline/air-gapped; every row cites a third-party-verifiable artifact; an auditor reproduces any
+   row from the cited command alone.
+
+*Why:* "one-click compliance reports" is category table stakes; buyers procure for EU AI Act Art. 12 now.
+
+### CUJ-19 — "Does this detector actually fire for us?" (P1/P2) · PRD 43 (DET/COR)
+1. An evaluator reads published per-detector precision/recall in the detector catalog.
+2. They run `agentwatch detectors eval` against their own local, redacted corpus.
+3. **Success:** their numbers and ours are comparable; the harness is deterministic and offline; opt-in detector
+   telemetry shows fired/suppressed/false-positive counts on live traffic.
+
+*Why:* "43 detectors" with 28 silent is a claims-ledger liability; published effectiveness is the honest answer.
+
+### CUJ-20 — "Who did my agent just delegate to?" (P2/P5) · PRD 45 (A2A) + PRD 44 (IDN)
+1. An agent hands a task to a remote agent at another organization via A2A.
+2. The record shows the signed agent card, the security scheme, the task lifecycle, and the local causal chain.
+3. **Success:** cross-org delegation is provable after the fact (signed identity, scheme, outcomes); unverified cards
+   recorded as unverified — no invented attribution.
+
+*Why:* A2A (150+ orgs, v1.0, hosted beside MCP) makes cross-org delegation routine; NIST identifies it as where
+non-repudiation breaks down.
+
 ## Later journeys (not v0.1.0)
 
 - **CUJ-5 — Inventory:** "what agents/MCP servers exist on this machine?" (R9).
@@ -125,3 +183,11 @@ question that decides whether an incident is a bug or a process failure.
 CUJ-1 through CUJ-4 and the v0.1.0 additions CUJ-8–14 pass on a clean machine, and a security engineer can
 answer "what did that agent do?" in <5 minutes from a standard backend — and can hand a third party an evidence
 bundle they can verify offline (CUJ-8).
+
+## Success criteria for v0.2.0 users
+
+CUJ-15 through CUJ-20 pass on a clean machine (per their owning PRDs), and: an auditor with no agentwatch
+knowledge accepts an AAT export (CUJ-15); a cross-agent incident is attributed end-to-end in one command
+(CUJ-16); a live session is watched with p99 ≤ 1 s and no silent gaps (CUJ-17); a compliance report runs
+offline and every row regenerates (CUJ-18); a published detector number is reproduced locally (CUJ-19); a
+cross-org delegation is provable from signed cards (CUJ-20).

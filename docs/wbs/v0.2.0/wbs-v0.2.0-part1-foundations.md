@@ -17,8 +17,9 @@ Gemini), the SDK restructure, the cross-harness test kit, and the launch-blockin
 (#303, version-tagged MIT/vendor audit corpus + `tests/testkit/` + pinned re-fetch), 25.CUR-2 (#304,
 native-hooks adapter on the published contract), 25.GEM-1 (#305), 25.SDK-1..3 (#306–#308), 25.XHT-1
 (#309, corpus now ships under `tests/testkit/`), 25.XHT-4 (#310), 25.RSK-1 (#311), 25.NAM-1 (#312, incl.
-ADR-0026 decision), and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1 (#425–#427), 25.T (#371); 25.FLD-1a (#370
-plan drafted). **Open:** 25.D (#372), 25.R (#373).
+ADR-0026 decision), and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1 (#425–#427), 25.T (#371), 25.D (#372);
+25.FLD-1a (#370 plan drafted). **In review:** 25.R (#373) — review record in
+[codereview-log.md](codereview-log.md); human risk sign-off pending.
 
 **Goal:** Establish the standards, identity, sampling, streaming, and test-kit foundations, and begin real
 harness capture — so M26 can complete the standards loop and prove the claims.

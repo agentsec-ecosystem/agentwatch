@@ -85,13 +85,17 @@ version-tagged corpus; R8 scope → cut-line enforced; R11 naming → NAM-1 is l
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
-- [ ] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
+      (python-sdk 95.18% / api 99.58% / analytics 97.67%; `ruff` + `mypy --strict` clean)
+- [x] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
       close-out" below)
-- [ ] AAT export validates against fixtures; OTel agent-span tree renders in ≥1 reference backend; identity
-      property test green; streaming survives a consumer crash; Cursor/Gemini conformance packs registered; SDK
-      flush proven.
-- [ ] NAM-1 complete and ADR-0026 **decided** (launch-blocking).
+- [x] AAT export validates against fixtures; OTel agent-span tree renders in ≥1 reference backend ([evidence](../../release/v0.2.0/m25-otel-agent-span-tree.md));
+      identity property test green; streaming survives a consumer crash; Cursor/Gemini conformance packs
+      registered; SDK flush proven.
+- [x] NAM-1 complete and ADR-0026 **decided** (launch-blocking).
+
+> Close-out evidence bundle: [docs/release/v0.2.0/m25-close-evidence.md](../../release/v0.2.0/m25-close-evidence.md).
+> **Milestone closure remains gated on the 25.R human risk sign-off** ([codereview-log.md](codereview-log.md)).
 
 **Documents to update at close-out:** the design docs listed below, plus [PRD 41](../../prd/41-standards-and-interop-ii.md),
 [PRD 42](../../prd/42-harness-fidelity-and-realtime.md), [PRD 46](../../prd/46-platform-sdk-and-growth.md),

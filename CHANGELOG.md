@@ -7,6 +7,19 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Foundations (M25):
+  - OTEL-1: re-pinned GenAI semconv to `1.37.0`, added the canonical agent-span operations
+    (`create_agent`, `invoke_agent`, `invoke_workflow`, `plan`, `execute_tool`) and an operation drift check;
+    the pin rides in `--version` and resource attributes (#297).
+  - XHT-4: compatibility matrix now declares fidelity tiers (`live-verified | fixture-verified | modeled`);
+    `compatibility.FIDELITY_TIERS` is the single source and the generated table is regenerated (#310).
+  - NAM-1: install-integrity guard (`agentwatch.naming`) — a distribution-check warning in
+    `--version`/`init`/`doctor` when `agentwatch` came from a namesake distribution, the namesake FAQ, and a
+    guard test; ADR-0026 records the full-rename decision (#312).
+  - FLD-1a: the v0.2.0 field-test plan (`docs/field-test/v0.2.0/field-test-plan.md`) with the case roster (#370).
+  - AAT-1/AAT-2: IETF Agent Audit Trail export — `agentwatch.aat` field mapping (pinned
+    `draft-sharif-agent-audit-trail-06`), `record_phase` + identity population, an explicit `unmapped` block
+    (response_hash/response_size) and `agentwatch export-session <id> --format aat` emitting the bundle with
+    the chain envelope and a coverage/gap block, re-verifiable via `verify_aat` (#295, #296).
   - IDN-1: agent-identity privacy policy (`agentwatch.identity`) — on-behalf-of `principal` and
     `delegation_chain` are hashed with a per-install keyed HMAC by default (plaintext only under `full`),
     and identity fields never carry secret material (property-tested). The Claude Code adapter attaches the

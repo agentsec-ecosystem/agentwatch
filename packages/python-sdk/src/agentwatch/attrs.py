@@ -148,3 +148,19 @@ SPAN_KIND_APPROVAL = "approval"
 # The root span that contains the entire agent run.  This is the outermost
 # container; all other behavior spans are children of this span.
 SPAN_KIND_INVOKE_AGENT = "invoke_agent"
+
+# Agent construction (OTEL-1, semconv 1.37+): the span for creating/initializing
+# an agent, distinct from invoking it.
+SPAN_KIND_CREATE_AGENT = "create_agent"
+
+# Workflow-level container (OTEL-1): a span that wraps a multi-agent/graph run.
+SPAN_KIND_INVOKE_WORKFLOW = "invoke_workflow"
+
+# The canonical agent-span operation vocabulary agentwatch aligns to (OTEL-1).
+AGENT_SPAN_OPERATIONS: tuple[str, ...] = (
+    SPAN_KIND_CREATE_AGENT,
+    SPAN_KIND_INVOKE_AGENT,
+    SPAN_KIND_INVOKE_WORKFLOW,
+    SPAN_KIND_PLAN,
+    SPAN_KIND_TOOL,
+)

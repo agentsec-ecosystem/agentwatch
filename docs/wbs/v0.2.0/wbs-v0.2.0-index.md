@@ -48,8 +48,9 @@ Exit criteria · Design docs).
 > **M29 (Field Tests) and M30 (Release Readiness) are always the last two milestones** — after the implementation
 > milestones M25–M28. Do not tag `v0.2.0` before M30.
 >
-> **Progress:** 🚧 M25 (Foundations) in progress — **25.SCHEMA-1 ✅ complete** (#424), **25.IDN-1 ✅ complete**
-> (#299), and **ADR-0026 decided** (full rename at v0.2.0, #312); remaining M25–M30 tickets not started.
+> **Progress:** 🚧 M25 (Foundations) in progress — **done:** SCHEMA-1 (#424), IDN-1 (#299), AAT-1 (#295),
+> AAT-2 (#296), OTEL-1 (#297), XHT-4 (#310), NAM-1 (#312, ADR-0026 decided); FLD-1a plan drafted (#370).
+> Remaining: OTEL-2, TRACE-1, STR-1, DET-1, CUR-1/2, GEM-1, SDK-1..3, XHT-1, RSK-1, CLI-1/CFG-1/CI-1.
 > Track status here and in each part file at milestone close.
 
 ## Track → ticket map

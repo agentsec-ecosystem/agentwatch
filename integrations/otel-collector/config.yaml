@@ -5,7 +5,7 @@
 # this component stays thin.
 #
 # The pinned semantic-convention version is carried on every span's resource
-# attributes as `otel.semconv.version` (currently 1.29.0).
+# attributes as `otel.semconv.version` (currently 1.37.0).
 
 receivers:
   agentwatch:

@@ -32,11 +32,11 @@
 <!-- BEGIN GENERATED HARNESS MATRIX -->
 | Harness | Tier | Tested range | Fidelity | Invocation | Notes |
 |---|---|---|---|---|---|
-| `claude-code` | Tier-1 | 2.0–2.x | full | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon |
-| `codex-cli` | Tier-1 | modeled | provisional | native adapter (modeled) |  |
-| `crewai` | Tier-2 | modeled | provisional | native adapter (modeled) |  |
-| `cursor` | Tier-1 | modeled | provisional | native adapter (modeled) | replace modeled fixtures with real captures (M14/N4) |
-| `gemini-cli` | Tier-1 | modeled | provisional | native adapter (modeled) |  |
-| `mcp-proxy` | proxy | 2025-06-18 | full | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC `tools/call`, stdio + HTTP/SSE |
-| `pydantic-ai` | Tier-2 | modeled | provisional | native adapter (modeled) |  |
+| `claude-code` | Tier-1 | 2.0–2.x | live-verified | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon |
+| `codex-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
+| `crewai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |
+| `cursor` | Tier-1 | modeled | modeled | native adapter (modeled) | replace modeled fixtures with real captures (M14/N4) |
+| `gemini-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
+| `mcp-proxy` | proxy | 2025-06-18 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC `tools/call`, stdio + HTTP/SSE |
+| `pydantic-ai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |
 <!-- END GENERATED HARNESS MATRIX -->

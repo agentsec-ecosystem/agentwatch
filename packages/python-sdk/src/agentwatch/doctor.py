@@ -47,6 +47,7 @@ CHECKS: tuple[tuple[str, str], ...] = (
     ("store-disk", "store path writable and free disk >= max_size_mb"),
     ("retention", "retention window is sane (>= 1 day)"),
     ("harness-drift", "no unrecognized harness fields observed"),
+    ("distribution", "agentwatch provided by the expected distribution"),
     ("version", "version self-report"),
 )
 
@@ -94,6 +95,16 @@ def _check_config(cfg: AgentwatchConfig | None, config_error: str | None) -> Che
         PASS,
         f"harness={cfg.harness} mode={cfg.mode} privacy.mode={cfg.privacy.mode}",
     )
+
+
+def _check_distribution() -> CheckResult:
+    """Warn when the ``agentwatch`` module came from a namesake distribution (NAM-1)."""
+    from agentwatch import naming
+
+    warning = naming.distribution_warning()
+    if warning is None:
+        return CheckResult("distribution", PASS, naming.DISTRIBUTION_NAME)
+    return CheckResult("distribution", WARN, warning, f"reinstall with `{naming.FULL_INSTALL}`")
 
 
 def _check_hooks(settings_paths: Mapping[str, Path]) -> CheckResult:
@@ -277,6 +288,7 @@ def run_checks(
         _check_store_disk(cfg, resolved_store),
         _check_retention(cfg),
         _check_harness_drift(resolved_store),
+        _check_distribution(),
         CheckResult("version", PASS, _version()),
     ]
 

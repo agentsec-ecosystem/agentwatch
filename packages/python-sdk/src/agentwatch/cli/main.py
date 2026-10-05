@@ -18,7 +18,8 @@ from collections.abc import Iterable, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agentwatch import errors, hook
+from agentwatch import errors, hook, naming
+from agentwatch.aat import export_aat, to_aat_json, write_aat
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.blame import blame_sessions, build_blame, render_blame
@@ -155,14 +156,19 @@ def _version() -> str:
         return "0.1.0"
 
 
+def _version_string() -> str:
+    """The ``--version`` banner, plus the namesake-distribution warning when detected."""
+    banner = f"agentwatch {_version()} ({version_line()})"
+    warning = naming.distribution_warning()
+    return f"{banner}\n{warning}" if warning else banner
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="agentwatch",
         description="Local-first execution observability for AI agents.",
     )
-    parser.add_argument(
-        "--version", action="version", version=f"agentwatch {_version()} ({version_line()})"
-    )
+    parser.add_argument("--version", action="version", version=_version_string())
     parser.add_argument(
         "--config",
         action="append",
@@ -357,9 +363,9 @@ def _build_parser() -> argparse.ArgumentParser:
     export_session_cmd.add_argument("session_id", help="session id to export")
     export_session_cmd.add_argument(
         "--format",
-        choices=("ndjson", "ocsf", "cloudevents"),
+        choices=("ndjson", "ocsf", "cloudevents", "aat"),
         default="ndjson",
-        help="export format (default: ndjson; ocsf/cloudevents map security events)",
+        help="export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT)",
     )
     export_session_cmd.add_argument(
         "--output", default=None, help="write to a file instead of stdout"
@@ -829,6 +835,7 @@ def _run_status(args: argparse.Namespace) -> int:
 
 
 def _run_init(args: argparse.Namespace) -> int:
+    naming.install_guard(lambda message: print(message, file=sys.stderr))
     target = resolve_scope(args.scope)
     command = resolve_hook_command()
 
@@ -1473,7 +1480,16 @@ def _run_export_session(args: argparse.Namespace) -> int:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     destination = DestinationKind.FILE if args.output else DestinationKind.STDOUT
-    if args.format in ("ocsf", "cloudevents"):
+    if args.format == "aat":
+        bundle = export_aat(export, privacy_mode=cfg.privacy.mode)
+        text = to_aat_json(bundle)
+        if args.output:
+            path = Path(args.output).expanduser()
+            write_aat(bundle, path)
+            print(f"agentwatch: exported {export.count} AAT record(s) to {path}")
+        else:
+            sys.stdout.write(text)
+    elif args.format in ("ocsf", "cloudevents"):
         text = _render_standard_export(export, args.format)
         if args.output:
             path = Path(args.output).expanduser()

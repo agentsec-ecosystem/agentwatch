@@ -12,9 +12,10 @@ Gemini), the SDK restructure, the cross-harness test kit, and the launch-blockin
 
 ## Milestone M25 — Foundations (PRD 40–48)
 
-**Status:** 🚧 in progress — **25.SCHEMA-1 ✅ complete** (schema 0.2.0 additive fields + spec + data dictionary
-+ forward-compat fixture, #424); **25.IDN-1 ✅ complete** (identity dimension + principal-hashing policy,
-#299); **ADR-0026 decided** (full rename at v0.2.0, #312); remaining M25 tickets not started.
+**Status:** 🚧 in progress — **done:** 25.SCHEMA-1 (#424), 25.IDN-1 (#299), 25.AAT-1 (#295), 25.AAT-2
+(#296), 25.OTEL-1 (#297), 25.XHT-4 (#310), 25.NAM-1 (#312, incl. ADR-0026 decision); 25.FLD-1a (#370 plan
+drafted). **Not started:** 25.OTEL-2, 25.TRACE-1, 25.STR-1, 25.DET-1, 25.CUR-1/2, 25.GEM-1, 25.SDK-1..3,
+25.XHT-1, 25.RSK-1, and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1.
 
 **Goal:** Establish the standards, identity, sampling, streaming, and test-kit foundations, and begin real
 harness capture — so M26 can complete the standards loop and prove the claims.

@@ -23,6 +23,16 @@ from typing import Any
 _BEGIN = "<!-- BEGIN GENERATED HARNESS MATRIX -->"
 _END = "<!-- END GENERATED HARNESS MATRIX -->"
 
+# Fidelity tiers (XHT-4, PRD 47): how an adapter's support was established, so a
+# "modeled" adapter is never mistaken for a captured one.
+#   live-verified    — real captures from the running harness, kept current
+#   fixture-verified — real captures committed as fixtures, not continuously re-captured
+#   modeled          — the event shape is assumed, not captured
+FIDELITY_LIVE = "live-verified"
+FIDELITY_FIXTURE = "fixture-verified"
+FIDELITY_MODELED = "modeled"
+FIDELITY_TIERS: tuple[str, ...] = (FIDELITY_LIVE, FIDELITY_FIXTURE, FIDELITY_MODELED)
+
 
 @dataclass(frozen=True)
 class HarnessRange:
@@ -56,7 +66,7 @@ SHIPPED: dict[str, HarnessInfo] = {
         harness="claude-code",
         tier="Tier-1",
         tested=HarnessRange("2.0", "2.x"),
-        fidelity="full",
+        fidelity=FIDELITY_LIVE,
         invocation="native hooks (`agentwatch init`)",
         notes="PreToolUse/PostToolUse + local daemon",
     ),
@@ -64,7 +74,7 @@ SHIPPED: dict[str, HarnessInfo] = {
         harness="cursor",
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
         notes="replace modeled fixtures with real captures (M14/N4)",
     ),
@@ -72,21 +82,21 @@ SHIPPED: dict[str, HarnessInfo] = {
         harness="codex-cli",
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
     "gemini-cli": HarnessInfo(
         harness="gemini-cli",
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
     "mcp-proxy": HarnessInfo(
         harness="mcp-proxy",
         tier="proxy",
         tested=HarnessRange("2025-06-18", "2025-06-18"),
-        fidelity="full",
+        fidelity=FIDELITY_LIVE,
         invocation="`agentwatch mcp-proxy` / `init --mcp-proxy`",
         notes="MCP JSON-RPC `tools/call`, stdio + HTTP/SSE",
     ),
@@ -94,14 +104,14 @@ SHIPPED: dict[str, HarnessInfo] = {
         harness="crewai",
         tier="Tier-2",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
     "pydantic-ai": HarnessInfo(
         harness="pydantic-ai",
         tier="Tier-2",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
 }

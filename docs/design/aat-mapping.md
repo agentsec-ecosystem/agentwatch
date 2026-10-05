@@ -4,8 +4,18 @@
 drift-checked, and the `lossless-or-explicit` rule that keeps export/ingest honest. **How**, not whether — the
 product requirement is [PRD 41](../prd/41-standards-and-interop-ii.md) (AAT-1..5).
 
-**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
+**Status:** 🚧 partially implemented (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
 [PRD 41](../prd/41-standards-and-interop-ii.md), PRD 23, PRD 31, PRD 39 (W4/W5).
+
+> **Implementation (M25 AAT-1/AAT-2):** the mapping is in
+> [`agentwatch.aat`](../../packages/python-sdk/src/agentwatch/aat.py) (`AAT_MAPPING`, `aat_record`), the draft
+> revision is pinned (`AAT_DRAFT`), `unmapped` carries fields we cannot populate, and
+> `agentwatch export-session <id> --format aat` emits the bundle with the chain envelope plus a
+> coverage/gap block. AAT-3..5 (ingest, conformance vectors, drift job) land in M26.
+
+> **Implementation (M25 AAT-1/AAT-2):** `agentwatch.aat` (`AAT_MAPPING`, `aat_record`, `export_aat`,
+> `verify_aat`); `export-session --format aat` emits the bundle with the pinned `AAT_DRAFT`, the chain
+> envelope, an `unmapped` block (response_hash/response_size), and a coverage/gap block. AAT-3..5 → M26.
 
 ## Pin
 

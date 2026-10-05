@@ -4,7 +4,7 @@
 flush-on-exit, no-op safety, and a **security-relevant-always-on sampler** that never drops evidence. **How** — the
 requirement is [PRD 46](../prd/46-platform-sdk-and-growth.md) (SDK-1..3).
 
-**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
+**Status:** ✅ **M25 SDK-1..3 implemented** (v0.2.0) · **Milestone:** M25 · Sources:
 [PRD 46](../prd/46-platform-sdk-and-growth.md), PRD 05, PRD 13 (NFRs), OTel trace SDK specification, DD-12.
 
 ## Provider

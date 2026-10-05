@@ -57,6 +57,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     file -> ingest -> store, privacy-mode content-containment across all four modes, AAT export ->
     verify with trace/identity/chain, streaming drop-consumer against store truth, and sampler
     determinism (#371).
+  - 25.D: milestone documentation swept to the implemented state — design statuses (aat-mapping,
+    agent-identity, streaming-views, sdk-lifecycle, cross-harness-testing, harness-adapter-design),
+    PRD 41/42/46/47 M25-subset notes, README compatibility, the regenerated reference/compatibility
+    table, reference/known-limitations, THIRD_PARTY_NOTICES, and the WBS index; link-check and
+    executable-doc gates green (#372).
 - Standards & Compliance Acceptance (M22, PRD 39):
   - EU AI Act (Art. 12/19/26) and ISO/IEC 27001/42001 + NIST SP 800-92 mappings, each control naming an
     evidence command, with an explicit "what we do not provide" (W1 #270, W2 #271).

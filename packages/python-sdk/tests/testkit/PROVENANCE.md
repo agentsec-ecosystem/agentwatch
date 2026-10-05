@@ -7,7 +7,7 @@ corpus can be audited, refreshed, or rebuilt without guesswork. Milestone M25 ·
 issues **#303 (CUR-1)**, **#309 (XHT-1)**.
 
 The machine-readable lock is [`checksums.json`](checksums.json); the re-fetch
-tool is [`scripts/fetch-testkit-corpus.py`](../../../scripts/fetch-testkit-corpus.py).
+tool is [`scripts/fetch-testkit-corpus.py`](../../../../scripts/fetch-testkit-corpus.py).
 
 ## Pinned sources
 
@@ -21,7 +21,7 @@ tool is [`scripts/fetch-testkit-corpus.py`](../../../scripts/fetch-testkit-corpu
 Each git-backed corpus directory keeps a copy of the upstream `LICENSE` and a
 `manifest.json` recording its harness, version tag, source, commit, license, and
 whether it came from a real harness run. The same facts are attributed in
-[`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md).
+[`THIRD_PARTY_NOTICES.md`](../../../../THIRD_PARTY_NOTICES.md).
 
 ## How the corpora were selected (and what was rejected)
 

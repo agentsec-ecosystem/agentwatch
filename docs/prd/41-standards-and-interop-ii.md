@@ -6,6 +6,7 @@ Trail** (first reference-grade implementation), conform to the **OTel GenAI agen
 hash-chained store a **derived Postgres analytics tier** with multi-tenant isolation and SDK/hook unification.
 
 **Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
+**M25 subset implemented:** AAT-1/AAT-2, OTEL-1/OTEL-2, TRACE-1 (see the M25 WBS).
 **Depends on:** PRD 23, PRD 27, PRD 36, PRD 39
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06);

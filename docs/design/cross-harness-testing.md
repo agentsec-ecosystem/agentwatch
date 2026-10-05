@@ -5,7 +5,7 @@ transcript corpus + replay runner wired into the O1 conformance suite, a live Op
 validation, and fidelity tiers. **How** — the requirement is
 [PRD 47](../prd/47-cross-harness-testkit.md) (XHT-1..4).
 
-**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
+**Status:** 🚧 M25 **XHT-1/XHT-4 implemented** (v0.2.0); live soak + cross-parser (M26/M27) pending · **Milestone:** M25–M27 · Sources:
 [PRD 47](../prd/47-cross-harness-testkit.md), PRD 27 (O1/N3/N4/I2), PRD 42, PRD 45. Raw provenance:
 [reference/v0.2.0-research-sources.md](../reference/v0.2.0-research-sources.md) §9.
 

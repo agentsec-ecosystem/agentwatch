@@ -7,6 +7,7 @@ cross-validation against independent OSS parsers; and honest **fidelity tiers**
 (`live-verified | fixture-verified | modeled`) in the generated compatibility matrix.
 
 **Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
+**M25 subset implemented:** XHT-1 (corpus under `tests/testkit/` + replay/self-test) and XHT-4 (fidelity tiers).
 **Depends on:** PRD 27 (Conformance runner, fake-harness emitters, version matrix), PRD 38 · **Extends:** PRD 27
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06);

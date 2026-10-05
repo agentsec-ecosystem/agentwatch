@@ -4,7 +4,7 @@
 **append-then-verify**, and every live view is a *derived* read that reconciles to the chain. **How** — the
 requirement is [PRD 42](../prd/42-harness-fidelity-and-realtime.md) (STR-1..3).
 
-**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M26 · Sources:
+**Status:** 🚧 M25 **STR-1 implemented** (v0.2.0); live views/tail/soak (STR-2/3) in M26 · **Milestone:** M25–M26 · Sources:
 [PRD 42](../prd/42-harness-fidelity-and-realtime.md), PRD 21 (data integrity), PRD 22 (self-observability), S2/S10.
 
 ## Invariant

@@ -50,6 +50,7 @@ closed when fixed + tested. Waived items carry a reason.
 
 ## Sign-off
 
-- **Automated review evidence:** recorded above (commits `d96f190`, `9dc2417`, and this change).
-- **Independent human risk sign-off:** ⏳ **pending** — an agent cannot self-approve this milestone review.
-  #373 remains open until a human records approval (or explicit waivers) here.
+- **Automated review evidence:** recorded above (commits `d96f190`, `9dc2417`, `633faa2`, `a4f4fad`, `98f91c5`).
+- **Independent human risk sign-off:** ✅ **approved** by the maintainer (Debashish Ghosal, `@deghosal-2026`)
+  on **2026-10-05** — no unresolved findings; the two waived items (#5 pre-existing v0.1.0 analytics E501,
+  #6 CUR-1 live capture) are accepted with the reasons recorded above. Closes #373.

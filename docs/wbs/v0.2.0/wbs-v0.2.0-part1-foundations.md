@@ -12,14 +12,14 @@ Gemini), the SDK restructure, the cross-harness test kit, and the launch-blockin
 
 ## Milestone M25 — Foundations (PRD 40–48)
 
-**Status:** 🚧 in progress — **done:** 25.SCHEMA-1 (#424), 25.IDN-1 (#299), 25.AAT-1 (#295), 25.AAT-2
-(#296), 25.OTEL-1 (#297), 25.OTEL-2 (#298), 25.TRACE-1 (#300), 25.STR-1 (#301), 25.DET-1 (#302), 25.CUR-1
-(#303, version-tagged MIT/vendor audit corpus + `tests/testkit/` + pinned re-fetch), 25.CUR-2 (#304,
-native-hooks adapter on the published contract), 25.GEM-1 (#305), 25.SDK-1..3 (#306–#308), 25.XHT-1
+**Status:** ✅ **complete** (2026-10-05) — **done:** 25.SCHEMA-1 (#424), 25.IDN-1 (#299), 25.AAT-1 (#295),
+25.AAT-2 (#296), 25.OTEL-1 (#297), 25.OTEL-2 (#298), 25.TRACE-1 (#300), 25.STR-1 (#301), 25.DET-1 (#302),
+25.CUR-1 (#303, version-tagged MIT/vendor audit corpus + `tests/testkit/` + pinned re-fetch), 25.CUR-2
+(#304, native-hooks adapter on the published contract), 25.GEM-1 (#305), 25.SDK-1..3 (#306–#308), 25.XHT-1
 (#309, corpus now ships under `tests/testkit/`), 25.XHT-4 (#310), 25.RSK-1 (#311), 25.NAM-1 (#312, incl.
-ADR-0026 decision), and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1 (#425–#427), 25.T (#371), 25.D (#372);
-25.FLD-1a (#370 plan drafted). **In review:** 25.R (#373) — review record in
-[codereview-log.md](codereview-log.md); human risk sign-off pending.
+ADR-0026 decision), and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1 (#425–#427), 25.T (#371), 25.D (#372),
+25.R (#373, [review + human risk sign-off](codereview-log.md)); 25.FLD-1a (#370 plan drafted). Accepted gap:
+25.CUR-1 live-install capture deferred (Cursor stays `fixture-verified`).
 
 **Goal:** Establish the standards, identity, sampling, streaming, and test-kit foundations, and begin real
 harness capture — so M26 can complete the standards loop and prove the claims.
@@ -95,7 +95,7 @@ version-tagged corpus; R8 scope → cut-line enforced; R11 naming → NAM-1 is l
 - [x] NAM-1 complete and ADR-0026 **decided** (launch-blocking).
 
 > Close-out evidence bundle: [docs/release/v0.2.0/m25-close-evidence.md](../../release/v0.2.0/m25-close-evidence.md).
-> **Milestone closure remains gated on the 25.R human risk sign-off** ([codereview-log.md](codereview-log.md)).
+> 25.R signed off ([codereview-log.md](codereview-log.md)); M25 is complete.
 
 **Documents to update at close-out:** the design docs listed below, plus [PRD 41](../../prd/41-standards-and-interop-ii.md),
 [PRD 42](../../prd/42-harness-fidelity-and-realtime.md), [PRD 46](../../prd/46-platform-sdk-and-growth.md),

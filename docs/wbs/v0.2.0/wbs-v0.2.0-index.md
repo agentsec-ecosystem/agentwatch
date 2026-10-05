@@ -48,12 +48,12 @@ Exit criteria · Design docs).
 > **M29 (Field Tests) and M30 (Release Readiness) are always the last two milestones** — after the implementation
 > milestones M25–M28. Do not tag `v0.2.0` before M30.
 >
-> **Progress:** 🚧 M25 (Foundations) in progress — **done:** SCHEMA-1 (#424), IDN-1 (#299), AAT-1/AAT-2
+> **Progress:** ✅ **M25 (Foundations) complete** (2026-10-05) — SCHEMA-1 (#424), IDN-1 (#299), AAT-1/AAT-2
 > (#295/#296), OTEL-1/OTEL-2 (#297/#298), TRACE-1 (#300), STR-1 (#301), DET-1 (#302), CUR-1/CUR-2
 > (#303/#304), GEM-1 (#305), SDK-1..3 (#306–#308), XHT-1/XHT-4 (#309/#310), RSK-1 (#311), NAM-1 (#312,
-> ADR-0026 decided), 25.T (#371), 25.D (#372), and the M25 tail CLI-1/CFG-1/CI-1 (#425–#427); FLD-1a plan
-> drafted (#370). **In review:** 25.R (#373) — record in `codereview-log.md`; human risk sign-off pending.
-> Track status here and in each part file at milestone close.
+> ADR-0026 decided), 25.T (#371), 25.D (#372), 25.R (#373, signed off), and the M25 tail CLI-1/CFG-1/CI-1
+> (#425–#427); FLD-1a plan drafted (#370). Accepted gap: CUR-1 live-install capture deferred. Track status here
+> and in each part file at milestone close.
 
 ## Track → ticket map
 

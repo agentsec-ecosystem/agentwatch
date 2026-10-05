@@ -17,13 +17,16 @@ arguments.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any, cast
 
+from agentwatch.identity import apply_identity_privacy
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
     Approval,
+    CredentialClass,
     Outcome,
     Producer,
     ProducerKind,
@@ -121,8 +124,65 @@ def identity_from(value: Any) -> AgentIdentity:
     return AgentIdentity(identity="unknown")
 
 
-def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
-    """Agent identity for an event: explicit ``agent`` first, else subagent ids."""
+def _optional_str(source: Mapping[str, Any] | None, key: str) -> str | None:
+    if not isinstance(source, Mapping):
+        return None
+    value = source.get(key)
+    return value if isinstance(value, str) and value else None
+
+
+def _identity_dimension(base: AgentIdentity, event: Mapping[str, Any]) -> AgentIdentity:
+    """Add the IDN-1 dimension from optional hook fields (absent stays unknown).
+
+    A hook may expose the on-behalf-of principal, workload identity, credential
+    class, or delegation chain at the top level or inside its ``agent`` block.
+    Anything not exposed stays absent — never inferred.
+    """
+    block = event.get("agent")
+    block = block if isinstance(block, Mapping) else None
+    principal = _optional_str(block, "principal") or _optional_str(event, "principal")
+    workload_identity = _optional_str(block, "workload_identity") or _optional_str(
+        event, "workload_identity"
+    )
+    raw_class = (block.get("credential_class") if block else None) or event.get(
+        "credential_class"
+    )
+    credential_class: CredentialClass | None = None
+    if isinstance(raw_class, str):
+        try:
+            credential_class = CredentialClass(raw_class)
+        except ValueError:
+            credential_class = None
+    raw_chain = (block.get("delegation_chain") if block else None) or event.get(
+        "delegation_chain"
+    )
+    delegation_chain: tuple[str, ...] | None = None
+    if isinstance(raw_chain, list) and all(isinstance(entry, str) for entry in raw_chain):
+        delegation_chain = tuple(raw_chain)
+    if (
+        principal is None
+        and workload_identity is None
+        and credential_class is None
+        and delegation_chain is None
+    ):
+        return base
+    return replace(
+        base,
+        workload_identity=workload_identity,
+        credential_class=credential_class,
+        principal=principal,
+        delegation_chain=delegation_chain,
+    )
+
+
+def identity_for(
+    event: Mapping[str, Any], *, redaction: RedactionConfig | None = None
+) -> AgentIdentity:
+    """Agent identity for an event: explicit ``agent`` first, else subagent ids.
+
+    The IDN-1 dimension is attached from optional hook fields and the principal
+    hashing policy is applied for the session's privacy mode (hashed by default).
+    """
     if event.get("agent") is not None:
         base = identity_from(event["agent"])
     else:
@@ -138,16 +198,11 @@ def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
     # The hook carries the CLAUDE.md fingerprint at the top level (PRD 25 D2);
     # an explicit agent mapping's prompt_version wins.
     if base.prompt_version is None and isinstance(event.get("prompt_version"), str):
-        return AgentIdentity(
-            identity=base.identity,
-            name=base.name,
-            version=base.version,
-            prompt_version=event["prompt_version"],
-            model_version=base.model_version,
-            tool_schema_version=base.tool_schema_version,
-            workload_type=base.workload_type,
-        )
-    return base
+        base = replace(base, prompt_version=event["prompt_version"])
+    mode = (
+        _PRIVACY_MAP[redaction.mode] if redaction is not None else RecordPrivacyMode.METADATA_ONLY
+    )
+    return apply_identity_privacy(_identity_dimension(base, event), mode=mode)
 
 
 def _parse_optional_timestamp(value: Any) -> datetime | None:
@@ -403,7 +458,7 @@ def normalize(
             parent_session_id = str(raw_parent) if raw_parent is not None else None
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name=phase,
                 arguments=boundary_args,
@@ -444,7 +499,7 @@ def normalize(
                     break
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name="context-compacted",
                 arguments=compact_args,
@@ -467,7 +522,7 @@ def normalize(
         marker_args = {"tool": tool_name} if tool_name != "unknown" else None
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name="permission-prompt",
                 arguments=marker_args,
@@ -496,7 +551,7 @@ def normalize(
         )
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name=bare_tool_name, server=server, arguments=arguments, privacy_mode=privacy_mode
             ),
@@ -541,7 +596,7 @@ def normalize(
                 prompt_mode = _PRIVACY_MAP[redaction.mode]
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(name="user-prompt", arguments=prompt_args, privacy_mode=prompt_mode),
             outcome=Outcome.OK,
             started_at=event_time,
@@ -580,7 +635,7 @@ def normalize(
 
     record = AgentRecord(
         session_id=session_id,
-        agent=identity_for(event),
+        agent=identity_for(event, redaction=redaction),
         tool=ToolCall(
             name=bare_tool_name,
             server=server,

@@ -7,6 +7,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Foundations (M25):
+  - IDN-1: agent-identity privacy policy (`agentwatch.identity`) — on-behalf-of `principal` and
+    `delegation_chain` are hashed with a per-install keyed HMAC by default (plaintext only under `full`),
+    and identity fields never carry secret material (property-tested). The Claude Code adapter attaches the
+    dimension from optional hook fields (`principal`, `workload_identity`, `credential_class`,
+    `delegation_chain`); absent facts stay honest `unknown` (#299).
   - SCHEMA-1: additive record/event schema — `record_phase` (AAT-1, pre/post-execution), `traceparent`
     (W3C Trace Context), the `agent_identity` dimension (`workload_identity`, `credential_class`,
     `principal`, `delegation_chain`), and the `agent-delegation` observation event; record-format spec,

@@ -4,8 +4,16 @@
 which credential, on whose behalf, with whose approval* is answerable end to end. **How** — the requirement is
 [PRD 44](../prd/44-identity-enterprise-and-compliance.md) (IDN-1..4).
 
-**Status:** proposed (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
+**Status:** 🚧 partially implemented (2026-10-05, v0.2.0) · **Milestone:** M25 · Sources:
 [PRD 44](../prd/44-identity-enterprise-and-compliance.md), PRD 35 (S14/S29), IETF AIMS/WIMSE, AAT draft.
+
+> **Implementation (M25 IDN-1):** the field set below is in the record schema (`schema 0.2.0`) and the
+> principal-hashing policy is implemented in [`agentwatch.identity`](../../packages/python-sdk/src/agentwatch/identity.py):
+> `apply_identity_privacy()` hashes `principal` and each `delegation_chain` entry with a per-install keyed
+> HMAC by default and keeps plaintext only under the `full` mode; `scrub_identity()` guarantees identity
+> fields never carry secret material (PII such as an email principal is the dimension's legitimate subject
+> and is hashed, not masked). The Claude Code adapter attaches the dimension from optional hook fields.
+> IDN-2 (delegation-chain capture) and IDN-3 (attribution rendering) remain.
 
 ## Two-layer model
 

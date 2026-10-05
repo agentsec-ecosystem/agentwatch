@@ -44,6 +44,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     a static shell-reference guard, and a dynamic no-exec test; the mutation gate now covers Cursor
     phase/MCP normalization, AAT chain/unmapped mapping, sampler never-sample-security, and stream
     overflow (#311).
+  - 25.T: milestone integration suite (`tests/test_m25_integration.py`) composing the M25 pieces end
+    to end — Cursor hooks -> store -> replay, an oversized-segment containment case, Gemini telemetry
+    file -> ingest -> store, privacy-mode content-containment across all four modes, AAT export ->
+    verify with trace/identity/chain, streaming drop-consumer against store truth, and sampler
+    determinism (#371).
 - Standards & Compliance Acceptance (M22, PRD 39):
   - EU AI Act (Art. 12/19/26) and ISO/IEC 27001/42001 + NIST SP 800-92 mappings, each control naming an
     evidence command, with an explicit "what we do not provide" (W1 #270, W2 #271).

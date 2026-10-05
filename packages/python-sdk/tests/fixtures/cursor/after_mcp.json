@@ -4,38 +4,35 @@
       "agent": {
         "identity": "unknown"
       },
-      "environment": {
-        "ide": "cursor-cli"
-      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
       "harness": "cursor",
       "outcome": "ok",
       "producer": {
         "kind": "hook",
         "name": "cursor"
       },
-      "project": "/repo",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-1",
+      "span_id": "call-4",
       "started_at": "2026-01-02T03:04:05+00:00",
-      "step_type": "act",
+      "step_type": "observe",
       "tool": {
-        "name": "Shell",
-        "privacy_mode": "metadata-only"
+        "name": "issue_get",
+        "privacy_mode": "metadata-only",
+        "server": "github"
       },
       "trace_id": "sess-c"
     }
   ],
   "message": {
     "event": {
-      "call_id": "call-1",
-      "command": "npm test",
-      "cwd": "/repo",
-      "ide": "cursor-cli",
+      "call_id": "call-4",
       "session_id": "sess-c",
-      "timestamp": "2026-01-02T03:04:05+00:00"
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "tool_name": "mcp__github__issue_get"
     },
     "harness": "cursor",
-    "phase": "beforeShellExecution"
+    "phase": "afterMCPExecution"
   }
 }

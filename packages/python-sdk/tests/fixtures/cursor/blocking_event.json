@@ -4,19 +4,15 @@
       "agent": {
         "identity": "unknown"
       },
-      "environment": {
-        "ide": "cursor-cli"
-      },
       "harness": "cursor",
       "outcome": "ok",
       "producer": {
         "kind": "hook",
         "name": "cursor"
       },
-      "project": "/repo",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-1",
+      "span_id": "call-10",
       "started_at": "2026-01-02T03:04:05+00:00",
       "step_type": "act",
       "tool": {
@@ -28,10 +24,9 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-1",
-      "command": "npm test",
-      "cwd": "/repo",
-      "ide": "cursor-cli",
+      "call_id": "call-10",
+      "command": "rm -rf /",
+      "permission": "deny",
       "session_id": "sess-c",
       "timestamp": "2026-01-02T03:04:05+00:00"
     },

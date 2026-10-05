@@ -4,23 +4,18 @@
       "agent": {
         "identity": "unknown"
       },
-      "environment": {
-        "ide": "cursor-cli"
-      },
       "harness": "cursor",
       "outcome": "ok",
       "producer": {
         "kind": "hook",
         "name": "cursor"
       },
-      "project": "/repo",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-1",
       "started_at": "2026-01-02T03:04:05+00:00",
-      "step_type": "act",
+      "step_type": "reason",
       "tool": {
-        "name": "Shell",
+        "name": "agent-response",
         "privacy_mode": "metadata-only"
       },
       "trace_id": "sess-c"
@@ -28,14 +23,11 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-1",
-      "command": "npm test",
-      "cwd": "/repo",
-      "ide": "cursor-cli",
+      "response": "done",
       "session_id": "sess-c",
       "timestamp": "2026-01-02T03:04:05+00:00"
     },
     "harness": "cursor",
-    "phase": "beforeShellExecution"
+    "phase": "afterAgentResponse"
   }
 }

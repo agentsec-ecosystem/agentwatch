@@ -15,10 +15,13 @@ Status: living.
 
 ## agentwatch-specific (v0.1.0)
 
-- Claude Code is fully supported (v0.1.0 M3). Cursor, Codex CLI, Gemini CLI, and the Tier-2 frameworks
-  CrewAI and PydanticAI have **provisional (modeled)** adapters in v0.1.0 — their native event shapes are
-  assumed, not captured; full-fidelity support and real fixtures land in v0.1.x/later (M14 field tests /
-  N4 version matrix). Their generated compatibility rows read "modeled" until real captures land.
+- Claude Code is fully supported (v0.1.0 M3). Cursor ships a native-hooks adapter (v0.2.0 M25, CUR-2) but
+  its event shapes are documentation-derived, not yet a consented live capture (25.CUR-1 blocked), so the
+  compatibility row stays "modeled". Codex CLI, Gemini CLI, and the Tier-2 frameworks CrewAI and PydanticAI
+  have **provisional (modeled)** adapters — their native event shapes are assumed, not captured. Real
+  fixtures for all of them land in v0.1.x/later (M14 field tests / N4 version matrix).
+- Cursor cloud agents (cursor.com/agents) do not emit the `sessionStart`/`beforeSubmitPrompt`/Tab/`workspaceOpen`
+  hooks; this is a declared gap (`cloud-agent-hook-events`), not a silent one.
 - MCP interposition (`agentwatch mcp-proxy`, M10 N1) records `tools/call` over **stdio and HTTP/SSE**;
   `agentwatch init --mcp-proxy` re-points `.mcp.json`/`~/.claude.json` and `uninstall` restores it
   byte-identically. MCP `resources`/`prompts`/`sampling` are relayed but not recorded (declared gaps).

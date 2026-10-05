@@ -75,8 +75,11 @@ SHIPPED: dict[str, HarnessInfo] = {
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
         fidelity=FIDELITY_MODELED,
-        invocation="native adapter (modeled)",
-        notes="replace modeled fixtures with real captures (M14/N4)",
+        invocation="native hooks (`hooks.json`)",
+        notes=(
+            "full loop (session/tool/shell/MCP/file/subagent/prompt/compaction/thought/Tab); "
+            "live capture pending 25.CUR-1"
+        ),
     ),
     "codex-cli": HarnessInfo(
         harness="codex-cli",

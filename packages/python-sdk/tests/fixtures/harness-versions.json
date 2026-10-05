@@ -84,12 +84,92 @@
       "fingerprint": "2df7496ca31edb5a",
       "version": "modeled"
     },
+    "cursor/after_agent_response.json": {
+      "fingerprint": "3089fdbfca9f0a15",
+      "version": "modeled"
+    },
+    "cursor/after_agent_thought.json": {
+      "fingerprint": "2260248beeae4812",
+      "version": "modeled"
+    },
     "cursor/after_edit_error.json": {
       "fingerprint": "19588203ac3f8d0b",
       "version": "modeled"
     },
+    "cursor/after_mcp.json": {
+      "fingerprint": "ed191a68f19eeeba",
+      "version": "modeled"
+    },
+    "cursor/after_shell_error.json": {
+      "fingerprint": "3fa3341be20a68a3",
+      "version": "modeled"
+    },
+    "cursor/before_file_edit.json": {
+      "fingerprint": "b0e1040ffd4e8cf1",
+      "version": "modeled"
+    },
+    "cursor/before_mcp.json": {
+      "fingerprint": "419dc8229ceef3a9",
+      "version": "modeled"
+    },
+    "cursor/before_read_file.json": {
+      "fingerprint": "b0e1040ffd4e8cf1",
+      "version": "modeled"
+    },
     "cursor/before_shell.json": {
-      "fingerprint": "4fda09a55fb5c75b",
+      "fingerprint": "4cd32f4890661ae9",
+      "version": "modeled"
+    },
+    "cursor/before_submit_prompt.json": {
+      "fingerprint": "5462a8d1749533dd",
+      "version": "modeled"
+    },
+    "cursor/blocking_event.json": {
+      "fingerprint": "4f3028fb8a808432",
+      "version": "modeled"
+    },
+    "cursor/post_tool_use.json": {
+      "fingerprint": "4323117945b4ef2d",
+      "version": "modeled"
+    },
+    "cursor/post_tool_use_failure.json": {
+      "fingerprint": "cf59d215369150e3",
+      "version": "modeled"
+    },
+    "cursor/pre_compact.json": {
+      "fingerprint": "c8a9733e9f81f0d6",
+      "version": "modeled"
+    },
+    "cursor/pre_tool_use.json": {
+      "fingerprint": "419dc8229ceef3a9",
+      "version": "modeled"
+    },
+    "cursor/session_end.json": {
+      "fingerprint": "916625e7dfb2fb9d",
+      "version": "modeled"
+    },
+    "cursor/session_start.json": {
+      "fingerprint": "9e2dc54f94c521b6",
+      "version": "modeled"
+    },
+    "cursor/subagent_start.json": {
+      "fingerprint": "31c06d9ee0e10ee1",
+      "version": "modeled"
+    },
+    "cursor/subagent_stop.json": {
+      "fingerprint": "31c06d9ee0e10ee1",
+      "version": "modeled"
+    },
+    "cursor/tab_after_edit.json": {
+      "fingerprint": "b0e1040ffd4e8cf1",
+      "version": "modeled"
+    },
+    "cursor/tab_before_read.json": {
+      "fingerprint": "b0e1040ffd4e8cf1",
+      "version": "modeled"
+    },
+    "cursor/workspace_open.json": {
+      "fingerprint": "845b8ec6eb8cb1f0",
       "version": "modeled"
     },
     "gemini-cli/session_start.json": {

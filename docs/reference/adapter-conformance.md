@@ -48,16 +48,25 @@ in CI. Release notes carry the compatibility table.
 
 ## Provisional adapters (M10, modeled)
 
-Cursor, Codex CLI, and Gemini CLI ship **provisional (modeled)** adapters — no native event surface is
+Codex CLI and Gemini CLI ship **provisional (modeled)** adapters — no native event surface is
 documented in-repo yet, so the fixtures are synthesized from an assumed shape and must be replaced by real
 captures (M14/N4). Each is registered and passes the shared runner; capabilities and the `mcp-server-events`
 gap are declared the same way as Claude Code.
 
 | Harness | Module | Fixtures |
 |---|---|---|
-| Cursor | `agentwatch.adapters.cursor` | `tests/fixtures/cursor/*.json` |
 | Codex CLI | `agentwatch.adapters.codex_cli` | `tests/fixtures/codex-cli/*.json` |
 | Gemini CLI | `agentwatch.adapters.gemini_cli` | `tests/fixtures/gemini-cli/*.json` |
+
+## Cursor native hooks (v0.2.0 M25, CUR-2)
+
+`agentwatch.adapters.cursor` normalizes Cursor's native `hooks.json` events. The pack
+(`tests/fixtures/cursor/*.json`) covers the full loop: session boundaries, pre/post tool use (+failure),
+shell, MCP, `beforeReadFile`, file edits, subagent start/stop, prompt submission, compaction,
+`afterAgentThought`/`afterAgentResponse`, Tab hooks, and `workspaceOpen`. The declared gap is
+`cloud-agent-hook-events` (cloud agents lack sessionStart/beforeSubmitPrompt/Tab/workspace hooks), rejected
+explicitly. Blocking `before*` events are recorded as observations and never answered (monitor-only, R2).
+The shapes are documented (not yet a consented live capture, 25.CUR-1), so the fidelity tier stays `modeled`.
 
 ## Tier-2 framework adapters (M10 10.6, modeled)
 

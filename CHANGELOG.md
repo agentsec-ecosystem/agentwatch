@@ -33,6 +33,12 @@ versioning: [Semantic Versioning](https://semver.org/).
     (M30 30.3) (#424).
   - ADR-0026 recorded: naming decision is a **full rename at v0.2.0** (target name TBD; tracked with the
     M30 30.16 rename outcome) (#312).
+  - CUR-2: Cursor native-hooks adapter (`agentwatch.adapters.cursor`) — normalizes the full agent loop
+    (session boundaries, pre/post tool use + failure, shell, MCP, `beforeReadFile`, file edits, subagents,
+    prompt submission, compaction, `afterAgentThought`/`afterAgentResponse`, Tab hooks, `workspaceOpen`),
+    records blocking `before*` events as observations and never answers them (monitor-only, R2), tags the
+    IDE/CLI/remote environment, and declares the cloud-agent hook gap; conformance pack registered. The
+    event shapes are documentation-derived until the consented live capture lands (25.CUR-1) (#304).
 - Standards & Compliance Acceptance (M22, PRD 39):
   - EU AI Act (Art. 12/19/26) and ISO/IEC 27001/42001 + NIST SP 800-92 mappings, each control naming an
     evidence command, with an explicit "what we do not provide" (W1 #270, W2 #271).

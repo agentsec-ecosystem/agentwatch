@@ -3,8 +3,8 @@
 **BLUF:** A small adapter contract converts a harness's native surface into the agentwatch record format.
 Claude Code hooks are the first implementation.
 
-Status: **implemented** for Claude Code (v0.1.0 M3); Cursor, Codex CLI, and Gemini CLI are **provisional
-(modeled)** in M10.
+Status: **implemented** for Claude Code (v0.1.0 M3) and **Cursor native hooks** (v0.2.0 M25, capture tier
+pending 25.CUR-1); Codex CLI and Gemini CLI are **provisional (modeled)** in M10.
 
 ## Contract
 
@@ -42,9 +42,19 @@ conformance runner with a `mcp-server-events` declared gap.
 
 | Harness | Module | Capability classes |
 |---|---|---|
-| Cursor | `agentwatch.adapters.cursor` | `beforeShellExecution`, `afterShellExecution`, `beforeFileEdit`, `afterFileEdit` |
 | Codex CLI | `agentwatch.adapters.codex_cli` | `exec_begin`, `exec_end`, `patch_apply` |
 | Gemini CLI | `agentwatch.adapters.gemini_cli` | `tool_call`, `tool_result`, `session_start`, `session_end` |
+
+## Cursor native hooks (v0.2.0 M25, CUR-2)
+
+`agentwatch.adapters.cursor` normalizes Cursor's native `hooks.json` events, framed by the hook binary as
+`{"phase": <hook_event_name>, "harness": "cursor", "event": {...}}`. It covers the full loop — session
+boundaries, pre/post tool use (incl. failure), shell, MCP, `beforeReadFile`, file edits, subagents, prompt
+submission, compaction, `afterAgentThought`/`afterAgentResponse`, Tab hooks, and `workspaceOpen`. Blocking
+`before*` events are recorded as observations and **never answered** (monitor-only, R2); the `ide`
+environment (`cursor-cli`/`cursor-ide`/`cursor-remote`) is tagged in `environment`; cloud-agent hook gaps
+are declared (`cloud-agent-hook-events`), never silent. The event **shapes** remain documented-shape
+fixtures until a consented live capture lands (25.CUR-1), so the matrix row stays `modeled`.
 
 ## v0.2.0 — capture levels and real harnesses
 

@@ -35,7 +35,7 @@
 | `claude-code` | Tier-1 | 2.0–2.x | live-verified | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon |
 | `codex-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
 | `crewai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |
-| `cursor` | Tier-1 | modeled | modeled | native adapter (modeled) | replace modeled fixtures with real captures (M14/N4) |
+| `cursor` | Tier-1 | modeled | modeled | native hooks (`hooks.json`) | full loop (session/tool/shell/MCP/file/subagent/prompt/compaction/thought/Tab); live capture pending 25.CUR-1 |
 | `gemini-cli` | Tier-1 | modeled | modeled | native adapter (modeled) |  |
 | `mcp-proxy` | proxy | 2025-06-18 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC `tools/call`, stdio + HTTP/SSE |
 | `pydantic-ai` | Tier-2 | modeled | modeled | native adapter (modeled) |  |

@@ -4,23 +4,22 @@
       "agent": {
         "identity": "unknown"
       },
-      "environment": {
-        "ide": "cursor-cli"
-      },
       "harness": "cursor",
       "outcome": "ok",
       "producer": {
         "kind": "hook",
         "name": "cursor"
       },
-      "project": "/repo",
       "schema_version": "0.1.0",
       "session_id": "sess-c",
-      "span_id": "call-1",
       "started_at": "2026-01-02T03:04:05+00:00",
-      "step_type": "act",
+      "step_type": "observe",
       "tool": {
-        "name": "Shell",
+        "arguments": {
+          "tokens_before": 1000,
+          "trigger": "auto"
+        },
+        "name": "context-compacted",
         "privacy_mode": "metadata-only"
       },
       "trace_id": "sess-c"
@@ -28,14 +27,12 @@
   ],
   "message": {
     "event": {
-      "call_id": "call-1",
-      "command": "npm test",
-      "cwd": "/repo",
-      "ide": "cursor-cli",
       "session_id": "sess-c",
-      "timestamp": "2026-01-02T03:04:05+00:00"
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "tokens_before": 1000,
+      "trigger": "auto"
     },
     "harness": "cursor",
-    "phase": "beforeShellExecution"
+    "phase": "preCompact"
   }
 }

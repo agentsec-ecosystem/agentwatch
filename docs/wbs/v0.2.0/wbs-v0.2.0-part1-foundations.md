@@ -13,9 +13,11 @@ Gemini), the SDK restructure, the cross-harness test kit, and the launch-blockin
 ## Milestone M25 — Foundations (PRD 40–48)
 
 **Status:** 🚧 in progress — **done:** 25.SCHEMA-1 (#424), 25.IDN-1 (#299), 25.AAT-1 (#295), 25.AAT-2
-(#296), 25.OTEL-1 (#297), 25.XHT-4 (#310), 25.NAM-1 (#312, incl. ADR-0026 decision); 25.FLD-1a (#370 plan
-drafted). **Not started:** 25.OTEL-2, 25.TRACE-1, 25.STR-1, 25.DET-1, 25.CUR-1/2, 25.GEM-1, 25.SDK-1..3,
-25.XHT-1, 25.RSK-1, and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1.
+(#296), 25.OTEL-1 (#297), 25.OTEL-2 (#298), 25.TRACE-1 (#300), 25.STR-1 (#301), 25.DET-1 (#302), 25.CUR-2
+(#304, native-hooks adapter on documented shapes), 25.GEM-1 (#305), 25.SDK-1..3 (#306–#308), 25.XHT-1
+(#309), 25.XHT-4 (#310), 25.NAM-1 (#312, incl. ADR-0026 decision), and the M25 tail 25.CLI-1/25.CFG-1/25.CI-1
+(#425–#427); 25.FLD-1a (#370 plan drafted). **Blocked:** 25.CUR-1 (#303) — requires a consented live Cursor
+capture; it cannot be produced in CI. **Open:** 25.RSK-1 (#311), 25.T (#371), 25.D (#372), 25.R (#373).
 
 **Goal:** Establish the standards, identity, sampling, streaming, and test-kit foundations, and begin real
 harness capture — so M26 can complete the standards loop and prove the claims.

@@ -67,3 +67,51 @@ Purpose-built for Claude Code hook records (observability only, never enforcemen
 
 Implemented in `services/analytics/src/analytics/detectors/claude_code.py`; registered by
 `create_all_detectors()` (38 rule+LLM detectors total).
+
+## Generated per-detector metrics (M26 DET-3)
+
+<!-- BEGIN GENERATED: detector-metrics -->
+_Generated from the 143-scenario field-test rule matrix (offline, scripted pool). Rule detectors non-silent: 38/38 (100%)._
+
+| Detector | TP | FP | FN | TN | TPR | FPR |
+|---|---|---|---|---|---|---|
+| `anomaly_cluster` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `approval_latency` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `argument_loop` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `cascading_retry` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `cost_efficiency` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `cost_spike` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `cost_vs_baseline` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `denied-cluster` | 2 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `empty_response` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `escalation_rate` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `first_run_heuristic` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `inactivity` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `indeterminate_status` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `intervention_frequency` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `intervention_rejection` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `loop` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `low_output` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `max_step_hit` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `network-tool` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `output_drift` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `pattern_loop` | 2 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `per_tool_cost_spike` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `premature_completion` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `recovery_path` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `redundant_tool_call` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `retry_storm` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `run_duration` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `run_frequency_anomaly` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `specific_tool_error` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `step_efficiency` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `systemic_retry` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `token_explosion` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `tool_error_rate` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `tool_latency` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `tool_timeout` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `transient_retry` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
+| `wasted_tool_calls` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `write-storm` | 2 | 0 | 0 | 1 | 100.0% | 0.0% |
+<!-- END GENERATED: detector-metrics -->
+

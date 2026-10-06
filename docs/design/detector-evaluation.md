@@ -27,6 +27,11 @@ are excluded from the rule gate (live-model). Detectors are additionally replaye
 traces (Claude Code transcripts, Cursor session-tracer traces, Codex rollouts) in
 `services/analytics/tests/test_detector_real_traces.py`, so the count claim rests on measured firing, not a list.
 
+DET-3 publishes the per-detector TP/FP/FN/TN/TPR/FPR table into
+`docs/reference/detector-catalog.md` (`render_metrics_table` +
+`scripts/generate_detector_catalog.py`); a CI test regenerates it and fails on drift, and the claims ledger
+records the non-silent claim (C14).
+
 ## Corpus v1 (COR-1)
 
 - **Cases:** AgentDojo, InjecAgent, ASB, ATBench-Codex trajectories rendered into agentwatch record format

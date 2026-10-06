@@ -134,6 +134,17 @@
         "test:packages/python-sdk/tests/test_release_pipeline.py::test_release_workflow_builds_signs_and_verifies"
       ],
       "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C14",
+      "claim": "Every rule-based detector fires on at least one field-test scenario (no silent detectors); the published precision/recall is generated and drift-guarded.",
+      "source": "docs/reference/detector-catalog.md",
+      "evidence": [
+        "file:docs/reference/detector-catalog.md",
+        "test:services/analytics/tests/test_detector_non_silent.py::test_rule_detectors_are_non_silent",
+        "test:services/analytics/tests/test_detector_catalog.py::test_catalog_detector_metrics_are_generated_and_current"
+      ],
+      "last_verified": "2026-10-05"
     }
   ]
 }

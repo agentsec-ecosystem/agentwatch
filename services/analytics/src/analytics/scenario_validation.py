@@ -1363,6 +1363,37 @@ def rule_coverage(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def render_metrics_table(report: dict[str, Any]) -> str:
+    """Render the generated per-detector precision/recall block (DET-3).
+
+    Deterministic and offline; the catalog CI guard asserts the committed block
+    equals this, so the published numbers cannot drift from the harness.
+    """
+    per_detector = {
+        det: counts
+        for det, counts in report["per_detector"].items()
+        if det not in LLM_DETECTORS
+    }
+    coverage = rule_coverage(report)
+    lines = [
+        f"_Generated from the {report['total']}-scenario field-test rule matrix "
+        f"(offline, scripted pool). Rule detectors non-silent: "
+        f"{coverage['non_silent']}/{coverage['total']} "
+        f"({coverage['fraction'] * 100:.0f}%)._",
+        "",
+        "| Detector | TP | FP | FN | TN | TPR | FPR |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for detector in sorted(per_detector):
+        c = per_detector[detector]
+        tpr = "-" if c["tpr"] is None else f"{c['tpr']:.1f}%"
+        fpr = "-" if c["fpr"] is None else f"{c['fpr']:.1f}%"
+        lines.append(
+            f"| `{detector}` | {c['tp']} | {c['fp']} | {c['fn']} | {c['tn']} | {tpr} | {fpr} |"
+        )
+    return "\n".join(lines)
+
+
 def main() -> int:
     import argparse
 

@@ -34,6 +34,9 @@ versioning: [Semantic Versioning](https://semver.org/).
   - API-1: published `openapi.json` + a drift-checked typed client (#330).
   - RSK-2/SEC-1: threat-model rows linked to real tests, accepted v0.2.0 ADRs, and v0.2.0 surface rows in the
     threat→test traceability and recorder attack matrix (#332, #429).
+  - PERF-1: the perf harness now covers OTLP protobuf ingest, live-tail reconciliation, and the detector-eval
+    matrix, each with its own absolute budget and committed-baseline drift band; `docs/reference/performance.md`
+    is regenerated from the run (#430).
 - v0.2.0 Foundations (M25):
   - OTEL-1: re-pinned GenAI semconv to `1.37.0`, added the canonical agent-span operations
     (`create_agent`, `invoke_agent`, `invoke_workflow`, `plan`, `execute_tool`) and an operation drift check;

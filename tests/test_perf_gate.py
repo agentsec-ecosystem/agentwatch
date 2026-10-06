@@ -39,7 +39,7 @@ def test_within_budget_and_drift_passes() -> None:
 def test_over_nfr_cap_fails() -> None:
     code, violations = gate.evaluate({"normalize": 6.0}, {"normalize": 0.009})
     assert code == 1
-    assert any("NFR budget" in v for v in violations)
+    assert any("budget" in v for v in violations)
 
 
 def test_drift_beyond_band_fails() -> None:
@@ -63,7 +63,22 @@ def test_missing_baseline_only_checks_the_cap() -> None:
     assert code == 0
     code, violations = gate.evaluate({"new-stage": 9.0}, {})
     assert code == 1
-    assert any("NFR budget" in v for v in violations)
+    assert any("budget" in v for v in violations)
+
+
+def test_every_scenario_has_an_explicit_budget() -> None:
+    assert set(gate.SCENARIO_BUDGETS_MS) == set(gate.SCENARIOS)
+
+
+def test_new_path_budgets_are_enforced() -> None:
+    # otlp_protobuf's cap is 10 ms; 50 ms must fail even though the NFR cap is 5 ms.
+    code, violations = gate.evaluate({"otlp_protobuf": 50.0}, {})
+    assert code == 1
+    assert any("otlp_protobuf" in v and "10.000" in v for v in violations)
+    # live_tail_poll's cap is 25 ms; 20 ms must pass.
+    code, violations = gate.evaluate({"live_tail_poll": 20.0}, {})
+    assert code == 0
+    assert violations == []
 
 
 def test_committed_baseline_covers_every_scenario() -> None:

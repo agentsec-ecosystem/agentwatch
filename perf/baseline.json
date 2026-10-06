@@ -1,10 +1,13 @@
 {
   "baseline_ms": {
-    "daemon_handle_message": 0.1584999999977299,
-    "normalize": 0.010917000054178061,
-    "redaction": 0.0047909998102113605
+    "daemon_handle_message": 0.19654100015031872,
+    "detector_eval": 1.8764169999485603,
+    "live_tail_poll": 0.6411249996745028,
+    "normalize": 0.02045800010819221,
+    "otlp_protobuf": 0.07783299952279776,
+    "redaction": 0.0053329995353124104
   },
   "budget_ms": 5.0,
-  "generated_at": "2026-10-03T20:21:15.809088+00:00",
+  "generated_at": "2026-10-06T01:22:08.669234+00:00",
   "tolerance": 3.0
 }

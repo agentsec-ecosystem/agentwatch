@@ -209,6 +209,17 @@
         "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_recorder_pairs_a_tasks_request"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C21",
+      "claim": "The MCP proxy declares a protocol-revision conformance matrix; its tested range tracks the newest revision and the compatibility table carries a Protocol column.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_tested_range_tracks_the_latest_revision",
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_each_revision_has_a_replayable_fixture_pack",
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_compat_table_gained_a_protocol_column"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

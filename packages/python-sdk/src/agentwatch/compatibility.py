@@ -57,6 +57,7 @@ class HarnessInfo:
     fidelity: str
     invocation: str
     notes: str = ""
+    protocol: str = ""
 
 
 # Adapter metadata registry: the generated table's single source of truth. Every
@@ -97,10 +98,13 @@ SHIPPED: dict[str, HarnessInfo] = {
     "mcp-proxy": HarnessInfo(
         harness="mcp-proxy",
         tier="proxy",
-        tested=HarnessRange("2025-06-18", "2025-06-18"),
+        tested=HarnessRange("2026-07-28", "2026-07-28"),
         fidelity=FIDELITY_LIVE,
         invocation="`agentwatch mcp-proxy` / `init --mcp-proxy`",
-        notes="MCP JSON-RPC `tools/call`, stdio + HTTP/SSE",
+        notes=(
+            "MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP"
+        ),
+        protocol="2026-07-28",
     ),
     "crewai": HarnessInfo(
         harness="crewai",
@@ -119,7 +123,8 @@ SHIPPED: dict[str, HarnessInfo] = {
 }
 
 _TABLE_HEADER = (
-    "| Harness | Tier | Tested range | Fidelity | Invocation | Notes |\n|---|---|---|---|---|---|"
+    "| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |\n"
+    "|---|---|---|---|---|---|---|"
 )
 
 
@@ -135,7 +140,7 @@ def render_table() -> str:
         info = SHIPPED[harness]
         lines.append(
             f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
-            f"{info.fidelity} | {info.invocation} | {info.notes} |"
+            f"{info.protocol or '—'} | {info.fidelity} | {info.invocation} | {info.notes} |"
         )
     return "\n".join(lines)
 

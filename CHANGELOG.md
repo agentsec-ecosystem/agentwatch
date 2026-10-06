@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - MCP-6: `agentwatch.mcp_protocol` is the protocol-revision→surface matrix (2025-06-18 / 2025-11-25 /
+    2026-07-28); the proxy's tested range tracks the newest revision (drift fails CI) and the compatibility
+    table gains a **Protocol** column (#338).
   - MCP-5: the MCP proxy records the `tasks/*` lifecycle (and task-augmented tool results) with the task id as
     metadata (SEP-2663); Roots/Sampling/Logging are marked **closed-by-spec** (SEP-2577) in known-limitations
     (#337).

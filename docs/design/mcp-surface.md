@@ -67,5 +67,7 @@ Roots/Sampling/Logging are **closed-by-spec** (SEP-2577). The streamable transpo
 and `MCP-Protocol-Version` is relayed unchanged. The pre-2026 HTTP/SSE relay is kept for legacy servers
 (`agentwatch mcp-proxy --http --transport http-sse`) and is **deprecated-in-spec**. `sampling`/`roots`/`logging` are
 marked **closed-by-spec** in `known-limitations.md` (retired by the standard, not by us). Conformance fixtures are
-versioned per protocol revision (2025-06-18 / 2025-11-25 / 2026-07-28); an unknown method is quarantined and
-surfaced as harness-drift (S19).
+versioned per protocol revision (2025-06-18 / 2025-11-25 / 2026-07-28); `agentwatch.mcp_protocol` is the single
+source for the revision→surface matrix, the proxy's tested range tracks the newest revision (protocol drift fails
+CI), and the compatibility table carries a **Protocol** column. An unknown method is quarantined and surfaced as
+harness-drift (S19).

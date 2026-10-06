@@ -186,43 +186,43 @@
     },
     "mcp-proxy/elicitation-request.json": {
       "fingerprint": "189b0233fde45f71",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/elicitation-response.json": {
       "fingerprint": "aff2e5c9f68d6d96",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/prompts-get-request.json": {
       "fingerprint": "ac25d02627ae8076",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/prompts-get-response.json": {
       "fingerprint": "f458e94c6fa2f752",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/resources-read-request.json": {
       "fingerprint": "bcca7a10bf9556e6",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/resources-read-response.json": {
       "fingerprint": "f6e84e0039d28b3f",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/tasks-get-request.json": {
       "fingerprint": "1d57d31af343a53a",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/tasks-get-response.json": {
       "fingerprint": "dc9ecaf85cbae1c1",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/tools-call-request.json": {
       "fingerprint": "c6fb8a13de6e1cd8",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/tools-call-response.json": {
       "fingerprint": "461f5015038522c1",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "pydantic-ai/agent_run_end.json": {
       "fingerprint": "e867a8cdf462ea86",

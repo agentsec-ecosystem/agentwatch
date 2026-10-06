@@ -17,6 +17,16 @@ PRD 29 (LLM explanation layer).
 - The eval harness **judges detectors**; detectors judge nothing, and the LLM stays out of the trust path
   (PRD 29/14). LLM detectors are evaluated by the same harness (local-model-first).
 
+### Non-silent gate (DET-2)
+
+DET-1's thin internal corpus left most detectors unfired. DET-2 reconciles the eval onto the field-test scenario
+matrix (`analytics.scenario_validation`): `scripts/detector_eval.py --scenarios` runs the 38 rule detectors over
+143 boundary + precision scenarios offline (DB-backed detectors via a **scripted pool**) and gates on **≥ 80 %
+non-silent** (currently **38/38 = 100 %**; `services/analytics/tests/test_detector_non_silent.py`). LLM detectors
+are excluded from the rule gate (live-model). Detectors are additionally replayed against the **real** testkit
+traces (Claude Code transcripts, Cursor session-tracer traces, Codex rollouts) in
+`services/analytics/tests/test_detector_real_traces.py`, so the count claim rests on measured firing, not a list.
+
 ## Corpus v1 (COR-1)
 
 - **Cases:** AgentDojo, InjecAgent, ASB, ATBench-Codex trajectories rendered into agentwatch record format

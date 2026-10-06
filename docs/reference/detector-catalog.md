@@ -31,6 +31,30 @@ per workload. Method: trailing baselines over fixed thresholds (AgentWatch lesso
 
 Thresholds + false-positive-risk table to be backfilled from the shipped project during v0.2.0.
 
+## Coverage & classification (M26 DET-2)
+
+The field-test scenario matrix (`analytics.scenario_validation`, 143 boundary + precision scenarios)
+runs every **rule** detector offline and deterministically; the DET-2 gate
+(`scripts/detector_eval.py --scenarios`, tested in
+`services/analytics/tests/test_detector_non_silent.py`) requires **≥ 80 % of rule detectors non-silent** and
+currently reports **38/38 (100 %)**. Classification:
+
+- **Offline rule detectors (38):** evaluated from synthetic spans/summaries; all fire on at least one positive
+  scenario (none retired, none silent).
+- **Baseline/cohort detectors:** the DB-backed family (`cost_vs_baseline`, `run_duration`, `escalation_rate`,
+  `output_drift`, `anomaly_cluster`, `run_frequency_anomaly`, `first_run_heuristic`) is evaluated with a
+  **scripted pool** (preset `fetchrow`/`fetch` values) — no live Postgres; reclassified as *baseline-required
+  offline-drivable*, not silent.
+- **LLM-augmented (5):** excluded from the rule gate; they need a live local model and stay feature-flagged
+  (default off).
+
+The detectors were not rewritten to fit the corpus; instead the corpus was reconciled to the field-test scenarios
+so the count claim ("35+ rule detectors") is backed by measured firing. Real captured traces (Claude Code
+transcripts, Cursor session-tracer traces, Codex rollouts) are replayed through the detectors in
+`services/analytics/tests/test_detector_real_traces.py` — every detector accepts runs derived from the real
+corpus without error.
+
+
 ## Claude Code hook detectors (M6 addition L1)
 
 Purpose-built for Claude Code hook records (observability only, never enforcement — PRD 14):

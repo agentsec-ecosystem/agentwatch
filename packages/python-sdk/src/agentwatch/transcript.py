@@ -45,6 +45,7 @@ class ToolCallSummary:
     malformed: int
     first_at: str | None
     last_at: str | None
+    sequence: tuple[str, ...] = ()
 
 
 def _iter_tool_use(entry: Mapping[str, Any]) -> Iterator[Mapping[str, Any]]:
@@ -77,6 +78,7 @@ def extract_tool_calls(path: Path | str) -> ToolCallSummary:
     session_id: str | None = None
     seen: set[str] = set()
     tools: set[str] = set()
+    sequence: list[str] = []
     malformed = 0
     first_at: str | None = None
     last_at: str | None = None
@@ -114,7 +116,9 @@ def extract_tool_calls(path: Path | str) -> ToolCallSummary:
                 continue
             seen.add(key)
             name = item.get("name")
-            tools.add(str(name) if isinstance(name, str) and name else "unknown")
+            tool_name = str(name) if isinstance(name, str) and name else "unknown"
+            tools.add(tool_name)
+            sequence.append(tool_name)
     if session_id is None:
         session_id = fallback
     return ToolCallSummary(
@@ -124,6 +128,7 @@ def extract_tool_calls(path: Path | str) -> ToolCallSummary:
         malformed=malformed,
         first_at=first_at,
         last_at=last_at,
+        sequence=tuple(sequence),
     )
 
 

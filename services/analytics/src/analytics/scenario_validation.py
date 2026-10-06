@@ -1285,6 +1285,84 @@ async def run_all(*, all_cases: bool = False, out_dir: Path | None = None) -> di
     }
 
 
+def _aggregate_per_detector(results: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    by_det: dict[str, dict[str, int]] = {}
+    for r in results:
+        if r["phase"] == "clean":
+            continue
+        d = by_det.setdefault(r["detector"], {"tp": 0, "fp": 0, "fn": 0, "tn": 0})
+        if r["expect_fire"] and r["fired"]:
+            d["tp"] += 1
+        elif r["expect_fire"] and not r["fired"]:
+            d["fn"] += 1
+        elif not r["expect_fire"] and r["fired"]:
+            d["fp"] += 1
+        else:
+            d["tn"] += 1
+    per_detector: dict[str, dict[str, Any]] = {}
+    for det, c in by_det.items():
+        pos = c["tp"] + c["fn"]
+        neg = c["fp"] + c["tn"]
+        per_detector[det] = {
+            **c,
+            "tpr": round(c["tp"] / pos * 100, 1) if pos else None,
+            "fpr": round(c["fp"] / neg * 100, 1) if neg else None,
+        }
+    return per_detector
+
+
+# The LLM-augmented detectors require a live local model; the rule-coverage gate
+# is deterministic and runs offline (DET-2).
+LLM_DETECTORS = frozenset(
+    {"semantic_loop", "hallucination", "goal_drift", "quality_degradation", "confusion_pattern"}
+)
+
+
+async def run_rule_matrix(*, all_cases: bool = False) -> dict[str, Any]:
+    """Run the *rule* detectors over the field-test scenario matrix, offline.
+
+    Excludes the LLM scenarios (which need a live local model); baseline/cohort
+    detectors are driven by the scripted pool. This is the deterministic
+    detector-coverage gate (DET-2): every rule detector that should fire has at
+    least one positive scenario, so a detector with ``tp == 0`` is silent.
+    """
+    matrix = S if all_cases else boundary_selection()
+    results = [await run_scenario(sc) for sc in matrix]
+    results += [await run_scenario(sc) for sc in P]
+    per_detector = _aggregate_per_detector(results)
+    failures = [r for r in results if not r["ok"]]
+    return {
+        "total": len(results),
+        "passed": len(results) - len(failures),
+        "failed": len(failures),
+        "scenarios": results,
+        "per_detector": per_detector,
+    }
+
+
+def rule_coverage(report: dict[str, Any]) -> dict[str, Any]:
+    """Non-silent coverage over the rule detectors in a rule-matrix report.
+
+    ``fraction`` is the share of rule detectors with at least one true positive
+    (i.e. that fired where they should). The DET-2 target is >= 0.80.
+    """
+    per_detector = {
+        det: counts
+        for det, counts in report["per_detector"].items()
+        if det not in LLM_DETECTORS
+    }
+    silent = sorted(det for det, c in per_detector.items() if c["tp"] == 0)
+    total = len(per_detector)
+    non_silent = total - len(silent)
+    return {
+        "total": total,
+        "non_silent": non_silent,
+        "silent": silent,
+        "fraction": round(non_silent / total, 4) if total else 0.0,
+        "target": 0.80,
+    }
+
+
 def main() -> int:
     import argparse
 

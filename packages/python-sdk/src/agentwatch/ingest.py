@@ -198,6 +198,47 @@ def _capture(
 # Transcoding
 # ---------------------------------------------------------------------------
 
+# Gateway-reported exact cost attributes (source-stamped, GWY-2).
+_COST_KEYS = (
+    "gen_ai.usage.cost",
+    "gen_ai.usage.total_cost",
+    "portkey.cost",
+    "litellm.cost",
+    "llm.cost",
+)
+
+
+def _usage_tokens(attrs: Mapping[str, Any]) -> int | None:
+    total = attrs.get("gen_ai.usage.total_tokens")
+    if total is not None:
+        try:
+            return int(total)
+        except (TypeError, ValueError):
+            pass
+    prompt = attrs.get("gen_ai.usage.prompt_tokens", attrs.get("gen_ai.usage.input_tokens"))
+    completion = attrs.get(
+        "gen_ai.usage.completion_tokens", attrs.get("gen_ai.usage.output_tokens")
+    )
+    if prompt is None and completion is None:
+        return None
+    try:
+        return int(prompt or 0) + int(completion or 0)
+    except (TypeError, ValueError):
+        return None
+
+
+def _usage_cost(attrs: Mapping[str, Any]) -> float | None:
+    for key in _COST_KEYS:
+        value = attrs.get(key)
+        if value is None:
+            continue
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
 
 def _span_to_record(
     span: Mapping[str, Any],
@@ -261,6 +302,8 @@ def _span_to_record(
         duration_ms=duration,
         step_type=StepType.OBSERVE if end is not None else StepType.ACT,
         security_event=security_event,
+        tokens=_usage_tokens(attrs),
+        cost_usd=_usage_cost(attrs),
     )
     validate_record(record.to_dict())
     return record

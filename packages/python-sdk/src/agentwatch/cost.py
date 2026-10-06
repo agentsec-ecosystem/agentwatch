@@ -40,6 +40,7 @@ class CostRow:
     records: int
     sessions: int
     models: tuple[str, ...]
+    cost_source: str = "estimated"
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,7 @@ class CostReport:
     total_cost_usd: float | None = None
     unknown_models: tuple[str, ...] = ()
     note: str | None = None
+    total_cost_source: str = "estimated"
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -66,6 +68,7 @@ class CostReport:
             "pricing_as_of": self.pricing_as_of,
             "total_tokens": self.total_tokens,
             "total_cost_usd": self.total_cost_usd,
+            "total_cost_source": self.total_cost_source,
             "unknown_models": list(self.unknown_models),
             "note": self.note,
             "rows": [
@@ -76,6 +79,7 @@ class CostReport:
                     "records": row.records,
                     "sessions": row.sessions,
                     "models": list(row.models),
+                    "cost_source": row.cost_source,
                 }
                 for row in self.rows
             ],
@@ -117,10 +121,22 @@ class _Acc:
     records: int = 0
     sessions: set[str] | None = None
     models: set[str] | None = None
+    exact: int = 0
+    estimated: int = 0
 
     def __post_init__(self) -> None:
         self.sessions = set()
         self.models = set()
+
+
+def _row_source(acc: _Acc) -> str:
+    if not acc.known:
+        return "unknown"
+    if acc.exact and acc.estimated:
+        return "mixed"
+    if acc.exact:
+        return "exact"
+    return "estimated"
 
 
 def build_cost(
@@ -138,7 +154,8 @@ def build_cost(
     usage = [
         record
         for record in all_records
-        if record.tool.name == USAGE_TOOL and (cutoff is None or record.started_at >= cutoff)
+        if (record.tool.name == USAGE_TOOL or record.cost_usd is not None)
+        and (cutoff is None or record.started_at >= cutoff)
     ]
     if not usage:
         return CostReport(by=by, since=since, note="no session-usage records in the window")
@@ -149,7 +166,13 @@ def build_cost(
     for record in usage:
         tokens = int(record.tokens or 0)
         model = record.agent.model_version
-        price = cost_usd(tokens, model)
+        exact = record.cost_usd
+        if exact is not None:
+            price: float | None = float(exact)
+            precise = True
+        else:
+            price = cost_usd(tokens, model)
+            precise = False
         if price is None:
             unknown.add(normalize_model(model) or UNKNOWN_MODEL)
         targets = mix.get(record.session_id, ())
@@ -174,6 +197,10 @@ def build_cost(
                 acc.known = False
             else:
                 acc.cost += per_share_cost
+            if precise:
+                acc.exact += 1
+            else:
+                acc.estimated += 1
 
     rows = [
         CostRow(
@@ -183,12 +210,22 @@ def build_cost(
             records=acc.records,
             sessions=len(acc.sessions or ()),
             models=tuple(sorted(acc.models or ())),
+            cost_source=_row_source(acc),
         )
         for acc in sorted(accumulators.values(), key=lambda a: a.key)
     ]
     total_tokens = sum(row.tokens for row in rows)
     known_rows = [row for row in rows if row.cost_usd is not None]
     total_cost = round(sum(row.cost_usd or 0.0 for row in known_rows), 6) if known_rows else None
+    sources = {row.cost_source for row in rows}
+    if "unknown" in sources:
+        total_source = "unknown"
+    elif "mixed" in sources or len(sources) > 1:
+        total_source = "mixed"
+    elif "exact" in sources:
+        total_source = "exact"
+    else:
+        total_source = "estimated"
     note_parts: list[str] = []
     if unknown:
         note_parts.append("tokens only, price unknown for: " + ", ".join(sorted(unknown)))
@@ -202,6 +239,7 @@ def build_cost(
         total_cost_usd=total_cost,
         unknown_models=tuple(sorted(unknown)),
         note="; ".join(note_parts) if note_parts else None,
+        total_cost_source=total_source,
     )
 
 
@@ -214,12 +252,12 @@ def render_cost(report: CostReport) -> str:
     if not report.rows:
         lines.append("  no session-usage records in the window")
         return "\n".join(lines)
-    lines.append("KEY\tTOKENS\tCOST")
+    lines.append("KEY\tTOKENS\tCOST\tSOURCE")
     for row in report.rows:
         cost = "tokens only" if row.cost_usd is None else f"${row.cost_usd:.4f}"
-        lines.append(f"{row.key}\t{row.tokens}\t{cost}")
+        lines.append(f"{row.key}\t{row.tokens}\t{cost}\t{row.cost_source}")
     total = "tokens only" if report.total_cost_usd is None else f"${report.total_cost_usd:.4f}"
-    lines.append(f"TOTAL\t{report.total_tokens}\t{total}")
+    lines.append(f"TOTAL\t{report.total_tokens}\t{total}\t{report.total_cost_source}")
     if report.note:
         lines.append(f"  note: {report.note}")
     return "\n".join(lines)

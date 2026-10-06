@@ -69,7 +69,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch tree <id> [--by-cost] [--json]` | Subagent fan-out with per-node counts/outcomes/tokens (M17 S17) | **implemented** (M17) |
 | `agentwatch at "TIME" [--window 30m] [--json]` | Every record in a cross-session time window, with a gap header (M17 S24) | **implemented** (M17) |
 | `agentwatch trace <trace_id> [--json]` | Reconstruct one causal chain across hosts/sessions by `traceparent`, surfacing clock skew and propagation breaks (M26 TRACE-2) | **implemented** (M26) |
-| `agentwatch cost [--by session\|project\|model\|tool\|day] [--since 30d] [--json]` | Token/cost rollup against a versioned local pricing table (M17 S6) | **implemented** (M17) |
+| `agentwatch cost [--by session\|project\|model\|tool\|day] [--since 30d] [--json]` | Token/cost rollup against a versioned local pricing table; prefers exact gateway-reported cost and stamps each row exact vs estimated (M17 S6; GWY-2 M26) | **implemented** (M17; gateway cost M26) |
 | `agentwatch digest [--since 7d]` | Local markdown weekly readout (sessions/tools/cost/gaps) (M17 S37) | **implemented** (M17) |
 | `agentwatch sessions --group-by-behavior` | Group sessions by their `bd1:` behavior fingerprint (M17 S7) | **implemented** (M17) |
 | `agentwatch flow <id> [--record] [--json]` | Content → argument flow edges (keyed HMAC; fingerprints only) (M18 S22) | **implemented** (M18) |

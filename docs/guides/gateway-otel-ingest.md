@@ -42,6 +42,15 @@ Gateway payloads can carry prompts/completions under `gen_ai.*` content keys.
 **Redaction runs before storage** (DD-06); keep the default metadata-only capture
 or pass `--capture` explicitly. No content is ever written unredacted.
 
+## Exact cost (GWY-2)
+
+`gen_ai.usage.*` tokens and a gateway-reported cost
+(`gen_ai.usage.cost` / `portkey.cost` / `litellm.cost`) are captured onto the
+record. `agentwatch cost` **prefers the exact gateway number** over the local
+pricing table and stamps each row `exact`, `estimated`, `mixed`, or `unknown`
+(also shown in `--json`), so a gateway deployment reports what the provider
+actually charged rather than a table estimate.
+
 ## CI coverage
 
 `packages/python-sdk/tests/test_gateway_ingest.py` replays committed fixture

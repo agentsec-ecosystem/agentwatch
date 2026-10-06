@@ -24,8 +24,9 @@ Mapping of agentwatch fields to OTel attributes: [design/otel-mapping.md](otel-m
   live timeline + anomaly inbox; the store stays **append-then-verify** and views reconcile to it
   ([streaming-views.md](streaming-views.md)). p99 hook→view ≤ 1 s.
 - **SIEM/OCSF sinks** (PRD 44 SIEM): the security-event stream is exported as conformance-tested **OCSF 1.5.0**
-  with reference consumers per flavor (Splunk/Sentinel/Exabeam-shaped) plus a **Syslog** sink; events-only,
-  bounded, redaction-gated (S10), `degraded` visible on backpressure.
+  with a CI-exercised reference consumer (`examples/ocsf_consumer.py`, M27 SIEM-1) plus a **Syslog** sink
+  (`examples/security_event_consumer.py` is the event flavor); events-only, bounded, redaction-gated (S10),
+  `degraded` visible on backpressure.
 - **Detector telemetry** (PRD 43 DET-5): opt-in, local-only, content-free fired/suppressed/false-positive markers,
   feedable to SIEM consumers.
 - **v0.2.0-expanded** (PRD 49–59): authorization/oversight provenance

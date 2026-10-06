@@ -7,6 +7,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - SIEM-1: an OCSF 1.5.0 reference consumer (`examples/ocsf_consumer.py`) with a CI test
+    (`tests/test_siem_consumers.py`); events-only, bounded, no store access (#346).
   - COR-2: `agentwatch.incident_taxonomy` maps every security-event type to the AIR schema fields
     (architecture/mechanism/control/agency/outcome) and the AIID GMF taxonomy — each event has a
     correspondent or an explicit `None`; `annotate --incident-tag` stores optional registry tags

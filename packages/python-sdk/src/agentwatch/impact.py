@@ -34,6 +34,7 @@ from agentwatch.classify import (
     classify_record,
 )
 from agentwatch.denials import DenialSequence, denial_sequences
+from agentwatch.identity import Attribution, attribution_for
 from agentwatch.query import since_cutoff
 from agentwatch.records import AgentRecord
 from agentwatch.replay import replay_session
@@ -97,6 +98,7 @@ class ImpactReport:
     widest_action: str = "-"
     records: int = 0
     denials: tuple[DenialSequence, ...] = ()
+    attribution: Attribution | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -105,6 +107,7 @@ class ImpactReport:
             "since": self.since,
             "arguments_captured": self.arguments_captured,
             "records": self.records,
+            "attribution": self.attribution.to_dict() if self.attribution else None,
             "counts": dict(self.counts),
             "widest_action": self.widest_action,
             "files": [
@@ -263,6 +266,7 @@ def build_impact(
         ),
         records=len(records),
         denials=denial_sequences(records),
+        attribution=attribution_for(records[-1]) if records else None,
     )
 
 
@@ -339,6 +343,8 @@ def _widest(
 def render_impact(report: ImpactReport) -> str:
     """Render a footprint as short human-readable text."""
     lines = [f"agentwatch impact {report.session_id} (classifier {report.classifier_version})"]
+    if report.attribution is not None:
+        lines.append(f"  attribution: {report.attribution.label()}")
     if not report.arguments_captured:
         lines.append(
             "  note: tool arguments were not captured (metadata-only); "
@@ -366,7 +372,9 @@ def render_impact(report: ImpactReport) -> str:
         for entry in entries:
             target = f" {entry.target}" if entry.target else ""
             lines.append(f"    {entry.category}{target} ({entry.confidence})")
-    if len(lines) == 2:
+    if not report.files and not any(
+        (report.commands, report.network, report.vcs, report.credentials, report.unclassified)
+    ):
         lines.append("  no classifiable activity in the captured records")
     if report.denials:
         from agentwatch.denials import render_sequences

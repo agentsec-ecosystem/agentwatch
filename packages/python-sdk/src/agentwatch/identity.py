@@ -20,9 +20,9 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
-from agentwatch.records import AgentIdentity, RecordPrivacyMode
+from agentwatch.records import AgentIdentity, AgentRecord, RecordPrivacyMode, effective_approval
 from agentwatch.secrets import SECRET_KINDS, detect
 
 IDENTITY_HASH_PREFIX = "hmac-sha256:"
@@ -134,6 +134,54 @@ def apply_identity_privacy(
     )
 
 
+@dataclass(frozen=True)
+class Attribution:
+    """A record's identity attribution, rendered identically in every view."""
+
+    agent: str
+    credential_class: str | None = None
+    on_behalf_of: str | None = None
+    delegation: tuple[str, ...] = ()
+    approval: str | None = None
+
+    def label(self) -> str:
+        """A compact one-line attribution (for `impact`/`blame`/`tree`/`trace`)."""
+        parts = [self.agent]
+        if self.credential_class:
+            parts.append(f"credential={self.credential_class}")
+        parts.append(f"on-behalf-of={self.on_behalf_of or 'unknown'}")
+        if self.delegation:
+            parts.append(f"delegation={' > '.join(self.delegation)}")
+        if self.approval:
+            parts.append(f"approval={self.approval}")
+        return " ".join(parts)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "agent": self.agent,
+            "credential_class": self.credential_class,
+            "on_behalf_of": self.on_behalf_of,
+            "delegation": list(self.delegation),
+            "approval": self.approval,
+        }
+
+
+def attribution_for(record: AgentRecord) -> Attribution:
+    """Build the attribution for one record (IDN-3).
+
+    Agent identity/name, credential class, on-behalf-of principal, delegation
+    chain, and the effective approval decision — absent facts stay absent.
+    """
+    agent = record.agent
+    return Attribution(
+        agent=agent.identity or agent.name or "unknown",
+        credential_class=agent.credential_class.value if agent.credential_class else None,
+        on_behalf_of=agent.principal,
+        delegation=tuple(agent.delegation_chain) if agent.delegation_chain else (),
+        approval=effective_approval(record).value,
+    )
+
+
 def identity_handles(agent: AgentIdentity) -> tuple[str, ...]:
     """Every identity handle on an agent (for `search --identity`).
 
@@ -182,7 +230,9 @@ def _identity_strings(agent: AgentIdentity) -> list[str]:
 
 __all__ = [
     "IDENTITY_HASH_PREFIX",
+    "Attribution",
     "apply_identity_privacy",
+    "attribution_for",
     "hash_principal",
     "identity_handles",
     "identity_secret_kinds",

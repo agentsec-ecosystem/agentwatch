@@ -16,8 +16,11 @@ which credential, on whose behalf, with whose approval* is answerable end to end
 > **IDN-2 (M26):** the Claude Code adapter captures the on-behalf-of `principal`, `workload_identity`,
 > `credential_class`, and `delegation_chain` from optional hook fields (absent stays honestly unknown; never
 > inferred), `identity_handles()` enumerates every handle on a record, and `agentwatch search --identity <handle>`
-> matches any of them (case-insensitive substring). AAT export already populates the identity block. IDN-3
-> (attribution rendering) remains.
+> matches any of them (case-insensitive substring). AAT export already populates the identity block.
+> **IDN-3 (M26):** `agentwatch.identity.attribution_for()` renders one `Attribution` (agent, credential class,
+> on-behalf-of, delegation chain, approval) shown identically in `blame`, `tree`, `trace`, and `impact` (`--json`
+> and text), so a multi-agent fixture answers "which agent, under which credential, on whose behalf, with what
+> approval" in one command (CUJ-16). IDN-4 (credential-hygiene observation) remains.
 
 ## Two-layer model
 

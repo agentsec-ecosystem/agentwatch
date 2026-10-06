@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from agentwatch.identity import Attribution, attribution_for
 from agentwatch.records import AgentRecord
 from agentwatch.trace_context import parse_traceparent
 
@@ -65,6 +66,7 @@ class TraceNode:
     orphan: bool = False
     truncated: bool = False
     children: tuple[TraceNode, ...] = ()
+    attribution: Attribution = Attribution(agent="unknown")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -82,6 +84,7 @@ class TraceNode:
             "skew_ms": self.skew_ms,
             "orphan": self.orphan,
             "truncated": self.truncated,
+            "attribution": self.attribution.to_dict(),
             "children": [child.to_dict() for child in self.children],
         }
 
@@ -177,6 +180,7 @@ def build_trace(records: Iterable[AgentRecord], trace_id: str) -> TraceTree:
             orphan=orphan_of.get(key, False),
             truncated=depth >= MAX_DEPTH,
             children=tuple(nodes),
+            attribution=attribution_for(record),
         )
 
     root_keys = roots or list(by_span)
@@ -251,6 +255,7 @@ def render_trace(tree: TraceTree) -> str:
             f"{'  ' * (depth + 1)}- {node.span_id} host={host} agent={node.agent} "
             f"{node.tool} {node.outcome} {node.started_at.isoformat()}{suffix}"
         )
+        lines.append(f"{'  ' * (depth + 2)}attribution: {node.attribution.label()}")
         for child in node.children:
             walk(child, depth + 1)
 

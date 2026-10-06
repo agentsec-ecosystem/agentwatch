@@ -130,3 +130,31 @@ def test_cli_compliance_report(
     payload = json.loads(capsys.readouterr().out)
     assert payload["framework"] == "eu-ai-act-art12"
     assert payload["controls"]
+
+
+_FRAMEWORK_IDS = {
+    "eu-ai-act-art12": "art12-1-automatic-logging",
+    "iso-42001": "aims-logging",
+    "iso-27001": "a8-15-logging",
+    "soc2": "cc7-1-monitoring",
+    "nist-800-92": "log-management-integrity",
+}
+
+
+@pytest.mark.parametrize("framework", sorted(_FRAMEWORK_IDS))
+def test_framework_templates_use_their_own_control_ids(
+    tmp_path: Path, framework: str
+) -> None:
+    report = build_report(_store(tmp_path), framework, config=_config(), now=NOW)
+
+    assert report.controls[0].control == _FRAMEWORK_IDS[framework]
+    for control in report.controls:
+        assert control.verdict in {"pass", "fail", "unknown"}
+        assert control.evidence.startswith("agentwatch ")
+        assert control.refs
+
+
+def test_generic_framework_keeps_the_default_catalog(tmp_path: Path) -> None:
+    report = build_report(_store(tmp_path), "generic", config=_config(), now=NOW)
+
+    assert {c.control for c in report.controls} >= {"log-integrity", "redaction-default"}

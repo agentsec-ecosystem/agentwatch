@@ -14,6 +14,22 @@ agentwatch compliance report --framework eu-ai-act-art12 [--period P] [--out FIL
 Frameworks: `generic`, `eu-ai-act-art12`, `iso-42001`, `iso-27001`, `soc2`,
 `nist-800-92` (templates added by CMP-2).
 
+### Framework templates (CMP-2)
+
+Each framework renders its own control vocabulary, mapped to the generic
+computed checks above:
+
+| Framework | Control ids | Maps to (checks) |
+|---|---|---|
+| `eu-ai-act-art12` | `art12-1-automatic-logging`, `art12-2-retention`, `art12-3-traceability`, `art12-4-integrity` | log-integrity, retention, identity, checkpointing |
+| `iso-42001` | `aims-logging`, `aims-retention`, `aims-identity`, `aims-evidence` | log-integrity, retention, identity, evidence |
+| `iso-27001` | `a8-15-logging`, `a8-24-storage`, `a5-33-evidence` | log-integrity, redaction, evidence |
+| `soc2` | `cc7-1-monitoring`, `cc6-1-access`, `cc7-2-coverage` | log-integrity, redaction, coverage |
+| `nist-800-92` | `log-management-integrity`, `log-retention`, `log-protection`, `log-accountability` | log-integrity, retention, redaction, identity |
+| `generic` | the default catalog (7 controls) | — |
+
+Templates are offline and every row still names a regenerating command.
+
 ## Rows
 
 Each row is computed, never asserted:

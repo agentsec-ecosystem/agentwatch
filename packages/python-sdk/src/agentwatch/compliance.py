@@ -237,6 +237,98 @@ _CONTROLS: tuple[_ControlSpec, ...] = (
 )
 
 
+_CHECKS: dict[str, _ControlSpec] = {spec.control: spec for spec in _CONTROLS}
+
+# Framework templates (M26 CMP-2): (control id, title, check key, refs). The
+# check key selects one of the generic computed checks above; the id/title are
+# the framework's own vocabulary. Generic keeps the default catalog.
+_TEMPLATES: dict[str, tuple[tuple[str, str, str, tuple[str, ...]], ...]] = {
+    "eu-ai-act-art12": (
+        (
+            "art12-1-automatic-logging",
+            "Automatic recording of events over the system's lifetime (Art. 12(1))",
+            "log-integrity",
+            (STORE_REF, FORENSIC_REF),
+        ),
+        (
+            "art12-2-retention",
+            "Record retention for high-risk systems (Art. 12 + AAT §9)",
+            "retention-configured",
+            (STORE_REF,),
+        ),
+        (
+            "art12-3-traceability",
+            "Traceability of an action to the acting identity",
+            "identity-attribution",
+            (IDENTITY_REF,),
+        ),
+        ("art12-4-integrity", "Integrity of the recorded log", "checkpointing", (FORENSIC_REF,)),
+    ),
+    "iso-42001": (
+        ("aims-logging", "AI management system event logging", "log-integrity", (STORE_REF,)),
+        (
+            "aims-retention",
+            "Retention of AI system records",
+            "retention-configured",
+            (STORE_REF,),
+        ),
+        (
+            "aims-identity",
+            "Accountability to the acting agent",
+            "identity-attribution",
+            (IDENTITY_REF,),
+        ),
+        ("aims-evidence", "Evidence production for audits", "evidence-bundle", (EVIDENCE_REF,)),
+    ),
+    "iso-27001": (
+        (
+            "a8-15-logging",
+            "A.8.15 Logging — event logs recorded and protected",
+            "log-integrity",
+            (STORE_REF,),
+        ),
+        (
+            "a8-24-storage",
+            "A.8.24 Use of cryptography / storage protection",
+            "redaction-default",
+            (STORE_REF,),
+        ),
+        (
+            "a5-33-evidence",
+            "A.5.33 Protection of records / evidence",
+            "evidence-bundle",
+            (EVIDENCE_REF,),
+        ),
+    ),
+    "soc2": (
+        (
+            "cc7-1-monitoring",
+            "CC7.1 Detection of configuration changes and anomalies",
+            "log-integrity",
+            (STORE_REF,),
+        ),
+        ("cc6-1-access", "CC6.1 Logical access — content protection", "redaction-default", (STORE_REF,)),
+        ("cc7-2-coverage", "CC7.2 Monitoring completeness", "recording-coverage", (FORENSIC_REF,)),
+    ),
+    "nist-800-92": (
+        (
+            "log-management-integrity",
+            "Log management — integrity of log records",
+            "log-integrity",
+            (STORE_REF, FORENSIC_REF),
+        ),
+        ("log-retention", "Log retention and disposal", "retention-configured", (STORE_REF,)),
+        ("log-protection", "Log protection — controlled content", "redaction-default", (STORE_REF,)),
+        (
+            "log-accountability",
+            "Attribution to a non-human identity",
+            "identity-attribution",
+            (IDENTITY_REF,),
+        ),
+    ),
+}
+
+
 def _retention_status(
     records: list[AgentRecord], config: AgentwatchConfig, now: datetime
 ) -> RetentionStatus:
@@ -275,17 +367,24 @@ def build_report(
     cfg = config or AgentwatchConfig()
     moment = now or datetime.now(timezone.utc)
     records = list(store.records())
+    template = _TEMPLATES.get(framework)
+    rows = (
+        [(c.control, c.title, c.control, c.refs) for c in _CONTROLS]
+        if template is None
+        else list(template)
+    )
     results: list[ControlResult] = []
-    for spec in _CONTROLS:
+    for control_id, title, check_key, refs in rows:
+        spec = _CHECKS[check_key]
         verdict, detail = spec.check(store, cfg, records)
         results.append(
             ControlResult(
-                control=spec.control,
-                title=spec.title,
+                control=control_id,
+                title=title,
                 evidence=spec.evidence,
                 verdict=verdict,
                 detail=detail,
-                refs=spec.refs,
+                refs=refs,
             )
         )
     controls = tuple(results)

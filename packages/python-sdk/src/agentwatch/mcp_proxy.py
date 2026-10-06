@@ -219,6 +219,16 @@ def is_recordable_request(message: Any) -> bool:
     )
 
 
+def is_elicitation_request(message: Any) -> bool:
+    """Whether ``message`` is a server-issued ``elicitation/create`` request (S14)."""
+    return isinstance(message, Mapping) and message.get("method") == "elicitation/create"
+
+
+def is_jsonrpc_response(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC response (no method, has an id)."""
+    return isinstance(message, Mapping) and "method" not in message and "id" in message
+
+
 def resource_links(result: Any) -> list[str]:
     """Resource-link URIs carried by an MCP tool result (``content[].resource_link``)."""
     if not isinstance(result, Mapping):
@@ -254,9 +264,28 @@ class Recorder:
         self.socket_path = socket_path
         self.cwd = cwd
         self._pending: dict[Any, tuple[str, str, str | None, str | None]] = {}
+        # Server-issued requests (elicitation/create) awaiting the harness answer.
+        self._pending_elicit: dict[Any, tuple[str, str]] = {}
 
     def observe_from_harness(self, message: Any) -> None:
         """Record a harness -> server frame; other methods are relay-only."""
+        if is_jsonrpc_response(message):
+            # The harness answering a server-issued elicitation request.
+            try:
+                elicit_name, elicit_call_id = self._pending_elicit.pop(message.get("id"))
+            except (KeyError, TypeError):
+                return
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    message,
+                    tool_name=elicit_name,
+                    call_id=elicit_call_id,
+                    cwd=self.cwd,
+                )
+            )
+            return
         params = message.get("params") if isinstance(message, Mapping) else None
         if is_tools_call_request(message):
             name = params.get("name") if isinstance(params, Mapping) else None
@@ -294,7 +323,22 @@ class Recorder:
         )
 
     def observe_from_server(self, message: Any) -> None:
-        """Record a server -> harness frame when it answers a seen request."""
+        """Record a server -> harness frame (elicitation request or a response)."""
+        if is_elicitation_request(message):
+            call_id = uuid.uuid4().hex
+            with contextlib.suppress(TypeError):
+                self._pending_elicit[message.get("id")] = ("elicitation/create", call_id)
+            self._emit(
+                request_frame(
+                    self.server,
+                    self.session_id,
+                    message,
+                    tool_name="elicitation/create",
+                    call_id=call_id,
+                    cwd=self.cwd,
+                )
+            )
+            return
         if not isinstance(message, Mapping):
             return
         try:
@@ -347,6 +391,23 @@ class Recorder:
                     call_id=call_id,
                     resource=resource,
                     prompt=prompt,
+                    cwd=self.cwd,
+                )
+            )
+        for rpc_id in list(self._pending_elicit):
+            tool_name, call_id = self._pending_elicit.pop(rpc_id)
+            rpc = {
+                "jsonrpc": "2.0",
+                "id": rpc_id,
+                "error": {"code": _SERVER_EXIT_CODE, "message": reason},
+            }
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    rpc,
+                    tool_name=tool_name,
+                    call_id=call_id,
                     cwd=self.cwd,
                 )
             )

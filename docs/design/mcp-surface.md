@@ -60,7 +60,8 @@ resource links in tool results), `prompts/get`, **elicitation** (linked to appro
 lifecycle — with the same redaction/chain/attribution pipeline. A `resources/read` record and each `resources/link`
 observation keep the resource URI in `tool.arguments['uri']`; a `prompts/get` record keeps the prompt name in
 `tool.arguments['name']` — all metadata (never the body unless captured). `search --mcp-resource <uri>` finds every
-resource access. The streamable transport is **stateless**: because
+resource access. **Elicitation** is recorded and its answer linked to approval provenance (S14): `accept`→`user`,
+`decline`→`denied`, otherwise honest `unknown`. The streamable transport is **stateless**: because
 2026-07-28 removed sessions, the proxy neither requires, forwards, nor emits `Mcp-Session-Id` in either direction,
 and `MCP-Protocol-Version` is relayed unchanged. The pre-2026 HTTP/SSE relay is kept for legacy servers
 (`agentwatch mcp-proxy --http --transport http-sse`) and is **deprecated-in-spec**. `sampling`/`roots`/`logging` are

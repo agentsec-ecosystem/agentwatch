@@ -34,6 +34,7 @@ from typing import Any, cast
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
+    Approval,
     Outcome,
     Producer,
     ProducerKind,
@@ -53,12 +54,16 @@ HARNESS_ID = "mcp-proxy"
 PROXY_PRODUCER = Producer(kind=ProducerKind.PROXY, name=HARNESS_ID)
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts"})
+CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation"})
 
 # Honest, declared gaps — never dropped silently (R3). ``tools/call``,
-# ``resources/read``, and ``prompts/get`` are recorded; sampling is relayed by
-# the proxy but has no record-model representation yet.
+# ``resources/read``, ``prompts/get``, and elicitation are recorded; sampling is
+# relayed by the proxy but has no record-model representation yet.
 DOCUMENTED_GAPS = ("mcp-sampling",)
+
+# Elicitation answers map to approval provenance (S14). An answer that does not
+# expose a recognised action stays honest ``unknown`` — never guessed.
+_ELICITATION_APPROVAL = {"accept": Approval.USER, "decline": Approval.DENIED}
 
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
@@ -161,6 +166,7 @@ def normalize(
     event_time = _event_time(event)
 
     surface_metadata: dict[str, str] | None = None
+    approval: Approval | None = None
     if direction == "request":
         method = rpc.get("method")
         params = rpc.get("params")
@@ -186,10 +192,13 @@ def normalize(
             tool_name = "prompts/get"
             surface_metadata = {"name": prompt}
             source = None
+        elif method == "elicitation/create":
+            tool_name = "elicitation/create"
+            source = None
         else:
             raise McpProxyAdapterError(
                 f"unsupported method {method!r}; expected 'tools/call', "
-                f"'resources/read', or 'prompts/get'"
+                f"'resources/read', 'prompts/get', or 'elicitation/create'"
             )
         step_type: StepType | None = StepType.ACT
         outcome = Outcome.OK
@@ -214,6 +223,16 @@ def normalize(
             source = rpc.get("result")
         step_type = StepType.OBSERVE
         ended_at = event_time
+
+    if tool_name == "elicitation/create":
+        # Link the human-input answer to approval provenance (S14); an answer
+        # that exposes no recognised action stays honest ``unknown``.
+        action = source.get("action") if isinstance(source, Mapping) else None
+        approval = (
+            _ELICITATION_APPROVAL.get(action, Approval.UNKNOWN)
+            if isinstance(action, str)
+            else Approval.UNKNOWN
+        )
 
     # Mask secrets before any storage transform (DD-06); detection runs even
     # when content is not captured so a secret-detected event still fires (R5).
@@ -262,6 +281,7 @@ def normalize(
         project=project,
         ended_at=ended_at,
         step_type=step_type,
+        approval=approval,
         security_event=security_event,
     )
     return [record]

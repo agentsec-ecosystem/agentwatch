@@ -83,15 +83,16 @@ lives in `agentwatch.pydantic`.)
 
 ## MCP interposition proxy (M10 N1)
 
-The proxy adapter records MCP `tools/call`, `resources/read`, and `prompts/get` request/response frames relayed
-from an MCP server; each record carries `tool.server` attribution and the request/response pair shares a `span_id`
-derived from the JSON-RPC id. A resource link in a tool result is recorded as a `resources/link` observation. The
-resource URI / prompt name is metadata in `tool.arguments` (`search --mcp-resource` finds resource reads).
+The proxy adapter records MCP `tools/call`, `resources/read`, `prompts/get`, and server-issued
+`elicitation/create` request/response frames relayed through the proxy; each record carries `tool.server`
+attribution and the request/response pair shares a `span_id` derived from the JSON-RPC id. A resource link in a
+tool result is recorded as a `resources/link` observation; an elicitation answer is linked to approval provenance
+(`accept`→`user`, `decline`→`denied`, otherwise honest `unknown`). The resource URI / prompt name is metadata in
+`tool.arguments` (`search --mcp-resource` finds resource reads).
 
-- Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-request.json`,
-  `tools-call-response.json`, `resources-read-request.json`, `resources-read-response.json`,
-  `prompts-get-request.json`, `prompts-get-response.json`).
+- Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-*`, `resources-read-*`,
+  `prompts-get-*`, `elicitation-*`).
 - Adapter: `agentwatch.adapters.mcp_proxy`.
-- Capability classes: `mcp-tools`, `mcp-resources`, `mcp-prompts`.
+- Capability classes: `mcp-tools`, `mcp-resources`, `mcp-prompts`, `mcp-elicitation`.
 - Declared gaps: `mcp-sampling` — relayed by the proxy but not recorded;
   each is rejected explicitly when presented to `normalize`.

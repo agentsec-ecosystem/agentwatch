@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - MCP-4: the MCP proxy records server-issued `elicitation/create` request/response and links the human-input
+    answer to approval provenance (S14): `accept`→`user`, `decline`→`denied`, otherwise honest `unknown`
+    (#336).
   - MCP-3: the MCP proxy records `prompts/get` request/response; the prompt name is metadata in
     `tool.arguments['name']`. The `mcp-prompts` gap is closed; capability/gap sets and the conformance
     pack move together (#335).

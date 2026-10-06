@@ -24,9 +24,9 @@ not just tool names.
 - **In scope (v0.2.0 MCP-1):** the HTTP relay speaks the **Streamable HTTP** transport as its default
   (`--transport streamable-http`); the legacy HTTP/SSE relay is kept verbatim (`--transport http-sse`,
   deprecated-in-spec).
-- **Out of scope (declared gaps):** MCP sampling and elicitation are relayed but **not** recorded (no
-  record-model concept yet); non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2) and
-  `prompts/get` (MCP-3) are recorded; elicitation is closed by MCP-4.
+- **Out of scope (declared gaps):** MCP sampling is relayed but **not** recorded (no record-model concept yet);
+  non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2), `prompts/get` (MCP-3), and
+  elicitation (MCP-4) are recorded.
 
 ## Architecture
 
@@ -62,7 +62,7 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 `agentwatch.adapters.mcp_proxy`:
 
 - `HARNESS_ID = "mcp-proxy"`
-- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts"})`
+- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation"})`
 - `DOCUMENTED_GAPS = ("mcp-sampling",)`
 - `class McpProxyAdapterError(ValueError)`
 - `normalize(message: Mapping[str, Any], *, redaction: RedactionConfig | None = None) -> list[AgentRecord]`
@@ -103,8 +103,9 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 ### Normalization
 
 - **Reject, never drop.** `normalize` raises `McpProxyAdapterError` unless `phase == "mcp"`, `direction` is valid,
-  and the RPC is a valid `tools/call`, `resources/read`, or `prompts/get` shape. A declared gap or an unknown
-  phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes with the default probe).
+  and the RPC is a valid `tools/call`, `resources/read`, `prompts/get`, or `elicitation/create` shape. A declared
+  gap or an unknown phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes with the
+  default probe).
 - **Request** → intent record: `step_type=act`, `tool.name` from `params.name` (or the method for
   resources/prompts), `tool.server` from `server`, `tool.arguments` from `params.arguments` (redacted),
   `outcome=ok`, no end time.
@@ -114,6 +115,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   `prompts/get` record keeps the prompt name in `tool.arguments['name']`, both with `privacy_mode=metadata-only`
   (never the body unless a `RedactionConfig` captures it); the proxy emits a `resources/link` observation for every
   `resource_link` in a `tools/call` result. `search --mcp-resource` matches the URI.
+- **Elicitation → approval (S14):** a server-issued `elicitation/create` and its answer are recorded; the answer
+  maps `accept`→`user`, `decline`→`denied`, and anything else (or no exposed action) to honest `unknown`.
 - **Pairing:** `span_id = f"mcp:{server}:{call_id}"` when the proxy supplied a `call_id`, else
   `f"mcp:{server}:{rpc.id}"` when `id` is present, else `None` (request and response agree).
   `trace_id = event.trace_id or session_id`.

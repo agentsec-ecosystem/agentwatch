@@ -55,3 +55,10 @@ dropped). Implementation: [`agentwatch.trace`](../../packages/python-sdk/src/age
 
 - Drop-consumer test (no store loss); 24 h streaming soak; a reordered/partial stream never diverges the view from
   the chain; perf gate on the p99 latency.
+
+**STR-3 (M26):** `agentwatch.streaming_soak.run_streaming_soak` drives the transport + reconciliation with a
+bounded, starved, reconnecting consumer and asserts **zero store loss** (`delivered == count`, chain verifies) and
+bounded queues with `degraded` surfaced. `scripts/streaming_soak.py` is the CI entry; the `Streaming soak`
+workflow runs it nightly (bounded) and supports a paced `--duration` for the 24 h target on the dedicated soak
+runner — a true 24 h run is not possible on GitHub-hosted runners (6 h cap) and is a declared environment
+limitation, not a green claim.

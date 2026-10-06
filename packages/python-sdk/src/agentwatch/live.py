@@ -89,6 +89,10 @@ class LiveTail:
 
     # -- notification sources ---------------------------------------------
 
+    def attach(self, subscriber: Subscriber[int] | None) -> None:
+        """Point the tail at a new subscriber (consumer restart/reconnect)."""
+        self.subscriber = subscriber
+
     def _drain_subscriber(self) -> list[int]:
         assert self.subscriber is not None
         seqs: list[int] = []

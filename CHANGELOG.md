@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - MCP-2: the MCP proxy records `resources/read` request/response and every `resource_link` in a tool
+    result (`resources/link` observation); the resource URI is metadata in `tool.arguments['uri']` and
+    `agentwatch search --mcp-resource <uri>` finds each access. The `mcp-resources` gap is closed; the
+    adapter's capability/gap sets and the conformance pack move together (#334).
   - MCP-1: the MCP interposition proxy now speaks **Streamable HTTP** as its default transport
     (`agentwatch mcp-proxy --http --transport streamable-http`); it is **stateless** (sessions removed in
     2026-07-28 — `Mcp-Session-Id` is neither required, forwarded, nor emitted) and relays

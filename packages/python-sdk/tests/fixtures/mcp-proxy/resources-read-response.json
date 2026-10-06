@@ -1,0 +1,51 @@
+{
+  "message": {
+    "phase": "mcp",
+    "harness": "mcp-proxy",
+    "event": {
+      "server": "github",
+      "session_id": "s-1",
+      "direction": "response",
+      "tool_name": "resources/read",
+      "resource": "file:///repo/README.md",
+      "rpc": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "result": {
+          "contents": []
+        }
+      },
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "s-1",
+      "agent": {
+        "identity": "unknown"
+      },
+      "tool": {
+        "name": "resources/read",
+        "server": "github",
+        "arguments": {
+          "uri": "file:///repo/README.md"
+        },
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "trace_id": "s-1",
+      "span_id": "mcp:github:7",
+      "harness": "mcp-proxy",
+      "project": "/repo",
+      "producer": {
+        "kind": "proxy",
+        "name": "mcp-proxy"
+      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe"
+    }
+  ]
+}

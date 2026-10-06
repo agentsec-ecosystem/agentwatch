@@ -83,13 +83,14 @@ lives in `agentwatch.pydantic`.)
 
 ## MCP interposition proxy (M10 N1)
 
-The proxy adapter records MCP `tools/call` request/response frames relayed from an MCP server; each
-record carries `tool.server` attribution and the request/response pair shares a `span_id` derived from
-the JSON-RPC id. Only `tools/call` is recorded.
+The proxy adapter records MCP `tools/call` and `resources/read` request/response frames relayed from an MCP
+server; each record carries `tool.server` attribution and the request/response pair shares a `span_id` derived
+from the JSON-RPC id. A resource link in a tool result is recorded as a `resources/link` observation. The
+resource URI is metadata in `tool.arguments['uri']` (searchable with `search --mcp-resource`).
 
 - Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-request.json`,
-  `tools-call-response.json`).
+  `tools-call-response.json`, `resources-read-request.json`, `resources-read-response.json`).
 - Adapter: `agentwatch.adapters.mcp_proxy`.
-- Capability class: `mcp-tools`.
-- Declared gaps: `mcp-resources`, `mcp-prompts`, `mcp-sampling` — relayed by the proxy but not recorded;
+- Capability classes: `mcp-tools`, `mcp-resources`.
+- Declared gaps: `mcp-prompts`, `mcp-sampling` — relayed by the proxy but not recorded;
   each is rejected explicitly when presented to `normalize`.

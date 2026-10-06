@@ -493,6 +493,11 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="only records whose agent/principal/workload/delegation handle matches (IDN-2)",
     )
+    search.add_argument(
+        "--mcp-resource",
+        default=None,
+        help="only records that read or link this MCP resource URI (MCP-2)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
@@ -1944,6 +1949,7 @@ def _run_search(args: argparse.Namespace) -> int:
         producer=args.producer,
         approval=args.approval,
         identity=args.identity,
+        mcp_resource=args.mcp_resource,
         records=combined.records,
     )
     for record in records:

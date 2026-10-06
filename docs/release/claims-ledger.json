@@ -166,6 +166,17 @@
         "test:packages/python-sdk/tests/test_mcp_streamable_http.py::test_streamable_transport_relays_protocol_version"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C17",
+      "claim": "The MCP proxy records resources/read and resource links in tool results; the resource URI is metadata searchable with search --mcp-resource.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_resources_read_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_recorder_frames_resource_links_in_a_tool_result",
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_search_filters_by_mcp_resource"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

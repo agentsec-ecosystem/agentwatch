@@ -8,7 +8,7 @@ Accepts ``--tool``, ``--outcome``, ``--session``, and ``--since`` (relative like
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone, tzinfo
 
 from agentwatch.identity import identity_handles
@@ -54,6 +54,16 @@ def since_cutoff(
     return parsed
 
 
+def _resource_uri(record: AgentRecord) -> str | None:
+    """The MCP resource URI a record carries, if any (metadata in ``arguments``)."""
+    arguments = record.tool.arguments
+    if isinstance(arguments, Mapping):
+        uri = arguments.get("uri")
+        if isinstance(uri, str):
+            return uri
+    return None
+
+
 def search(
     store: RecordStore,
     *,
@@ -65,6 +75,7 @@ def search(
     producer: str | None = None,
     approval: str | None = None,
     identity: str | None = None,
+    mcp_resource: str | None = None,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
@@ -92,6 +103,11 @@ def search(
             if not needle or not any(
                 needle in handle.lower() for handle in identity_handles(record.agent)
             ):
+                continue
+        if mcp_resource is not None:
+            needle = mcp_resource.strip().lower()
+            uri = _resource_uri(record)
+            if not needle or uri is None or needle not in uri.lower():
                 continue
         if cutoff is not None and record.started_at < cutoff:
             continue

@@ -35,7 +35,8 @@ Status: living.
   `tests/test_mcp_streamable_http.py`). The streamable transport is stateless: sessions were removed, so
   `Mcp-Session-Id` is neither required, forwarded, nor emitted.
   `agentwatch init --mcp-proxy` re-points `.mcp.json`/`~/.claude.json` and `uninstall` restores it
-  byte-identically. MCP `resources`/`prompts`/`sampling` are relayed but not recorded (declared gaps).
+  byte-identically. MCP `resources/read` and resource links in tool results are recorded (MCP-2) with the URI as
+  metadata (`search --mcp-resource`); `prompts`/`sampling` are relayed but not recorded (declared gaps).
   HTTP mode holds each forwarded request/response in memory (bounded by the upstream body); a truly
   unbounded SSE stream is relayed while open but only its `data:` frames are parsed.
 - OTel/NDJSON ingestion (`agentwatch ingest`, M10 N2) is a **transcoder, not a general OTel backend**

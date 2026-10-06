@@ -91,6 +91,7 @@ def _frame(
     *,
     tool_name: str | None = None,
     call_id: str | None = None,
+    resource: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -104,6 +105,8 @@ def _frame(
         event["tool_name"] = tool_name
     if call_id is not None:
         event["call_id"] = call_id
+    if resource is not None:
+        event["resource"] = resource
     if timestamp is not None:
         event["timestamp"] = timestamp
     if cwd is not None:
@@ -116,12 +119,24 @@ def request_frame(
     session_id: str,
     rpc: Mapping[str, Any],
     *,
+    tool_name: str | None = None,
     call_id: str | None = None,
+    resource: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
     """Frame a harness -> server JSON-RPC request."""
-    return _frame(server, session_id, "request", rpc, call_id=call_id, timestamp=timestamp, cwd=cwd)
+    return _frame(
+        server,
+        session_id,
+        "request",
+        rpc,
+        tool_name=tool_name,
+        call_id=call_id,
+        resource=resource,
+        timestamp=timestamp,
+        cwd=cwd,
+    )
 
 
 def response_frame(
@@ -131,10 +146,11 @@ def response_frame(
     *,
     tool_name: str,
     call_id: str | None = None,
+    resource: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
-    """Frame a server -> harness JSON-RPC response (carries the tool name)."""
+    """Frame a server -> harness JSON-RPC response (carries the surface name)."""
     return _frame(
         server,
         session_id,
@@ -142,6 +158,7 @@ def response_frame(
         rpc,
         tool_name=tool_name,
         call_id=call_id,
+        resource=resource,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -160,6 +177,43 @@ def is_tools_call_request(message: Any) -> bool:
     return isinstance(name, str) and bool(name)
 
 
+def is_resources_read_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``resources/read`` request with a URI."""
+    if not isinstance(message, Mapping):
+        return False
+    if message.get("method") != "resources/read":
+        return False
+    params = message.get("params")
+    if not isinstance(params, Mapping):
+        return False
+    uri = params.get("uri")
+    return isinstance(uri, str) and bool(uri)
+
+
+def is_recordable_request(message: Any) -> bool:
+    """Whether a harness request belongs to a recorded MCP surface."""
+    return is_tools_call_request(message) or is_resources_read_request(message)
+
+
+def resource_links(result: Any) -> list[str]:
+    """Resource-link URIs carried by an MCP tool result (``content[].resource_link``)."""
+    if not isinstance(result, Mapping):
+        return []
+    content = result.get("content")
+    if not isinstance(content, list):
+        return []
+    links: list[str] = []
+    for item in content:
+        if (
+            isinstance(item, Mapping)
+            and item.get("type") == "resource_link"
+            and isinstance(item.get("uri"), str)
+            and item["uri"]
+        ):
+            links.append(item["uri"])
+    return links
+
+
 class Recorder:
     """Pairs MCP requests with their responses and emits frames to the daemon."""
 
@@ -175,21 +229,35 @@ class Recorder:
         self.session_id = session_id
         self.socket_path = socket_path
         self.cwd = cwd
-        self._pending: dict[Any, tuple[str, str]] = {}
+        self._pending: dict[Any, tuple[str, str, str | None]] = {}
 
     def observe_from_harness(self, message: Any) -> None:
-        """Record a harness -> server frame; non-``tools/call`` is relay-only."""
-        if not is_tools_call_request(message):
+        """Record a harness -> server frame; other methods are relay-only."""
+        if is_tools_call_request(message):
+            params = message.get("params")
+            name = params.get("name") if isinstance(params, Mapping) else None
+            resource = None
+        elif is_resources_read_request(message):
+            params = message.get("params")
+            name = "resources/read"
+            resource = params.get("uri") if isinstance(params, Mapping) else None
+        else:
             return
-        params = message.get("params")
-        name = params.get("name") if isinstance(params, Mapping) else None
         # A fresh id per call: a JSON-RPC id may be reused across calls, but the
         # daemon's dedup key must stay unique so no record is silently dropped.
         call_id = uuid.uuid4().hex
         with contextlib.suppress(TypeError):  # an unhashable JSON-RPC id cannot be paired
-            self._pending[message.get("id")] = (str(name), call_id)
+            self._pending[message.get("id")] = (str(name), call_id, resource)
         self._emit(
-            request_frame(self.server, self.session_id, message, call_id=call_id, cwd=self.cwd)
+            request_frame(
+                self.server,
+                self.session_id,
+                message,
+                tool_name="resources/read" if resource is not None else None,
+                call_id=call_id,
+                resource=resource,
+                cwd=self.cwd,
+            )
         )
 
     def observe_from_server(self, message: Any) -> None:
@@ -197,7 +265,7 @@ class Recorder:
         if not isinstance(message, Mapping):
             return
         try:
-            tool_name, call_id = self._pending.pop(message.get("id"))
+            tool_name, call_id, resource = self._pending.pop(message.get("id"))
         except (KeyError, TypeError):
             return
         self._emit(
@@ -207,14 +275,30 @@ class Recorder:
                 message,
                 tool_name=tool_name,
                 call_id=call_id,
+                resource=resource,
                 cwd=self.cwd,
             )
         )
+        # A tool result may surface resource links; record each as its own
+        # observation so the referenced resource is searchable.
+        for index, uri in enumerate(resource_links(message.get("result"))):
+            link_call_id = f"{call_id}-link-{index}" if call_id else None
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    {"jsonrpc": "2.0", "id": message.get("id"), "result": {"uri": uri}},
+                    tool_name="resources/link",
+                    call_id=link_call_id,
+                    resource=uri,
+                    cwd=self.cwd,
+                )
+            )
 
     def flush_pending(self, reason: str = "server exited") -> None:
         """Record an error response for every request the server never answered."""
         for rpc_id in list(self._pending):
-            tool_name, call_id = self._pending.pop(rpc_id)
+            tool_name, call_id, resource = self._pending.pop(rpc_id)
             rpc = {
                 "jsonrpc": "2.0",
                 "id": rpc_id,
@@ -227,6 +311,7 @@ class Recorder:
                     rpc,
                     tool_name=tool_name,
                     call_id=call_id,
+                    resource=resource,
                     cwd=self.cwd,
                 )
             )
@@ -466,7 +551,7 @@ class _ProxyHandler(BaseHTTPRequestHandler):
     ) -> None:
         """Relay a transport failure as a 502 and record it as an error outcome."""
         for message in request_messages:
-            if is_tools_call_request(message):
+            if is_recordable_request(message):
                 recorder.observe_from_server(
                     {
                         "jsonrpc": "2.0",

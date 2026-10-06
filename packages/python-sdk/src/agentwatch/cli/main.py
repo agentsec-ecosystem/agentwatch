@@ -24,6 +24,7 @@ from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
+from agentwatch.compliance import FRAMEWORKS, build_report, render_report
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.cost import BY_OPTIONS, build_cost, render_cost
@@ -614,6 +615,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="ground-truth source for reconciliation (default: claude-code)",
     )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
+
+    compliance_cmd = sub.add_parser(
+        "compliance", help="offline compliance reports (M26 CMP-1)"
+    )
+    compliance_sub = compliance_cmd.add_subparsers(dest="compliance_command", required=True)
+    compliance_report = compliance_sub.add_parser(
+        "report", help="render control -> evidence -> verdict rows for a framework"
+    )
+    compliance_report.add_argument(
+        "--framework", choices=FRAMEWORKS, default="generic", help="framework template (default: generic)"
+    )
+    compliance_report.add_argument(
+        "--period", default=None, help="reporting window label (informational)"
+    )
+    compliance_report.add_argument("--out", default=None, help="write the report to this file")
+    compliance_report.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     cost_cmd = sub.add_parser("cost", help="roll up captured token usage to cost (M17 S6)")
     cost_cmd.add_argument(
@@ -1472,7 +1489,7 @@ _COMMANDS_FOR_COMPLETION = (
     "verify-privacy event doctor tail "
     "completions uninstall inventory search diff view explain import ingest fleet drift retention "
     "purge export-session mcp-proxy annotate redact bom evidence coverage quarantine archive "
-    "impact blame cost tree trace at digest flow secrets demo config union checkpoint"
+    "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance"
 )
 
 
@@ -2035,6 +2052,25 @@ def _run_coverage(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_compliance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = build_report(store, args.framework, config=cfg)
+    text = json.dumps(report.to_dict(), indent=2) if args.json else render_report(report)
+    if args.out:
+        out = Path(args.out).expanduser()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text + "\n", encoding="utf-8")
+        print(f"agentwatch: wrote compliance report to {out}", file=sys.stderr)
+    else:
+        print(text)
+    return 0
+
+
 def _run_quarantine(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2495,6 +2531,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_cost(args)
     if args.command == "coverage":
         return _run_coverage(args)
+    if args.command == "compliance":
+        return _run_compliance(args)
     if args.command == "bom":
         return _run_bom(args)
     if args.command == "retention":

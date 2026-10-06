@@ -27,6 +27,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from analytics.detectors.base import BaseDetector
 from analytics.detectors.claude_code import (
     DeniedClusterDetector,
     NetworkToolDetector,
@@ -57,6 +58,7 @@ from analytics.detectors.output import (
     LowOutputDetector,
     OutputDriftDetector,
 )
+from analytics.detectors.pool import ScriptedPool
 from analytics.detectors.retry import (
     CascadingRetryDetector,
     RecoveryPathDetector,
@@ -162,8 +164,6 @@ def summ(run_id: str = "run-1", **kw: Any) -> RunSummary:
 # Scripted Postgres pool (shared with the public corpus; see detectors/pool.py)
 # --------------------------------------------------------------------------
 
-from analytics.detectors.pool import ScriptedPool  # noqa: E402
-
 
 # --------------------------------------------------------------------------
 # Scenario model
@@ -173,7 +173,7 @@ from analytics.detectors.pool import ScriptedPool  # noqa: E402
 @dataclass
 class Scenario:
     id: str
-    detector: type
+    detector: type[BaseDetector]
     expect_fire: bool
     build: Callable[[], tuple[RunSummary, list[SpanNode]]]
     severity: str | None = None
@@ -187,7 +187,7 @@ S: list[Scenario] = []
 
 def add(
     sid: str,
-    detector: type,
+    detector: type[BaseDetector],
     fire: bool,
     build: Callable[[], tuple[RunSummary, list[SpanNode]]],
     *,
@@ -788,9 +788,19 @@ async def run_scenario(sc: Scenario) -> dict[str, Any]:
 
     # Deep content checks: a fired anomaly must carry the detector's own type, a
     # non-empty explanation, and an evidence dict -- not merely be non-None.
-    type_ok = (not fired) or anomaly.anomaly_type == detector.anomaly_type
-    expl_ok = (not fired) or bool(anomaly.explanation and anomaly.explanation.strip())
-    evid_ok = (not fired) or isinstance(anomaly.evidence, dict)
+    explanation: str | None = None
+    evidence_keys: list[str] = []
+    if anomaly is not None:
+        type_ok = anomaly.anomaly_type == detector.anomaly_type
+        expl_ok = bool(anomaly.explanation and anomaly.explanation.strip())
+        evid_ok = isinstance(anomaly.evidence, dict)
+        explanation = anomaly.explanation
+        if isinstance(anomaly.evidence, dict):
+            evidence_keys = sorted(anomaly.evidence.keys())
+    else:
+        type_ok = True
+        expl_ok = True
+        evid_ok = True
     return {
         "id": sc.id,
         "phase": sc.phase,
@@ -799,10 +809,8 @@ async def run_scenario(sc: Scenario) -> dict[str, Any]:
         "fired": fired,
         "expected_severity": sc.severity,
         "actual_severity": actual_sev,
-        "explanation": (anomaly.explanation if fired else None),
-        "evidence_keys": (
-            sorted(anomaly.evidence.keys()) if fired and isinstance(anomaly.evidence, dict) else []
-        ),
+        "explanation": explanation,
+        "evidence_keys": evidence_keys,
         "fire_ok": fire_ok,
         "severity_ok": sev_ok,
         "type_ok": type_ok,
@@ -849,7 +857,7 @@ P: list[Scenario] = []
 
 def prec(
     sid: str,
-    detector: type,
+    detector: type[BaseDetector],
     fire: bool,
     build: Callable[[], tuple[RunSummary, list[SpanNode]]],
     *,

@@ -10,16 +10,23 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
 from analytics.scenario_validation import export_public_corpus
 
-CORPUS = Path(__file__).resolve().parents[3] / "schema" / "vectors" / "detectors" / "detector-corpus-v1.json"
+CORPUS = (
+    Path(__file__).resolve().parents[3]
+    / "schema"
+    / "vectors"
+    / "detectors"
+    / "detector-corpus-v1.json"
+)
 
 
-def _load() -> dict:
-    return json.loads(CORPUS.read_text(encoding="utf-8"))
+def _load() -> dict[str, Any]:
+    return cast("dict[str, Any]", json.loads(CORPUS.read_text(encoding="utf-8")))
 
 
 def test_corpus_is_versioned_and_populated() -> None:

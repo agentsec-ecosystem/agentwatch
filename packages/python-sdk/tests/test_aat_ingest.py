@@ -15,7 +15,7 @@ from typing import Any
 
 import pytest
 
-from agentwatch.aat import AAT_DRAFT, export_aat, to_aat_json
+from agentwatch.aat import export_aat, to_aat_json
 from agentwatch.cli.main import main
 from agentwatch.ingest import run_ingest
 from agentwatch.quarantine import QuarantineLog

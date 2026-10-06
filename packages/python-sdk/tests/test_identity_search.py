@@ -95,7 +95,7 @@ def test_cli_search_identity(
 ) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
-    store = _store(store_dir)
+    _store(store_dir)
 
     from agentwatch.cli.main import main
 

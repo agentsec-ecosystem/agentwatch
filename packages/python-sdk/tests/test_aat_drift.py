@@ -97,12 +97,16 @@ def test_drift_script_passes_when_pinned(tmp_path: Path) -> None:
 
 def test_drift_script_fails_on_a_simulated_bump(tmp_path: Path) -> None:
     path = tmp_path / "upstream.json"
-    path.write_text(json.dumps(_upstream(revision="draft-sharif-agent-audit-trail-07")), encoding="utf-8")
+    path.write_text(
+        json.dumps(_upstream(revision="draft-sharif-agent-audit-trail-07")), encoding="utf-8"
+    )
 
     assert script.main([str(path)]) == 1
 
 
 def test_committed_upstream_snapshot_matches_the_pin() -> None:
-    snapshot = json.loads((REPO / "schema" / "aat" / "upstream-revision.json").read_text(encoding="utf-8"))
+    snapshot = json.loads(
+        (REPO / "schema" / "aat" / "upstream-revision.json").read_text(encoding="utf-8")
+    )
 
     assert check_aat_drift(snapshot).drifted is False

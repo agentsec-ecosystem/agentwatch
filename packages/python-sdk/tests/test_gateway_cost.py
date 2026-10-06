@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, cast
 
 from agentwatch.cost import build_cost, render_cost
 from agentwatch.ingest import transcode_otel
@@ -32,8 +33,14 @@ def _gateway_payload() -> dict[str, object]:
                                 "startTimeUnixNano": "1767000000000000000",
                                 "endTimeUnixNano": "1767000001000000000",
                                 "attributes": [
-                                    {"key": "gen_ai.operation.name", "value": {"stringValue": "chat"}},
-                                    {"key": "gen_ai.request.model", "value": {"stringValue": "gpt-4o"}},
+                                    {
+                                        "key": "gen_ai.operation.name",
+                                        "value": {"stringValue": "chat"},
+                                    },
+                                    {
+                                        "key": "gen_ai.request.model",
+                                        "value": {"stringValue": "gpt-4o"},
+                                    },
                                     {
                                         "key": "gen_ai.conversation.id",
                                         "value": {"stringValue": "s-gw"},
@@ -53,7 +60,9 @@ def _gateway_payload() -> dict[str, object]:
     }
 
 
-def _record(session: str, *, tool: str, tokens: int, cost: float | None, model: str | None) -> AgentRecord:
+def _record(
+    session: str, *, tool: str, tokens: int, cost: float | None, model: str | None
+) -> AgentRecord:
     return AgentRecord(
         session_id=session,
         agent=AgentIdentity(identity="agent", model_version=model),
@@ -85,7 +94,8 @@ def test_cost_prefers_exact_numbers_and_stamps_the_source(tmp_path: Path) -> Non
     assert rows["s-gw"].cost_source == "exact"
     assert rows["s-est"].cost_source == "estimated"
     assert "exact" in render_cost(report)
-    assert report.to_dict()["rows"][0]["cost_source"] in {"exact", "estimated"}
+    json_rows = cast("list[dict[str, Any]]", report.to_dict()["rows"])
+    assert json_rows[0]["cost_source"] in {"exact", "estimated"}
 
 
 def test_cost_source_is_reported_in_json(tmp_path: Path) -> None:
@@ -94,6 +104,6 @@ def test_cost_source_is_reported_in_json(tmp_path: Path) -> None:
 
     payload = build_cost(store, by="session").to_dict()
 
-    row = payload["rows"][0]
+    row = cast("list[dict[str, Any]]", payload["rows"])[0]
     assert row["cost_source"] == "exact"
     assert payload["total_cost_source"] == "exact"

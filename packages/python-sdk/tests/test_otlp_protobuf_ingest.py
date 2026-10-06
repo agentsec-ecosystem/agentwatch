@@ -17,10 +17,10 @@ import pytest
 from agentwatch.ingest import (
     IngestError,
     iter_grpc_messages,
+    run_ingest,
     transcode,
     transcode_grpc_chunks,
     transcode_otlp_protobuf,
-    run_ingest,
 )
 from agentwatch.records import validate_record
 from agentwatch.store import RecordStore

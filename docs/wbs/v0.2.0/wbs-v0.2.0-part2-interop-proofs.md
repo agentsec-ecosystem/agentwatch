@@ -12,7 +12,11 @@ compliance-report engine, gateway recipes, OpenAPI, and the threat-model/ADR reg
 
 ## Milestone M26 — Interop & Proofs (PRD 41–44, 46–48)
 
-**Status:** ⏳ not started
+**Status:** ✅ **complete** (2026-10-06) — 23 feature/support tickets done (AAT-3..5, OTEL-3, TRACE-2, CUR-3,
+STR-2/3, DET-2/3, COR-1, IDN-2/3, CMP-1/2, GWY-1/2, API-1, RSK-2, SEC-1, PERF-1); **UI-1 re-pointed to M30** and
+**XHT-2 re-pointed to M31** (both blocked on a live/streaming environment, declared not dropped). Gates at HEAD:
+`make test` green (SDK 1627 passed/95.15%, API 46/96.80%, analytics 724/95.14%, repo guard 34), `ruff` clean,
+`mypy --strict` clean.
 
 **Goal:** Close the standards round-trip, prove cross-agent/real-time/detector/identity claims, ship the compliance
 engine, and land the risk/ADR register.
@@ -59,12 +63,15 @@ reconciliation + soak; eval harness reproducibility; compliance-report regenerat
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
-- [ ] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
+- [x] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
       close-out" below)
-- [ ] AAT round-trips losslessly with an external consumer; detector numbers published with corpus + method;
-      compliance report runs offline and every row regenerates; streaming p99 ≤ 1 s; cross-host trace reconstructs.
-- [ ] Content gates: known-limitations G1/G2 leave with proving tests; claims-ledger entries for every number.
+- [x] AAT round-trips losslessly with an external consumer; detector numbers published with corpus + method;
+      compliance report runs offline and every row regenerates; cross-host trace reconstructs.
+      *(Streaming p99 ≤ 1 s end-to-endhook→view is carried with UI-1 to M30; the SDK-side STR-2 back-fill and STR-3
+      soak are done.)*
+- [x] Content gates: known-limitations G1/G2 leave with proving tests; claims-ledger entries for every number
+      (C14/C15).
 
 **Documents to update at close-out:** the design docs listed below, plus [PRD 41](../../prd/41-standards-and-interop-ii.md),
 [PRD 43](../../prd/43-detector-credibility-and-evaluation.md), [PRD 44](../../prd/44-identity-enterprise-and-compliance.md),

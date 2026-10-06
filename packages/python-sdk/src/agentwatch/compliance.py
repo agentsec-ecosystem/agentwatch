@@ -307,7 +307,12 @@ _TEMPLATES: dict[str, tuple[tuple[str, str, str, tuple[str, ...]], ...]] = {
             "log-integrity",
             (STORE_REF,),
         ),
-        ("cc6-1-access", "CC6.1 Logical access — content protection", "redaction-default", (STORE_REF,)),
+        (
+            "cc6-1-access",
+            "CC6.1 Logical access — content protection",
+            "redaction-default",
+            (STORE_REF,),
+        ),
         ("cc7-2-coverage", "CC7.2 Monitoring completeness", "recording-coverage", (FORENSIC_REF,)),
     ),
     "nist-800-92": (
@@ -318,7 +323,12 @@ _TEMPLATES: dict[str, tuple[tuple[str, str, str, tuple[str, ...]], ...]] = {
             (STORE_REF, FORENSIC_REF),
         ),
         ("log-retention", "Log retention and disposal", "retention-configured", (STORE_REF,)),
-        ("log-protection", "Log protection — controlled content", "redaction-default", (STORE_REF,)),
+        (
+            "log-protection",
+            "Log protection — controlled content",
+            "redaction-default",
+            (STORE_REF,),
+        ),
         (
             "log-accountability",
             "Attribution to a non-human identity",
@@ -337,7 +347,9 @@ def _retention_status(
     if records:
         oldest = max(0, int((now - min(r.started_at for r in records)).total_seconds() // 86400))
     if not days or days <= 0:
-        return RetentionStatus(days, oldest, len(records), UNKNOWN, "no retention window configured")
+        return RetentionStatus(
+            days, oldest, len(records), UNKNOWN, "no retention window configured"
+        )
     if oldest is not None and oldest > days:
         return RetentionStatus(
             days,
@@ -390,7 +402,10 @@ def build_report(
     controls = tuple(results)
     signature = SignatureStatus(
         signed=False,
-        detail="checkpoint signing is not enabled (opt-in); unsigned checkpoints verify integrity only",
+        detail=(
+            "checkpoint signing is not enabled (opt-in); "
+            "unsigned checkpoints verify integrity only"
+        ),
     )
     return ComplianceReport(
         framework=framework,
@@ -416,7 +431,8 @@ def render_report(report: ComplianceReport) -> str:
     if report.retention is not None:
         lines.append(
             f"  retention: {report.retention.status} "
-            f"(window={report.retention.retention_days}d, oldest={report.retention.oldest_record_days}d)"
+            f"(window={report.retention.retention_days}d, "
+            f"oldest={report.retention.oldest_record_days}d)"
         )
     if report.signature is not None:
         signed = "signed" if report.signature.signed else "unsigned"

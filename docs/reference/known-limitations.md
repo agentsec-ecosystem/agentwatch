@@ -6,12 +6,19 @@ Status: living.
 
 ## Inherited from `agent-exec-trace` (shipped)
 
-- Batch polling only (~30 s ingestion delay), not streaming.
-- No distributed trace correlation across services.
+- ~~Batch polling only (~30 s ingestion delay), not streaming.~~ **Left in M26 (G1):** the STR-1 transport + STR-2
+  store-truth back-fill (`agentwatch.live`) and the STR-3 streaming soak replace batch-only polling (proving tests:
+  `tests/test_live_tail.py`, `tests/test_streaming_soak.py`). The operator live views (UI-1) are re-pointed to M30.
+- ~~No distributed trace correlation across services.~~ **Left in M26 (G2):** `agentwatch trace <tid>` / `replay
+  --trace` reconstruct one causal chain across hosts/sessions via `traceparent`, with clock-skew handling (proving
+  test: `tests/test_trace.py`).
 - No multi-tenant isolation.
 - LLM detectors were research-grade (10-trace sample).
-- 28/35 detectors silent on the HF field-test corpus (structurally dependent on tool-use semantics).
+- ~~28/35 detectors silent on the HF field-test corpus.~~ **Resolved in M26 (DET-2/DET-3):** 38/38 rule detectors are
+  non-silent on the field-test matrix, with generated, drift-guarded precision/recall in the catalog (proving test:
+  `services/analytics/tests/test_detector_non_silent.py`).
 - No PydanticAI adapter; no policy-overlay view; no memory-audit UI.
+- Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)
 

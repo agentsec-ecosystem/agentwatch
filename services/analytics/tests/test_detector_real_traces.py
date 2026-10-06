@@ -18,6 +18,7 @@ import pytest
 pytest.importorskip("agentwatch")
 
 from agentwatch import transcript  # noqa: E402
+
 from analytics.detectors import create_all_detectors  # noqa: E402
 from analytics.models import RunSummary, SpanNode  # noqa: E402
 

@@ -17,6 +17,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from agentwatch import errors, hook, naming
 from agentwatch.aat import aat_version_line, export_aat, to_aat_json, write_aat
@@ -124,7 +125,6 @@ from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
-from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
@@ -134,6 +134,7 @@ from agentwatch.signing import KEY_FILENAME, SigningError, load_or_create_key
 from agentwatch.store import RecordStore, repair_store
 from agentwatch.store_access import DestinationKind, record_store_access
 from agentwatch.tail import Tail, TailLine, follow, render_record
+from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.tree import build_tree, render_tree, sort_by_cost
 from agentwatch.union import render_union, union
 from agentwatch.verify_privacy import verify_privacy
@@ -509,7 +510,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     import_cmd.add_argument("--json", action="store_true", help="emit the import stats as JSON")
 
-    ingest = sub.add_parser("ingest", help="ingest foreign OTel/NDJSON/AAT traces (M10 N2, M26 AAT-3)")
+    ingest = sub.add_parser(
+        "ingest", help="ingest foreign OTel/NDJSON/AAT traces (M10 N2, M26 AAT-3)"
+    )
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
@@ -624,7 +627,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "report", help="render control -> evidence -> verdict rows for a framework"
     )
     compliance_report.add_argument(
-        "--framework", choices=FRAMEWORKS, default="generic", help="framework template (default: generic)"
+        "--framework",
+        choices=FRAMEWORKS,
+        default="generic",
+        help="framework template (default: generic)",
     )
     compliance_report.add_argument(
         "--period", default=None, help="reporting window label (informational)"

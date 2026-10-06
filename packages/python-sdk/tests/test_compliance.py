@@ -31,7 +31,7 @@ def _record(started: datetime) -> AgentRecord:
     )
 
 
-def _config(*, retention_days: int = 365, checkpoint_every: int | None = 100) -> AgentwatchConfig:
+def _config(*, retention_days: int = 365, checkpoint_every: int = 100) -> AgentwatchConfig:
     cfg = AgentwatchConfig()
     return replace(
         cfg,
@@ -84,6 +84,7 @@ def test_overdue_retention_degrades_visibly(tmp_path: Path) -> None:
         _store(tmp_path, days_old=400), "generic", config=_config(retention_days=365), now=NOW
     )
 
+    assert report.retention is not None
     assert report.retention.status == "overdue"
     assert report.retention.retention_days == 365
 
@@ -91,6 +92,7 @@ def test_overdue_retention_degrades_visibly(tmp_path: Path) -> None:
 def test_signature_status_is_honest_and_never_certifies(tmp_path: Path) -> None:
     report = build_report(_store(tmp_path), "soc2", config=_config(), now=NOW)
 
+    assert report.signature is not None
     assert report.signature.signed is False
     assert "opt-in" in report.signature.detail or "not enabled" in report.signature.detail
     assert "not a certification" in report.statement.lower()

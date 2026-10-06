@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from agentwatch.ingest import run_ingest, transcode
 from agentwatch.records import validate_record
@@ -23,7 +23,7 @@ PORTKEY = FIXTURES / "portkey_otlp.json"
 
 
 def _payload(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def test_litellm_otlp_stream_ingests_to_records() -> None:

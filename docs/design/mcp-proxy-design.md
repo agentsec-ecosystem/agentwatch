@@ -24,9 +24,9 @@ not just tool names.
 - **In scope (v0.2.0 MCP-1):** the HTTP relay speaks the **Streamable HTTP** transport as its default
   (`--transport streamable-http`); the legacy HTTP/SSE relay is kept verbatim (`--transport http-sse`,
   deprecated-in-spec).
-- **Out of scope (declared gaps):** MCP sampling is relayed but **not** recorded (no record-model concept yet);
-  non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2), `prompts/get` (MCP-3), and
-  elicitation (MCP-4) are recorded.
+- **Out of scope (declared gaps):** MCP Roots/Sampling/Logging are relayed but **not** recorded — retired by the
+  standard (SEP-2577), not by us; non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2),
+  `prompts/get` (MCP-3), elicitation (MCP-4), and `tasks/*` (MCP-5) are recorded.
 
 ## Architecture
 
@@ -62,8 +62,9 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 `agentwatch.adapters.mcp_proxy`:
 
 - `HARNESS_ID = "mcp-proxy"`
-- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation"})`
-- `DOCUMENTED_GAPS = ("mcp-sampling",)`
+- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation", "mcp-tasks"})`
+- `DOCUMENTED_GAPS = ("mcp-sampling", "mcp-roots", "mcp-logging")` — closed-by-spec (SEP-2577)
+- `CLOSED_BY_SPEC = frozenset({"sampling", "roots", "logging"})`
 - `class McpProxyAdapterError(ValueError)`
 - `normalize(message: Mapping[str, Any], *, redaction: RedactionConfig | None = None) -> list[AgentRecord]`
 
@@ -103,9 +104,9 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 ### Normalization
 
 - **Reject, never drop.** `normalize` raises `McpProxyAdapterError` unless `phase == "mcp"`, `direction` is valid,
-  and the RPC is a valid `tools/call`, `resources/read`, `prompts/get`, or `elicitation/create` shape. A declared
-  gap or an unknown phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes with the
-  default probe).
+  and the RPC is a valid `tools/call`, `resources/read`, `prompts/get`, `elicitation/create`, or `tasks/*` shape. A
+  declared gap or an unknown phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes
+  with the default probe).
 - **Request** → intent record: `step_type=act`, `tool.name` from `params.name` (or the method for
   resources/prompts), `tool.server` from `server`, `tool.arguments` from `params.arguments` (redacted),
   `outcome=ok`, no end time.
@@ -117,6 +118,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   `resource_link` in a `tools/call` result. `search --mcp-resource` matches the URI.
 - **Elicitation → approval (S14):** a server-issued `elicitation/create` and its answer are recorded; the answer
   maps `accept`→`user`, `decline`→`denied`, and anything else (or no exposed action) to honest `unknown`.
+- **Tasks (SEP-2663):** a `tasks/*` request/response and a task-augmented tool result are recorded with the task
+  id as metadata (`tool.arguments['taskId']`). Roots/Sampling/Logging are closed-by-spec (SEP-2577) and rejected.
 - **Pairing:** `span_id = f"mcp:{server}:{call_id}"` when the proxy supplied a `call_id`, else
   `f"mcp:{server}:{rpc.id}"` when `id` is present, else `None` (request and response agree).
   `trace_id = event.trace_id or session_id`.

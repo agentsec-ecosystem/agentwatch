@@ -208,6 +208,14 @@
       "fingerprint": "f6e84e0039d28b3f",
       "version": "2025-06-18"
     },
+    "mcp-proxy/tasks-get-request.json": {
+      "fingerprint": "1d57d31af343a53a",
+      "version": "2025-06-18"
+    },
+    "mcp-proxy/tasks-get-response.json": {
+      "fingerprint": "dc9ecaf85cbae1c1",
+      "version": "2025-06-18"
+    },
     "mcp-proxy/tools-call-request.json": {
       "fingerprint": "c6fb8a13de6e1cd8",
       "version": "2025-06-18"

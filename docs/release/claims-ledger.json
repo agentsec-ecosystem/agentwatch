@@ -198,6 +198,17 @@
         "test:packages/python-sdk/tests/test_mcp_proxy_elicitation.py::test_recorder_pairs_a_server_elicitation"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C20",
+      "claim": "The MCP proxy records the tasks/* lifecycle with the task id as metadata; Roots/Sampling/Logging are closed-by-spec (SEP-2577).",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_tasks_get_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_task_augmented_tool_result_keeps_the_task_id",
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_recorder_pairs_a_tasks_request"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

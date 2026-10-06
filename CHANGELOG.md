@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - MCP-5: the MCP proxy records the `tasks/*` lifecycle (and task-augmented tool results) with the task id as
+    metadata (SEP-2663); Roots/Sampling/Logging are marked **closed-by-spec** (SEP-2577) in known-limitations
+    (#337).
   - MCP-4: the MCP proxy records server-issued `elicitation/create` request/response and links the human-input
     answer to approval provenance (S14): `accept`→`user`, `decline`→`denied`, otherwise honest `unknown`
     (#336).

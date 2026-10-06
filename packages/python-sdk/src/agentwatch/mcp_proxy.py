@@ -93,6 +93,7 @@ def _frame(
     call_id: str | None = None,
     resource: str | None = None,
     prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -110,6 +111,8 @@ def _frame(
         event["resource"] = resource
     if prompt is not None:
         event["prompt"] = prompt
+    if task is not None:
+        event["task"] = task
     if timestamp is not None:
         event["timestamp"] = timestamp
     if cwd is not None:
@@ -126,6 +129,7 @@ def request_frame(
     call_id: str | None = None,
     resource: str | None = None,
     prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -139,6 +143,7 @@ def request_frame(
         call_id=call_id,
         resource=resource,
         prompt=prompt,
+        task=task,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -153,6 +158,7 @@ def response_frame(
     call_id: str | None = None,
     resource: str | None = None,
     prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -166,6 +172,7 @@ def response_frame(
         call_id=call_id,
         resource=resource,
         prompt=prompt,
+        task=task,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -216,12 +223,21 @@ def is_recordable_request(message: Any) -> bool:
         is_tools_call_request(message)
         or is_resources_read_request(message)
         or is_prompts_get_request(message)
+        or is_tasks_request(message)
     )
 
 
 def is_elicitation_request(message: Any) -> bool:
     """Whether ``message`` is a server-issued ``elicitation/create`` request (S14)."""
     return isinstance(message, Mapping) and message.get("method") == "elicitation/create"
+
+
+def is_tasks_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``tasks/*`` request (SEP-2663)."""
+    if not isinstance(message, Mapping):
+        return False
+    method = message.get("method")
+    return isinstance(method, str) and method.startswith("tasks/")
 
 
 def is_jsonrpc_response(message: Any) -> bool:
@@ -263,7 +279,7 @@ class Recorder:
         self.session_id = session_id
         self.socket_path = socket_path
         self.cwd = cwd
-        self._pending: dict[Any, tuple[str, str, str | None, str | None]] = {}
+        self._pending: dict[Any, tuple[str, str, str | None, str | None, str | None]] = {}
         # Server-issued requests (elicitation/create) awaiting the harness answer.
         self._pending_elicit: dict[Any, tuple[str, str]] = {}
 
@@ -287,6 +303,7 @@ class Recorder:
             )
             return
         params = message.get("params") if isinstance(message, Mapping) else None
+        task: str | None = None
         if is_tools_call_request(message):
             name = params.get("name") if isinstance(params, Mapping) else None
             resource: str | None = None
@@ -302,13 +319,21 @@ class Recorder:
             resource = None
             prompt = params.get("name") if isinstance(params, Mapping) else None
             request_tool_name = "prompts/get"
+        elif is_tasks_request(message):
+            method = message.get("method")
+            name = method if isinstance(method, str) else "tasks"
+            resource = None
+            prompt = None
+            request_tool_name = name
+            raw_task = params.get("taskId") if isinstance(params, Mapping) else None
+            task = raw_task if isinstance(raw_task, str) and raw_task else None
         else:
             return
         # A fresh id per call: a JSON-RPC id may be reused across calls, but the
         # daemon's dedup key must stay unique so no record is silently dropped.
         call_id = uuid.uuid4().hex
         with contextlib.suppress(TypeError):  # an unhashable JSON-RPC id cannot be paired
-            self._pending[message.get("id")] = (str(name), call_id, resource, prompt)
+            self._pending[message.get("id")] = (str(name), call_id, resource, prompt, task)
         self._emit(
             request_frame(
                 self.server,
@@ -318,6 +343,7 @@ class Recorder:
                 call_id=call_id,
                 resource=resource,
                 prompt=prompt,
+                task=task,
                 cwd=self.cwd,
             )
         )
@@ -342,7 +368,7 @@ class Recorder:
         if not isinstance(message, Mapping):
             return
         try:
-            tool_name, call_id, resource, prompt = self._pending.pop(message.get("id"))
+            tool_name, call_id, resource, prompt, task = self._pending.pop(message.get("id"))
         except (KeyError, TypeError):
             return
         self._emit(
@@ -354,6 +380,7 @@ class Recorder:
                 call_id=call_id,
                 resource=resource,
                 prompt=prompt,
+                task=task,
                 cwd=self.cwd,
             )
         )
@@ -376,7 +403,7 @@ class Recorder:
     def flush_pending(self, reason: str = "server exited") -> None:
         """Record an error response for every request the server never answered."""
         for rpc_id in list(self._pending):
-            tool_name, call_id, resource, prompt = self._pending.pop(rpc_id)
+            tool_name, call_id, resource, prompt, task = self._pending.pop(rpc_id)
             rpc = {
                 "jsonrpc": "2.0",
                 "id": rpc_id,
@@ -391,6 +418,7 @@ class Recorder:
                     call_id=call_id,
                     resource=resource,
                     prompt=prompt,
+                    task=task,
                     cwd=self.cwd,
                 )
             )

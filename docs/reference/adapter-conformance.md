@@ -83,16 +83,16 @@ lives in `agentwatch.pydantic`.)
 
 ## MCP interposition proxy (M10 N1)
 
-The proxy adapter records MCP `tools/call`, `resources/read`, `prompts/get`, and server-issued
-`elicitation/create` request/response frames relayed through the proxy; each record carries `tool.server`
-attribution and the request/response pair shares a `span_id` derived from the JSON-RPC id. A resource link in a
-tool result is recorded as a `resources/link` observation; an elicitation answer is linked to approval provenance
-(`accept`→`user`, `decline`→`denied`, otherwise honest `unknown`). The resource URI / prompt name is metadata in
-`tool.arguments` (`search --mcp-resource` finds resource reads).
+The proxy adapter records MCP `tools/call`, `resources/read`, `prompts/get`, server-issued `elicitation/create`, and
+`tasks/*` request/response frames relayed through the proxy; each record carries `tool.server` attribution and the
+request/response pair shares a `span_id` derived from the JSON-RPC id. A resource link in a tool result is recorded
+as a `resources/link` observation; an elicitation answer is linked to approval provenance (`accept`→`user`,
+`decline`→`denied`, otherwise honest `unknown`); a task id (incl. a task-augmented tool result) is metadata. The
+resource URI / prompt name is metadata in `tool.arguments` (`search --mcp-resource` finds resource reads).
 
 - Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-*`, `resources-read-*`,
-  `prompts-get-*`, `elicitation-*`).
+  `prompts-get-*`, `elicitation-*`, `tasks-get-*`).
 - Adapter: `agentwatch.adapters.mcp_proxy`.
-- Capability classes: `mcp-tools`, `mcp-resources`, `mcp-prompts`, `mcp-elicitation`.
-- Declared gaps: `mcp-sampling` — relayed by the proxy but not recorded;
-  each is rejected explicitly when presented to `normalize`.
+- Capability classes: `mcp-tools`, `mcp-resources`, `mcp-prompts`, `mcp-elicitation`, `mcp-tasks`.
+- Declared gaps: `mcp-sampling`, `mcp-roots`, `mcp-logging` — **closed-by-spec** (SEP-2577), relayed by the proxy
+  but not recorded; each is rejected explicitly when presented to `normalize`.

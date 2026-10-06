@@ -54,12 +54,19 @@ HARNESS_ID = "mcp-proxy"
 PROXY_PRODUCER = Producer(kind=ProducerKind.PROXY, name=HARNESS_ID)
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation"})
+CAPABILITIES = frozenset(
+    {"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation", "mcp-tasks"}
+)
 
 # Honest, declared gaps — never dropped silently (R3). ``tools/call``,
-# ``resources/read``, ``prompts/get``, and elicitation are recorded; sampling is
-# relayed by the proxy but has no record-model representation yet.
-DOCUMENTED_GAPS = ("mcp-sampling",)
+# ``resources/read``, ``prompts/get``, elicitation, and tasks are recorded.
+# Roots/Sampling/Logging are **closed-by-spec** (SEP-2577): the standard retired
+# them, so they are not recorded and not on our roadmap (see known-limitations).
+DOCUMENTED_GAPS = ("mcp-sampling", "mcp-roots", "mcp-logging")
+
+# Surfaces the 2026-07-28 revision retired (SEP-2577); recorded as documented
+# gaps for explicit rejection, but retired by the standard, not by us.
+CLOSED_BY_SPEC = frozenset({"sampling", "roots", "logging"})
 
 # Elicitation answers map to approval provenance (S14). An answer that does not
 # expose a recognised action stays honest ``unknown`` — never guessed.
@@ -195,10 +202,16 @@ def normalize(
         elif method == "elicitation/create":
             tool_name = "elicitation/create"
             source = None
+        elif isinstance(method, str) and method.startswith("tasks/"):
+            tool_name = method
+            raw_task = params.get("taskId")
+            if isinstance(raw_task, str) and raw_task:
+                surface_metadata = {"taskId": raw_task}
+            source = None
         else:
             raise McpProxyAdapterError(
-                f"unsupported method {method!r}; expected 'tools/call', "
-                f"'resources/read', 'prompts/get', or 'elicitation/create'"
+                f"unsupported method {method!r}; expected 'tools/call', 'resources/read', "
+                f"'prompts/get', 'elicitation/create', or a 'tasks/*' method"
             )
         step_type: StepType | None = StepType.ACT
         outcome = Outcome.OK
@@ -210,10 +223,21 @@ def normalize(
         tool_name = name
         raw_resource = event.get("resource")
         raw_prompt = event.get("prompt")
+        raw_task = event.get("task")
+        result = rpc.get("result")
+        result_task = result.get("task") if isinstance(result, Mapping) else None
+        result_task_id = (
+            result_task.get("id") if isinstance(result_task, Mapping) else None
+        )
         if isinstance(raw_resource, str) and raw_resource:
             surface_metadata = {"uri": raw_resource}
         elif isinstance(raw_prompt, str) and raw_prompt:
             surface_metadata = {"name": raw_prompt}
+        elif isinstance(raw_task, str) and raw_task:
+            surface_metadata = {"taskId": raw_task}
+        elif isinstance(result_task_id, str) and result_task_id:
+            # A task-augmented tool result: keep the durable task id (SEP-2663).
+            surface_metadata = {"taskId": result_task_id}
         error = rpc.get("error")
         if error is not None:
             outcome = Outcome.ERROR

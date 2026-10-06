@@ -33,6 +33,12 @@ requirement is [PRD 42](../prd/42-harness-fidelity-and-realtime.md) (STR-1..3).
 - `agentwatch tail -f` (streaming), live timeline and live anomaly inbox in the operator UI.
 - Latency target: p99 hook → operator view ≤ 1 s (perf gate extension).
 
+**STR-2 (M26):** the live consumer is store-truth + notification. The STR-1 transport notifies by sequence number;
+[`agentwatch.live.LiveTail`](../../packages/python-sdk/src/agentwatch/live.py) reconciles a poll into rendered
+lines, **classified gaps** (`stream-drop`, `purged`, `missing`, `rotated`), and a visible `degraded` flag. A
+backpressured subscriber (or a late join, or a rotated store file) is **back-filled from the store**, so the live
+view never diverges from the chain. The operator live views themselves are `26.UI-1`.
+
 ## Trace correlation
 
 `traceparent` (W3C) propagation through subagents, MCP hops, and SDK spans is applied at append time

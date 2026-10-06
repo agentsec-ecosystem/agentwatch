@@ -7,6 +7,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - SIEM-2: the opt-in Syslog sink is verified — the S10 redaction self-test gate applies, a delivery failure
+    surfaces `degraded` with a bounded queue (never a silent drop); `tests/test_siem_syslog.py` (#347).
   - SIEM-1: an OCSF 1.5.0 reference consumer (`examples/ocsf_consumer.py`) with a CI test
     (`tests/test_siem_consumers.py`); events-only, bounded, no store access (#346).
   - COR-2: `agentwatch.incident_taxonomy` maps every security-event type to the AIR schema fields

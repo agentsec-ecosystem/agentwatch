@@ -250,6 +250,16 @@
         "test:packages/python-sdk/tests/test_siem_consumers.py::test_consumer_validates_a_generated_ocsf_stream"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C25",
+      "claim": "The opt-in Syslog sink surfaces degraded on delivery failure with a bounded queue (no silent drop).",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_siem_syslog.py::test_syslog_sink_wraps_a_delivery_failure",
+        "test:packages/python-sdk/tests/test_siem_syslog.py::test_forwarder_is_degraded_on_a_syslog_failure"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

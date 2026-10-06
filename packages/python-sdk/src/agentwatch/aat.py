@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -187,28 +188,64 @@ def verify_aat(bundle: Any) -> bool:
 
     Fails closed on any malformed shape (never raises on untrusted input).
     """
-    if not isinstance(bundle, dict) or bundle.get("aat_version") != AAT_DRAFT:
-        return False
-    records = bundle.get("records")
-    if not isinstance(records, list):
-        return False
+    return verify_aat_report(bundle).ok
+
+
+@dataclass(frozen=True)
+class AATProblem:
+    """One entry that failed verification (index ``-1`` = bundle-level)."""
+
+    index: int
+    reason: str
+
+
+@dataclass(frozen=True)
+class AATVerification:
+    """The full verdict for a bundle (gap-free, per-entry)."""
+
+    ok: bool
+    problems: tuple[AATProblem, ...] = ()
+
+
+def verify_aat_report(bundle: Any) -> AATVerification:
+    """Verify a bundle and report *which* entries failed, with reasons.
+
+    Bundle-level failures (not an object, wrong revision, no records) report a
+    single problem at index ``-1``. Per-entry failures report the entry index;
+    a failing entry never cascades into false linkage errors for its successors.
+    """
+    if not isinstance(bundle, dict):
+        return AATVerification(False, (AATProblem(-1, "bundle is not a JSON object"),))
+    if bundle.get("aat_version") != AAT_DRAFT:
+        return AATVerification(False, (AATProblem(-1, "unsupported AAT revision"),))
+    entries = bundle.get("records")
+    if not isinstance(entries, list):
+        return AATVerification(False, (AATProblem(-1, "bundle has no records list"),))
+    problems: list[AATProblem] = []
     prev_hash: str | None = None
-    for entry in records:
-        if aat_entry_chain_error(entry, prev_hash) is not None:
-            return False
-        prev_hash = entry["chain"]["hash"]
-    return True
+    for index, entry in enumerate(entries):
+        reason = aat_entry_chain_error(entry, prev_hash)
+        if reason is not None:
+            problems.append(AATProblem(index, reason))
+        chain = entry.get("chain") if isinstance(entry, dict) else None
+        declared = chain.get("hash") if isinstance(chain, dict) else None
+        if isinstance(declared, str):
+            prev_hash = declared
+    return AATVerification(not problems, tuple(problems))
 
 
 __all__ = [
     "AAT_DRAFT",
     "AAT_EXPORT_SCHEMA",
     "AAT_MAPPING",
+    "AATProblem",
+    "AATVerification",
     "aat_entry_chain_error",
     "aat_entry_hash",
     "aat_record",
     "export_aat",
     "to_aat_json",
     "verify_aat",
+    "verify_aat_report",
     "write_aat",
 ]

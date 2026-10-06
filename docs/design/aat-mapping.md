@@ -15,8 +15,11 @@ product requirement is [PRD 41](../prd/41-standards-and-interop-ii.md) (AAT-1..5
 > `ingest --format aat` (`agentwatch.ingest.transcode_aat`) verifies every entry's chain
 > hash and inter-entry linkage before storage, runs foreign content through the secrets
 > pipeline, and quarantines any untrusted or non-normalizable record with a reason (B4).
-> AAT-4 (conformance vectors + second verifier) and AAT-5 (draft-revision drift check)
-> remain in M26.
+> **AAT-4** adds `schema/vectors/aat/` (valid/tampered/unmapped/unsupported-revision)
+> with `expected-verdicts.json`, a dependency-free second verifier
+> (`schema/vectors/verify_aat.py`), and the dual-verifier CI check
+> (`packages/python-sdk/tests/test_aat_vectors.py`). AAT-5 (draft-revision drift check)
+> remains in M26.
 
 ## Pin
 
@@ -55,8 +58,10 @@ Unmappable AAT fields are emitted in an `unmapped` array naming each field and w
 ## Conformance vectors
 
 `schema/vectors/aat/` holds valid, tampered, unmapped, and unsupported-revision fixtures with a machine-readable
-`expected-verdicts.json` (the Q6 store-vector pattern). Two independent verifiers — our code and a
-dependency-free script — must agree; divergence is a contract bug.
+`expected-verdicts.json` (the Q6 store-vector pattern). Two independent verifiers — our code
+(`agentwatch.aat.verify_aat_report`) and a dependency-free script (`schema/vectors/verify_aat.py`) — must agree;
+divergence is a contract bug. Both are checked against the table in CI
+(`packages/python-sdk/tests/test_aat_vectors.py`); regenerate with `python scripts/generate_aat_vectors.py`.
 
 ## Wording
 

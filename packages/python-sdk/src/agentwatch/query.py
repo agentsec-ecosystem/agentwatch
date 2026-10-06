@@ -11,6 +11,7 @@ import re
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone, tzinfo
 
+from agentwatch.identity import identity_handles
 from agentwatch.records import AgentRecord, effective_approval, effective_producer
 from agentwatch.store import RecordStore
 
@@ -63,6 +64,7 @@ def search(
     project: str | None = None,
     producer: str | None = None,
     approval: str | None = None,
+    identity: str | None = None,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
@@ -85,6 +87,12 @@ def search(
             continue
         if approval is not None and effective_approval(record).value != approval:
             continue
+        if identity is not None:
+            needle = identity.strip().lower()
+            if not needle or not any(
+                needle in handle.lower() for handle in identity_handles(record.agent)
+            ):
+                continue
         if cutoff is not None and record.started_at < cutoff:
             continue
         result.append(record)

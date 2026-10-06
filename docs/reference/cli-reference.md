@@ -46,7 +46,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch doctor [--json]` | Ordered health checklist with fix hints | **implemented** (M5) |
 | `agentwatch view [<id>]` | Terminal timeline: list sessions or show a session | **implemented** (M7) |
 | `agentwatch explain <id>` | Deterministic, local-first session summary (no egress by default) | **implemented** (M7) |
-| `agentwatch search [--tool T] [--outcome O] [--session S] [--project PATH] [--producer KIND] [--approval A] [--since WHEN] [--json]` | Filter stored records | **implemented** (M8; `--project` M9; `--producer` M15; `--approval` M19) |
+| `agentwatch search [--tool T] [--outcome O] [--session S] [--project PATH] [--producer KIND] [--approval A] [--identity HANDLE] [--since WHEN] [--json]` | Filter stored records; `--identity` matches any agent/principal/workload/delegation handle (M8; `--project` M9; `--producer` M15; `--approval` M19; `--identity` M26 IDN-2) | **implemented** (M8; identity M26) |
 | `agentwatch diff <a> <b> [--json]` | Behavioral diff of two sessions | **implemented** (M8) |
 | `agentwatch import <path> [--capture MODE] [--json]` | Import Claude Code transcripts (redacted before storage) | **implemented** (M8) |
 | `agentwatch ingest <path> [--format otel\|ndjson] [--capture MODE] [--json]` | Ingest foreign OTel GenAI / NDJSON traces (redacted, chained, quarantines unmappable input) | **implemented** (M10 N2) |

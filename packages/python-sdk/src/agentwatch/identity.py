@@ -134,6 +134,19 @@ def apply_identity_privacy(
     )
 
 
+def identity_handles(agent: AgentIdentity) -> tuple[str, ...]:
+    """Every identity handle on an agent (for `search --identity`).
+
+    Includes the agent identity/name, the on-behalf-of principal, the workload
+    identity, and each delegation-chain entry — absent fields are omitted, never
+    synthesized.
+    """
+    values = [agent.identity, agent.name, agent.principal, agent.workload_identity]
+    if agent.delegation_chain is not None:
+        values.extend(agent.delegation_chain)
+    return tuple(value for value in values if isinstance(value, str) and value)
+
+
 def identity_secret_kinds(agent: AgentIdentity) -> tuple[str, ...]:
     """The secret classes present in any identity field (for the guard/property test)."""
     kinds: list[str] = []
@@ -171,6 +184,7 @@ __all__ = [
     "IDENTITY_HASH_PREFIX",
     "apply_identity_privacy",
     "hash_principal",
+    "identity_handles",
     "identity_secret_kinds",
     "scrub_identity",
 ]

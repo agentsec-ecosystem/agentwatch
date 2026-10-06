@@ -486,6 +486,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="only records with this authorization decision (M19 S14)",
     )
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
+    search.add_argument(
+        "--identity",
+        default=None,
+        help="only records whose agent/principal/workload/delegation handle matches (IDN-2)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
@@ -1907,6 +1912,7 @@ def _run_search(args: argparse.Namespace) -> int:
         project=args.project,
         producer=args.producer,
         approval=args.approval,
+        identity=args.identity,
         records=combined.records,
     )
     for record in records:

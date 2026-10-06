@@ -13,7 +13,11 @@ which credential, on whose behalf, with whose approval* is answerable end to end
 > HMAC by default and keeps plaintext only under the `full` mode; `scrub_identity()` guarantees identity
 > fields never carry secret material (PII such as an email principal is the dimension's legitimate subject
 > and is hashed, not masked). The Claude Code adapter attaches the dimension from optional hook fields.
-> IDN-2 (delegation-chain capture) and IDN-3 (attribution rendering) remain.
+> **IDN-2 (M26):** the Claude Code adapter captures the on-behalf-of `principal`, `workload_identity`,
+> `credential_class`, and `delegation_chain` from optional hook fields (absent stays honestly unknown; never
+> inferred), `identity_handles()` enumerates every handle on a record, and `agentwatch search --identity <handle>`
+> matches any of them (case-insensitive substring). AAT export already populates the identity block. IDN-3
+> (attribution rendering) remains.
 
 ## Two-layer model
 

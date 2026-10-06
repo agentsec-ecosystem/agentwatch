@@ -53,12 +53,12 @@ HARNESS_ID = "mcp-proxy"
 PROXY_PRODUCER = Producer(kind=ProducerKind.PROXY, name=HARNESS_ID)
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"mcp-tools", "mcp-resources"})
+CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts"})
 
-# Honest, declared gaps — never dropped silently (R3). ``tools/call`` and
-# ``resources/read`` are recorded; prompts and sampling are relayed by the proxy
-# but have no record-model representation yet.
-DOCUMENTED_GAPS = ("mcp-prompts", "mcp-sampling")
+# Honest, declared gaps — never dropped silently (R3). ``tools/call``,
+# ``resources/read``, and ``prompts/get`` are recorded; sampling is relayed by
+# the proxy but has no record-model representation yet.
+DOCUMENTED_GAPS = ("mcp-sampling",)
 
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
@@ -160,7 +160,7 @@ def normalize(
     project = event.get("cwd") if isinstance(event.get("cwd"), str) else None
     event_time = _event_time(event)
 
-    resource: str | None = None
+    surface_metadata: dict[str, str] | None = None
     if direction == "request":
         method = rpc.get("method")
         params = rpc.get("params")
@@ -177,11 +177,19 @@ def normalize(
             if not isinstance(uri, str) or not uri:
                 raise McpProxyAdapterError("resources/read is missing a resource 'uri'")
             tool_name = "resources/read"
-            resource = uri
+            surface_metadata = {"uri": uri}
+            source = None
+        elif method == "prompts/get":
+            prompt = params.get("name")
+            if not isinstance(prompt, str) or not prompt:
+                raise McpProxyAdapterError("prompts/get is missing a prompt 'name'")
+            tool_name = "prompts/get"
+            surface_metadata = {"name": prompt}
             source = None
         else:
             raise McpProxyAdapterError(
-                f"unsupported method {method!r}; expected 'tools/call' or 'resources/read'"
+                f"unsupported method {method!r}; expected 'tools/call', "
+                f"'resources/read', or 'prompts/get'"
             )
         step_type: StepType | None = StepType.ACT
         outcome = Outcome.OK
@@ -192,7 +200,11 @@ def normalize(
             raise McpProxyAdapterError("response is missing a 'tool_name'")
         tool_name = name
         raw_resource = event.get("resource")
-        resource = raw_resource if isinstance(raw_resource, str) and raw_resource else None
+        raw_prompt = event.get("prompt")
+        if isinstance(raw_resource, str) and raw_resource:
+            surface_metadata = {"uri": raw_resource}
+        elif isinstance(raw_prompt, str) and raw_prompt:
+            surface_metadata = {"name": raw_prompt}
         error = rpc.get("error")
         if error is not None:
             outcome = Outcome.ERROR
@@ -206,13 +218,13 @@ def normalize(
     # Mask secrets before any storage transform (DD-06); detection runs even
     # when content is not captured so a secret-detected event still fires (R5).
     masked_source, kinds = redact_mapping(source)
-    masked_resource: dict[str, Any] | None = None
-    if resource is not None:
-        # The resource URI is metadata (searchable by ``search --mcp-resource``);
-        # it still passes through secret detection so an embedded secret leaves a
-        # masked trace rather than leaking.
-        masked_resource, resource_kinds = redact_mapping({"uri": resource})
-        kinds = (*kinds, *resource_kinds)
+    masked_metadata: dict[str, Any] | None = None
+    if surface_metadata is not None:
+        # The surface key (resource URI / prompt name) is metadata; it still
+        # passes through secret detection so an embedded secret leaves a masked
+        # trace rather than leaking.
+        masked_metadata, metadata_kinds = redact_mapping(surface_metadata)
+        kinds = (*kinds, *metadata_kinds)
     security_event = (
         SecurityEvent(
             type=SecurityEventType.SECRET_DETECTED,
@@ -227,8 +239,8 @@ def normalize(
     captured, privacy_mode = _capture(masked_source, redaction)
 
     tool_kwargs: dict[str, Any] = {"name": tool_name, "server": server}
-    if masked_resource is not None:
-        tool_kwargs["arguments"] = masked_resource
+    if masked_metadata is not None:
+        tool_kwargs["arguments"] = masked_metadata
         tool_kwargs["privacy_mode"] = RecordPrivacyMode.METADATA_ONLY
     if captured is not None:
         tool_kwargs["privacy_mode"] = privacy_mode

@@ -92,6 +92,7 @@ def _frame(
     tool_name: str | None = None,
     call_id: str | None = None,
     resource: str | None = None,
+    prompt: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -107,6 +108,8 @@ def _frame(
         event["call_id"] = call_id
     if resource is not None:
         event["resource"] = resource
+    if prompt is not None:
+        event["prompt"] = prompt
     if timestamp is not None:
         event["timestamp"] = timestamp
     if cwd is not None:
@@ -122,6 +125,7 @@ def request_frame(
     tool_name: str | None = None,
     call_id: str | None = None,
     resource: str | None = None,
+    prompt: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -134,6 +138,7 @@ def request_frame(
         tool_name=tool_name,
         call_id=call_id,
         resource=resource,
+        prompt=prompt,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -147,6 +152,7 @@ def response_frame(
     tool_name: str,
     call_id: str | None = None,
     resource: str | None = None,
+    prompt: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -159,6 +165,7 @@ def response_frame(
         tool_name=tool_name,
         call_id=call_id,
         resource=resource,
+        prompt=prompt,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -190,9 +197,26 @@ def is_resources_read_request(message: Any) -> bool:
     return isinstance(uri, str) and bool(uri)
 
 
+def is_prompts_get_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``prompts/get`` request with a name."""
+    if not isinstance(message, Mapping):
+        return False
+    if message.get("method") != "prompts/get":
+        return False
+    params = message.get("params")
+    if not isinstance(params, Mapping):
+        return False
+    name = params.get("name")
+    return isinstance(name, str) and bool(name)
+
+
 def is_recordable_request(message: Any) -> bool:
     """Whether a harness request belongs to a recorded MCP surface."""
-    return is_tools_call_request(message) or is_resources_read_request(message)
+    return (
+        is_tools_call_request(message)
+        or is_resources_read_request(message)
+        or is_prompts_get_request(message)
+    )
 
 
 def resource_links(result: Any) -> list[str]:
@@ -229,33 +253,42 @@ class Recorder:
         self.session_id = session_id
         self.socket_path = socket_path
         self.cwd = cwd
-        self._pending: dict[Any, tuple[str, str, str | None]] = {}
+        self._pending: dict[Any, tuple[str, str, str | None, str | None]] = {}
 
     def observe_from_harness(self, message: Any) -> None:
         """Record a harness -> server frame; other methods are relay-only."""
+        params = message.get("params") if isinstance(message, Mapping) else None
         if is_tools_call_request(message):
-            params = message.get("params")
             name = params.get("name") if isinstance(params, Mapping) else None
-            resource = None
+            resource: str | None = None
+            prompt: str | None = None
+            request_tool_name: str | None = None
         elif is_resources_read_request(message):
-            params = message.get("params")
             name = "resources/read"
             resource = params.get("uri") if isinstance(params, Mapping) else None
+            prompt = None
+            request_tool_name = "resources/read"
+        elif is_prompts_get_request(message):
+            name = "prompts/get"
+            resource = None
+            prompt = params.get("name") if isinstance(params, Mapping) else None
+            request_tool_name = "prompts/get"
         else:
             return
         # A fresh id per call: a JSON-RPC id may be reused across calls, but the
         # daemon's dedup key must stay unique so no record is silently dropped.
         call_id = uuid.uuid4().hex
         with contextlib.suppress(TypeError):  # an unhashable JSON-RPC id cannot be paired
-            self._pending[message.get("id")] = (str(name), call_id, resource)
+            self._pending[message.get("id")] = (str(name), call_id, resource, prompt)
         self._emit(
             request_frame(
                 self.server,
                 self.session_id,
                 message,
-                tool_name="resources/read" if resource is not None else None,
+                tool_name=request_tool_name,
                 call_id=call_id,
                 resource=resource,
+                prompt=prompt,
                 cwd=self.cwd,
             )
         )
@@ -265,7 +298,7 @@ class Recorder:
         if not isinstance(message, Mapping):
             return
         try:
-            tool_name, call_id, resource = self._pending.pop(message.get("id"))
+            tool_name, call_id, resource, prompt = self._pending.pop(message.get("id"))
         except (KeyError, TypeError):
             return
         self._emit(
@@ -276,6 +309,7 @@ class Recorder:
                 tool_name=tool_name,
                 call_id=call_id,
                 resource=resource,
+                prompt=prompt,
                 cwd=self.cwd,
             )
         )
@@ -298,7 +332,7 @@ class Recorder:
     def flush_pending(self, reason: str = "server exited") -> None:
         """Record an error response for every request the server never answered."""
         for rpc_id in list(self._pending):
-            tool_name, call_id, resource = self._pending.pop(rpc_id)
+            tool_name, call_id, resource, prompt = self._pending.pop(rpc_id)
             rpc = {
                 "jsonrpc": "2.0",
                 "id": rpc_id,
@@ -312,6 +346,7 @@ class Recorder:
                     tool_name=tool_name,
                     call_id=call_id,
                     resource=resource,
+                    prompt=prompt,
                     cwd=self.cwd,
                 )
             )

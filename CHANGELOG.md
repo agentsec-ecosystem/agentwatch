@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - MCP-3: the MCP proxy records `prompts/get` request/response; the prompt name is metadata in
+    `tool.arguments['name']`. The `mcp-prompts` gap is closed; capability/gap sets and the conformance
+    pack move together (#335).
   - MCP-2: the MCP proxy records `resources/read` request/response and every `resource_link` in a tool
     result (`resources/link` observation); the resource URI is metadata in `tool.arguments['uri']` and
     `agentwatch search --mcp-resource <uri>` finds each access. The `mcp-resources` gap is closed; the

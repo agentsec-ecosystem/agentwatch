@@ -177,6 +177,16 @@
         "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_search_filters_by_mcp_resource"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C18",
+      "claim": "The MCP proxy records prompts/get and keeps the prompt name as metadata.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_prompts.py::test_prompts_get_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_prompts.py::test_recorder_pairs_a_prompts_get_response"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

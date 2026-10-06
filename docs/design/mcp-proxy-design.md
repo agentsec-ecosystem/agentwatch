@@ -24,9 +24,9 @@ not just tool names.
 - **In scope (v0.2.0 MCP-1):** the HTTP relay speaks the **Streamable HTTP** transport as its default
   (`--transport streamable-http`); the legacy HTTP/SSE relay is kept verbatim (`--transport http-sse`,
   deprecated-in-spec).
-- **Out of scope (declared gaps):** MCP `prompts/get`, sampling, and elicitation are relayed but **not** recorded
-  (no record-model concept yet); non-MCP harnesses fall back to native/OTel (N2). `resources/read` is recorded
-  (MCP-2); prompts and elicitation are closed by MCP-3..MCP-5.
+- **Out of scope (declared gaps):** MCP sampling and elicitation are relayed but **not** recorded (no
+  record-model concept yet); non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2) and
+  `prompts/get` (MCP-3) are recorded; elicitation is closed by MCP-4.
 
 ## Architecture
 
@@ -62,8 +62,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 `agentwatch.adapters.mcp_proxy`:
 
 - `HARNESS_ID = "mcp-proxy"`
-- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources"})`
-- `DOCUMENTED_GAPS = ("mcp-prompts", "mcp-sampling")`
+- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts"})`
+- `DOCUMENTED_GAPS = ("mcp-sampling",)`
 - `class McpProxyAdapterError(ValueError)`
 - `normalize(message: Mapping[str, Any], *, redaction: RedactionConfig | None = None) -> list[AgentRecord]`
 
@@ -93,6 +93,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   `resources/read` request the proxy sets it to `resources/read`. Ignored on a `tools/call` request.
 - `resource` (str, optional) — the resource URI for a `resources/read` request/response or a `resources/link`
   observation; kept as metadata (`tool.arguments['uri']`).
+- `prompt` (str, optional) — the prompt name for a `prompts/get` request/response; kept as metadata
+  (`tool.arguments['name']`).
 - `call_id` (str, optional) — a proxy-assigned id unique per call; the request and its response share it.
   Used for `span_id` correlation so a reused JSON-RPC id cannot collide in the daemon's dedup key.
 - `rpc` (object, required) — the verbatim JSON-RPC 2.0 message.
@@ -101,16 +103,17 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 ### Normalization
 
 - **Reject, never drop.** `normalize` raises `McpProxyAdapterError` unless `phase == "mcp"`, `direction` is valid,
-  and the RPC is a valid `tools/call` or `resources/read` shape. A declared gap or an unknown phase is rejected
-  explicitly (satisfies the conformance runner's gap/unknown probes with the default probe).
-- **Request** → intent record: `step_type=act`, `tool.name` from `params.name` (or `resources/read`),
-  `tool.server` from `server`, `tool.arguments` from `params.arguments` (redacted), `outcome=ok`, no end time.
+  and the RPC is a valid `tools/call`, `resources/read`, or `prompts/get` shape. A declared gap or an unknown
+  phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes with the default probe).
+- **Request** → intent record: `step_type=act`, `tool.name` from `params.name` (or the method for
+  resources/prompts), `tool.server` from `server`, `tool.arguments` from `params.arguments` (redacted),
+  `outcome=ok`, no end time.
 - **Response** → outcome record: `step_type=observe`, `tool.name` from `event.tool_name`, `outcome=error` when
   `rpc.error` is present else `ok`, `tool.response` from `rpc.result` (redacted), end time = event time.
-- **Resource URI** → metadata: a `resources/read` record keeps the URI in `tool.arguments['uri']` with
-  `privacy_mode=metadata-only` (never the resource body unless a `RedactionConfig` captures it); the proxy emits a
-  `resources/link` observation for every `resource_link` in a `tools/call` result. `search --mcp-resource` matches
-  the URI.
+- **Surface key** → metadata: a `resources/read` record keeps the URI in `tool.arguments['uri']` and a
+  `prompts/get` record keeps the prompt name in `tool.arguments['name']`, both with `privacy_mode=metadata-only`
+  (never the body unless a `RedactionConfig` captures it); the proxy emits a `resources/link` observation for every
+  `resource_link` in a `tools/call` result. `search --mcp-resource` matches the URI.
 - **Pairing:** `span_id = f"mcp:{server}:{call_id}"` when the proxy supplied a `call_id`, else
   `f"mcp:{server}:{rpc.id}"` when `id` is present, else `None` (request and response agree).
   `trace_id = event.trace_id or session_id`.

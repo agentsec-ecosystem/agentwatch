@@ -58,8 +58,9 @@ and stateless), **Roots/Sampling/Logging deprecated** (SEP-2577), **MRTR** rewor
 The proxy migrates to **Streamable HTTP** and records the previously-relayed surfaces — `resources/read` (incl.
 resource links in tool results), `prompts/get`, **elicitation** (linked to approval provenance S14), and **tasks**
 lifecycle — with the same redaction/chain/attribution pipeline. A `resources/read` record and each `resources/link`
-observation keep the resource URI as metadata in `tool.arguments['uri']` (never the body unless captured), so
-`search --mcp-resource <uri>` finds every access. The streamable transport is **stateless**: because
+observation keep the resource URI in `tool.arguments['uri']`; a `prompts/get` record keeps the prompt name in
+`tool.arguments['name']` — all metadata (never the body unless captured). `search --mcp-resource <uri>` finds every
+resource access. The streamable transport is **stateless**: because
 2026-07-28 removed sessions, the proxy neither requires, forwards, nor emits `Mcp-Session-Id` in either direction,
 and `MCP-Protocol-Version` is relayed unchanged. The pre-2026 HTTP/SSE relay is kept for legacy servers
 (`agentwatch mcp-proxy --http --transport http-sse`) and is **deprecated-in-spec**. `sampling`/`roots`/`logging` are

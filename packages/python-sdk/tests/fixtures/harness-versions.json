@@ -184,6 +184,14 @@
       "fingerprint": "e661ccbeed2a3f75",
       "version": "modeled"
     },
+    "mcp-proxy/prompts-get-request.json": {
+      "fingerprint": "ac25d02627ae8076",
+      "version": "2025-06-18"
+    },
+    "mcp-proxy/prompts-get-response.json": {
+      "fingerprint": "f458e94c6fa2f752",
+      "version": "2025-06-18"
+    },
     "mcp-proxy/resources-read-request.json": {
       "fingerprint": "bcca7a10bf9556e6",
       "version": "2025-06-18"

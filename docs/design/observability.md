@@ -27,8 +27,8 @@ Mapping of agentwatch fields to OTel attributes: [design/otel-mapping.md](otel-m
   with a CI-exercised reference consumer (`examples/ocsf_consumer.py`, M27 SIEM-1) plus a **Syslog** sink
   (`examples/security_event_consumer.py` is the event flavor); events-only, bounded, redaction-gated (S10),
   `degraded` visible on backpressure.
-- **Detector telemetry** (PRD 43 DET-5): opt-in, local-only, content-free fired/suppressed/false-positive markers,
-  feedable to SIEM consumers.
+- **Detector telemetry** (PRD 43 DET-5): opt-in, local-only, content-free fired/suppressed/false-positive markers
+  (`agentwatch.detector_telemetry`, off by default, bounded NDJSON), feedable to SIEM consumers.
 - **v0.2.0-expanded** (PRD 49–59): authorization/oversight provenance
   ([authorization-provenance-v2](authorization-provenance-v2.md)), recorder attestation
   ([recorder-attestation](recorder-attestation.md)), harness-native telemetry join

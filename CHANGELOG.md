@@ -7,6 +7,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - DET-5: opt-in, local-only, content-free detector telemetry (`agentwatch.detector_telemetry`) — fired/
+    suppressed/false-positive markers as bounded NDJSON, feedable to a SIEM sink; off by default (#344).
   - SIEM-2: the opt-in Syslog sink is verified — the S10 redaction self-test gate applies, a delivery failure
     surfaces `degraded` with a bounded queue (never a silent drop); `tests/test_siem_syslog.py` (#347).
   - SIEM-1: an OCSF 1.5.0 reference consumer (`examples/ocsf_consumer.py`) with a CI test

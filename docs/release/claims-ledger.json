@@ -260,6 +260,16 @@
         "test:packages/python-sdk/tests/test_siem_syslog.py::test_forwarder_is_degraded_on_a_syslog_failure"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C26",
+      "claim": "Detector telemetry is opt-in, local-only and content-free (fired/suppressed/false-positive markers only).",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_detector_telemetry.py::test_disabled_telemetry_writes_nothing",
+        "test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

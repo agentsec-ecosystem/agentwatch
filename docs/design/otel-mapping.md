@@ -63,6 +63,11 @@ The reader's conformance is `packages/python-sdk/tests/test_otlp_protobuf_ingest
 frame rejection, streaming ingest, bounded-memory decode). The 100 MB budget is enforced by
 the perf harness (PERF-1).
 
+**Ingest recipes (GWY-1):** gateways that already emit OTLP are capture points, not new adapters —
+[`guides/gateway-otel-ingest.md`](../guides/gateway-otel-ingest.md) (LiteLLM OTel v2 / Portkey),
+[`guides/gemini-native-telemetry.md`](../guides/gemini-native-telemetry.md) (Gemini CLI). Each ships a
+committed fixture stream replayed in CI.
+
 ## Privacy mode ↔ content capture (OTEL-2)
 
 | Privacy mode | Content attribute keys | Metadata attribute keys |

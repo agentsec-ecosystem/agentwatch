@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - COR-2: `agentwatch.incident_taxonomy` maps every security-event type to the AIR schema fields
+    (architecture/mechanism/control/agency/outcome) and the AIID GMF taxonomy — each event has a
+    correspondent or an explicit `None`; `annotate --incident-tag` stores optional registry tags
+    metadata-only (secret-scrubbed) (#345).
   - GEM-2: the Gemini CLI adapter maps native OTel attributes — `active_approval_mode`→approval provenance
     (S14), `user.email`→a hashed on-behalf-of principal (IDN-1), `installation.id`→identity and
     `session.id`→session correlation (#342).

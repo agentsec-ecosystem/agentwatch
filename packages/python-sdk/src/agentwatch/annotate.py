@@ -9,6 +9,7 @@ free text redacted + length-capped before it is stored.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -28,6 +29,8 @@ PURGE_TOOL = "session-purge"
 # Cap the stored note so untrusted free text cannot bloat the chain or a view.
 NOTE_MAX_LENGTH = 4096
 TAG_MAX_LENGTH = 64
+INCIDENT_TAG_MAX_LENGTH = 128
+INCIDENT_TAG_MAX_COUNT = 32
 
 
 class AnnotateError(ValueError):
@@ -64,6 +67,7 @@ def annotate_session(
     note: str,
     *,
     tag: str | None = None,
+    incident_tags: Sequence[str] | None = None,
     now: datetime | None = None,
 ) -> AnnotateReport:
     """Append a metadata-only ``operator-note`` record for ``session_id``.
@@ -72,6 +76,8 @@ def annotate_session(
     stored (a secret in a note is masked, never persisted). An empty note is
     rejected. A note on a session whose records were purged is allowed and tagged
     with an explicit ``session_purged`` context; an unknown session is rejected.
+    ``incident_tags`` (COR-2) are metadata-only registry tags, each scrubbed and
+    capped.
     """
     if not isinstance(note, str) or not note.strip():
         raise AnnotateError("note must not be empty")
@@ -86,6 +92,16 @@ def annotate_session(
             raise AnnotateError("tag must not be empty when provided")
         clean_tag = candidate[:TAG_MAX_LENGTH]
 
+    clean_incident_tags: list[str] = []
+    if incident_tags is not None:
+        if len(incident_tags) > INCIDENT_TAG_MAX_COUNT:
+            raise AnnotateError(f"at most {INCIDENT_TAG_MAX_COUNT} incident tags")
+        for item in incident_tags:
+            candidate = item.strip() if isinstance(item, str) else ""
+            if not candidate:
+                raise AnnotateError("incident tag must not be empty")
+            clean_incident_tags.append(candidate[:INCIDENT_TAG_MAX_LENGTH])
+
     records = store.records()
     live = _has_live_records(records, session_id)
     purged = _has_purge_marker(records, session_id)
@@ -93,9 +109,17 @@ def annotate_session(
         raise AnnotateError(f"no records for session {session_id}")
 
     masked, kinds = redact_secrets(text)
+    all_kinds = list(kinds)
     arguments: dict[str, object] = {"note": masked}
     if clean_tag is not None:
         arguments["tag"] = clean_tag
+    if clean_incident_tags:
+        scrubbed_tags: list[str] = []
+        for item in clean_incident_tags:
+            masked_tag, tag_kinds = redact_secrets(item)
+            scrubbed_tags.append(masked_tag)
+            all_kinds.extend(tag_kinds)
+        arguments["incident_tags"] = scrubbed_tags
     session_purged = purged and not live
     if session_purged:
         arguments["session_purged"] = True
@@ -119,7 +143,7 @@ def annotate_session(
         seq=entry.seq,
         tag=clean_tag,
         session_purged=session_purged,
-        masked_kinds=kinds,
+        masked_kinds=tuple(all_kinds),
     )
 
 

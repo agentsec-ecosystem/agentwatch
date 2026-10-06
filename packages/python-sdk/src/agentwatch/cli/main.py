@@ -718,6 +718,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--note", required=True, help="operator note text (redacted before storage)"
     )
     annotate.add_argument("--tag", default=None, help="optional tag for filtering (sessions --tag)")
+    annotate.add_argument(
+        "--incident-tag",
+        action="append",
+        default=None,
+        metavar="TAG",
+        help="optional incident-registry tag (repeatable; metadata-only, M27 COR-2)",
+    )
 
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -1983,7 +1990,13 @@ def _run_annotate(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     try:
-        report = annotate_session(store, args.session_id, args.note, tag=args.tag)
+        report = annotate_session(
+            store,
+            args.session_id,
+            args.note,
+            tag=args.tag,
+            incident_tags=args.incident_tag,
+        )
     except AnnotateError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR

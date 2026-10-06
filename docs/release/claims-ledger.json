@@ -230,6 +230,16 @@
         "test:packages/python-sdk/tests/test_gemini_attribute_mapping.py::test_user_email_becomes_a_hashed_principal"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C23",
+      "claim": "Every security-event type maps to the AIR schema and GMF taxonomy (correspondent or explicit none); annotate incident tags are metadata-only.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_taxonomy.py::test_every_event_has_an_explicit_air_and_gmf_entry",
+        "test:packages/python-sdk/tests/test_incident_taxonomy.py::test_annotate_stores_incident_tags_metadata_only"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

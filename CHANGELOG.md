@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - DET-4: the 6 LLM-augmented detectors run through the shared offline eval harness (`run_eval(..., llm_client=…)`
+    + `create_llm_detectors(client)`), local-model-first and strictly additive (degrade to no-op without a model);
+    the rule trust path is unchanged. Published numbers require a running local model (#343).
   - UI-2: an **Operator** console view rendering identity/attribution (IDN-1/S14), SIEM sink health
     (targets + `degraded`), and content-free detector telemetry, backed by read-only endpoints
     `GET /api/v1/attribution`, `/siem-health`, `/detector-telemetry` (openapi + typed client regenerated).

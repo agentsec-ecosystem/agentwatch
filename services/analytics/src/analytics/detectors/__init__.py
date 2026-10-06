@@ -53,6 +53,14 @@ from analytics.detectors.interaction import (
     InterventionFrequencyDetector,
     InterventionRejectionDetector,
 )
+from analytics.detectors.llm import (
+    ConfusionPatternDetector,
+    EmbeddingDriftDetector,
+    GoalDriftDetector,
+    HallucinationDetector,
+    QualityDegradationDetector,
+    SemanticLoopDetector,
+)
 from analytics.detectors.output import (
     EmptyResponseDetector,
     IndeterminateDetector,
@@ -83,6 +91,7 @@ from analytics.detectors.tool import (
     ToolLatencyDetector,
     ToolTimeoutDetector,
 )
+from analytics.llm_client import LLMClient
 
 
 def create_all_detectors() -> list[BaseDetector]:
@@ -145,6 +154,23 @@ def create_all_detectors() -> list[BaseDetector]:
     ]
 
 
+def create_llm_detectors(client: LLMClient) -> list[BaseDetector]:
+    """Factory: the 6 LLM-augmented detectors bound to a local-first client (DET-4).
+
+    Kept separate from :func:`create_all_detectors` so the deterministic rule-based
+    trust path never depends on a model: the LLM layer is strictly additive and
+    degrades to no-op when the local endpoint is unavailable.
+    """
+    return [
+        EmbeddingDriftDetector(client),
+        SemanticLoopDetector(client),
+        HallucinationDetector(client),
+        GoalDriftDetector(client),
+        QualityDegradationDetector(client),
+        ConfusionPatternDetector(client),
+    ]
+
+
 __all__ = [
     "BaseDetector",
     "LoopDetector",
@@ -186,4 +212,5 @@ __all__ = [
     "DeniedClusterDetector",
     "NetworkToolDetector",
     "create_all_detectors",
+    "create_llm_detectors",
 ]

@@ -14,9 +14,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from analytics.detectors import create_all_detectors
+from analytics.detectors import create_all_detectors, create_llm_detectors
 from analytics.detectors.base import BaseDetector
 from analytics.detectors.pool import ScriptedPool
+from analytics.llm_client import LLMClient
 from analytics.models import RunSummary, SpanNode
 
 CORPUS_VERSION_KEY = "version"
@@ -73,10 +74,23 @@ def _fires(detector: BaseDetector, summary: RunSummary, spans: list[SpanNode]) -
 
 
 def run_eval(
-    cases: list[DetectorCase], *, detectors: list[BaseDetector] | None = None
+    cases: list[DetectorCase],
+    *,
+    detectors: list[BaseDetector] | None = None,
+    llm_client: LLMClient | None = None,
 ) -> EvalReport:
-    """Run every detector over every case; deterministic and offline."""
-    active = list(detectors) if detectors is not None else create_all_detectors()
+    """Run every detector over every case; deterministic and offline.
+
+    Pass ``llm_client`` to include the 6 LLM-augmented detectors (DET-4) on the
+    same harness — local-model-first, and strictly additive: the rule-based
+    detectors run unchanged, and an unavailable model degrades them to no-op.
+    """
+    if detectors is not None:
+        active = list(detectors)
+    else:
+        active = create_all_detectors()
+        if llm_client is not None:
+            active = active + create_llm_detectors(llm_client)
     outcomes: list[Outcome] = []
     for case in cases:
         for detector in active:

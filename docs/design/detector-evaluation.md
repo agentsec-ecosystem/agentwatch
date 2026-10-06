@@ -15,7 +15,10 @@ PRD 29 (LLM explanation layer).
 - Reports per-detector precision/recall (+ confidence intervals) and an aggregate, generated into
   `docs/reference/detector-catalog.md` (CI-guarded — docs-drift impossible).
 - The eval harness **judges detectors**; detectors judge nothing, and the LLM stays out of the trust path
-  (PRD 29/14). LLM detectors are evaluated by the same harness (local-model-first).
+  (PRD 29/14). LLM detectors are evaluated by the same harness (local-model-first): `run_eval(..., llm_client=…)`
+  appends `create_llm_detectors(client)` to the rule set — strictly additive, degrading to no-op when the local
+  endpoint is unavailable (`services/analytics/tests/test_llm_eval.py`). Publishing the LLM numbers needs a running
+  local model (tracked on DET-4).
 
 ### Non-silent gate (DET-2)
 

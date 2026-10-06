@@ -327,6 +327,17 @@
         "file:docs/reference/accessibility.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C32",
+      "claim": "The 6 LLM-augmented detectors are evaluated by the shared offline harness, local-model-first and outside the deterministic trust path.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detectors_run_through_the_shared_harness",
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detectors_are_not_in_the_rule_factory",
+        "test:services/analytics/tests/test_llm_eval.py::test_unavailable_model_degrades_to_no_op"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

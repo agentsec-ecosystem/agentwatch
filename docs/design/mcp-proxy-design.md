@@ -215,7 +215,7 @@ Delivered as **two implementation plans** (each produces working, testable softw
 | # | Decision |
 |---|---|
 | D-M1 | Interpose on **both** stdio and HTTP/SSE MCP transports (user-elected scope). |
-| D-M2 | Record **`tools/call` only**; resources/prompts/sampling are relayed but declared gaps. |
+| D-M2 | ~~Record **`tools/call` only**; resources/prompts/sampling are relayed but declared gaps.~~ **Superseded (v0.2.0 MCP-2..MCP-5):** records `resources/read` + links, `prompts/get`, elicitation (approval-linked), and `tasks/*`; Roots/Sampling/Logging are closed-by-spec (SEP-2577). |
 | D-M3 | Correlate records to the harness session via `AGENTWATCH_SESSION_ID` / `CLAUDE_SESSION_ID`; else a generated `mcp-*` session. |
 | D-M4 | Manage **`.mcp.json` (project)** and **`~/.claude.json` (user)**; byte-exact backup + hash-guarded restore. |
 | D-M5 | Records reach the store via the **daemon socket** with a new `mcp` phase, reusing the single-writer path. |

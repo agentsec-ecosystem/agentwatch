@@ -166,6 +166,27 @@
         "summary": "Get Anomalies Endpoint"
       }
     },
+    "/api/v1/attribution": {
+      "get": {
+        "description": "Return per-session identity/attribution from the agentwatch record store.\n\nReads the local record store read-only and surfaces the identity dimension\n(IDN-1) plus the approval decision (S14) per session. An absent store is an\nempty list; malformed lines are skipped, never fatal.",
+        "operationId": "get_attribution",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Attribution",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Attribution"
+      }
+    },
     "/api/v1/compare": {
       "get": {
         "description": "Compare two version cohorts side by side, returning deltas and tool usage.\n\nQuery parameters:\n    agent_name (required): The agent whose versions to compare.\n    version_a (required): The \"left\" (baseline) version string.\n    version_b (required): The \"right\" (candidate) version string.\n    workload_type (optional): Further filter by workload.\n\nResponse shape (200):\n    {\n        \"left\": { \"version\": \"<vA>\", \"run_count\": <int> },\n        \"right\": { \"version\": \"<vB>\", \"run_count\": <int> },\n        \"deltas\": {\n            \"avg_cost_usd\": <float|None>,\n            \"retry_rate\": <float|None>,\n            \"success_rate\": <float|None>\n        },\n        \"tool_deltas\": [\n            { \"tool_name\", \"left_count\", \"right_count\", \"delta\" }\n        ],\n        \"warning\": <str|None>,\n        \"note\": <str|None>\n    }\n\nEdge cases:\n    - If either version cohort is missing, the response includes a\n      ``warning: \"sparse_cohorts\"`` and a descriptive ``note``.\n    - If both cohorts have fewer than 5 runs, ``sparse_cohorts`` warning\n      is added because deltas may not be statistically meaningful.\n    - If neither version is found (both None), a note is returned.\n    - ``tool_deltas`` is empty when tool data is unavailable (JSON parse\n      failure or missing ``top_tools`` column).\n    - The ``workload_type`` parameter is accepted but not yet wired into\n      the version_cohort lookup; it is reserved for future use.",
@@ -240,6 +261,27 @@
           }
         },
         "summary": "Get Compare"
+      }
+    },
+    "/api/v1/detector-telemetry": {
+      "get": {
+        "description": "Return content-free detector-telemetry markers (read-only, local file).\n\nReads the NDJSON written by ``agentwatch.detector_telemetry`` (DET-5). A\nmarker carries only the detector name, its verdict, an optional severity, and\na timestamp \u2014 never trace/argument/prompt content. An absent file is an empty\nlist, not an error. Unreadable/malformed lines are skipped, never fatal.",
+        "operationId": "get_detector_telemetry",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Detector Telemetry",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Detector Telemetry"
       }
     },
     "/api/v1/fleet": {
@@ -443,6 +485,27 @@
           }
         },
         "summary": "Get Run Timeline"
+      }
+    },
+    "/api/v1/siem-health": {
+      "get": {
+        "description": "Return the SIEM sink health snapshot (targets + visible ``degraded``).\n\nReads an optional local snapshot written by the forwarding process. An absent\nfile is a neutral state (no targets, not degraded) \u2014 never an error.",
+        "operationId": "get_siem_health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Siem Health",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Siem Health"
       }
     }
   }

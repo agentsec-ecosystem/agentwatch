@@ -9,9 +9,12 @@
 
 import type {
   AnomalyListResponse,
+  AttributionResponse,
   CompareResponse,
+  DetectorTelemetryResponse,
   FleetResponse,
   RunTimelineResponse,
+  SiemHealth,
 } from "../types/api";
 
 /** Fleet rollup with two agent/version/workload groups. */
@@ -115,4 +118,43 @@ export const anomaliesResponse: AnomalyListResponse = {
   total: 1,
   limit: 1000,
   offset: 0,
+};
+
+/** Content-free detector telemetry with one fired and one suppressed marker. */
+export const detectorTelemetryResponse: DetectorTelemetryResponse = {
+  items: [
+    {
+      kind: "detector-telemetry",
+      detector: "loop",
+      outcome: "fired",
+      severity: "warning",
+      at: "2026-01-01T00:00:03Z",
+    },
+    {
+      kind: "detector-telemetry",
+      detector: "retry-storm",
+      outcome: "suppressed",
+      at: "2026-01-01T00:00:04Z",
+    },
+  ],
+};
+
+/** One session with identity, a hashed principal, delegation, and approval. */
+export const attributionResponse: AttributionResponse = {
+  items: [
+    {
+      session_id: "sess-1",
+      identity: "research_crew",
+      principal: "hash:9f2c",
+      delegation_chain: ["orchestrator", "hash:9f2c"],
+      approval: "user",
+    },
+  ],
+};
+
+/** SIEM sink health: one configured target, healthy. */
+export const siemHealthResponse: SiemHealth = {
+  targets: ["syslog://siem.internal"],
+  degraded: false,
+  last_error: null,
 };

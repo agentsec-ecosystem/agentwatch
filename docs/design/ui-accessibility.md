@@ -1,9 +1,10 @@
 # Design — Operator UI Accessibility
 
-**BLUF:** The operator views (Fleet Health, Run Timeline, Version Compare, Anomaly Inbox, Agent Detail) must
-be usable by keyboard and screen-reader users, with sufficient contrast.
+**BLUF:** The operator views (Fleet Health, Run Timeline, Version Compare, Anomaly Inbox, Agent Detail, and the
+v0.2.0 **Operator** console — identity/attribution, SIEM health, detector telemetry) must be usable by keyboard
+and screen-reader users, with sufficient contrast.
 
-Status: **implemented** (v0.1.0 M7 + M12 pass).
+Status: **implemented** (v0.1.0 M7 + M12 pass; Operator console M27 UI-2/A11Y-1).
 
 ## Baseline
 

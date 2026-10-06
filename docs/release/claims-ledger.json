@@ -305,6 +305,28 @@
         "file:docs/tutorials/10-cross-harness-testing.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C30",
+      "claim": "The Operator console renders identity/attribution, SIEM sink health, and content-free detector telemetry.",
+      "source": "docs/design/ui-accessibility.md",
+      "evidence": [
+        "test:services/api/tests/test_operator_endpoints.py::test_attribution_surfaces_identity_per_session",
+        "test:services/api/tests/test_operator_endpoints.py::test_siem_health_reads_degraded_state",
+        "file:apps/web/src/pages/DetectorTelemetry.tsx"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C31",
+      "claim": "Every operator view, including the Operator console, has axe coverage and a keyboard-only journey.",
+      "source": "docs/reference/accessibility.md",
+      "evidence": [
+        "file:apps/web/src/__tests__/a11y.test.tsx",
+        "file:apps/web/tests/e2e/a11y.spec.ts",
+        "file:docs/reference/accessibility.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

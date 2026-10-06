@@ -47,6 +47,15 @@ class Settings(BaseSettings):
     # Standard Python logging level.  Override with API_LOG_LEVEL=DEBUG.
     log_level: str = "INFO"
 
+    # Path to the local, content-free detector-telemetry NDJSON (M27 DET-5). The
+    # API only ever reads it (never mutates), and it may be absent.
+    detector_telemetry_path: str = "data/detector-telemetry.ndjson"
+
+    # Read-only agentwatch record store (M27 UI-2 attribution) and SIEM sink-health
+    # snapshot. Both are optional local files; absent → empty/neutral.
+    record_store_path: str = "data/store/records.jsonl"
+    siem_state_path: str = "data/siem-health.json"
+
     # Pydantic-settings v2 model_config: env prefix + .env file loading.
     # ``extra="ignore"`` means unknown env vars (e.g. unrelated system vars) are
     # silently ignored rather than raising validation errors.

@@ -329,6 +329,7 @@ const SIDEBAR_ITEMS = [
   { path: "/fleet", label: "Fleet Health", icon: "⊞" },
   { path: "/compare", label: "Version Compare", icon: "⇄" },
   { path: "/anomalies", label: "Anomaly Inbox", icon: "⚡" },
+  { path: "/operator", label: "Operator", icon: "◍" },
 ];
 
 /**

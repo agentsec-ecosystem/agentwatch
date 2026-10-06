@@ -7,6 +7,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - UI-2: an **Operator** console view rendering identity/attribution (IDN-1/S14), SIEM sink health
+    (targets + `degraded`), and content-free detector telemetry, backed by read-only endpoints
+    `GET /api/v1/attribution`, `/siem-health`, `/detector-telemetry` (openapi + typed client regenerated).
+  - A11Y-1: axe coverage for the new Operator view (unit + Playwright incl. contrast) and a keyboard-only
+    journey extension; the accessibility reference gains the Operator row (#431, #432).
   - TUT-1: tutorials for recording Cursor, recording Gemini via telemetry, AAT mapping, and cross-harness
     testing (`docs/tutorials/07–10`, indexed) (#434).
   - RUN-1: runbooks for Cursor, Gemini, Codex (reader pending), OCSF/SIEM export, and the MCP full surface

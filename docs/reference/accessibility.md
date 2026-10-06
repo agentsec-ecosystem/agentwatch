@@ -26,6 +26,7 @@ automated checks below pass and a manual keyboard/contrast review found no unmet
 | Agent Detail (span panel) | Supports | Supports | Supports | Supports | opened by keyboard (Enter); axe (unit) |
 | Version Compare | Supports | Supports | Supports | Supports | labelled inputs; axe (unit + Playwright) |
 | Anomaly Inbox | Supports | Supports | Supports | Supports | severity is text + icon, not color alone |
+| Operator console (v0.2.0) | Supports | Supports | Supports | Supports | identity/attribution + SIEM health + detector markers; outcomes are text, not color alone; axe (unit) + keyboard journey (Playwright) |
 
 ## Automated evidence
 

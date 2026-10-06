@@ -29,11 +29,23 @@ class AgentwatchClient:
         """GET /api/v1/anomalies"""
         return self._client.get("/api/v1/anomalies", params=params)
 
+    def get_attribution(
+        self, *, params: dict[str, Any] | None = None
+    ) -> httpx.Response:
+        """GET /api/v1/attribution"""
+        return self._client.get("/api/v1/attribution", params=params)
+
     def get_compare(
         self, *, params: dict[str, Any] | None = None
     ) -> httpx.Response:
         """GET /api/v1/compare"""
         return self._client.get("/api/v1/compare", params=params)
+
+    def get_detector_telemetry(
+        self, *, params: dict[str, Any] | None = None
+    ) -> httpx.Response:
+        """GET /api/v1/detector-telemetry"""
+        return self._client.get("/api/v1/detector-telemetry", params=params)
 
     def get_fleet(
         self, *, params: dict[str, Any] | None = None
@@ -46,6 +58,12 @@ class AgentwatchClient:
     ) -> httpx.Response:
         """GET /api/v1/runs/{run_id}"""
         return self._client.get(f"/api/v1/runs/{run_id}", params=params)
+
+    def get_siem_health(
+        self, *, params: dict[str, Any] | None = None
+    ) -> httpx.Response:
+        """GET /api/v1/siem-health"""
+        return self._client.get("/api/v1/siem-health", params=params)
 
     def health(
         self, *, params: dict[str, Any] | None = None

@@ -7,6 +7,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - RUN-1: runbooks for Cursor, Gemini, Codex (reader pending), OCSF/SIEM export, and the MCP full surface
+    (`docs/runbooks/`, indexed) (#433).
   - EXA-1: an indexed `examples/` gallery (`examples/README.md`) with CI-executed recipes
     (`security_event_consumer.py`, `ocsf_consumer.py`) and explicitly illustrative ones; the index is enforced by
     `tests/test_examples_gallery.py` (#351).

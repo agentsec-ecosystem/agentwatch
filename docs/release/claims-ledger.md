@@ -39,6 +39,7 @@ Check: `python scripts/check_claims.py` (CI: `.github/workflows/claims.yml`)
 | `C25` | The opt-in Syslog sink surfaces degraded on delivery failure with a bounded queue (no silent drop). | `docs/design/observability.md` | `test:packages/python-sdk/tests/test_siem_syslog.py::test_syslog_sink_wraps_a_delivery_failure`<br>`test:packages/python-sdk/tests/test_siem_syslog.py::test_forwarder_is_degraded_on_a_syslog_failure` | 2026-10-06 |
 | `C26` | Detector telemetry is opt-in, local-only and content-free (fired/suppressed/false-positive markers only). | `docs/design/observability.md` | `test:packages/python-sdk/tests/test_detector_telemetry.py::test_disabled_telemetry_writes_nothing`<br>`test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free` | 2026-10-06 |
 | `C27` | The examples gallery is indexed and every executed recipe runs in CI. | `examples/README.md` | `test:packages/python-sdk/tests/test_examples_gallery.py::test_readme_indexes_every_recipe`<br>`test:packages/python-sdk/tests/test_examples_gallery.py::test_security_event_recipe_runs`<br>`test:packages/python-sdk/tests/test_examples_gallery.py::test_ocsf_recipe_runs` | 2026-10-06 |
+| `C28` | Runbooks cover Cursor, Gemini, Codex, OCSF/SIEM export, and the MCP full surface. | `docs/runbooks/README.md` | `file:docs/runbooks/cursor-install-and-verify.md`<br>`file:docs/runbooks/gemini-install-and-verify.md`<br>`file:docs/runbooks/mcp-full-surface.md`<br>`file:docs/runbooks/ocsf-siem-export.md` | 2026-10-06 |
 <!-- END GENERATED: claims -->
 
 ## Evidence syntax

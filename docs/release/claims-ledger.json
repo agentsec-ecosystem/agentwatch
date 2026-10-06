@@ -281,6 +281,18 @@
         "test:packages/python-sdk/tests/test_examples_gallery.py::test_ocsf_recipe_runs"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C28",
+      "claim": "Runbooks cover Cursor, Gemini, Codex, OCSF/SIEM export, and the MCP full surface.",
+      "source": "docs/runbooks/README.md",
+      "evidence": [
+        "file:docs/runbooks/cursor-install-and-verify.md",
+        "file:docs/runbooks/gemini-install-and-verify.md",
+        "file:docs/runbooks/mcp-full-surface.md",
+        "file:docs/runbooks/ocsf-siem-export.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

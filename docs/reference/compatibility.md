@@ -39,7 +39,7 @@
 | `codex-cli` | Tier-1 | modeled | — | modeled | native adapter (modeled) |  |
 | `crewai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
 | `cursor` | Tier-1 | 1.7–1.x | — | fixture-verified | native hooks (`hooks.json`) | full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending |
-| `gemini-cli` | Tier-1 | modeled | — | modeled | native adapter (modeled) |  |
+| `gemini-cli` | Tier-1 | modeled | — | modeled | native OTel telemetry (`ingest --format otel`) | native approval/principal attribute mapping (GEM-2); attributes modeled, live capture pending |
 | `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
 | `pydantic-ai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
 <!-- END GENERATED HARNESS MATRIX -->

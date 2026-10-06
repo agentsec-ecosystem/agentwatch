@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - GEM-2: the Gemini CLI adapter maps native OTel attributes — `active_approval_mode`→approval provenance
+    (S14), `user.email`→a hashed on-behalf-of principal (IDN-1), `installation.id`→identity and
+    `session.id`→session correlation (#342).
   - MCP-6: `agentwatch.mcp_protocol` is the protocol-revision→surface matrix (2025-06-18 / 2025-11-25 /
     2026-07-28); the proxy's tested range tracks the newest revision (drift fails CI) and the compatibility
     table gains a **Protocol** column (#338).

@@ -77,7 +77,7 @@ fidelity-per-effort order (PRD 27 strategy):
 | Level | Mechanism | Harnesses |
 |---|---|---|
 | Native hooks | JSON on stdin to a command; same contract as Claude Code | **Cursor** (full loop incl. blocking before-events, `beforeReadFile`, `afterAgentThought`), OpenCode (`tool.execute.before/after`, `session.*`, `file.changed`) |
-| Native OTel | built-in telemetry → OTLP/JSON/GCP, ingested | **Gemini CLI** (`telemetry` settings; approval + principal attributes) |
+| Native OTel | built-in telemetry → OTLP/JSON/GCP, ingested | **Gemini CLI** (`telemetry` settings; `active_approval_mode`→approval, `user.email`→hashed principal, `installation.id`/`session.id`→identity — GEM-2) |
 | Log-read | read the files the agent already writes | **Codex** (rollout JSONL; `.jsonl.zst`, dangling sessions), long-tail CLIs |
 | Interposition | proxy the wire protocol | MCP (2026-07-28 surface), **A2A** (signed agent cards) |
 

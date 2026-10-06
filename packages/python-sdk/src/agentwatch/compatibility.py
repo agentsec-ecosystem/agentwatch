@@ -93,7 +93,8 @@ SHIPPED: dict[str, HarnessInfo] = {
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
         fidelity=FIDELITY_MODELED,
-        invocation="native adapter (modeled)",
+        invocation="native OTel telemetry (`ingest --format otel`)",
+        notes="native approval/principal attribute mapping (GEM-2); attributes modeled, live capture pending",
     ),
     "mcp-proxy": HarnessInfo(
         harness="mcp-proxy",

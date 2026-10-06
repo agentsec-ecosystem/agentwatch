@@ -220,6 +220,16 @@
         "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_compat_table_gained_a_protocol_column"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C22",
+      "claim": "The Gemini CLI adapter maps active_approval_mode to approval provenance and user.email to a hashed principal.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_gemini_attribute_mapping.py::test_active_approval_mode_auto_maps_to_auto",
+        "test:packages/python-sdk/tests/test_gemini_attribute_mapping.py::test_user_email_becomes_a_hashed_principal"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

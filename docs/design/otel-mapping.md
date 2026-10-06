@@ -4,7 +4,8 @@
 and versioned; improvements go upstream (DD-05).
 
 Status: **draft** (v0.1.0); **OTEL-1 re-pinned to 1.37.0** (canonical agent spans) and **OTEL-2** added the
-privacy-mode ↔ content-capture mapping below (v0.2.0, M25).
+privacy-mode ↔ content-capture mapping below (v0.2.0, M25); **OTEL-3** added OTLP protobuf/gRPC ingest
+(streaming, auto-detected under `--format otel`; M26).
 
 ## Span mapping
 
@@ -45,6 +46,22 @@ spans**. v0.2.0 ([PRD 41](../prd/41-standards-and-interop-ii.md) OTEL-1..4):
 - Re-pin the semconv version; carry it in `--version` + resource attributes; drift-check (W4).
 - Add **OTLP/gRPC + protobuf ingest** (streaming) alongside JSON.
 - State the privacy-mode ↔ content-capture mapping explicitly; metadata-only by default.
+
+### OTLP protobuf / gRPC ingest (OTEL-3)
+
+`agentwatch ingest --format otel <source>` auto-detects input: valid JSON takes the
+unchanged JSON path, and a bare OTLP protobuf `ExportTraceServiceRequest` is decoded via
+`opentelemetry-proto` and normalized into the same `transcode_otel` mapping (trace/span
+ids base64→hex, so records carry the OTLP hex ids). `--format otlp-grpc` decodes a
+gRPC length-prefixed stream frame by frame (`iter_grpc_messages`), so a large file is
+never fully loaded; compressed frames are rejected, not mis-decoded. The protobuf path is
+optional (`agentsec-agentwatch[otlp]`); without it the JSON path is unaffected. Undecodable
+bytes are quarantined with a reason (B4), never dropped.
+
+The reader's conformance is `packages/python-sdk/tests/test_otlp_protobuf_ingest.py`
+(bare-message decode, auto-detection, JSON unchanged, no-whole-stream-load, compressed
+frame rejection, streaming ingest, bounded-memory decode). The 100 MB budget is enforced by
+the perf harness (PERF-1).
 
 ## Privacy mode ↔ content capture (OTEL-2)
 

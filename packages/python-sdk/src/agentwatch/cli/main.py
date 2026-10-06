@@ -490,9 +490,10 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "ndjson", "aat"),
+        choices=("otel", "otlp-grpc", "ndjson", "aat"),
         default="otel",
-        help="foreign trace format (default: otel; aat is IETF Agent Audit Trail)",
+        help="foreign trace format (default: otel; protobuf auto-detected; "
+        "otlp-grpc streams gRPC-framed OTLP; aat is IETF Agent Audit Trail)",
     )
     ingest.add_argument(
         "--capture",

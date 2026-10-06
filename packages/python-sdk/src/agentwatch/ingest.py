@@ -12,12 +12,14 @@ only GenAI spans/attributes that map onto records + security events land here.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, BinaryIO, cast
 
 from agentwatch.aat import AAT_DRAFT, aat_entry_chain_error
 from agentwatch.quarantine import QuarantineLog
@@ -362,33 +364,148 @@ def transcode_aat(
 
 
 # ---------------------------------------------------------------------------
+# OTLP protobuf / gRPC (M26 OTEL-3)
+# ---------------------------------------------------------------------------
+
+# OTLP JSON renders trace/span ids as hex; protobuf's JSON mapping base64-encodes
+# bytes, so these keys are normalized back to hex for the shared transcode path.
+_OTLP_ID_KEYS = frozenset({"traceId", "spanId", "parentSpanId"})
+_GRPC_HEADER_BYTES = 5
+
+
+def _b64_hex(value: str) -> str:
+    if not value:
+        return value
+    try:
+        return base64.b64decode(value).hex()
+    except (binascii.Error, ValueError):
+        return value
+
+
+def _ids_to_hex(node: Any) -> Any:
+    if isinstance(node, Mapping):
+        return {
+            key: _b64_hex(value)
+            if key in _OTLP_ID_KEYS and isinstance(value, str)
+            else _ids_to_hex(value)
+            for key, value in node.items()
+        }
+    if isinstance(node, list):
+        return [_ids_to_hex(item) for item in node]
+    return node
+
+
+def _decode_otlp_protobuf(data: bytes) -> Mapping[str, Any]:
+    """Decode a bare ``ExportTraceServiceRequest`` into the OTLP JSON shape."""
+    try:
+        from google.protobuf.json_format import MessageToDict
+        from opentelemetry.proto.collector.trace.v1 import trace_service_pb2
+    except ImportError as exc:  # pragma: no cover - optional [otlp] extra
+        raise IngestError(
+            "OTLP protobuf ingest requires the [otlp] extra "
+            "(pip install 'agentsec-agentwatch[otlp]')"
+        ) from exc
+    request = trace_service_pb2.ExportTraceServiceRequest()
+    request.ParseFromString(data)
+    payload = MessageToDict(request)
+    return cast("Mapping[str, Any]", _ids_to_hex(payload))
+
+
+def transcode_otlp_protobuf(
+    data: bytes,
+    *,
+    source: str = "otlp",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem]]:
+    """Transcode one bare OTLP protobuf request; undecodable bytes are a problem."""
+    try:
+        payload = _decode_otlp_protobuf(data)
+    except IngestError as exc:
+        return [], [IngestProblem(source, str(exc))]
+    except Exception as exc:  # protobuf DecodeError and friends, never raised on
+        return [], [IngestProblem(source, f"undecodable OTLP protobuf: {exc}")]
+    return transcode_otel(payload, source=source, redaction=redaction)
+
+
+def iter_grpc_messages(stream: BinaryIO) -> Iterator[bytes]:
+    """Yield the protobuf payload of each gRPC length-prefixed frame.
+
+    Reads one frame at a time (header + bounded body) so a large stream is never
+    fully loaded. Compressed frames are rejected rather than mis-decoded.
+    """
+    while True:
+        header = stream.read(_GRPC_HEADER_BYTES)
+        if not header:
+            return
+        if len(header) < _GRPC_HEADER_BYTES:
+            raise IngestError("truncated gRPC frame header")
+        if header[0] != 0:
+            raise IngestError("compressed gRPC frames are not supported")
+        length = int.from_bytes(header[1:], "big")
+        body = stream.read(length)
+        if len(body) != length:
+            raise IngestError("truncated gRPC frame body")
+        yield body
+
+
+def transcode_grpc_chunks(
+    stream: BinaryIO,
+    *,
+    source: str = "otlp-grpc",
+    redaction: RedactionConfig | None = None,
+) -> Iterator[tuple[list[AgentRecord], list[IngestProblem], bytes]]:
+    """Stream a gRPC-framed OTLP file as ``(records, problems, raw)`` chunks."""
+    try:
+        messages = iter_grpc_messages(stream)
+        for index, body in enumerate(messages):
+            found, probs = transcode_otlp_protobuf(
+                body, source=f"{source}#{index}", redaction=redaction
+            )
+            yield found, probs, body
+    except IngestError as exc:
+        yield [], [IngestProblem(source, str(exc))], b""
+
+
+# ---------------------------------------------------------------------------
 # Store ingestion
 # ---------------------------------------------------------------------------
 
 def resolve_ingest_paths(target: Path) -> list[Path]:
     """Resolve a source file or a directory of ``*.json`` / ``*.jsonl`` files."""
     if target.is_dir():
-        return sorted([*target.rglob("*.json"), *target.rglob("*.jsonl")])
+        return sorted(
+            [
+                *target.rglob("*.json"),
+                *target.rglob("*.jsonl"),
+                *target.rglob("*.pb"),
+                *target.rglob("*.otlp"),
+            ]
+        )
     return [target]
 
 
 def transcode(
     path: Path, *, fmt: str, source: str | None = None, redaction: RedactionConfig | None = None
 ) -> tuple[list[AgentRecord], list[IngestProblem]]:
-    """Read one source file and transcode it by ``fmt``."""
+    """Read one source file and transcode it by ``fmt``.
+
+    ``otel`` accepts JSON and, auto-detected, a bare OTLP protobuf
+    ``ExportTraceServiceRequest``; the JSON path is unchanged.
+    """
     name = source or path.stem
     try:
-        text = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
     except OSError as exc:
         return [], [IngestProblem(name, f"unreadable: {exc}")]
+    text = raw.decode("utf-8", errors="replace")
     if fmt == "ndjson":
         return transcode_ndjson(text, source=name, redaction=redaction)
     if fmt == "aat":
         return transcode_aat(text, source=name, redaction=redaction)
     try:
         payload = json.loads(text)
-    except json.JSONDecodeError as exc:
-        return [], [IngestProblem(name, f"invalid JSON: {exc}")]
+    except json.JSONDecodeError:
+        return transcode_otlp_protobuf(raw, source=name, redaction=redaction)
     return transcode_otel(payload, source=name, redaction=redaction)
 
 
@@ -405,7 +522,8 @@ def run_ingest(
 
     Idempotent on ``(session_id, span_id)`` so re-ingesting the same trace does not
     inflate the store. Unmappable input is quarantined (when a log is given) and
-    counted, never dropped silently.
+    counted, never dropped silently. ``otlp-grpc`` streams frame by frame so a
+    large file is never fully loaded.
     """
     files = 0
     records = 0
@@ -413,13 +531,14 @@ def run_ingest(
     duplicates = 0
     problems: list[IngestProblem] = []
     existing = {(record.session_id, record.span_id) for record in store.records()}
-    for path in paths:
-        files += 1
-        name = source or path.stem
-        found, probs = transcode(path, fmt=fmt, source=name, redaction=redaction)
+
+    def _add(
+        found: Iterable[AgentRecord], probs: Iterable[IngestProblem], raw: bytes | str
+    ) -> None:
+        nonlocal records, skipped, duplicates
+        probs = list(probs)
         problems.extend(probs)
         if quarantine is not None:
-            raw = path.read_text(encoding="utf-8", errors="replace")
             for problem in probs:
                 quarantine.add(raw, reason=problem.reason)
         for record in found:
@@ -434,6 +553,19 @@ def run_ingest(
             else:
                 records += 1
                 existing.add(key)
+
+    for path in paths:
+        files += 1
+        name = source or path.stem
+        if fmt == "otlp-grpc":
+            with path.open("rb") as handle:
+                for found, probs, raw in transcode_grpc_chunks(
+                    handle, source=name, redaction=redaction
+                ):
+                    _add(found, probs, raw)
+            continue
+        found, probs = transcode(path, fmt=fmt, source=name, redaction=redaction)
+        _add(found, probs, path.read_bytes().decode("utf-8", errors="replace"))
     return IngestStats(
         files=files,
         records=records,

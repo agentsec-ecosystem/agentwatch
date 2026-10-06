@@ -35,7 +35,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch checkpoint verify FILE --public-key PATH [--json]` | Verify a signed checkpoint export with a raw ed25519 public key (W9 M22) | **implemented** (M22) |
 | `agentwatch redact [--preview SAMPLE] [--mode MODE] [--json]` | Preview redaction, or filter stdin→stdout with findings on stderr (S13 M21) | **implemented** (M15; filter M21) |
 | `agentwatch sessions [--project PATH] [--tag NAME]` | List recorded sessions | **implemented** (M3; `--project` M9; `--tag` M15) |
-| `agentwatch replay <id> [--receipts] [--json]` | Reconstruct a session timeline; `--receipts` shows what redaction did per record (M15 S32) | **implemented** (M5; receipts M15) |
+| `agentwatch replay <id> [--receipts] [--trace] [--json]` | Reconstruct a session timeline; `--receipts` shows what redaction did per record (M15 S32); `--trace` expands across hosts/sessions sharing a trace id (M26 TRACE-2) | **implemented** (M5; receipts M15; trace M26) |
 | `agentwatch redact --preview SAMPLE [--json]` | Run a sample through the active redaction config (before/after, stores nothing) | **implemented** (M15 S32) |
 | `agentwatch export enable/disable` | Opt-in OTLP export (gated on self-test) | **implemented** (M5) |
 | `agentwatch export-session <id> [--format ndjson\|ocsf\|cloudevents\|aat] [--output PATH]` | Export one session; OCSF/CloudEvents transcode its security events (S8 M20); `aat` emits the IETF Agent Audit Trail bundle with its chain segment (AAT-2) | **implemented** (M13; M20; M25) |
@@ -67,6 +67,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch blame <path> [--since WHEN] [--project PATH] [--sessions] [--json]` | File-centric reverse index: who touched a path, newest first (M17 S18) | **implemented** (M17) |
 | `agentwatch tree <id> [--by-cost] [--json]` | Subagent fan-out with per-node counts/outcomes/tokens (M17 S17) | **implemented** (M17) |
 | `agentwatch at "TIME" [--window 30m] [--json]` | Every record in a cross-session time window, with a gap header (M17 S24) | **implemented** (M17) |
+| `agentwatch trace <trace_id> [--json]` | Reconstruct one causal chain across hosts/sessions by `traceparent`, surfacing clock skew and propagation breaks (M26 TRACE-2) | **implemented** (M26) |
 | `agentwatch cost [--by session\|project\|model\|tool\|day] [--since 30d] [--json]` | Token/cost rollup against a versioned local pricing table (M17 S6) | **implemented** (M17) |
 | `agentwatch digest [--since 7d]` | Local markdown weekly readout (sessions/tools/cost/gaps) (M17 S37) | **implemented** (M17) |
 | `agentwatch sessions --group-by-behavior` | Group sessions by their `bd1:` behavior fingerprint (M17 S7) | **implemented** (M17) |

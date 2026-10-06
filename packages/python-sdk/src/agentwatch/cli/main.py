@@ -118,6 +118,7 @@ from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
+from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
@@ -360,6 +361,11 @@ def _build_parser() -> argparse.ArgumentParser:
     replay.add_argument(
         "--receipts", action="store_true", help="show what redaction did per record (M15 S32)"
     )
+    replay.add_argument(
+        "--trace",
+        action="store_true",
+        help="follow traceparent across hosts/sessions (M26 TRACE-2)",
+    )
     replay.add_argument("--json", action="store_true", help="emit records + receipts as JSON")
 
     redact = sub.add_parser("redact", help="preview or filter redaction (M15 S32; filter M21 S13)")
@@ -419,6 +425,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--by-cost", dest="by_cost", action="store_true", help="order siblings by cost"
     )
     tree_cmd.add_argument("--json", action="store_true", help="emit the tree as JSON")
+
+    trace_cmd = sub.add_parser(
+        "trace", help="reconstruct a cross-host causal trace (M26 TRACE-2)"
+    )
+    trace_cmd.add_argument("trace_id", help="W3C trace id to reconstruct")
+    trace_cmd.add_argument("--json", action="store_true", help="emit the trace as JSON")
 
     at_cmd = sub.add_parser("at", help="every record in a cross-session time window (M17 S24)")
     at_cmd.add_argument("moment", help='moment, e.g. "2026-10-02 14:00" (local) or an ISO offset')
@@ -1359,7 +1371,11 @@ def _run_replay(args: argparse.Namespace) -> int:
             + ", ".join(combined.unavailable),
             file=sys.stderr,
         )
-    records = replay_session(store, args.session_id, records=combined.records)
+    records = (
+        replay_trace(combined.records, args.session_id)
+        if args.trace
+        else replay_session(store, args.session_id, records=combined.records)
+    )
     if not records:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
@@ -1440,7 +1456,7 @@ _COMMANDS_FOR_COMPLETION = (
     "verify-privacy event doctor tail "
     "completions uninstall inventory search diff view explain import ingest fleet drift retention "
     "purge export-session mcp-proxy annotate redact bom evidence coverage quarantine archive "
-    "impact blame cost tree at digest flow secrets demo config union checkpoint"
+    "impact blame cost tree trace at digest flow secrets demo config union checkpoint"
 )
 
 
@@ -1643,6 +1659,26 @@ def _run_tree(args: argparse.Namespace) -> int:
         print(json.dumps(root.to_dict(), indent=2))
     else:
         print(render_tree(root))
+    return 0
+
+
+def _run_trace(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store_dir = Path(cfg.store.path).expanduser()
+    store = RecordStore(store_dir / "records.jsonl")
+    combined = combined_records(store, store_dir)
+    tree = build_trace(combined.records, args.trace_id)
+    if tree.records == 0:
+        print(f"agentwatch: no records for trace {args.trace_id}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(trace_to_json(tree), indent=2))
+    else:
+        print(render_trace(tree))
     return 0
 
 
@@ -2401,6 +2437,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_blame(args)
     if args.command == "tree":
         return _run_tree(args)
+    if args.command == "trace":
+        return _run_trace(args)
     if args.command == "at":
         return _run_at(args)
     if args.command == "digest":

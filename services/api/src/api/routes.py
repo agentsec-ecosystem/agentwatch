@@ -55,7 +55,7 @@ async def _get_pool() -> Pool:
 # ── Health ─────────────────────────────────────────────────────────────────────
 
 
-@router.get("/health")
+@router.get("/health", operation_id="health")
 async def health() -> dict[str, str]:
     """Health check: returns 200 when the database is reachable, 503 otherwise.
 
@@ -81,7 +81,7 @@ async def health() -> dict[str, str]:
 # ── Run Timeline ───────────────────────────────────────────────────────────────
 
 
-@router.get("/runs/{run_id}")
+@router.get("/runs/{run_id}", operation_id="get_run_timeline")
 async def get_run_timeline(
     run_id: str,
     pool: Pool = Depends(_get_pool),  # noqa: B008
@@ -131,7 +131,7 @@ async def get_run_timeline(
 # ── Fleet Health ───────────────────────────────────────────────────────────────
 
 
-@router.get("/fleet")
+@router.get("/fleet", operation_id="get_fleet")
 async def get_fleet(
     agent_name: str | None = Query(None),  # noqa: B008
     version: str | None = Query(None, alias="agent_version"),  # noqa: B008
@@ -193,7 +193,7 @@ async def get_fleet(
 # ── Version Compare ────────────────────────────────────────────────────────────
 
 
-@router.get("/compare")
+@router.get("/compare", operation_id="get_compare")
 async def get_compare(
     agent_name: str = Query(...),  # noqa: B008
     version_a: str = Query(...),  # noqa: B008
@@ -244,7 +244,7 @@ async def get_compare(
 # ── Anomaly Inbox ──────────────────────────────────────────────────────────────
 
 
-@router.get("/anomalies")
+@router.get("/anomalies", operation_id="get_anomalies")
 async def get_anomalies_endpoint(
     severity: str | None = Query(None),  # noqa: B008
     anomaly_type: str | None = Query(None),  # noqa: B008

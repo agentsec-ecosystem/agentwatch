@@ -66,7 +66,12 @@ def test_recorder_relays_but_does_not_record_an_unknown_method(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     sent: list[dict[str, Any]] = []
-    monkeypatch.setattr(hook, "send", lambda message, **_: (sent.append(message), True)[1])
+
+    def _send(message: dict[str, Any], **_: Any) -> bool:
+        sent.append(message)
+        return True
+
+    monkeypatch.setattr(hook, "send", _send)
     recorder = mcp_proxy.Recorder("github", "s-1")
 
     recorder.observe_from_harness(_frame("resources/subscribe")["event"]["rpc"])

@@ -619,7 +619,9 @@ class _ProxyHandler(BaseHTTPRequestHandler):
         if stateless:
             # Sessions removed (2026-07-28): never couple the proxy to a server
             # session, in either direction.
-            headers = {key: value for key, value in headers.items() if key.lower() != _SESSION_HEADER}
+            headers = {
+                key: value for key, value in headers.items() if key.lower() != _SESSION_HEADER
+            }
         headers["Host"] = parts.netloc
         try:
             connection.request(

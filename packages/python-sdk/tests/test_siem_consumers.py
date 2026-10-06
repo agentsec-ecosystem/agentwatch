@@ -36,7 +36,8 @@ def _stream() -> str:
         (0, SecurityEvent(type=SecurityEventType.DENIED, emitted_at=AT, reason="blocked")),
         (1, SecurityEvent(type=SecurityEventType.SECRET_DETECTED, emitted_at=AT, reason="masked")),
     ]
-    return "\n".join(json.dumps(obj, sort_keys=True) for obj in session_ocsf(events, session_id="s1"))
+    objects = session_ocsf(events, session_id="s1")
+    return "\n".join(json.dumps(obj, sort_keys=True) for obj in objects)
 
 
 def test_consumer_validates_a_generated_ocsf_stream() -> None:
@@ -53,7 +54,15 @@ def test_consumer_rejects_a_wrong_version() -> None:
     module = _load_example()
 
     valid, problems = module.validate_objects(
-        [{"metadata": {"version": "1.4.0"}, "class_uid": 1, "category_uid": 2, "activity_id": 1, "time": 1}]
+        [
+            {
+                "metadata": {"version": "1.4.0"},
+                "class_uid": 1,
+                "category_uid": 2,
+                "activity_id": 1,
+                "time": 1,
+            }
+        ]
     )
 
     assert valid == []

@@ -18,7 +18,7 @@ REVISIONS_DIR = Path(__file__).resolve().parent / "fixtures" / "mcp-proxy" / "re
 
 def test_versions_are_declared_and_ordered() -> None:
     assert mcp_protocol.PROTOCOL_VERSIONS == ("2025-06-18", "2025-11-25", "2026-07-28")
-    assert mcp_protocol.LATEST_PROTOCOL_VERSION == mcp_protocol.PROTOCOL_VERSIONS[-1]
+    assert mcp_protocol.PROTOCOL_VERSIONS[-1] == mcp_protocol.LATEST_PROTOCOL_VERSION
 
 
 def test_every_revision_declares_surfaces() -> None:

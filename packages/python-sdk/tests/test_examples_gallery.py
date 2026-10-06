@@ -13,8 +13,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
 
-import pytest
-
 from agentwatch.ocsf import session_ocsf
 from agentwatch.records import SecurityEvent, SecurityEventType
 

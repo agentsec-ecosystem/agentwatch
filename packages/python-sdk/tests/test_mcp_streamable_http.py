@@ -118,7 +118,7 @@ def _lower(headers: dict[str, str]) -> dict[str, str]:
 def test_transports_are_declared_with_a_streamable_default() -> None:
     assert mcp_proxy.MCP_TRANSPORT_STREAMABLE == "streamable-http"
     assert mcp_proxy.MCP_TRANSPORT_HTTP_SSE == "http-sse"
-    assert mcp_proxy.MCP_TRANSPORTS == frozenset({"streamable-http", "http-sse"})
+    assert frozenset({"streamable-http", "http-sse"}) == mcp_proxy.MCP_TRANSPORTS
 
     server = mcp_proxy.create_http_proxy({"echo": "http://127.0.0.1:1/"})
     try:

@@ -3,9 +3,13 @@
 Requirements for **agentwatch** — the vendor-neutral telemetry and security-event layer for AI
 agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
-> **Status: v0.1.0 decisions accepted (2026-10-02); v0.2.0 proposed (2026-10-05).** PRDs 00–39 are the
-> shipped v0.1.0 baseline; PRDs 40–48 are the v0.2.0 program (best-in-class record layer). They supersede
-> the retired `agent-exec-trace`/AgentObservatory (#102) and AgentWatch (#66) projects.
+> **Status: v0.1.0 decisions accepted (2026-10-02); v0.2.0 proposed (2026-10-05); v0.2.0-expanded
+> proposed (2026-10-05, PRD 49–59).** PRDs 00–39 are the shipped v0.1.0 baseline; PRDs 40–48 are the
+> v0.2.0 program (best-in-class record layer); PRDs 49–59 are the **v0.2.0-expanded** additions
+> (authorization/oversight, deployability, harness-native telemetry, capability supply chain, code
+> provenance, local console, agent interfaces, policy-from-history, governance/retention integrity,
+> investigation depth, OWASP Agentic coverage). They supersede the retired
+> `agent-exec-trace`/AgentObservatory (#102) and AgentWatch (#66) projects.
 
 ## Documents
 
@@ -59,6 +63,17 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 46 | [Platform, SDK & Growth](46-platform-sdk-and-growth.md) | SDK lifecycle/sampler/provider, Windows, TS SDK spike, OpenAPI + client, examples gallery, field test, governance |
 | 47 | [Cross-Harness Test Kit](47-cross-harness-testkit.md) | Payload corpus + replay runner, OpenCode live soak, cross-parser validation, honest fidelity tiers |
 | 48 | [v0.2.0 Risk, Testing & Decision Register](48-v0.2.0-risks-testing-and-decisions.md) | v0.2.0 risk register, testing rigor, threat-model additions, ADR seeds 0016–0026, definition of done |
+| 49 | [Authorization & Oversight Provenance](49-authorization-and-oversight.md) | Authorization taxonomy v2 (human/rule/classifier/hook/bypass), permission mode per call, `oversight` report |
+| 50 | [Deployability & Recorder Attestation](50-deployability-and-recorder-attestation.md) | Managed-policy install, session-start recorder attestation, published end-to-end hook cost |
+| 51 | [Harness-Native Telemetry & Framework Reach](51-harness-native-telemetry-and-framework-reach.md) | Claude Code OTel ingest + join, Agent SDK, certified ADK/Strands/OpenAI-Agents recipes, `instrument()` |
+| 52 | [Capability Supply Chain & Memory](52-capability-supply-chain-and-memory.md) | Skills/plugins/hooks/rules/memory inventory + drift (`capability-changed`) + load attribution |
+| 53 | [Code Provenance & Attribution](53-code-provenance-and-attribution.md) | `provenance`, Agent Trace export/ingest, content-free range+hash capture |
+| 54 | [Local Console & Embedded Query Tier](54-local-console-and-query-tier.md) | `agentwatch ui` zero-Docker console, rebuildable embedded index, PG re-sequenced |
+| 55 | [Agent Interfaces & Policy-from-History](55-agent-interfaces-and-policy-from-history.md) | Read-only MCP server + skill + JSON contract; `suggest-policy`/`what-if` (advisory) |
+| 56 | [Governance, Retention Integrity & Redaction Quality](56-governance-retention-and-redaction-quality.md) | Fleet access model + access log (ACC), notice/DPIA, legal hold (HLD), redaction benchmark (RED) |
+| 57 | [Investigation Depth & Evidence Verification](57-investigation-depth-and-verification.md) | Environment fingerprint/delta, incident cases, concurrency, browser verifier, sandbox events |
+| 58 | [Outcomes, Ephemeral Capture & Growth](58-outcomes-ephemeral-capture-and-growth.md) | Outcome facts + cost-per-retained-change, runner segments, demo bundle, alert recipes |
+| 59 | [OWASP Agentic & Standards Coverage](59-owasp-agentic-and-standards-coverage.md) | OWASP ASI-2026 + Agentic Skills Top-10 coverage report; standards participation (DD-05) |
 
 ## Reviewers start here
 

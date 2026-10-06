@@ -5,6 +5,11 @@ or `unknown` — derived from the permission surface the harness actually expose
 cannot prove the difference between a human approval and an allow-list auto-approval, the value is
 `unknown`, never guessed. A guessed consent is a false audit record, which is worse than no field.
 
+> **Superseded for new work (v0.2.0-expanded):** this five-value field predates auto mode (model-classifier approvals)
+> and bypass-as-default. New capture uses the **authorization source taxonomy v2** in
+> [`authorization-provenance-v2.md`](authorization-provenance-v2.md) ([PRD 49](../prd/49-authorization-and-oversight.md)).
+> The table below is retained for **historical records only** and as the S14 legacy mapping.
+
 **Status:** published (v0.1.0) · **Milestone:** M19 · Sources: [PRD 35](../prd/35-capture-context.md)
 §S14, [PRD 14](../prd/14-non-goals.md), [record-format spec](../reference/record-format-spec.md).
 

@@ -30,6 +30,22 @@ Subsystem designs and architecture for agentwatch. Design decisions are centrali
 | [sdk-lifecycle.md](sdk-lifecycle.md) | OTel-shaped provider/lifecycle + security-relevant sampler (v0.2.0) | proposed |
 | [cross-harness-testing.md](cross-harness-testing.md) | Payload corpus, replay runner, fidelity tiers (v0.2.0) | proposed |
 | [detector-evaluation.md](detector-evaluation.md) | Detector eval harness, public corpus, registry interop (v0.2.0) | proposed |
+| [authorization-provenance-v2.md](authorization-provenance-v2.md) | Authorization source taxonomy v2, permission mode, `oversight` (v0.2.0-expanded) | proposed |
+| [recorder-attestation.md](recorder-attestation.md) | Session-start recorder attestation + config-change observation (v0.2.0-expanded) | proposed |
+| [managed-policy-install.md](managed-policy-install.md) | Managed-settings/MDM/plugin install + honest `doctor` (v0.2.0-expanded) | proposed |
+| [native-telemetry-join.md](native-telemetry-join.md) | Harness-native OTel ingest + `tool_use_id` join (v0.2.0-expanded) | proposed |
+| [capability-supply-chain.md](capability-supply-chain.md) | Skills/plugins/hooks/rules/memory inventory, drift, load attribution (v0.2.0-expanded) | proposed |
+| [code-provenance.md](code-provenance.md) | `provenance`, Agent Trace export/ingest, range+hash capture (v0.2.0-expanded) | proposed |
+| [local-console.md](local-console.md) | `agentwatch ui` + embedded rebuildable query index (v0.2.0-expanded) | proposed |
+| [agent-interfaces.md](agent-interfaces.md) | Read-only MCP server, skill, versioned CLI JSON contract (v0.2.0-expanded) | proposed |
+| [policy-from-history.md](policy-from-history.md) | `suggest-policy` + `what-if` (advisory) (v0.2.0-expanded) | proposed |
+| [access-and-governance.md](access-and-governance.md) | Fleet access model, access log, notice/DPIA (v0.2.0-expanded) | proposed |
+| [legal-hold.md](legal-hold.md) | Legal hold suspends retention/purge with provenance (v0.2.0-expanded) | proposed |
+| [environment-fingerprint.md](environment-fingerprint.md) | Environment fingerprint + delta in `diff`/`drift` (v0.2.0-expanded) | proposed |
+| [browser-verifier.md](browser-verifier.md) | Offline, zero-network browser evidence verifier (v0.2.0-expanded) | proposed |
+| [owasp-asi-mapping.md](owasp-asi-mapping.md) | OWASP Agentic ASI + Skills Top-10 coverage mapping (v0.2.0-expanded) | proposed |
+| [outcomes-signals.md](outcomes-signals.md) | Deterministic outcome facts + recurring failure signatures (v0.2.0-expanded) | proposed |
+| [runner-segments.md](runner-segments.md) | Sealed CI/cloud runner segments + chain-of-custody import (v0.2.0-expanded) | proposed |
 
 > The **record format contract** is normative reference: [`../reference/record-format-spec.md`](../reference/record-format-spec.md).
 > The former `record-format-design.md` was merged into it.

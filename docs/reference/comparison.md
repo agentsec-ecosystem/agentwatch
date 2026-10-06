@@ -36,3 +36,25 @@ published detector-quality bar. Enforcement and attack/eval stay out by design (
 offline-verifiable + local-first); Langfuse pivoting to security events; someone shipping a reference AAT
 implementation first (why AAT is P0); Langfuse's acquisition uncertainty is a migration moment (a documented
 Langfuse→agentwatch OTLP path is cheap insurance).
+
+## 2026-expanded landscape update (PRD 49–59)
+
+Three 2026 clusters moved *around* the record; none occupies it, and two are now data sources rather than rivals.
+
+- **LLM/agent observability platforms** (LangSmith Trajectories/Engine; Langfuse observation-level evals, experiments,
+  GitHub-Action regression gates, **CLI + MCP server + SKILL.md**; Phoenix; Datadog/Braintrust/AgentOps): own developer
+  attention and the "works with my stack" checklist, but have no open security-event schema, tamper evidence, offline
+  verification, or local-first posture. agentwatch answers with a first-minute local console (PRD 54) and
+  agent-facing interfaces (PRD 55) — as the *evidence* layer, not a competing dashboard.
+- **First-party harnesses** (Claude Code OTel stream + managed settings + auto mode; Cursor Blame; Claude Compliance
+  API): now emit authoritative telemetry and enforce permissions. **They are the data source** — agentwatch consumes
+  their telemetry (PRD 51), models their authorization truthfully (PRD 49), and deploys through their enterprise
+  mechanisms (PRD 50).
+- **Code-provenance** (Cursor **Agent Trace** RFC; git-ai Git-notes; Cursor Blame; Jules/Amp/OpenCode/Cline):
+  standardized "which lines came from AI, from which conversation". agentwatch is the **evidence-grade source** for
+  this ecosystem (PRD 53), not a silo.
+
+**Moat restated:** only agentwatch combines an open versioned security-event schema + tamper-evident chain with
+offline verification + local-first/redaction-by-default + multi-harness capture + authorization/oversight provenance +
+code provenance + honest fidelity tiers and published effectiveness. Enforcement and attack/eval remain out by design
+(agentpolicy/agentdrill).

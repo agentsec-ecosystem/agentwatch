@@ -39,6 +39,26 @@ CUJ they prove; each names its owning ticket, harness, evidence, and pass condit
 | FT-SIEM-1 | OCSF/Syslog event stream | CUJ-18 | SIEM-1/2 | reference consumer | OCSF stream | Conformance-tested; OCSF 1.5.0 |
 | FT-SIGN-1 | Signed default posture | — | CMP-4 | checkpoint | ed25519 signature | Verify succeeds; unverifiable is never ok |
 | FT-WIN-1 | Windows support | — | WIN-1 | Windows CI | test run | Suite green on Windows |
+| FT-APV-1 | Classifier/bypass/user fidelity | 21 | APV-1 (M29) | claude-code | replay + records | Every destructive call's authorization correct; none misreported as `user` |
+| FT-APV-2 | Oversight report on corpus | 21 | APV-3 (M29) | local corpus | `oversight` output | Cross-tab matches hand-computed totals |
+| FT-CCO-1 | Native OTel join | 21 | CCO-1 (M29) | claude-code | join report | ≥95% join; discrepancies classified |
+| FT-DEP-1 | Managed-policy environment | 25 | DEP-1 (M29) | managed config | `doctor` | Truthful state; recipe works or limitation recorded |
+| FT-DEP-2 | Hook-strip detection | 25 | DEP-2 (M29) | claude-code | attestation | `recorder-config-changed` raised next session |
+| FT-DEP-3 | Hook overhead | 1/25 | DEP-3 (M29) | claude-code | perf | Within budget on 3 OSes |
+| FT-CAP-1 | Plugin4Shell-shape drift | 23 | CAP-2 (M30) | fixtures | `capability-changed` | "content changed, version unchanged" raised |
+| FT-MEM-1 | Out-of-band memory edit | 23 | MEM-1 (M30) | claude-code | inventory | Flagged unattributed |
+| FT-PRV-1 | Commit → session | 22 | PRV-1 (M30) | git repo | `provenance` | Resolves; `mixed` correct; no code content in export |
+| FT-LUI-1 | Clean-machine console | 24 | LUI-1 (M30) | clean machine | `ui` | ≤60 s from `ui`; UI/CLI parity |
+| FT-AGI-1 | MCP read-only server safety | 26 | AGI-1 (M30) | local | tool enumeration | No write tool; injection fuzz holds |
+| FT-POL-1 | Policy suggestion & what-if | 27 | POL-1 (M30) | local corpus | `suggest-policy`/`what-if` | No write outside `--out`; measured prompt reduction |
+| FT-ASI-1 | OWASP ASI report | 18 | ASI-1 (M29) | offline | `compliance report` | Every row's command runs; no prevention claims |
+| FT-FWK-1 | Framework recipes | 28 | FWK-1 (M29) | ADK/Strands/… | CI recipes | All pinned recipes green; unmapped explicit |
+| FT-ACC-1 | Role matrix & access log | 31 | ACC-1 (M29) | fleet | access log | Cross-role read nothing + logged; notice omits unbackable claims |
+| FT-HLD-1 | Hold vs retention/purge | 32 | HLD-1 (M29) | local | hold | Held records survive; override conspicuous |
+| FT-ENV-1 | Seeded model-version change | 33 | ENV-1 (M30) | local corpus | `diff` | Environment delta surfaces first |
+| FT-VFY-1 | Browser verifier parity | 8 (ext.) | VFY-1 (M30) | local file | verifier page | Zero network requests; verdicts equal CLI |
+| FT-IR-1 | Multi-session case | 34 | IR-1 (M30) | local | case bundle | Case bundle verifies offline; gaps classified |
+| FT-RUN-1 | Runner segment | 30 | RUN-1 (M30) | CI | segment | Tampered segment fails; imported distinguished |
 
 ## Evidence & report
 

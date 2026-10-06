@@ -8,6 +8,11 @@ SDK spans unify through the same store. **How** — the requirement is
 **Status:** proposed (2026-10-05, v0.2.0; phaseable to v0.2.1) · **Milestone:** M27 · Sources:
 [PRD 41](../prd/41-standards-and-interop-ii.md), PRD 14 (SDK unification decision), S11 `union`, `data-dictionary.md`.
 
+> **Re-sequenced (v0.2.0-expanded):** the general-case query tier is now the **embedded, rebuildable index** in
+> [`local-console.md`](local-console.md) ([PRD 54](../prd/54-local-console-and-query-tier.md), ADR-0035), which ships with
+> the CLI and console and needs no Postgres. Postgres becomes the **fleet / multi-tenant** tier (PG-2) and, per PRD 40's
+> cut-line, is phased behind the embedded index; the derived-only invariant below is unchanged and applies to both tiers.
+
 ## Invariant: derived, never authoritative
 
 1. The JSONL chain store is the **only** source of truth. Postgres holds no fact that cannot be rebuilt from it.

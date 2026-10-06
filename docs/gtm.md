@@ -46,3 +46,14 @@ evidence/AAT exports, external adapter/reader PRs, detector reproduction rate.
 
 Launch gate: the three stories demo offline; no "modeled" Tier-1 rows; AAT verified by an external third-party
 consumer; claims ledger green; field-test report published; articles drafted.
+
+### v0.2.0-expanded GTM additions (PRD 49–59)
+
+**Fourth launch story — "Who approved it, and what code did it write?"** (demo <5 min, offline): authorization/oversight
+(`oversight`, CUJ-21) + code provenance (Agent Trace/git-ai interop, CUJ-22) + capability supply chain
+(`capability-changed`, CUJ-23). Buyer: security engineering + reviewers.
+
+Content plan additions: "Auto mode is the default; here's what your audit trail says about it" (data-driven via
+`oversight`); a Plugin4Shell-shape capability-drift demo; an Agent Trace / git-ai interoperability write-up; a
+zero-Docker console walkthrough ("<60 s, local-first, no services"). Positioning line unchanged; the fourth story
+strengthens "Enforcement tools act; agentwatch proves."

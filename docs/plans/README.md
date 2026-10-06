@@ -15,6 +15,7 @@
 | [M12 NFRs + resilience](m12-nfrs-resilience-plan.md) | M12: store hardening, durability, checkpoints, repair, fault-injection F1–F10, offline/soak CI |
 | [M14 engineering rigor](m14-engineering-rigor-plan.md) | M14: property/differential/mutation/fuzz tests, whole-repo CI, perf gate, vectors, forward-compat, error contract, claims ledger, executable docs, WCAG AA, time correctness, signed release |
 | [M15 evidence & provenance](m15-evidence-provenance-plan.md) | M15: producer field, annotate, store-access, receipts, BOM, evidence bundle, standalone verifier |
+| [v0.2.0-expanded execution plan](v0.2.0-expanded-execution-plan.md) | PRD 49–59: issue-ready backlog, sequencing, cut-line, reserved ADRs 0027–0045, field-test roster |
 
 > **Build risks** were merged into [PRD 08 — Risks](../prd/08-risks.md#build-risks-br1br7).
 > Milestones, work items, and exit gates live in the [WBS](../wbs/v0.1.0/wbs-v0.1.0-index.md).

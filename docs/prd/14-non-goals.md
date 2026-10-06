@@ -41,6 +41,26 @@ The v0.2.0 program keeps every line above and adds these clarifications:
 - **No LLM in the trust path, ever.** Detector telemetry and the eval harness (PRD 43) judge detectors; detectors
   judge nothing; the sampler (PRD 46) is deterministic.
 
+## v0.2.0-expanded additions — explicitly not to add (PRD 49–59)
+
+The expanded program keeps every line above and adds these clarifications:
+
+- **Not an enforcement tool, even when we generate policy.** `suggest-policy`/`what-if` (PRD 55) emit *inert artifacts*
+  and simulations; agentwatch never applies a permission rule, and `agentpolicy` is the named consumer. Wording is
+  "suggestion/simulation", never "policy applied".
+- **Not a dashboard product.** The local console (PRD 54) is the *reference viewer of the record* — read-only, loopback,
+  no accounts, no hosted offering; it supports the evidence mission and does not compete with observability platforms.
+- **No built-in alerting rules.** Event forwarding stays rule-free (S10); `NTF-1` ships *recipes* that route events in the
+  user's own stack (Slack/PagerDuty/Alertmanager).
+- **Not a scanner or an enforcer of capabilities.** `CAP`/`MEM` (PRD 52) record and diff skills/plugins/hooks/memory;
+  they never scan content for malice, block a load, or claim a capability is malicious.
+- **Not a certifier.** The OWASP ASI coverage map (PRD 59) cites evidence or says "not evidenced"; it never certifies.
+- **No LLM in the outcome/analytics path.** `OUT` facts (PRD 58) are deterministic; LLM-judged quality stays in
+  agentdrill.
+- **No agentwatch-initiated egress.** Pulls/imports (Compliance API, runner segments) and registry exports are explicit
+  user acts; tested as such.
+- **We generate suggestions; we do not apply them.** (Restates the first bullet as a standing rule.)
+
 ## Considered and rejected for now (scope honesty — say why)
 
 - **Store encryption at rest** — expands the threat model (key management, recovery) for marginal

@@ -54,6 +54,20 @@ New trust surfaces and the controls that bound them ([PRD 48](../prd/48-v0.2.0-r
 | **Compliance-API pull** | Egress-adjacent vendor pull leaks credentials or expands the trust boundary | Explicit opt-in; pulls recorded as `store-access` (S21); credentials session-scoped, never stored |
 | **Identity-field abuse** | Principals/SPIFFE refs/emails create a surveillance surface | Hashed by default in metadata-only; operator consent for plaintext identity ([ADR-0020](../adr/0020-agent-identity-dimension.md)) |
 
+### v0.2.0-expanded additions (PRD 49–59)
+
+| Threat | Scenario | Control |
+|---|---|---|
+| **Authorization laundering** | A classifier or bypass-mode approval recorded as human consent | Authorization taxonomy v2 ([ADR-0027](../prd/49-authorization-and-oversight.md)); fixtures + no inference from `outcome=ok` |
+| **Managed-policy silent inertness** | The recorder is blocked by `allowManagedHooksOnly` and reports "installed" | Managed install + honest `doctor` ([managed-policy-install](managed-policy-install.md)); attestation |
+| **Capability rug-pull** | A plugin/skill's content changes while its pin/version does not | Content-digest inventory + `capability-changed` ([capability-supply-chain](capability-supply-chain.md)) |
+| **Attestation forgery** | A same-user attacker writes a fake attestation | Not preventable; detectable by cross-checks with native telemetry; published non-claim ([recorder-attestation](recorder-attestation.md)) |
+| **Console CSRF / DNS-rebinding** | A web page reaches the local console | Loopback-only + per-launch token + host-header check + no mutation endpoints ([ADR-0036](local-console.md)) |
+| **Agent reads its own record** | Poisoned record content steers an agent via the MCP server | Read-only tools; untrusted labeling; metadata-only default; fuzz ([agent-interfaces](agent-interfaces.md)) |
+| **Derived-index erasure drift** | Purge/hold not propagated to the index/exports | Holds + propagation to all derived stores ([legal-hold](legal-hold.md), EXT-5) |
+| **Provenance over-claim** | Human work attributed to the agent, or vice versa | Confidence labels; "no recorded activity" wording; mixed ranges ([code-provenance](code-provenance.md)) |
+| **Runner segment tampering** | A forged CI/cloud segment imported as if locally witnessed | Segments verify independently; imported records visibly weaker ([runner-segments](runner-segments.md)) |
+
 ## Out of scope (v1)
 
 Multi-tenant isolation (addressed at the derived-index layer in v0.2.0, [ADR-0019](../adr/0019-derived-postgres-index.md));

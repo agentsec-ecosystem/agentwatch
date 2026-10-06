@@ -103,3 +103,24 @@ the shipped verifier agrees with the authored verdicts before writing:
 python scripts/generate_aat_vectors.py
 ```
 
+---
+
+# Detector-eval corpus (v1)
+
+`detectors/detector-corpus-v1.json` (`agentwatch.detector-corpus/1`) is the
+versioned public corpus for the analytics detectors (M26 COR-1): 143
+shape-synthesized cases rendered from the field-test scenario matrix, tagged
+with a BMWG `dimension` and a `source` (positive field-test cases + benign
+false-positive traffic). Each case carries a serialized `RunSummary` + span tree
+and the detector that should fire, so verdicts are machine-checkable
+(`analytics.detectors.eval.load_public_corpus` / `check_public_corpus`).
+
+Governance-scanned (no secrets/PII) and drift-guarded in
+`services/analytics/tests/test_detector_corpus.py`.
+
+```sh
+python scripts/generate_detector_corpus.py          # regenerate
+python scripts/generate_detector_corpus.py --check  # CI drift check
+```
+
+

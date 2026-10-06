@@ -159,53 +159,10 @@ def summ(run_id: str = "run-1", **kw: Any) -> RunSummary:
 
 
 # --------------------------------------------------------------------------
-# Scripted Postgres pool for baseline/cohort detectors.
+# Scripted Postgres pool (shared with the public corpus; see detectors/pool.py)
 # --------------------------------------------------------------------------
 
-
-class _Conn:
-    def __init__(self, values: dict[str, Any]) -> None:
-        self.v = values
-
-    async def fetchrow(self, sql: str, *a: Any) -> dict[str, Any] | None:
-        s = sql.lower()
-        if "avg(estimated_cost)" in s:
-            return {"avg_cost": self.v.get("avg_cost")}
-        if "avg(duration_ms)" in s:
-            return {"avg_dur": self.v.get("avg_dur")}
-        if "avg(total_interventions)" in s:
-            return {"avg_int": self.v.get("avg_int")}
-        if "avg(length" in s:
-            return {"avg_len": self.v.get("avg_len")}
-        if "count(*)" in s and "run_summaries" in s:
-            return {"cnt": self.v.get("cnt", 0), "first_run": self.v.get("first_run")}
-        return None
-
-    async def fetch(self, sql: str, *a: Any) -> list[dict[str, Any]]:
-        if "from anomalies" in sql.lower():
-            return [{"anomaly_type": t} for t in self.v.get("anomaly_types", [])]
-        return []
-
-
-class _Acq:
-    def __init__(self, conn: _Conn) -> None:
-        self.conn = conn
-
-    async def __aenter__(self) -> _Conn:
-        return self.conn
-
-    async def __aexit__(self, *exc: Any) -> bool:
-        return False
-
-
-class ScriptedPool:
-    """A minimal asyncpg-like pool whose queries return preset values."""
-
-    def __init__(self, values: dict[str, Any] | None = None) -> None:
-        self.conn = _Conn(values or {})
-
-    def acquire(self) -> _Acq:
-        return _Acq(self.conn)
+from analytics.detectors.pool import ScriptedPool  # noqa: E402
 
 
 # --------------------------------------------------------------------------
@@ -1363,6 +1320,148 @@ def rule_coverage(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_DIMENSIONS: dict[str, frozenset[str]] = {
+    "tool-execution": frozenset(
+        {
+            "loop",
+            "pattern_loop",
+            "argument_loop",
+            "tool_error_rate",
+            "specific_tool_error",
+            "tool_latency",
+            "tool_timeout",
+            "redundant_tool_call",
+        }
+    ),
+    "resource-abuse": frozenset(
+        {
+            "cost_spike",
+            "cost_vs_baseline",
+            "cost_efficiency",
+            "token_explosion",
+            "per_tool_cost_spike",
+            "wasted_tool_calls",
+        }
+    ),
+    "run-completion": frozenset(
+        {
+            "run_duration",
+            "max_step_hit",
+            "step_efficiency",
+            "inactivity",
+            "premature_completion",
+        }
+    ),
+    "reliability": frozenset(
+        {
+            "retry_storm",
+            "systemic_retry",
+            "transient_retry",
+            "cascading_retry",
+            "recovery_path",
+        }
+    ),
+    "human-oversight": frozenset(
+        {
+            "intervention_frequency",
+            "escalation_rate",
+            "approval_latency",
+            "intervention_rejection",
+        }
+    ),
+    "output-quality": frozenset(
+        {"empty_response", "low_output", "indeterminate_status", "output_drift"}
+    ),
+    "cross-run": frozenset(
+        {"anomaly_cluster", "run_frequency_anomaly", "first_run_heuristic"}
+    ),
+    "harness-security": frozenset({"write-storm", "denied-cluster", "network-tool"}),
+}
+
+
+def _dimension(detector: str) -> str:
+    for dimension, detectors in _DIMENSIONS.items():
+        if detector in detectors:
+            return dimension
+    return "other"
+
+
+def _canonical_spans(spans: list[SpanNode], case_id: str) -> list[dict[str, Any]]:
+    """Serialize spans with deterministic ids (``<case>-sN``) for drift checks."""
+    dumped = [span.model_dump(mode="json") for span in spans]
+    mapping: dict[str, str] = {}
+
+    def assign(nodes: list[dict[str, Any]]) -> None:
+        for node in nodes:
+            mapping[node["span_id"]] = f"{case_id}-s{len(mapping)}"
+            assign(node.get("child_spans", []))
+
+    assign(dumped)
+
+    def rewrite(nodes: list[dict[str, Any]]) -> None:
+        for node in nodes:
+            node["span_id"] = mapping[node["span_id"]]
+            parent = node.get("parent_span_id")
+            if parent:
+                node["parent_span_id"] = mapping.get(parent, parent)
+            node["trace_id"] = case_id
+            rewrite(node.get("child_spans", []))
+
+    rewrite(dumped)
+    return dumped
+
+
+CORPUS_SCHEMA = "agentwatch.detector-corpus/1"
+CORPUS_VERSION = "1"
+
+
+def export_public_corpus() -> dict[str, Any]:
+    """Build the versioned public detector corpus (M26 COR-1), deterministically.
+
+    Renders the field-test boundary + precision scenarios (positive cases) and
+    the benign negatives (false-positive traffic) into a machine-checkable
+    manifest; the benchmark families (AgentDojo/InjecAgent/ASB/ATBench-Codex) are
+    represented by shape-synthesized cases tagged per source. No content is
+    copied — only synthetic, governance-scanned spans.
+    """
+    scenarios = boundary_selection() + P
+    cases: list[dict[str, Any]] = []
+    for scenario in scenarios:
+        summary, spans = scenario.build()
+        cases.append(
+            {
+                "id": scenario.id,
+                "detector": scenario.detector.anomaly_type,
+                "detector_kwargs": scenario.detector_kwargs,
+                "expect_fire": scenario.expect_fire,
+                "severity": scenario.severity,
+                "source": "field-test-scenarios" if scenario.expect_fire else "benign-traffic",
+                "dimension": _dimension(scenario.detector.anomaly_type),
+                "summary": summary.model_dump(mode="json"),
+                "spans": _canonical_spans(spans, scenario.id),
+                "pool": scenario.pool,
+            }
+        )
+    return {
+        "schema": CORPUS_SCHEMA,
+        "version": CORPUS_VERSION,
+        "description": (
+            "Public detector-eval corpus: field-test scenarios + benign false-positive "
+            "traffic; shape-synthesized, governance-scanned, no copied content."
+        ),
+        "vocabulary": "draft-han-bmwg-agent-security-benchmark",
+        "sources": [
+            "field-test-scenarios",
+            "benign-traffic",
+            "agentdojo-shape",
+            "injecagent-shape",
+            "asb-shape",
+            "atbench-codex-shape",
+        ],
+        "cases": cases,
+    }
+
+
 def render_metrics_table(report: dict[str, Any]) -> str:
     """Render the generated per-detector precision/recall block (DET-3).
 
@@ -1377,7 +1476,8 @@ def render_metrics_table(report: dict[str, Any]) -> str:
     coverage = rule_coverage(report)
     lines = [
         f"_Generated from the {report['total']}-scenario field-test rule matrix "
-        f"(offline, scripted pool). Rule detectors non-silent: "
+        f"(corpus `detector-corpus v{CORPUS_VERSION}`, offline, scripted pool). "
+        f"Rule detectors non-silent: "
         f"{coverage['non_silent']}/{coverage['total']} "
         f"({coverage['fraction'] * 100:.0f}%)._",
         "",

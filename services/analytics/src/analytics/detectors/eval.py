@@ -16,6 +16,7 @@ from typing import Any
 
 from analytics.detectors import create_all_detectors
 from analytics.detectors.base import BaseDetector
+from analytics.detectors.pool import ScriptedPool
 from analytics.models import RunSummary, SpanNode
 
 CORPUS_VERSION_KEY = "version"
@@ -133,11 +134,124 @@ def load_corpus(path: Path | str) -> list[DetectorCase]:
     return [_case_from_spec(spec) for spec in data.get("cases", [])]
 
 
+# ---------------------------------------------------------------------------
+# Public corpus v1 (M26 COR-1)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class PublicCase:
+    """One published corpus case: a run + spans + the detector that should fire."""
+
+    id: str
+    detector: str
+    detector_kwargs: dict[str, Any]
+    expect_fire: bool
+    severity: str | None
+    source: str
+    dimension: str | None
+    summary: RunSummary
+    spans: list[SpanNode]
+    pool: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class PublicCorpus:
+    """A versioned, machine-checkable public detector corpus."""
+
+    schema: str
+    version: str
+    sources: tuple[str, ...]
+    cases: tuple[PublicCase, ...]
+
+
+@dataclass(frozen=True)
+class CaseResult:
+    """The machine-checkable verdict for one public-corpus case."""
+
+    id: str
+    detector: str
+    fired: bool
+    expected: bool
+    severity_ok: bool
+    ok: bool
+
+
+def load_public_corpus(path: Path | str) -> PublicCorpus:
+    """Load the public corpus (``{schema, version, sources, cases}``).
+
+    Cases carry a serialized ``RunSummary`` + spawn tree, the detector that
+    should fire, and a scripted pool for baseline detectors.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    cases = tuple(
+        PublicCase(
+            id=str(spec["id"]),
+            detector=str(spec["detector"]),
+            detector_kwargs=dict(spec.get("detector_kwargs", {})),
+            expect_fire=bool(spec["expect_fire"]),
+            severity=spec.get("severity"),
+            source=str(spec.get("source", "unknown")),
+            dimension=spec.get("dimension"),
+            summary=RunSummary.model_validate(spec["summary"]),
+            spans=[SpanNode.model_validate(span) for span in spec.get("spans", [])],
+            pool=spec.get("pool"),
+        )
+        for spec in data.get("cases", [])
+    )
+    return PublicCorpus(
+        schema=str(data.get("schema", "")),
+        version=str(data.get("version", "")),
+        sources=tuple(str(source) for source in data.get("sources", [])),
+        cases=cases,
+    )
+
+
+def detector_classes() -> dict[str, type[BaseDetector]]:
+    """Rule-detector name -> class (LLM detectors are not included)."""
+    return {detector.anomaly_type: type(detector) for detector in create_all_detectors()}
+
+
+async def _check_case(case: PublicCase, classes: dict[str, type[BaseDetector]]) -> CaseResult:
+    cls = classes.get(case.detector)
+    if cls is None:
+        return CaseResult(case.id, case.detector, False, case.expect_fire, False, False)
+    detector = cls(**case.detector_kwargs)
+    pool = ScriptedPool(case.pool) if case.pool is not None else None
+    anomaly = await detector.detect_async(case.summary, case.spans, pool=pool)
+    fired = anomaly is not None
+    severity_ok = (not case.expect_fire) or case.severity is None or (
+        anomaly is not None and anomaly.severity == case.severity
+    )
+    fire_ok = fired == case.expect_fire
+    type_ok = (not fired) or (anomaly is not None and anomaly.anomaly_type == detector.anomaly_type)
+    return CaseResult(
+        id=case.id,
+        detector=case.detector,
+        fired=fired,
+        expected=case.expect_fire,
+        severity_ok=severity_ok,
+        ok=fire_ok and severity_ok and type_ok,
+    )
+
+
+def check_public_corpus(corpus: PublicCorpus) -> tuple[CaseResult, ...]:
+    """Run every case and return its machine-checkable verdict (offline)."""
+    classes = detector_classes()
+    return tuple(asyncio.run(_check_case(case, classes)) for case in corpus.cases)
+
+
 __all__ = [
     "CORPUS_VERSION_KEY",
+    "CaseResult",
     "DetectorCase",
     "EvalReport",
     "Outcome",
+    "PublicCase",
+    "PublicCorpus",
+    "check_public_corpus",
+    "detector_classes",
     "load_corpus",
+    "load_public_corpus",
     "run_eval",
 ]

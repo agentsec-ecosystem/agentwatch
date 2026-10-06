@@ -6,6 +6,34 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Interop & Proofs (M26):
+  - AAT-3: `agentwatch ingest --format aat` verifies a foreign AAT bundle's chain before storage and
+    quarantines untrusted/non-normalizable records with a reason (#313).
+  - AAT-4: AAT conformance vectors (`schema/vectors/aat/`) with a dependency-free second verifier and a
+    dual-verifier drift check (#314).
+  - AAT-5: the AAT draft revision is pinned and carried in `--version`, with a drift check + re-pin policy (#315).
+  - OTEL-3: `ingest --format otel` auto-detects OTLP protobuf; `--format otlp-grpc` streams gRPC-framed OTLP
+    with bounded memory (#316).
+  - TRACE-2: `agentwatch trace <tid>` and `replay --trace` reconstruct one causal chain across hosts/sessions,
+    surfacing clock skew and propagation breaks (#317).
+  - CUR-3: Cursor coverage reconciliation against the session-tracer corpus (`gap:cursor-hook-coverage`) (#318).
+  - STR-2: `agentwatch.live.LiveTail` — store-truth back-fill reconciliation with classified gaps and a
+    visible `degraded` state (#319).
+  - STR-3: a bounded streaming soak harness + CI job asserting zero store loss (#320).
+  - DET-2/DET-3: the field-test scenario matrix is the rule-detector coverage gate (38/38 non-silent); the
+    catalog publishes generated, drift-guarded per-detector precision/recall; detectors replay the real testkit
+    traces (#321, #322).
+  - COR-1: a versioned, machine-checkable, governance-scanned public detector corpus
+    (`schema/vectors/detectors/detector-corpus-v1.json`) (#323).
+  - IDN-2/IDN-3: `search --identity`, and attribution (agent, credential, on-behalf-of, delegation, approval)
+    rendered in `blame`/`tree`/`trace`/`impact` (#324, #325).
+  - CMP-1/CMP-2: `agentwatch compliance report` (control → evidence → verdict → refs + retention/signature
+    status; never certifies) with five framework templates (#326, #327).
+  - GWY-1/GWY-2: LiteLLM/Portkey OTel ingest recipes and exact, source-stamped gateway cost attribution
+    (`exact`/`estimated`/`mixed`/`unknown`) (#328, #329).
+  - API-1: published `openapi.json` + a drift-checked typed client (#330).
+  - RSK-2/SEC-1: threat-model rows linked to real tests, accepted v0.2.0 ADRs, and v0.2.0 surface rows in the
+    threat→test traceability and recorder attack matrix (#332, #429).
 - v0.2.0 Foundations (M25):
   - OTEL-1: re-pinned GenAI semconv to `1.37.0`, added the canonical agent-span operations
     (`create_agent`, `invoke_agent`, `invoke_workflow`, `plan`, `execute_tool`) and an operation drift check;

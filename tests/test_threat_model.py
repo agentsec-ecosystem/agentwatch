@@ -65,3 +65,44 @@ def test_v02_adr_series_exists_with_a_status() -> None:
         assert matches, f"ADR-{number:04d} is missing"
         text = matches[0].read_text(encoding="utf-8")
         assert "**Status:**" in text, f"ADR-{number:04d} has no status line"
+
+
+TRACE = REPO / "docs" / "design" / "threat-test-traceability.md"
+ATTACK = REPO / "docs" / "design" / "recorder-attack-matrix.md"
+
+_V02_SURFACES = (
+    "Streaming side-channel",
+    "Proxy-surface growth",
+    "Compliance-API pull",
+    "Identity-field abuse",
+    "Foreign-data weaponization",
+)
+
+
+def test_traceability_test_refs_resolve() -> None:
+    refs = REF.findall(TRACE.read_text(encoding="utf-8"))
+    assert refs, "traceability doc cites no test: references"
+    for path, func in refs:
+        assert _test_exists(path, func), f"missing test {path}::{func}"
+
+
+def test_traceability_covers_every_v02_surface_with_a_test() -> None:
+    lines = TRACE.read_text(encoding="utf-8").splitlines()
+    for surface in _V02_SURFACES:
+        rows = [line for line in lines if surface in line]
+        assert rows, f"traceability is missing the {surface} row"
+        assert REF.findall(rows[0]), f"{surface} row cites no test"
+
+
+def test_attack_matrix_rows_state_a_command_or_compensating_control() -> None:
+    rows = [
+        line
+        for line in ATTACK.read_text(encoding="utf-8").splitlines()
+        if line.strip().startswith("| **")
+    ]
+    assert rows
+    for row in rows:
+        cells = [cell.strip() for cell in row.strip().strip("|").split("|")]
+        # Scenario | Preventable | Detectable | Command/evidence | Compensating
+        assert len(cells) >= 5, row
+        assert cells[3] or cells[4], f"row states neither evidence nor a control: {row[:80]}"

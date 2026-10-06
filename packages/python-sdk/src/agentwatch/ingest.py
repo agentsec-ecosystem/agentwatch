@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 
+from agentwatch.aat import AAT_DRAFT, aat_entry_chain_error
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.records import (
     AgentIdentity,
@@ -307,10 +308,62 @@ def transcode_ndjson(
     return records, problems
 
 
+def transcode_aat(
+    text: str,
+    *,
+    source: str = "aat",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem]]:
+    """Transcode a foreign IETF AAT bundle (M26 AAT-3).
+
+    The bundle is untrusted: every entry's chain hash and inter-entry linkage is
+    verified before its record is stored (fail closed), and any record that does
+    not pass chain verification or cannot be normalized is quarantined with a
+    reason (B4) rather than dropped or trusted. Foreign content is always run
+    through the secrets pipeline before storage.
+    """
+    try:
+        bundle = json.loads(text)
+    except json.JSONDecodeError as exc:
+        return [], [IngestProblem(source, f"invalid JSON: {exc}")]
+    if not isinstance(bundle, Mapping):
+        return [], [IngestProblem(source, "AAT bundle is not a JSON object")]
+    revision = bundle.get("aat_version")
+    if revision != AAT_DRAFT:
+        return [], [IngestProblem(source, f"unsupported AAT revision: {revision!r}")]
+    entries = bundle.get("records")
+    if not isinstance(entries, list):
+        return [], [IngestProblem(source, "AAT bundle has no records list")]
+
+    records: list[AgentRecord] = []
+    problems: list[IngestProblem] = []
+    prev_hash: str | None = None
+    for index, entry in enumerate(entries):
+        here = f"{source}#{index}"
+        error = aat_entry_chain_error(entry, prev_hash)
+        chain = entry.get("chain") if isinstance(entry, Mapping) else None
+        declared = chain.get("hash") if isinstance(chain, Mapping) else None
+        if error is not None:
+            problems.append(IngestProblem(here, f"untrusted AAT record: {error}"))
+        else:
+            native, _ = redact_mapping(entry["agentwatch"])
+            try:
+                record = AgentRecord.from_dict(native)
+                validate_record(record.to_dict())
+            except (ValueError, KeyError, TypeError) as exc:
+                problems.append(IngestProblem(here, f"non-normalizable AAT record: {exc}"))
+            else:
+                records.append(record)
+        # Track the entry's declared link even when it fails, so one bad entry
+        # does not cascade into false linkage errors for its successors.
+        if isinstance(declared, str):
+            prev_hash = declared
+    return records, problems
+
+
 # ---------------------------------------------------------------------------
 # Store ingestion
 # ---------------------------------------------------------------------------
-
 
 def resolve_ingest_paths(target: Path) -> list[Path]:
     """Resolve a source file or a directory of ``*.json`` / ``*.jsonl`` files."""
@@ -330,6 +383,8 @@ def transcode(
         return [], [IngestProblem(name, f"unreadable: {exc}")]
     if fmt == "ndjson":
         return transcode_ndjson(text, source=name, redaction=redaction)
+    if fmt == "aat":
+        return transcode_aat(text, source=name, redaction=redaction)
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as exc:

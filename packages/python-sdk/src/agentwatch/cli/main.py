@@ -466,13 +466,13 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     import_cmd.add_argument("--json", action="store_true", help="emit the import stats as JSON")
 
-    ingest = sub.add_parser("ingest", help="ingest foreign OTel/NDJSON traces (M10 N2)")
+    ingest = sub.add_parser("ingest", help="ingest foreign OTel/NDJSON/AAT traces (M10 N2, M26 AAT-3)")
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "ndjson"),
+        choices=("otel", "ndjson", "aat"),
         default="otel",
-        help="foreign trace format (default: otel)",
+        help="foreign trace format (default: otel; aat is IETF Agent Audit Trail)",
     )
     ingest.add_argument(
         "--capture",

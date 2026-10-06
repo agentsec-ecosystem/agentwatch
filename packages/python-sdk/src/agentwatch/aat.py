@@ -59,8 +59,33 @@ def _canonical(record: dict[str, Any]) -> str:
     return json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
-def _entry_hash(prev_hash: str, record: dict[str, Any]) -> str:
+def aat_entry_hash(prev_hash: str, record: dict[str, Any]) -> str:
+    """The chain hash for one AAT entry: ``sha256(prev_hash + canonical(record))``."""
     return hashlib.sha256((prev_hash + _canonical(record)).encode("utf-8")).hexdigest()
+
+
+def aat_entry_chain_error(entry: Any, prev_hash: str | None) -> str | None:
+    """Why an AAT entry's chain is untrusted, or ``None`` when it verifies.
+
+    Checks the entry's own hash over its embedded native record *and* its
+    declared ``prev_hash`` against the preceding entry's declared hash. Never
+    raises (untrusted input); the caller quarantines on a reason.
+    """
+    if not isinstance(entry, dict):
+        return "entry is not an object"
+    native = entry.get("agentwatch")
+    chain = entry.get("chain")
+    if not isinstance(native, dict) or not isinstance(chain, dict):
+        return "missing agentwatch record or chain envelope"
+    declared_prev = chain.get("prev_hash")
+    declared_hash = chain.get("hash")
+    if not isinstance(declared_prev, str) or not isinstance(declared_hash, str):
+        return "chain envelope has no prev_hash/hash"
+    if prev_hash is not None and declared_prev != prev_hash:
+        return "chain linkage broken: prev_hash does not match the preceding entry"
+    if aat_entry_hash(declared_prev, native) != declared_hash:
+        return "chain hash does not match the record (tampered)"
+    return None
 
 
 def _iso(value: Any) -> str | None:
@@ -158,7 +183,7 @@ def write_aat(bundle: dict[str, Any], path: Path) -> None:
 
 
 def verify_aat(bundle: Any) -> bool:
-    """Reference consumer: re-verify each entry's chain hash from its native record.
+    """Reference consumer: re-verify each entry's hash and inter-entry linkage.
 
     Fails closed on any malformed shape (never raises on untrusted input).
     """
@@ -167,16 +192,11 @@ def verify_aat(bundle: Any) -> bool:
     records = bundle.get("records")
     if not isinstance(records, list):
         return False
+    prev_hash: str | None = None
     for entry in records:
-        if not isinstance(entry, dict):
+        if aat_entry_chain_error(entry, prev_hash) is not None:
             return False
-        native = entry.get("agentwatch")
-        chain = entry.get("chain")
-        if not isinstance(native, dict) or not isinstance(chain, dict):
-            return False
-        expected = _entry_hash(str(chain.get("prev_hash")), native)
-        if expected != chain.get("hash"):
-            return False
+        prev_hash = entry["chain"]["hash"]
     return True
 
 
@@ -184,6 +204,8 @@ __all__ = [
     "AAT_DRAFT",
     "AAT_EXPORT_SCHEMA",
     "AAT_MAPPING",
+    "aat_entry_chain_error",
+    "aat_entry_hash",
     "aat_record",
     "export_aat",
     "to_aat_json",

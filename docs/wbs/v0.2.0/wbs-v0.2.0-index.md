@@ -61,6 +61,14 @@ Exit criteria · Design docs).
 > ADR-0026 decided), 25.T (#371), 25.D (#372), 25.R (#373, signed off), and the M25 tail CLI-1/CFG-1/CI-1
 > (#425–#427); FLD-1a plan drafted (#370). Accepted gap: CUR-1 live-install capture deferred. Track status here
 > and in each part file at milestone close.
+>
+> **Progress:** ✅ **M26 (Interop & Proofs) complete** (2026-10-06) — AAT-3..5 (#313–#315), OTEL-3 (#316),
+> TRACE-2 (#317), CUR-3 (#318), STR-2 (#319), STR-3 (#320), DET-2 (#321), DET-3 (#322), COR-1 (#323),
+> IDN-2 (#324), IDN-3 (#325), CMP-1 (#326), CMP-2 (#327), GWY-1 (#328), GWY-2 (#329), API-1 (#330), RSK-2 (#332),
+> SEC-1 (#429), PERF-1 (#430), and 26.T/D/R (#374/#375/#376, signed off). Gates at HEAD (`6939678`): `make test`
+> green (SDK 1627 passed/95.15%, API 46/96.80%, analytics 724/95.15%, repo guard 34), `ruff` clean,
+> `mypy --strict` clean. **Re-pointed (blocked, declared):** UI-1 → M30 (console), XHT-2 → M31 (field tests).
+> Milestone closed 2026-10-06.
 
 ## Track → ticket map
 

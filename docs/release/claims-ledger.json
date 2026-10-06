@@ -156,6 +156,16 @@
         "test:services/analytics/tests/test_detector_corpus.py::test_corpus_is_governance_clean"
       ],
       "last_verified": "2026-10-05"
+    },
+    {
+      "id": "C16",
+      "claim": "The MCP interposition proxy speaks the 2026-07-28 Streamable HTTP transport statelessly: Mcp-Session-Id is neither required, forwarded, nor emitted, and MCP-Protocol-Version is relayed unchanged.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_streamable_http.py::test_streamable_transport_strips_session_id_both_directions",
+        "test:packages/python-sdk/tests/test_mcp_streamable_http.py::test_streamable_transport_relays_protocol_version"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

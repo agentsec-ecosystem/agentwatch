@@ -57,7 +57,10 @@ and stateless), **Roots/Sampling/Logging deprecated** (SEP-2577), **MRTR** rewor
 
 The proxy migrates to **Streamable HTTP** and records the previously-relayed surfaces — `resources/read` (incl.
 resource links in tool results), `prompts/get`, **elicitation** (linked to approval provenance S14), and **tasks**
-lifecycle — with the same redaction/chain/attribution pipeline. `sampling`/`roots`/`logging` are marked
-**closed-by-spec** in `known-limitations.md` (retired by the standard, not by us). Conformance fixtures are
+lifecycle — with the same redaction/chain/attribution pipeline. The streamable transport is **stateless**: because
+2026-07-28 removed sessions, the proxy neither requires, forwards, nor emits `Mcp-Session-Id` in either direction,
+and `MCP-Protocol-Version` is relayed unchanged. The pre-2026 HTTP/SSE relay is kept for legacy servers
+(`agentwatch mcp-proxy --http --transport http-sse`) and is **deprecated-in-spec**. `sampling`/`roots`/`logging` are
+marked **closed-by-spec** in `known-limitations.md` (retired by the standard, not by us). Conformance fixtures are
 versioned per protocol revision (2025-06-18 / 2025-11-25 / 2026-07-28); an unknown method is quarantined and
 surfaced as harness-drift (S19).

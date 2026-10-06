@@ -76,7 +76,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch secrets [--session-id ID] [--json]` | Trace exposed secrets across a session without values (M18 S23) | **implemented** (M18) |
 | `agentwatch demo [--purge] [--json]` | Prove the hook→daemon→store→chain pipeline with synthetic events (M19 S31) | **implemented** (M19) |
 | `agentwatch mcp-proxy --server NAME -- <command> [args...]` | Run the stdio MCP interposition proxy | **implemented** (M10) |
-| `agentwatch mcp-proxy --http [--host H] [--port P] --route NAME=URL ...` | Run the loopback HTTP/SSE MCP interposition proxy | **implemented** (M10) |
+| `agentwatch mcp-proxy --http [--host H] [--port P] [--transport streamable-http\|http-sse] --route NAME=URL ...` | Run the loopback MCP interposition proxy (`streamable-http` default, stateless; `http-sse` legacy, deprecated-in-spec) | **implemented** (M10; Streamable HTTP M27 MCP-1) |
 | `agentwatch migrate [--rollback]` | Store-format migration (v0.2.0+) | wired, implemented in M9+ |
 | `agentwatch uninstall [--scope project\|user] [--mcp-scope project\|user]` | Remove hooks, stop the daemon, restore MCP config byte-identically, stop the MCP proxy | **implemented** (M3; MCP M10) |
 

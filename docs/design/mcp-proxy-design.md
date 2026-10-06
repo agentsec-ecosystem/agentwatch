@@ -2,11 +2,13 @@
 
 **BLUF:** One opt-in local proxy sits between any MCP-speaking harness and its MCP servers, forwarding
 traffic unchanged while recording every `tools/call` request/response as agentwatch records with full
-`tool.server` attribution. It reuses the shipped adapter, redaction, chain, and conformance boundaries;
+`tool.server` attribution. It speaks the **Streamable HTTP** transport (2026-07-28, stateless) and keeps the
+legacy HTTP/SSE relay verbatim. It reuses the shipped adapter, redaction, chain, and conformance boundaries;
 install is consent-first and uninstall restores the harness config byte-for-byte.
 
-Status: **accepted** (2026-10-03; Plan A + Plan B landed) · **Milestone:** M10 Phase 3 (WBS 10.5 / 10.N1) · **Issues:** #83 (M10 10.5),
-#212 (N1) · **Decision:** D-P · **PRDs:** [27](../prd/27-harness-expansion.md#n1-mcp-client-interposition-adapter-one-adapter-n-harnesses--m10-212),
+Status: **accepted** (2026-10-03; Plan A + Plan B landed) · **Milestone:** M10 Phase 3 (WBS 10.5 / 10.N1) ·
+**M27 MCP-1** (Streamable HTTP transport) · **Issues:** #83 (M10 10.5),
+#212 (N1), #333 (M27 MCP-1) · **Decision:** D-P · **PRDs:** [27](../prd/27-harness-expansion.md#n1-mcp-client-interposition-adapter-one-adapter-n-harnesses--m10-212),
 [11](../prd/11-decisions.md), [25](../prd/25-capture-fidelity.md), [23](../prd/23-event-interchange.md)
 
 ## Goal
@@ -19,8 +21,12 @@ not just tool names.
 
 - **In scope (v0.1.0):** stdio MCP servers and HTTP/SSE MCP servers; recording `tools/call` traffic; consent-first
   config re-pointing; byte-exact restore; conformance registration.
+- **In scope (v0.2.0 MCP-1):** the HTTP relay speaks the **Streamable HTTP** transport as its default
+  (`--transport streamable-http`); the legacy HTTP/SSE relay is kept verbatim (`--transport http-sse`,
+  deprecated-in-spec).
 - **Out of scope (declared gaps):** MCP `resources/read`, `prompts/get`, sampling, and elicitation are relayed
-  but **not** recorded (no record-model concept yet); non-MCP harnesses fall back to native/OTel (N2).
+  but **not** recorded (no record-model concept yet); non-MCP harnesses fall back to native/OTel (N2). The
+  recording gaps are closed by MCP-2..MCP-5.
 
 ## Architecture
 
@@ -111,11 +117,16 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   spawns `command` as a subprocess and relays newline-delimited JSON-RPC in both directions on two threads.
   Lines are forwarded byte-for-byte; each line is parsed only to decide whether it is a recordable `tools/call`
   request/response. On harness or server EOF the other side is closed and the child reaped.
-- `serve_http(routes: Mapping[str, str], *, host: str = "127.0.0.1", port: int = 0, socket_path: str | None = None) -> int`
+- `serve_http(routes: Mapping[str, str], *, host: str = "127.0.0.1", port: int = 0, socket_path: str | None = None, transport: str = MCP_TRANSPORT_STREAMABLE) -> int`
   binds a loopback `ThreadingHTTPServer` serving one route per `server → upstream URL` pair. A request to
   `/<server>` is forwarded to that server's upstream with method/headers preserved (hop-by-hop headers dropped,
   `Host` rewritten; `Authorization`/OAuth untouched); the response is streamed back and parsed for a JSON-RPC
   reply to record. GET SSE streams are proxied verbatim. An unknown route returns 404.
+  - **Transport (`MCP_TRANSPORT_STREAMABLE`, default, 2026-07-28).** The proxy is **stateless** — sessions are
+    removed by the spec, so it neither requires, forwards, nor emits `Mcp-Session-Id` in either direction, and
+    `MCP-Protocol-Version` is relayed unchanged. Single-endpoint POST (JSON or SSE response) is the streamable shape.
+  - **Transport (`MCP_TRANSPORT_HTTP_SSE`, legacy, deprecated-in-spec).** The relay is byte-verbatim, including
+    `Mcp-Session-Id`, for servers still on the pre-2026 transport.
 - The **`init` install mode** runs one long-lived `agentwatch mcp-proxy --http --route NAME=URL …` process;
   each harness `url` points at `http://127.0.0.1:<port>/<server>`. Default port 8765, configurable; an occupied
   port fails closed.
@@ -125,7 +136,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   `mcp-<12 hex>` (per process for stdio, per connection for HTTP). Correlates proxy records to the harness
   session for the WBS "cross-harness trace correlation" test.
 - `main(argv: Sequence[str] | None = None) -> int` — argparse: stdio mode `--server NAME -- <command> [args…]`;
-  HTTP mode `--http [--host H] [--port P] (--route NAME=URL)…`.
+  HTTP mode `--http [--host H] [--port P] [--transport T] (--route NAME=URL)…` (`T` defaults to
+  `streamable-http`).
 
 ### Error handling / fail-closed
 
@@ -192,3 +204,4 @@ Delivered as **two implementation plans** (each produces working, testable softw
 | D-M4 | Manage **`.mcp.json` (project)** and **`~/.claude.json` (user)**; byte-exact backup + hash-guarded restore. |
 | D-M5 | Records reach the store via the **daemon socket** with a new `mcp` phase, reusing the single-writer path. |
 | D-M6 | One long-lived HTTP proxy process with a route manifest; default loopback port 8765, fail closed if taken. |
+| D-M7 | **Streamable HTTP is the default transport** (2026-07-28, stateless: `Mcp-Session-Id` is neither required, forwarded, nor emitted); `--transport http-sse` keeps the legacy relay verbatim, **deprecated-in-spec** (M27 MCP-1, ADR-0023). |

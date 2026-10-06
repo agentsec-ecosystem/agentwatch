@@ -30,7 +30,10 @@ Status: living.
   Real fixtures for all of them land in later milestones (M14 field tests / N4 version matrix).
 - Cursor cloud agents (cursor.com/agents) do not run the `sessionStart`/`sessionEnd`/MCP/Tab/`workspaceOpen`
   hooks; this is a declared gap (`cloud-agent-hook-events`), not a silent one.
-- MCP interposition (`agentwatch mcp-proxy`, M10 N1) records `tools/call` over **stdio and HTTP/SSE**;
+- MCP interposition (`agentwatch mcp-proxy`, M10 N1) records `tools/call` over **stdio and Streamable HTTP**
+  (2026-07-28; the legacy HTTP/SSE relay is kept via `--transport http-sse` and is deprecated-in-spec — see
+  `tests/test_mcp_streamable_http.py`). The streamable transport is stateless: sessions were removed, so
+  `Mcp-Session-Id` is neither required, forwarded, nor emitted.
   `agentwatch init --mcp-proxy` re-points `.mcp.json`/`~/.claude.json` and `uninstall` restores it
   byte-identically. MCP `resources`/`prompts`/`sampling` are relayed but not recorded (declared gaps).
   HTTP mode holds each forwarded request/response in memory (bounded by the upstream body); a truly

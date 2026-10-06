@@ -794,10 +794,15 @@ def _build_parser() -> argparse.ArgumentParser:
     mcp = sub.add_parser("mcp-proxy", help="run the MCP interposition proxy (M10 N1)")
     mcp.add_argument("--server", default=None, help="stdio mode: MCP server name (tool.server)")
     mcp.add_argument("--socket", default=None, help="daemon socket path override")
-    mcp.add_argument("--http", action="store_true", help="serve HTTP/SSE routes instead of stdio")
+    mcp.add_argument("--http", action="store_true", help="serve HTTP routes instead of stdio")
     mcp.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
     mcp.add_argument(
         "--port", type=int, default=8765, help="HTTP bind port (default 8765; 0 = ephemeral)"
+    )
+    mcp.add_argument(
+        "--transport",
+        default="streamable-http",
+        help="HTTP transport: streamable-http (default) or http-sse (legacy, deprecated-in-spec)",
     )
     mcp.add_argument(
         "--route",
@@ -1079,17 +1084,20 @@ def _run_uninstall(args: argparse.Namespace) -> int:
 
 def _run_mcp_proxy(args: argparse.Namespace) -> int:
     if args.http:
-        from agentwatch.mcp_proxy import parse_routes, serve_http
+        from agentwatch.mcp_proxy import parse_routes, parse_transport, serve_http
 
         try:
             routes = parse_routes(args.route)
+            transport = parse_transport(args.transport)
         except ValueError as exc:
             print(f"agentwatch: {exc}", file=sys.stderr)
             return _EXIT_USAGE_ERROR
         if not routes:
             print("agentwatch: mcp-proxy --http requires --route NAME=URL", file=sys.stderr)
             return _EXIT_USAGE_ERROR
-        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+        return serve_http(
+            routes, host=args.host, port=args.port, socket_path=args.socket, transport=transport
+        )
 
     from agentwatch.mcp_proxy import run_stdio
 

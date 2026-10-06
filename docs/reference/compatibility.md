@@ -17,6 +17,8 @@
 > **MCP proxy (M10 N1):** any harness that speaks MCP can be recorded without a native adapter. v0.1.0
 > records `tools/call` over **stdio and HTTP/SSE** with `tool.server` attribution, and `agentwatch init
 > --mcp-proxy` re-points the harness config at the proxy (`uninstall` restores it byte-identically).
+> **v0.2.0 MCP-1** moves the HTTP proxy to the **Streamable HTTP** transport (2026-07-28, stateless — sessions
+> removed); the legacy HTTP/SSE relay is kept (`--transport http-sse`) and marked deprecated-in-spec.
 > MCP `resources`/`prompts`/`sampling` are relayed but declared gaps.
 
 > **B1:** v0.1.0 is Claude Code only (meta-MVP); the ecosystem ≥2-Tier-1 threshold is met by v0.3.0.

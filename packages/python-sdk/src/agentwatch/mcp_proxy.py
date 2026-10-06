@@ -33,6 +33,17 @@ from agentwatch.spool import Spool
 # JSON-RPC server-error code used for a request the server never answered.
 _SERVER_EXIT_CODE = -32000
 
+# MCP transports (M27 MCP-1, ADR-0023). The 2026-07-28 revision makes Streamable
+# HTTP the primary transport and **removes sessions**; the legacy HTTP/SSE relay
+# is kept verbatim and marked deprecated-in-spec.
+MCP_TRANSPORT_STREAMABLE = "streamable-http"
+MCP_TRANSPORT_HTTP_SSE = "http-sse"
+MCP_TRANSPORTS = frozenset({MCP_TRANSPORT_STREAMABLE, MCP_TRANSPORT_HTTP_SSE})
+
+# The session header the 2026-07-28 spec removes; the streamable transport is
+# stateless and never forwards it in either direction.
+_SESSION_HEADER = "mcp-session-id"
+
 # Headers never forwarded verbatim: hop-by-hop (RFC 7230 §6.1) plus the framing
 # headers we recompute for the proxied request/response.
 _HOP_BY_HOP = frozenset(
@@ -47,6 +58,14 @@ _HOP_BY_HOP = frozenset(
         "upgrade",
     }
 )
+
+
+def parse_transport(value: str) -> str:
+    """Validate a transport selector; raise ``ValueError`` when it is unknown."""
+    if value not in MCP_TRANSPORTS:
+        expected = ", ".join(sorted(MCP_TRANSPORTS))
+        raise ValueError(f"invalid transport {value!r}; expected one of {expected}")
+    return value
 
 
 def resolve_session_id(env: Mapping[str, str] | None = None) -> str:
@@ -352,6 +371,7 @@ class _ProxyHandler(BaseHTTPRequestHandler):
     def _proxy(self, method: str) -> None:
         server = self.server
         assert isinstance(server, _ProxyServer)
+        stateless = server.transport == MCP_TRANSPORT_STREAMABLE
         server_name = self._server_name()
         if server_name is None:
             self.send_error(404, "unknown MCP route")
@@ -387,6 +407,10 @@ class _ProxyHandler(BaseHTTPRequestHandler):
             for key, value in self.headers.items()
             if key.lower() not in _HOP_BY_HOP and key.lower() not in ("host", "content-length")
         }
+        if stateless:
+            # Sessions removed (2026-07-28): never couple the proxy to a server
+            # session, in either direction.
+            headers = {key: value for key, value in headers.items() if key.lower() != _SESSION_HEADER}
         headers["Host"] = parts.netloc
         try:
             connection.request(
@@ -406,6 +430,8 @@ class _ProxyHandler(BaseHTTPRequestHandler):
         self.send_response(response.status)
         for key, value in response.getheaders():
             if key.lower() in _HOP_BY_HOP or key.lower() == "content-length":
+                continue
+            if stateless and key.lower() == _SESSION_HEADER:
                 continue
             self.send_header(key, value)
         self.send_header("Connection", "close")
@@ -463,10 +489,13 @@ class _ProxyServer(ThreadingHTTPServer):
         address: tuple[str, int],
         routes: Mapping[str, str],
         recorders: Mapping[str, Recorder],
+        *,
+        transport: str = MCP_TRANSPORT_STREAMABLE,
     ) -> None:
         super().__init__(address, _ProxyHandler)
         self.routes = dict(routes)
         self.recorders = dict(recorders)
+        self.transport = parse_transport(transport)
 
 
 def create_http_proxy(
@@ -475,12 +504,16 @@ def create_http_proxy(
     host: str = "127.0.0.1",
     port: int = 0,
     socket_path: str | None = None,
-) -> ThreadingHTTPServer:
-    """Bind a loopback MCP HTTP/SSE proxy, one route per ``server -> upstream URL``.
+    transport: str = MCP_TRANSPORT_STREAMABLE,
+) -> _ProxyServer:
+    """Bind a loopback MCP proxy, one route per ``server -> upstream URL``.
 
-    The returned server is bound but not serving; call ``serve_forever()`` to run
-    it, or ``shutdown()`` from another thread. An occupied port raises ``OSError``
-    (fail closed, D-M6).
+    The default ``transport`` is Streamable HTTP (2026-07-28): the proxy is
+    stateless and strips ``Mcp-Session-Id`` in both directions. Pass
+    ``MCP_TRANSPORT_HTTP_SSE`` to keep the legacy relay verbatim
+    (deprecated-in-spec). The returned server is bound but not serving; call
+    ``serve_forever()`` to run it, or ``shutdown()`` from another thread. An
+    occupied port raises ``OSError`` (fail closed, D-M6).
     """
     if not routes:
         raise ValueError("create_http_proxy requires at least one route")
@@ -489,7 +522,7 @@ def create_http_proxy(
     recorders = {
         name: Recorder(name, session_id, socket_path=socket_path, cwd=cwd) for name in routes
     }
-    return _ProxyServer((host, port), routes, recorders)
+    return _ProxyServer((host, port), routes, recorders, transport=transport)
 
 
 def serve_http(
@@ -498,9 +531,12 @@ def serve_http(
     host: str = "127.0.0.1",
     port: int = 0,
     socket_path: str | None = None,
+    transport: str = MCP_TRANSPORT_STREAMABLE,
 ) -> int:
-    """Serve the HTTP/SSE MCP proxy until interrupted; returns an exit code."""
-    server = create_http_proxy(routes, host=host, port=port, socket_path=socket_path)
+    """Serve the MCP proxy until interrupted; returns an exit code."""
+    server = create_http_proxy(
+        routes, host=host, port=port, socket_path=socket_path, transport=transport
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:  # pragma: no cover - interactive shutdown
@@ -534,10 +570,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="agentwatch-mcp-proxy")
     parser.add_argument("--server", default=None, help="stdio mode: MCP server name")
     parser.add_argument("--socket", default=None, help="daemon socket path override")
-    parser.add_argument("--http", action="store_true", help="serve HTTP/SSE routes")
+    parser.add_argument("--http", action="store_true", help="serve HTTP routes (Streamable HTTP)")
     parser.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
     parser.add_argument(
         "--port", type=int, default=8765, help="HTTP bind port (default 8765; 0 = ephemeral)"
+    )
+    parser.add_argument(
+        "--transport",
+        default=MCP_TRANSPORT_STREAMABLE,
+        help="HTTP transport: streamable-http (default) or http-sse (legacy, deprecated-in-spec)",
     )
     parser.add_argument(
         "--route", action="append", default=[], metavar="NAME=URL", help="HTTP route (repeatable)"
@@ -548,6 +589,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.http:
         try:
             routes = parse_routes(args.route)
+            transport = parse_transport(args.transport)
         except ValueError as exc:
             print(f"agentwatch-mcp-proxy: {exc}", file=sys.stderr)
             return 2
@@ -557,7 +599,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+        return serve_http(
+            routes, host=args.host, port=args.port, socket_path=args.socket, transport=transport
+        )
 
     command: list[str] = list(args.command)
     if command and command[0] == "--":

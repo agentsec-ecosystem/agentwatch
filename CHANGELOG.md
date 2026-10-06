@@ -6,6 +6,12 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Surfaces (M27):
+  - MCP-1: the MCP interposition proxy now speaks **Streamable HTTP** as its default transport
+    (`agentwatch mcp-proxy --http --transport streamable-http`); it is **stateless** (sessions removed in
+    2026-07-28 — `Mcp-Session-Id` is neither required, forwarded, nor emitted) and relays
+    `MCP-Protocol-Version` unchanged. The legacy HTTP/SSE relay is kept verbatim
+    (`--transport http-sse`) and marked deprecated-in-spec (#333).
 - v0.2.0 Interop & Proofs (M26):
   - AAT-3: `agentwatch ingest --format aat` verifies a foreign AAT bundle's chain before storage and
     quarantines untrusted/non-normalizable records with a reason (#313).

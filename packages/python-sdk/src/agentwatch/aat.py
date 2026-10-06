@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -47,6 +48,18 @@ _UNMAPPED_FIELDS: dict[str, str] = {
     "response_hash": "no pre-redaction response fingerprint captured on the record",
     "response_size": "pre-redaction response byte size not captured on the record",
 }
+
+# The AAT fields our mapping targets (published in docs/design/aat-mapping.md).
+# A draft revision that drops one of these is drift and fails the pin check.
+AAT_DRAFT_FIELDS: tuple[str, ...] = (
+    "agent",
+    "action_type",
+    "outcome",
+    "record_phase",
+    "trust_level",
+    "timestamp",
+    "chain",
+)
 
 _ACTION_TYPES = {
     StepType.REASON: "reason",
@@ -234,15 +247,76 @@ def verify_aat_report(bundle: Any) -> AATVerification:
     return AATVerification(not problems, tuple(problems))
 
 
+@dataclass(frozen=True)
+class AATDriftReport:
+    """The result of comparing our pinned draft against an upstream descriptor."""
+
+    pinned: str
+    upstream: str
+    missing: tuple[str, ...] = ()
+    extra: tuple[str, ...] = ()
+
+    @property
+    def drifted(self) -> bool:
+        """Drift when the revision moved or an upstream field we map has gone."""
+        return self.pinned != self.upstream or bool(self.missing)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "pinned_revision": self.pinned,
+            "upstream_revision": self.upstream,
+            "missing": list(self.missing),
+            "extra": list(self.extra),
+            "drifted": self.drifted,
+        }
+
+
+def aat_version_line() -> str:
+    """The pinned-revision suffix shown in ``agentwatch --version``."""
+    return f"IETF AAT {AAT_DRAFT}"
+
+
+def check_aat_drift(upstream: Any) -> AATDriftReport:
+    """Compare the pinned AAT draft against an upstream descriptor.
+
+    The upstream descriptor is ``{"revision": "...", "fields": [...]}``. A
+    revision bump (or a mapped field that upstream dropped) is drift; a new
+    upstream field is informational and never fails the check. When no field
+    list is supplied, only the revision is compared.
+    """
+    revision = "<unknown>"
+    known: set[str] = set()
+    has_fields = False
+    if isinstance(upstream, Mapping):
+        raw_revision = upstream.get("revision")
+        if isinstance(raw_revision, str):
+            revision = raw_revision
+        fields = upstream.get("fields")
+        if isinstance(fields, (list, tuple)):
+            has_fields = True
+            known = {str(field) for field in fields}
+    missing = (
+        tuple(sorted(field for field in AAT_DRAFT_FIELDS if field not in known))
+        if has_fields
+        else ()
+    )
+    extra = tuple(sorted(field for field in known if field not in AAT_DRAFT_FIELDS))
+    return AATDriftReport(pinned=AAT_DRAFT, upstream=revision, missing=missing, extra=extra)
+
+
 __all__ = [
     "AAT_DRAFT",
+    "AAT_DRAFT_FIELDS",
     "AAT_EXPORT_SCHEMA",
     "AAT_MAPPING",
+    "AATDriftReport",
     "AATProblem",
     "AATVerification",
     "aat_entry_chain_error",
     "aat_entry_hash",
     "aat_record",
+    "aat_version_line",
+    "check_aat_drift",
     "export_aat",
     "to_aat_json",
     "verify_aat",

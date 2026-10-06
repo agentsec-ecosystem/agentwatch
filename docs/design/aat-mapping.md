@@ -18,8 +18,11 @@ product requirement is [PRD 41](../prd/41-standards-and-interop-ii.md) (AAT-1..5
 > **AAT-4** adds `schema/vectors/aat/` (valid/tampered/unmapped/unsupported-revision)
 > with `expected-verdicts.json`, a dependency-free second verifier
 > (`schema/vectors/verify_aat.py`), and the dual-verifier CI check
-> (`packages/python-sdk/tests/test_aat_vectors.py`). AAT-5 (draft-revision drift check)
-> remains in M26.
+> (`packages/python-sdk/tests/test_aat_vectors.py`). **AAT-5** pins the revision
+> (`AAT_DRAFT`) and its mapped fields (`AAT_DRAFT_FIELDS`), carries the pin in
+> `agentwatch --version`, and ships `scripts/aat_drift_check.py` + the
+> `AAT draft drift` workflow against `schema/aat/upstream-revision.json`
+> (simulated-bump test: `tests/test_aat_drift.py`). AAT-1..5 are implemented.
 
 ## Pin
 
@@ -91,3 +94,16 @@ never claim certification.
 The draft moves on a fast cadence (`-01` Aug 2026 → `-06` Sept 2026 at time of writing; expiry ~Apr 2027). We pin
 the revision in `--version`, exported metadata, and the CI drift check; a new revision opens an issue rather than
 silently changing output.
+
+- **Single source of truth:** `AAT_DRAFT` (and the mapped field set `AAT_DRAFT_FIELDS`) in
+  [`agentwatch.aat`](../../packages/python-sdk/src/agentwatch/aat.py). `aat_version_line()` carries
+  `IETF AAT <revision>` in `agentwatch --version`; every bundle carries `aat_version`.
+- **Drift check:** [`scripts/aat_drift_check.py`](../../scripts/aat_drift_check.py) compares the pin against
+  [`schema/aat/upstream-revision.json`](../../schema/aat/upstream-revision.json). A revision bump, or a mapped
+  field the upstream draft drops, fails the check; a new upstream field is informational. A unit test simulates a
+  bump (`packages/python-sdk/tests/test_aat_drift.py`), and the `AAT draft drift` workflow opens an issue on
+  divergence.
+- **Re-pin policy:** when the draft moves, (1) update `AAT_DRAFT` / `AAT_DRAFT_FIELDS`, (2) refresh
+  `schema/aat/upstream-revision.json`, (3) regenerate the conformance vectors
+  (`python scripts/generate_aat_vectors.py`), and (4) update this mapping and `CHANGELOG.md`. Never claim
+  conformance to a revision we have not re-pinned.

@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from agentwatch import errors, hook, naming
-from agentwatch.aat import export_aat, to_aat_json, write_aat
+from agentwatch.aat import aat_version_line, export_aat, to_aat_json, write_aat
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.blame import blame_sessions, build_blame, render_blame
@@ -158,9 +158,29 @@ def _version() -> str:
 
 def _version_string() -> str:
     """The ``--version`` banner, plus the namesake-distribution warning when detected."""
-    banner = f"agentwatch {_version()} ({version_line()})"
+    banner = f"agentwatch {_version()} ({version_line()}; {aat_version_line()})"
     warning = naming.distribution_warning()
     return f"{banner}\n{warning}" if warning else banner
+
+
+class _VersionAction(argparse.Action):
+    """Print the version banner verbatim (no help-formatter line wrapping)."""
+
+    def __init__(
+        self, option_strings: Sequence[str], dest: str, *, version: str = "", **kwargs: Any
+    ) -> None:
+        super().__init__(option_strings, dest, nargs=0, **kwargs)
+        self.version = version
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace | None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        print(self.version)
+        parser.exit()
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -168,7 +188,7 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="agentwatch",
         description="Local-first execution observability for AI agents.",
     )
-    parser.add_argument("--version", action="version", version=_version_string())
+    parser.add_argument("--version", action=_VersionAction, version=_version_string())
     parser.add_argument(
         "--config",
         action="append",

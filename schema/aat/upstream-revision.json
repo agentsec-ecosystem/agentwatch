@@ -1,0 +1,13 @@
+{
+  "description": "Pinned IETF AAT draft revision and the fields agentwatch maps; see docs/design/aat-mapping.md. When the upstream draft moves, update this snapshot and re-pin AAT_DRAFT (which fails the drift check and opens an issue until handled).",
+  "fields": [
+    "agent",
+    "action_type",
+    "outcome",
+    "record_phase",
+    "trust_level",
+    "timestamp",
+    "chain"
+  ],
+  "revision": "draft-sharif-agent-audit-trail-06"
+}

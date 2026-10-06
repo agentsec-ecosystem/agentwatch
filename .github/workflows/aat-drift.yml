@@ -1,0 +1,39 @@
+# AAT draft-revision drift — compare the pinned IETF Agent Audit Trail revision
+# against the committed upstream snapshot and open an issue when they diverge
+# (M26 AAT-5, PRD 41 §AAT-5). The check never edits anything; a human reviews and
+# re-pins (docs/design/aat-mapping.md).
+name: AAT draft drift
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Check AAT draft drift
+        id: drift
+        continue-on-error: true
+        run: python scripts/aat_drift_check.py schema/aat/upstream-revision.json
+      - name: Open an issue on drift
+        if: steps.drift.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "AAT draft revision drift detected" \
+            --body "The AAT drift check found that the pinned revision and the committed upstream snapshot diverge. Review \`schema/aat/upstream-revision.json\` and \`AAT_DRAFT\` in \`packages/python-sdk/src/agentwatch/aat.py\`, update the mapping if the draft changed, and re-pin following \`docs/design/aat-mapping.md\`." \
+            --label "0.2.0,enhancement"

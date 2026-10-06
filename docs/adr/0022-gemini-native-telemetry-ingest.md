@@ -1,6 +1,6 @@
 # ADR-0022 — Gemini CLI native-telemetry ingest
 
-- **Status:** proposed (2026-10-05, v0.2.0)
+- **Status:** accepted (2026-10-05, v0.2.0) — implemented
 - **Context:** see [PRD 42](../prd/42-harness-fidelity-and-realtime.md) GEM-1..2. Gemini CLI ships built-in
   OpenTelemetry (`.gemini/settings.json` `telemetry`), OTLP gRPC/HTTP, with `session.id`, `installation.id`,
   `active_approval_mode`, `user.email`.

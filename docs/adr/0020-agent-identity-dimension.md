@@ -1,6 +1,6 @@
 # ADR-0020 — Agent identity dimension
 
-- **Status:** proposed (2026-10-05, v0.2.0)
+- **Status:** accepted (2026-10-05, v0.2.0) — implemented
 - **Context:** see [PRD 44](../prd/44-identity-enterprise-and-compliance.md) IDN-1..4 and
   [design/agent-identity.md](../design/agent-identity.md). NIST/CAISI/NCCoE and IETF AIMS/WIMSE name agent identity
   the top governance gap; AAT requires the fields.

@@ -1,6 +1,6 @@
 # ADR-0017 — Security-relevant sampling
 
-- **Status:** proposed (2026-10-05, v0.2.0)
+- **Status:** accepted (2026-10-05, v0.2.0) — implemented
 - **Context:** see [PRD 46](../prd/46-platform-sdk-and-growth.md) SDK-2 and
   [design/sdk-lifecycle.md](../design/sdk-lifecycle.md). The OTel SDK samples for cost; a security recorder must not
   drop evidence.

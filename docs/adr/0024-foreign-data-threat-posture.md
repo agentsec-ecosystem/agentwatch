@@ -1,6 +1,6 @@
 # ADR-0024 — Foreign-data threat posture
 
-- **Status:** proposed (2026-10-05, v0.2.0)
+- **Status:** accepted (2026-10-05, v0.2.0) — implemented
 - **Context:** see [PRD 48](../prd/48-v0.2.0-risks-testing-and-decisions.md) R5 and
   [design/threat-model.md](../design/threat-model.md). Codex issue #36937: a session rollout JSONL was placed in a
   shell program position and executed, deleting a user's HOME.

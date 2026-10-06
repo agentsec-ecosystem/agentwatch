@@ -3,7 +3,7 @@
 **BLUF:** M28 lands the depth items: the derived Postgres tier (phaseable to v0.2.x), injection/memory
 observations, retention + signed default, the remaining capture surfaces (A2A, system effects, ACS, TS spike),
 governance motions, and registry interop. **Field tests and release readiness are the dedicated last two
-milestones (M29–M30) — see [Part 5](wbs-v0.2.0-part5-field-test-release.md).**
+milestones (M31–M32) — see [Part 7](wbs-v0.2.0-part7-field-test-release.md).**
 
 > **Standard exit criteria apply to every milestone:** all tests pass · coverage ≥ 95% · lint strict clean
 > (`ruff` zero, `mypy --strict`) · **WBS updated** · **issues updated** · **code committed and pushed to

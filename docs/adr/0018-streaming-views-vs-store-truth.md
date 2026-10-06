@@ -1,6 +1,6 @@
 # ADR-0018 — Streaming views vs store truth
 
-- **Status:** proposed (2026-10-05, v0.2.0)
+- **Status:** accepted (2026-10-05, v0.2.0) — implemented
 - **Context:** see [PRD 42](../prd/42-harness-fidelity-and-realtime.md) STR-1..3,
   [PRD 41](../prd/41-standards-and-interop-ii.md) TRACE-1..2, and
   [design/streaming-views.md](../design/streaming-views.md). Batch polling (~30 s) is the most visible released

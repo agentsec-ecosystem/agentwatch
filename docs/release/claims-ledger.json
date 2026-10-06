@@ -293,6 +293,18 @@
         "file:docs/runbooks/ocsf-siem-export.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C29",
+      "claim": "Tutorials cover recording Cursor, recording Gemini via telemetry, AAT mapping, and cross-harness testing.",
+      "source": "docs/tutorials/README.md",
+      "evidence": [
+        "file:docs/tutorials/07-record-cursor.md",
+        "file:docs/tutorials/08-record-gemini.md",
+        "file:docs/tutorials/09-aat-mapping.md",
+        "file:docs/tutorials/10-cross-harness-testing.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

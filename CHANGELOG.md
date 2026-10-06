@@ -7,6 +7,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - TUT-1: tutorials for recording Cursor, recording Gemini via telemetry, AAT mapping, and cross-harness
+    testing (`docs/tutorials/07–10`, indexed) (#434).
   - RUN-1: runbooks for Cursor, Gemini, Codex (reader pending), OCSF/SIEM export, and the MCP full surface
     (`docs/runbooks/`, indexed) (#433).
   - EXA-1: an indexed `examples/` gallery (`examples/README.md`) with CI-executed recipes

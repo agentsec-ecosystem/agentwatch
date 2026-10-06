@@ -40,6 +40,7 @@ Check: `python scripts/check_claims.py` (CI: `.github/workflows/claims.yml`)
 | `C26` | Detector telemetry is opt-in, local-only and content-free (fired/suppressed/false-positive markers only). | `docs/design/observability.md` | `test:packages/python-sdk/tests/test_detector_telemetry.py::test_disabled_telemetry_writes_nothing`<br>`test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free` | 2026-10-06 |
 | `C27` | The examples gallery is indexed and every executed recipe runs in CI. | `examples/README.md` | `test:packages/python-sdk/tests/test_examples_gallery.py::test_readme_indexes_every_recipe`<br>`test:packages/python-sdk/tests/test_examples_gallery.py::test_security_event_recipe_runs`<br>`test:packages/python-sdk/tests/test_examples_gallery.py::test_ocsf_recipe_runs` | 2026-10-06 |
 | `C28` | Runbooks cover Cursor, Gemini, Codex, OCSF/SIEM export, and the MCP full surface. | `docs/runbooks/README.md` | `file:docs/runbooks/cursor-install-and-verify.md`<br>`file:docs/runbooks/gemini-install-and-verify.md`<br>`file:docs/runbooks/mcp-full-surface.md`<br>`file:docs/runbooks/ocsf-siem-export.md` | 2026-10-06 |
+| `C29` | Tutorials cover recording Cursor, recording Gemini via telemetry, AAT mapping, and cross-harness testing. | `docs/tutorials/README.md` | `file:docs/tutorials/07-record-cursor.md`<br>`file:docs/tutorials/08-record-gemini.md`<br>`file:docs/tutorials/09-aat-mapping.md`<br>`file:docs/tutorials/10-cross-harness-testing.md` | 2026-10-06 |
 <!-- END GENERATED: claims -->
 
 ## Evidence syntax

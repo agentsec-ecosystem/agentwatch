@@ -60,7 +60,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch-verify <bundle.zip\|store.jsonl>` | Standalone stdlib verifier (zipapp), no install | **implemented** (M15 S12) |
 | `agentwatch bom [--session-id ID \| --project PATH \| --machine] [--format cyclonedx\|json]` | Agent Bill of Materials, observed (CycloneDX 1.5) | **implemented** (M15 S9) |
 | `agentwatch annotate <id> --note TEXT [--tag NAME]` | Append an operator note in the chain (M15 S20) | **implemented** (M15) |
-| `agentwatch coverage [--since WHEN] [--project PATH] [--session ID] [--transcripts DIR] [--json]` | Reconcile the store against transcript ground truth; classify every gap by cause (M16 S2) | **implemented** (M16) |
+| `agentwatch coverage [--since WHEN] [--project PATH] [--session ID] [--transcripts DIR] [--harness claude-code\|cursor] [--json]` | Reconcile the store against transcript ground truth; classify every gap by cause (M16 S2; Cursor tracer ground truth M26 CUR-3) | **implemented** (M16; cursor M26) |
 | `agentwatch quarantine list\|inspect <id>\|requeue [--all]\|clear --yes` | Operator tooling for the dead-letter queue; `inspect` redacted by default, `--raw` audited (M16 S27) | **implemented** (M16) |
 | `agentwatch archive --before DATE [--out DIR] [--json]` | Seal an old chain prefix into an independently verifiable segment + anchor (M16 S28) | **implemented** (M16) |
 | `agentwatch impact <id> [--since WHEN] [--json]` | A session's change footprint / blast radius (M17 S3) | **implemented** (M17) |

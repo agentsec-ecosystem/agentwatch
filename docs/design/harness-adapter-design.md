@@ -60,6 +60,14 @@ secret-scanned, MIT/vendor-documented set under `tests/testkit/` (provenance in
 `tests/testkit/PROVENANCE.md`), so the matrix row is `fixture-verified` — `live-verified` awaits a
 consented capture.
 
+**CUR-3 coverage reconciliation (M26).** Cursor records are reconciled against ground truth where it exists —
+the version-tagged `cursor-session-tracer` corpus under `tests/testkit/cursor/`.
+`agentwatch.coverage.discover_cursor_transcripts` / `extract_cursor_trace` read each trace's
+`session.cursor_stats.tool_call_count` (fallback: structural file ops) as the per-session ground truth, and the
+S2 gap taxonomy gains `gap:cursor-hook-coverage` so a Cursor shortfall (phase-gated IDE/cloud/Tab hooks) is
+classified rather than `gap:unexplained`. CLI: `agentwatch coverage --harness cursor [--transcripts DIR]`. The
+golden corpus reconciles to zero `unexplained` (`tests/test_cursor_coverage.py`).
+
 ## v0.2.0 — capture levels and real harnesses
 
 The v0.2.0 program ([PRD 42](../prd/42-harness-fidelity-and-realtime.md),

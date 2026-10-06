@@ -27,7 +27,12 @@ from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.cost import BY_OPTIONS, build_cost, render_cost
-from agentwatch.coverage import build_coverage, default_transcript_base, discover_transcripts
+from agentwatch.coverage import (
+    build_coverage,
+    default_transcript_base,
+    discover_cursor_transcripts,
+    discover_transcripts,
+)
 from agentwatch.demo import purge_demo, render_demo, run_demo
 from agentwatch.diff import diff_sessions
 from agentwatch.digest import build_digest, render_digest
@@ -596,6 +601,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--transcripts",
         default=None,
         help="transcript directory to use as ground truth (default: ~/.claude/projects)",
+    )
+    coverage_cmd.add_argument(
+        "--harness",
+        choices=("claude-code", "cursor"),
+        default="claude-code",
+        help="ground-truth source for reconciliation (default: claude-code)",
     )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
 
@@ -1984,12 +1995,23 @@ def _run_coverage(args: argparse.Namespace) -> int:
 
     store_dir = Path(cfg.store.path).expanduser()
     store = RecordStore(store_dir / "records.jsonl")
-    base = Path(args.transcripts).expanduser() if args.transcripts else default_transcript_base()
     cutoff = since_cutoff(args.since) if args.since else None
-    transcripts, present = discover_transcripts(base, since=cutoff)
-    hooks_any = any(
-        hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
-    )
+    if args.harness == "cursor":
+        base = (
+            Path(args.transcripts).expanduser()
+            if args.transcripts
+            else Path.home() / ".cursor" / "traces"
+        )
+        transcripts, present = discover_cursor_transcripts(base, since=cutoff)
+        hooks_any = True
+    else:
+        base = (
+            Path(args.transcripts).expanduser() if args.transcripts else default_transcript_base()
+        )
+        transcripts, present = discover_transcripts(base, since=cutoff)
+        hooks_any = any(
+            hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
+        )
     report = build_coverage(
         store,
         transcripts=transcripts,

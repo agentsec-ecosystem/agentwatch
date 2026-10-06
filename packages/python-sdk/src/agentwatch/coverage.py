@@ -36,6 +36,7 @@ CAUSE_TRUST_GATED = "gap:trust-gated-headless"
 CAUSE_HOOK_NOT_INSTALLED = "gap:hook-not-installed"
 CAUSE_TRANSCRIPT_DRIFT = "gap:transcript-format-drift"
 CAUSE_HARNESS_DRIFT = "gap:harness-drift"
+CAUSE_CURSOR_HOOK_COVERAGE = "gap:cursor-hook-coverage"
 CAUSE_UNEXPLAINED = "gap:unexplained"
 
 CAUSES = (
@@ -45,6 +46,7 @@ CAUSES = (
     CAUSE_HOOK_NOT_INSTALLED,
     CAUSE_TRANSCRIPT_DRIFT,
     CAUSE_HARNESS_DRIFT,
+    CAUSE_CURSOR_HOOK_COVERAGE,
     CAUSE_UNEXPLAINED,
 )
 
@@ -232,6 +234,87 @@ def discover_transcripts(
     return sessions, True
 
 
+def _cursor_tool_calls(trace: Mapping[str, Any]) -> int:
+    """Ground-truth tool-call count from a Cursor session-tracer trace.
+
+    Prefer the trace's own ``cursor_stats.tool_call_count``; otherwise count the
+    structural file operations (reads + writes) the trace records.
+    """
+    session = trace.get("session")
+    if isinstance(session, Mapping):
+        stats = session.get("cursor_stats")
+        if isinstance(stats, Mapping):
+            stated = stats.get("tool_call_count")
+            if isinstance(stated, int) and stated >= 0:
+                return stated
+    calls = 0
+    events = trace.get("events")
+    if isinstance(events, list):
+        for event in events:
+            if not isinstance(event, Mapping):
+                continue
+            reads = event.get("files_read")
+            calls += len(reads) if isinstance(reads, list) else 0
+            if event.get("type") in ("file_create", "file_modify", "file_delete"):
+                calls += 1
+    return calls
+
+
+def extract_cursor_trace(path: Path | str) -> TranscriptCoverage | None:
+    """Read one Cursor session-tracer trace as ground truth (counts only).
+
+    Returns ``None`` when the trace has no session id (no ground truth to anchor
+    to), so a malformed trace is skipped rather than mis-attributed.
+    """
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    session = payload.get("session")
+    if not isinstance(session, Mapping):
+        return None
+    session_id = session.get("session_id")
+    if not isinstance(session_id, str) or not session_id:
+        return None
+    tools: set[str] = set()
+    events = payload.get("events")
+    if isinstance(events, list):
+        for event in events:
+            if isinstance(event, Mapping):
+                kind = event.get("type")
+                if isinstance(kind, str):
+                    tools.add(str(kind))
+    return TranscriptCoverage(
+        session_id=session_id,
+        tool_calls=_cursor_tool_calls(payload),
+        tools=tuple(sorted(tools)),
+    )
+
+
+def discover_cursor_transcripts(
+    base: Path | str, *, since: datetime | None = None
+) -> tuple[dict[str, TranscriptCoverage], bool]:
+    """Scan a Cursor session-tracer directory for per-session ground truth.
+
+    ``present`` is False when the directory does not exist (coverage is then
+    unknown, never 100%).
+    """
+    base_path = Path(base).expanduser()
+    if not base_path.is_dir():
+        return {}, False
+    sessions: dict[str, TranscriptCoverage] = {}
+    for path in sorted(base_path.rglob("*.json")):
+        if path.name == "manifest.json":
+            continue
+        extracted = extract_cursor_trace(path)
+        if extracted is None:
+            continue
+        sessions[extracted.session_id] = extracted
+    return sessions, True
+
+
 # ---------------------------------------------------------------------------
 # Store evidence
 # ---------------------------------------------------------------------------
@@ -347,6 +430,7 @@ def classify_session(
     hook_error_count: int,
     drift_count: int,
     quarantine_count: int,
+    harness: str | None = None,
 ) -> SessionCoverage:
     """Classify one session's discrepancy by cause (a clean session has none)."""
     if transcript is None:
@@ -380,6 +464,16 @@ def classify_session(
         elif drift_count:
             gaps.append(
                 GapFinding(CAUSE_HARNESS_DRIFT, missing, f"{drift_count} drift observation(s)")
+            )
+        elif harness == "cursor":
+            # Cursor's hook surface is phase-gated (IDE vs cloud/Tab); a shortfall
+            # is a declared capture gap, not an unexplained one (CUR-3).
+            gaps.append(
+                GapFinding(
+                    CAUSE_CURSOR_HOOK_COVERAGE,
+                    missing,
+                    "Cursor hook surface incomplete (IDE/cloud phases not captured)",
+                )
             )
         elif store_calls == 0:
             # Hooks are installed, the store is empty, but the transcript is not:
@@ -421,6 +515,10 @@ def build_coverage(
         record for record in store.records() if cutoff is None or record.started_at >= cutoff
     ]
     counts, projects = store_tool_calls(records)
+    harness_by_session: dict[str, str] = {}
+    for record in records:
+        if record.harness is not None and record.session_id not in harness_by_session:
+            harness_by_session[record.session_id] = record.harness
     evidence = _evidence_counts(store)
     quarantined = quarantine_counts(quarantine)
 
@@ -450,6 +548,7 @@ def build_coverage(
                 hook_error_count=evidence.get(sid, {}).get("hook_error", 0),
                 drift_count=evidence.get(sid, {}).get("drift", 0),
                 quarantine_count=quarantined.get(sid, 0) + quarantined.get(None, 0),
+                harness=harness_by_session.get(sid),
             )
         )
 

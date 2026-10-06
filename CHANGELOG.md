@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - EXA-1: an indexed `examples/` gallery (`examples/README.md`) with CI-executed recipes
+    (`security_event_consumer.py`, `ocsf_consumer.py`) and explicitly illustrative ones; the index is enforced by
+    `tests/test_examples_gallery.py` (#351).
   - DET-5: opt-in, local-only, content-free detector telemetry (`agentwatch.detector_telemetry`) — fired/
     suppressed/false-positive markers as bounded NDJSON, feedable to a SIEM sink; off by default (#344).
   - SIEM-2: the opt-in Syslog sink is verified — the S10 redaction self-test gate applies, a delivery failure

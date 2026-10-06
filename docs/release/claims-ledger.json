@@ -270,6 +270,17 @@
         "test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C27",
+      "claim": "The examples gallery is indexed and every executed recipe runs in CI.",
+      "source": "examples/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_readme_indexes_every_recipe",
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_security_event_recipe_runs",
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_ocsf_recipe_runs"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

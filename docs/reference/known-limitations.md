@@ -57,6 +57,12 @@ Status: living.
 - Compatibility/version matrix (M10 N4) fingerprints the *shape* of conformance fixtures; a field addition
   counts as drift and is surfaced for a human review, not auto-applied. Modeled adapters have no real
   version range yet ("modeled").
+- Framework recipes (M29 FWK-1) are **`modeled`**, not live-verified: Google ADK, Strands Agents, the OpenAI
+  Agents SDK (via OpenInference) and the Claude Agent SDK are not installable in the build sandbox, so each
+  recipe ships with a shape-derived fixture + a CI O1 conformance pack and its live pinned run is marked
+  **BLOCKED**. The Claude Agent SDK additionally routes through the shared Claude Code OTel ingest owned by
+  **29.CCO-1 (WS-A)**; until that lands its `tool_use_id` attribute is reported in the explicit `unmapped`
+  bucket rather than silently dropped.
 - Hash chain is detect-only (no signing key) at v0.1.0.
 - Security-event schema v1 is draft; naming may move upstream to OTel (DD-14).
 - Fleet access roles are **enforced but not provisioned**: the M29 ACC-1 model (`agentwatch.access`)

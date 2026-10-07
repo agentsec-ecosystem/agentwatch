@@ -25,6 +25,18 @@ transcripts; native telemetry is exact and authoritative.
 
 `coverage` reports the join rate and discrepancy count.
 
+## Framework reach (FWK-1)
+
+The same transcoder is the framework on-ramp: ADK and Strands emit OTel GenAI
+natively, the OpenAI Agents SDK emits via Arize OpenInference, and the Claude Agent
+SDK emits the shared Claude Code stream. A recipe only sets the standard OTLP
+endpoint (or installs the community instrumentor); it does **not** add an adapter.
+The attribute vocabulary is explicit — `gen_ai.*` (GenAI) and `openinference.*` /
+`llm.*` (OpenInference) — and any key the transcoder does not consume is returned in
+an explicit `unmapped` bucket so a framework's attribute drift is visible, never
+silently dropped. Recipes, pins and tiers live in
+[`reference/framework-recipes.md`](../reference/framework-recipes.md).
+
 ## What native telemetry provides
 
 | Fact | Source event | Consumed by |

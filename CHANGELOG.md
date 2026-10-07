@@ -72,6 +72,25 @@ versioning: [Semantic Versioning](https://semver.org/).
     report's retention row (`holds`/`overrides`). Holds/releases/refusals/overrides are
     hash-chain records; D-K tombstones are preserved. Derived-index propagation is
     declared blocked on 30.EXT-5. ADR-0041 (#450).
+- v0.2.0 Expanded I (M29):
+  - FWK-1: certified framework recipes (Google ADK, Strands Agents, OpenAI Agents SDK via
+    OpenInference, Claude Agent SDK) route native/community OTel into the **shared**
+    `agentwatch ingest --format otel` path. `agentwatch.ingest` now maps OTel GenAI **and**
+    OpenInference attributes with an explicit, sorted `unmapped` bucket (also surfaced on
+    `IngestStats.unmapped`), takes run identity from resource attributes, and stamps the
+    ingestion `source` on the record's `producer`. Recipes are pinned, held to O1 conformance
+    packs, and carry a `modeled` compatibility-matrix row; the frameworks are not installable
+    in the CI sandbox so the live run is **BLOCKED** (never faked). New:
+    `agentwatch/frameworks.py`, `docs/reference/framework-recipes.md`,
+    `examples/framework_recipes.py`, `scripts/check_framework_drift.py` +
+    `.github/workflows/framework-drift.yml` (#446).
+  - FWK-2: `agentwatch.instrument()` auto-detect — one call detects installed supported
+    frameworks, wires their OTel to the local collector (standard OTLP env + the OpenInference
+    instrumentor for the OpenAI Agents SDK), takes identity from the environment, and prints what
+    it instrumented **and what it could not** (no silent partial instrumentation). No-op safe when
+    the recorder is not running, single flush-on-exit, idempotent (no double spans).
+    `agentwatch/instrument` is a callable module; the implementation is `agentwatch.autoinstrument`
+    (#447).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

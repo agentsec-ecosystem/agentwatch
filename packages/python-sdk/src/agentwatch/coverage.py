@@ -23,8 +23,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from agentwatch.claude_otel import NON_TOOL_EVENTS, otel_join_summary
 from agentwatch.attestation import attestation_status
+from agentwatch.claude_otel import NON_TOOL_EVENTS, otel_join_summary
 from agentwatch.harness_drift import harness_drift_observations
 from agentwatch.permission_mode import effective_modes
 from agentwatch.quarantine import QuarantineLog

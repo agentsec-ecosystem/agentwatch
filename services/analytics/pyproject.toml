@@ -73,6 +73,9 @@ mypy_path = "src"
 omit = [
     "*/trace_pipeline/downloader.py",
     "*/trace_pipeline/pipeline.py",
+    # The analytics suite imports `agentwatch` transitively; measure analytics,
+    # not the SDK (which has its own package-level coverage gate).
+    "*/python-sdk/src/agentwatch/*",
 ]
 
 [tool.coverage.report]

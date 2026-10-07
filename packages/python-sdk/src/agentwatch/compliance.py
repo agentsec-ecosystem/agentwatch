@@ -17,8 +17,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 from agentwatch.configuration import AgentwatchConfig
-from agentwatch.oversight import build_oversight
 from agentwatch.holds import active_holds, hold_records
+from agentwatch.oversight import build_oversight
 from agentwatch.recorder_state import last_state
 from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
@@ -320,7 +320,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "ASI01",
         ASI_SECTION,
-        "Content-to-argument flow edges and injection-shape observations are recorded (a signal, not an "
+        "Content-to-argument flow edges and injection-shape observations are recorded (a signal, "
+        "not an "
         "enforcement verdict).",
         "agentwatch flow <session>",
         "it cannot determine intent or block a goal hijack.",
@@ -339,14 +340,16 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
         ASI_SECTION,
         "Records carry an on-behalf-of/workload identity and delegation chain (IDN).",
         "agentwatch search --identity <handle>",
-        "privilege and authorization correctness are not evidenced; requires 29.APV-3 oversight (not on this "
+        "privilege and authorization correctness are not evidenced; requires 29.APV-3 oversight "
+        "(not on this "
         "branch).",
         "signal",
     ),
     _CoverageRow(
         "ASI04",
         ASI_SECTION,
-        "Agentic supply chain compromise is not evidenced — requires 30.CAP-1 capability inventory (skills, "
+        "Agentic supply chain compromise is not evidenced — requires 30.CAP-1 capability inventory "
+        "(skills, "
         "plugins, hooks, rules, MCP).",
         NO_EVIDENCE,
         "skills/plugins/hooks/rules provenance and drift are not inventoried yet.",
@@ -355,7 +358,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "ASI05",
         ASI_SECTION,
-        "Command/execution classes and the change footprint are recorded (a signal); sandbox-boundary events "
+        "Command/execution classes and the change footprint are recorded (a signal); "
+        "sandbox-boundary events "
         "are pending 30.SBX-1.",
         "agentwatch impact <session>",
         "it cannot block execution or prove a sandbox was enforced.",
@@ -366,13 +370,15 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
         ASI_SECTION,
         "Memory read/write/delete records are observable and filterable (DET-7).",
         "agentwatch search --memory",
-        "poisoning and attribution are not determined; an out-of-band memory edit is a signal, not a verdict.",
+        "poisoning and attribution are not determined; an out-of-band memory edit is a signal, not "
+        "a verdict.",
         "signal",
     ),
     _CoverageRow(
         "ASI07",
         ASI_SECTION,
-        "Insecure inter-agent communication is not evidenced — requires 29.A2A-1/2 inter-agent capture and "
+        "Insecure inter-agent communication is not evidenced — requires 29.A2A-1/2 inter-agent "
+        "capture and "
         "trace correlation.",
         NO_EVIDENCE,
         "A2A and delegation message capture is not landed on this branch.",
@@ -389,7 +395,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "ASI09",
         ASI_SECTION,
-        "Human-agent trust exploitation is not evidenced — requires 29.APV-3 oversight (approval mix, "
+        "Human-agent trust exploitation is not evidenced — requires 29.APV-3 oversight (approval "
+        "mix, "
         "bypass, latency).",
         NO_EVIDENCE,
         "per-call authorization mode and the approval mix are not reported yet.",
@@ -414,7 +421,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "AST02",
         AST_SECTION,
-        "Supply chain compromise is not evidenced — requires 30.CAP-1/30.CAP-2 capability inventory and drift.",
+        "Supply chain compromise is not evidenced — requires 30.CAP-1/30.CAP-2 capability "
+        "inventory and drift.",
         NO_EVIDENCE,
         "skill/plugin provenance and drift are not recorded yet.",
         "not evidenced",
@@ -438,7 +446,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "AST05",
         AST_SECTION,
-        "Untrusted external instructions are not evidenced — requires 30.CAP-1 plus DET-6 injection signals.",
+        "Untrusted external instructions are not evidenced — requires 30.CAP-1 plus DET-6 "
+        "injection signals.",
         NO_EVIDENCE,
         "externally referenced skill content is not tracked yet.",
         "not evidenced",
@@ -470,7 +479,8 @@ _ASI_ROWS: tuple[_CoverageRow, ...] = (
     _CoverageRow(
         "AST09",
         AST_SECTION,
-        "Missing governance / shadow AI is not evidenced — requires 30.CAP-1 inventory and 29.ACC governance.",
+        "Missing governance / shadow AI is not evidenced — requires 30.CAP-1 inventory and 29.ACC "
+        "governance.",
         NO_EVIDENCE,
         "a central skill inventory and approval workflow are not reported yet.",
         "not evidenced",
@@ -495,7 +505,10 @@ def _asi_controls() -> tuple[ControlResult, ...]:
             detail = f"{row.tier}: not evidenced on this branch."
         else:
             verdict = EVIDENCED
-            detail = f"{row.tier}: {row.evidence} regenerates this; coverage only, not a control verdict."
+            detail = (
+                f"{row.tier}: {row.evidence} regenerates this; coverage only, "
+                f"not a control verdict."
+            )
         controls.append(
             ControlResult(
                 control=row.control,

@@ -16,6 +16,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
 import pytest
 
@@ -54,7 +55,7 @@ def _store(tmp_path: Path) -> RecordStore:
     return store
 
 
-def _report(tmp_path: Path):
+def _report(tmp_path: Path) -> Any:
     return build_report(_store(tmp_path), ASI_FRAMEWORK, config=AgentwatchConfig(), now=NOW)
 
 

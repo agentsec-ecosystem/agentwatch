@@ -468,6 +468,17 @@
         "doc:CONTRIBUTING.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C44",
+      "claim": "A v0.1.0 store upgrades to v0.2.0 in place: the v0.2.0 SDK verifies it and appends v0.2.0 records while the chain stays green.",
+      "source": "docs/release/v0.2.0/migration-guide.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_upgrade_v0_1_0.py::test_frozen_v0_1_0_store_still_verifies",
+        "test:packages/python-sdk/tests/test_upgrade_v0_1_0.py::test_v0_2_0_record_appends_without_breaking_the_chain",
+        "doc:docs/release/v0.2.0/migration-guide.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

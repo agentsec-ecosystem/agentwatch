@@ -35,4 +35,7 @@ conformance pack fails CI (O1), so the surface cannot drift silently. Contribute
 ## Compatibility shim (DD-12)
 
 `agent_exec_trace` import paths continue to work via a shim that re-exports from `agentwatch`. The shim is
-maintained for at least one major cycle; see the [migration guide](../release/v0.1.0/migration-guide.md).
+maintained for at least one major cycle; migrate with the codemod (`scripts/codemod_agent_exec_trace.py`) and
+see the [v0.1.0 migration guide](../release/v0.1.0/migration-guide.md). For the v0.1.0 → v0.2.0 upgrade
+(additive; a v0.1.0 store verifies in place), see the
+[v0.2.0 migration guide](../release/v0.2.0/migration-guide.md).

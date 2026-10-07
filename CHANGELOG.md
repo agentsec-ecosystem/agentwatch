@@ -6,6 +6,22 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Depth (M28):
+  - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
+    and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into
+    `verify-store`/evidence/AAT and surfaced in `doctor`/`/healthz`; a key we no longer hold reports "signed by
+    key id X, key unavailable" (#361).
+  - IDN-4: the credential *class* is exported as `agentwatch.credential_class` and the deterministic
+    `credential-hygiene` detector flags a run that acted under a shared/ambient credential (observation, not a
+    verdict); AIMS/WIMSE/NCCoE mapping published in `docs/reference/identity-mapping.md` (#363).
+  - CMP-3: policy-driven retention profiles — `retention apply --profile high-risk-12mo` (365d, AAT §9) /
+    `general-6mo` (180d) / `custom`; the policy change is recorded (S5), `doctor` warns on an unapplied window,
+    and the compliance report cites the active profile (#360).
+  - GOV-1: the adapter plugin contract is a public semver-guaranteed extension surface
+    (`docs/reference/backwards-compatibility-policy.md`); the `agent_exec_trace` → `agentwatch` codemod
+    (`scripts/codemod_agent_exec_trace.py`), a `CONTRIBUTING.md`, and ADR-0046..0048 (#369).
+  - MIG-1: a v0.1.0 → v0.2.0 migration guide (`docs/release/v0.2.0/migration-guide.md`) and a frozen-store
+    upgrade test (#436).
 - v0.2.0 Surfaces (M27):
   - WIN-1 (partial): Windows service supervision — `render_unit("win32")` generates a **Task Scheduler XML**
     (logon trigger, least privilege, restart-on-failure) and a `windows-latest` **CI leg**

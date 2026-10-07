@@ -74,7 +74,7 @@ def test_agent_sdk_is_in_the_framework_matrix() -> None:
 
 
 def test_framework_matrix_is_rendered_into_the_doc() -> None:
-    table = compatibility.render_framework_table()
+    table = compatibility.render_table()
     assert "`claude-agent-sdk`" in table
     doc = (REPO_ROOT / "docs" / "reference" / "compatibility.md").read_text(encoding="utf-8")
-    assert compatibility.render_framework_marker_block() in doc
+    assert compatibility.render_marker_block() in doc

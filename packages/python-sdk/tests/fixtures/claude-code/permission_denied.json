@@ -35,11 +35,6 @@
       },
       "step_type": "observe",
       "approval": "denied",
-      "authorization": {
-        "source": "denied",
-        "deny": "unknown",
-        "evidence": "inferred"
-      },
       "security_event": {
         "event_version": "0.1.0",
         "type": "denied",

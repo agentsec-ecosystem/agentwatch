@@ -13,12 +13,11 @@ Tier-2, Windows, the examples gallery, and cross-parser validation.
 ## Milestone M27 — Surfaces (PRD 42–47)
 
 **Status:** 🚧 **in progress** (2026-10-06) — **done:** MCP-1..6 (#333–#338), GEM-2 (#342), DET-5 (#344),
-COR-2 (#345), SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)** + **XHT-3 (#352)**
-(downloaded the verified Codex format + two pinned OSS parsers), UI-2 (#431), A11Y-1 (#432), RUN-1 (#433),
-TUT-1 (#434), 27.T (#377). **Partial:** DET-4 (#343, harness wiring done; published numbers need a running local
-model), LG-1 (#348, callback handler shipped; O1 SDK pack contract pending), LOG-1 (#340, long-tail readers need
-the concrete OpenCode/Copilot formats), 27.D (#378, per-ticket docs done). **Blocked (declared):** CCA-1 (#341),
-WIN-1 (#350). Milestone gate (SDK 95.28% / 1711 passed, API 95.75% / 53, analytics 95.18% / 728, repo guard 34;
+COR-2 (#345), SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)** + **XHT-3 (#352)** +
+**LOG-1 (#340)** (downloaded the verified Codex format, two pinned OSS parsers, and the OpenCode SDK schema),
+UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434), 27.T (#377). **Partial:** DET-4 (#343, harness wiring
+done; published numbers need a running local model), LG-1 (#348, callback handler shipped; O1 SDK pack contract
+pending), 27.D (#378, per-ticket docs done). **Blocked (declared):** CCA-1 (#341), WIN-1 (#350). Milestone gate (SDK 95.28% / 1711 passed, API 95.75% / 53, analytics 95.18% / 728, repo guard 34;
 `ruff`/`mypy`/web clean) run; 27.R open.
 
 **Goal:** Reach real harnesses across the long tail and every MCP surface, harden the SOC feed, and open the

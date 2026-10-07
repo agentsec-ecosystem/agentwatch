@@ -71,10 +71,10 @@ Exit criteria · Design docs).
 > Milestone closed 2026-10-06.
 >
 > **Progress:** 🚧 **M27 (Surfaces) in progress** (2026-10-06) — **done:** MCP-1..6 (#333–#338), GEM-2 (#342),
-> DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)** + **XHT-3
-> (#352)**, UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434), 27.T (#377), 27.D (#378). **Partial:**
-> DET-4 (#343), LG-1 (#348), LOG-1 (#340). **Blocked (declared):** CCA-1 (#341), WIN-1 (#350). Open: 27.R (#379).
-> Milestone gate green at HEAD (SDK 95.28%/1711, API 95.75%/53, analytics 95.18%/728, repo guard 34).
+> DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)**, **XHT-3
+> (#352)**, **LOG-1 (#340)**, UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434), 27.T (#377),
+> 27.D (#378). **Partial:** DET-4 (#343), LG-1 (#348). **Blocked (declared):** CCA-1 (#341), WIN-1 (#350).
+> Open: 27.R (#379). Milestone gate green at HEAD.
 
 ## Track → ticket map
 

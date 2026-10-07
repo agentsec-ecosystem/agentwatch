@@ -62,8 +62,8 @@ closed when fixed + tested. Waived items carry a reason.
 Record of the M27 (Surfaces) code review (#379). One row per finding; closed when fixed + tested.
 
 **Scope reviewed:** every landed M27 ticket — MCP-1..6 (#333–#338), GEM-2 (#342), DET-5 (#344), COR-2 (#345),
-SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434),
-27.T (#377), plus DET-4 (#343, core) and LG-1 (#348, partial).
+SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)**, **XHT-3 (#352)**, **LOG-1 (#340)**, UI-2
+(#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434), 27.T (#377), plus DET-4 (#343, core) and LG-1 (#348, partial).
 
 ## Findings
 
@@ -96,6 +96,8 @@ SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), UI-2 (#431), A11Y-1 (#432), RUN
 ## Open items (not signed off)
 
 `DET-4` (#343, published LLM numbers need a running local model), `LG-1` (#348, O1 SDK pack contract), and the
-blocked capture tickets `COD-1`/`LOG-1`/`CCA-1`/`XHT-3`/`WIN-1` remain open (declared on their issues). The
-M27 milestone is **not** declared closed; those tickets need resolution or an explicit maintainer re-point to a
-named milestone per the standard exit criteria.
+blocked capture tickets `CCA-1` (#341) and `WIN-1` (#350) remain open (declared on their issues). `COD-1`,
+`XHT-3`, and `LOG-1` were unblocked by downloading the verified Codex format (kvsankar/agent-history + `openai/codex`
+source), two independent pinned parsers (agent-history, agent-ouija), and the OpenCode SDK schema; XHT-3
+cross-validates the Codex reader in CI. The M27 milestone is **not** declared closed; the remaining tickets need
+resolution or an explicit maintainer re-point to a named milestone per the standard exit criteria.

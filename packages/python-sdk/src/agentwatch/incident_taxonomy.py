@@ -75,6 +75,27 @@ AIR_BY_EVENT: dict[str, dict[str, str] | None] = {
         "agency": "external",
         "outcome": "observed",
     },
+    SecurityEventType.RECORDER_CONFIG_CHANGED.value: {
+        "architecture": "agent-runtime",
+        "mechanism": "recorder-config-change",
+        "control": "recording-integrity",
+        "agency": "system",
+        "outcome": "observed",
+    },
+    SecurityEventType.MODE_TRANSITION.value: {
+        "architecture": "agent-runtime",
+        "mechanism": "permission-mode-transition",
+        "control": "access-control",
+        "agency": "human",
+        "outcome": "observed",
+    },
+    SecurityEventType.CAPABILITY_CHANGED.value: {
+        "architecture": "agent-runtime",
+        "mechanism": "capability-inventory-change",
+        "control": "supply-chain",
+        "agency": "external",
+        "outcome": "observed",
+    },
 }
 
 # GMF taxonomy category per event type. ``None`` is explicit: our alignment is
@@ -89,6 +110,9 @@ GMF_BY_EVENT: dict[str, str | None] = {
     SecurityEventType.DRIFT_DETECTED.value: None,
     SecurityEventType.TOOL_SURFACE_CHANGED.value: None,
     SecurityEventType.AGENT_DELEGATION.value: None,
+    SecurityEventType.RECORDER_CONFIG_CHANGED.value: None,
+    SecurityEventType.MODE_TRANSITION.value: "Access control",
+    SecurityEventType.CAPABILITY_CHANGED.value: None,
 }
 
 

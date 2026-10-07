@@ -1,0 +1,45 @@
+# End-to-end hook wall-clock gate (M29 DEP-3, #443; PRD 50). Publishes and gates
+# the process-spawn cost a developer feels per tool call (two hooks), per OS.
+# Windows is reported blocked on WIN-1 (named-pipe transport re-pointed to M31),
+# never silently measured.
+name: Hook wall-clock
+
+on:
+  pull_request:
+    paths:
+      - "packages/python-sdk/src/agentwatch/hook_perf.py"
+      - "packages/python-sdk/src/agentwatch/hook.py"
+      - "packages/python-sdk/tests/test_hook_wallclock.py"
+      - "scripts/hook_perf_gate.py"
+      - "perf/hook-e2e-baseline.json"
+      - "docs/reference/performance.md"
+      - ".github/workflows/hook-perf.yml"
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hook-wallclock:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Prove a slowdown fails the gate
+        run: python scripts/hook_perf_gate.py --self-test
+      - name: Hook wall-clock gate (budget + drift)
+        run: python scripts/hook_perf_gate.py
+      - name: Windows is blocked on WIN-1 (reported, not measured)
+        if: runner.os == 'Windows'
+        run: python scripts/hook_perf_gate.py

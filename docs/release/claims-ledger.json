@@ -628,6 +628,71 @@
         "doc:examples/README.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "Under Claude Code managed policy that blocks user/project hooks, `doctor` reports `hooks effective: blocked by managed policy` and never claims \"installed\"; it detects, never circumvents, and managed installs are removed by the admin mechanism.",
+      "source": "docs/design/managed-policy-install.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_blocked_never_says_installed",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_managed_hook_is_effective",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_unreadable_policy_is_unknown",
+        "doc:docs/design/managed-policy-install.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "A session-start recorder attestation (effective hook sources, a keyed config digest, managed-policy status, permission mode) is chain-recorded, a digest change raises `recorder-config-changed`, `coverage`/`evidence` carry `attestation: present|absent`, and the attestation stores digests/booleans only \u2014 never config values or secrets.",
+      "source": "docs/design/recorder-attestation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attest_session_appends_boolean_only_marker",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_stripped_hooks_raise_recorder_config_changed",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attestation_never_stores_config_values",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_coverage_and_evidence_surface_the_attestation",
+        "doc:docs/design/recorder-attestation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "The end-to-end hook wall-clock (two fresh-interpreter hooks per tool call) is published per OS with a user-visible budget (< 500 ms per tool call at p99) and a 500-call session overhead quote, and is gated in CI; Windows is reported blocked on WIN-1, not silently measured.",
+      "source": "docs/reference/performance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_budget_violation_is_detected",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_windows_is_blocked_not_measured",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_session_overhead_quote",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_ci_workflow_gates_the_hook_wallclock",
+        "workflow:.github/workflows/hook-perf.yml",
+        "doc:docs/reference/performance.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "The security-event vocabulary adds `recorder-config-changed` and `mode-transition` with OCSF/CloudEvents mappings and fixtures, and adds `capability-changed` as a forward-compatible placeholder for M30 CAP-2 (not built); the schema changelog and stewardship check pass.",
+      "source": "schema/CHANGELOG.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_enum_matches_the_code_vocabulary",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_every_new_type_has_ocsf_and_cloudevents_mappings",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_policy_passes",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_capability_changed_is_a_documented_forward_placeholder",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "The compatibility matrix carries a Managed policy column (`effective`/`blocked`/`unknown`/`n/a`), a normal Claude Code user/project install is shown `blocked` under `allowManagedHooksOnly` with the managed path noted, and framework rows (ADK/Strands/OpenAI Agents SDK/Claude Agent SDK) are a generator input WS-D (FWK-1) populates \u2014 not shipped adapters.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_every_shipped_row_carries_a_managed_policy_value",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_claude_code_is_honest_about_managed_hooks_only",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_framework_rows_are_a_ws_d_input",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_doc_has_the_regenerated_block",
+        "doc:docs/reference/compatibility.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

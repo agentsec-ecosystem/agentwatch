@@ -30,6 +30,9 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0024](0024-foreign-data-threat-posture.md) | Foreign-data threat posture | accepted |
 | [0025](0025-a2a-interposition.md) | A2A interposition | proposed |
 | [0026](0026-naming-decision.md) | Naming decision (`agentwatch`) | **decision required pre-launch** |
+| [0028](0028-managed-policy-install.md) | Managed-policy install posture + honest `doctor` | accepted |
+| [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
+| [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
 | [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |
 | [0047](0047-credential-hygiene-observation.md) | Credential-hygiene observation | accepted |
 | [0048](0048-plugin-api-versioning.md) | Plugin API versioning promise | accepted |

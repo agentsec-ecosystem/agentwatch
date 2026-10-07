@@ -23,6 +23,7 @@ from agentwatch import errors, hook, naming
 from agentwatch.aat import aat_version_line, export_aat, to_aat_json, write_aat
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
+from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
@@ -80,6 +81,7 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.inventory import build_inventory, inventory_to_json, render_inventory
+from agentwatch.managed_policy import detect_managed_policy, install_guidance
 from agentwatch.mcp_config import (
     install_mcp_proxy,
     resolve_mcp_proxy_command,
@@ -1061,6 +1063,10 @@ def _run_init(args: argparse.Namespace) -> int:
     for warning in preflight(detect_claude_version()):
         print(f"agentwatch: warning: {warning}", file=sys.stderr)
 
+    guidance = install_guidance(detect_managed_policy())
+    if guidance is not None:
+        print(f"agentwatch: warning: {guidance}", file=sys.stderr)
+
     try:
         install_hooks(target.settings_path, command, async_hooks=not args.sync_hooks)
     except InstallError as exc:
@@ -1072,6 +1078,17 @@ def _run_init(args: argparse.Namespace) -> int:
     record_recorder_installed(store, scope=target.scope, harness=cfg.harness)
     reconcile_config(store, cfg)
     open_coverage_window(store, reason=f"init:{target.scope}")
+    # DEP-2: a session-start recorder attestation (effective hook sources + a
+    # keyed config digest) so recording-active is a fact, not an assumption.
+    policy = detect_managed_policy()
+    attest_session(
+        store,
+        managed=policy.managed_agentwatch,
+        user=hooks_installed(resolve_scope("user").settings_path),
+        project=hooks_installed(target.settings_path),
+        plugin=bool(policy.force_enabled_plugins),
+        managed_policy=policy.blocks_user_hooks,
+    )
 
     print(f"agentwatch: hooks installed ({target.scope}: {target.settings_path})")
     if args.no_daemon:

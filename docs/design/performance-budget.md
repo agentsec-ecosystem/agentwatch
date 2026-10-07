@@ -40,6 +40,19 @@ the in-process step — adapter `normalize` and `Daemon.handle_message` — and 
 [reference/performance.md](../reference/performance.md) from the run. `--self-test` proves a deliberate
 slowdown fails the gate.
 
+## End-to-end hook wall-clock (M29 DEP-3)
+
+The in-process budget above is CPU cost; the latency a developer feels is the **process-spawn cost of a
+fresh hook interpreter**, and agentwatch installs two hooks per tool call. `agentwatch.hook_perf` measures
+the real `agentwatch-hook pre` wall-clock against a draining socket, and
+`scripts/hook_perf_gate.py` (CI: `.github/workflows/hook-perf.yml`) gates it per OS against a committed
+baseline (`perf/hook-e2e-baseline.json`), publishing the table in
+[reference/performance.md](../reference/performance.md) with a 500-call session overhead quote. The
+user-visible budget is **< 500 ms per tool call at p99** (250 ms per hook); a regression beyond the budget
+or the 3.0× drift band fails CI and a missed budget yields a tracked ADR, never a silent miss. **Windows is
+blocked on WIN-1** (named-pipe transport re-pointed to M31) and is reported blocked, not measured; the
+Linux row is pending an `ubuntu-latest` CI run. Decision: [ADR-0030](../adr/0030-hook-wallclock-budget.md).
+
 Durability (`store.durability`, M12 K1) is the operator's explicit fsync choice, surfaced in
 `/healthz`: `record` (default, per-record fsync), `checkpoint` (fsync at checkpoints), `none` (no
 fsync). The perf test uses `none` to measure CPU, not disk; the durable default is intentionally

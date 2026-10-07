@@ -33,6 +33,19 @@ FIDELITY_FIXTURE = "fixture-verified"
 FIDELITY_MODELED = "modeled"
 FIDELITY_TIERS: tuple[str, ...] = (FIDELITY_LIVE, FIDELITY_FIXTURE, FIDELITY_MODELED)
 
+# Managed-policy status (M29 EXT-7): the honest state of a hook-based recorder
+# under Claude Code managed settings (`allowManagedHooksOnly`, etc.).
+MANAGED_EFFECTIVE = "effective"
+MANAGED_BLOCKED = "blocked"
+MANAGED_UNKNOWN = "unknown"
+MANAGED_NA = "n/a"
+MANAGED_POLICY_STATUSES: tuple[str, ...] = (
+    MANAGED_EFFECTIVE,
+    MANAGED_BLOCKED,
+    MANAGED_UNKNOWN,
+    MANAGED_NA,
+)
+
 
 @dataclass(frozen=True)
 class HarnessRange:
@@ -58,6 +71,7 @@ class HarnessInfo:
     invocation: str
     notes: str = ""
     protocol: str = ""
+    managed_policy: str = MANAGED_NA
 
 
 # Adapter metadata registry: the generated table's single source of truth. Every
@@ -69,7 +83,11 @@ SHIPPED: dict[str, HarnessInfo] = {
         tested=HarnessRange("2.0", "2.x"),
         fidelity=FIDELITY_LIVE,
         invocation="native hooks (`agentwatch init`)",
-        notes="PreToolUse/PostToolUse + local daemon",
+        notes=(
+            "PreToolUse/PostToolUse + local daemon; under `allowManagedHooksOnly` a "
+            "user/project install is blocked — managed hook/plugin path (DEP-1)"
+        ),
+        managed_policy=MANAGED_BLOCKED,
     ),
     "cursor": HarnessInfo(
         harness="cursor",
@@ -80,6 +98,7 @@ SHIPPED: dict[str, HarnessInfo] = {
         notes=(
             "full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending"
         ),
+        managed_policy=MANAGED_UNKNOWN,
     ),
     "codex-cli": HarnessInfo(
         harness="codex-cli",
@@ -127,66 +146,60 @@ SHIPPED: dict[str, HarnessInfo] = {
     ),
 }
 
-@dataclass(frozen=True)
-class FrameworkInfo:
-    """One certified framework/SDK recipe's compatibility metadata (FWK/CCO)."""
-
-    framework: str
-    tier: str
-    tested: str
-    invocation: str
-    notes: str = ""
-
-
-# Certified framework recipes (each a CI-executed path into the same ingest).
-# Unlike the adapter registry above, a framework reaches agentwatch through its
-# own native/community OTel, so it is not held to the adapter conformance pack.
-FRAMEWORKS: dict[str, FrameworkInfo] = {
-    "claude-agent-sdk": FrameworkInfo(
-        framework="claude-agent-sdk",
+# Instrumentation-framework rows (input for WS-D / FWK-1, #446). These are not
+# shipped harness adapters, so they stay out of ``SHIPPED``; the generator
+# renders them alongside adapter rows once WS-D fills in recipes + mappings.
+FRAMEWORKS: dict[str, HarnessInfo] = {
+    "adk": HarnessInfo(
+        harness="adk",
         tier="Tier-2",
-        tested="2.x",
-        invocation="native OTel (`ingest --format claude-otel`, `source: sdk-native`)",
+        tested=HarnessRange("1.5.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Google ADK native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "strands": HarnessInfo(
+        harness="strands",
+        tier="Tier-2",
+        tested=HarnessRange("1.0.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Strands native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "openai-agents": HarnessInfo(
+        harness="openai-agents",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OpenInference → OTLP (`agentwatch ingest --format otel`)",
         notes=(
-            "Claude Agent SDK / headless runs the same CLI + telemetry as Claude Code; "
-            "identity comes from resource attributes (CCO-2)"
+            "OpenAI Agents SDK via OpenInference; fixture-driven, live run BLOCKED "
+            "(not installable here)"
         ),
+    ),
+    "claude-agent-sdk": HarnessInfo(
+        harness="claude-agent-sdk",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="shared Claude Code OTel (`ingest --format claude-otel`, `sdk-native`)",
+        notes="Routes through 29.CCO-1 (WS-A); tool_use_id join owned by CCO-1, live run BLOCKED",
     ),
 }
 
-_FRAMEWORK_BEGIN = "<!-- BEGIN GENERATED FRAMEWORK MATRIX -->"
-_FRAMEWORK_END = "<!-- END GENERATED FRAMEWORK MATRIX -->"
+# Every row the generated table renders: shipped adapters + framework recipes.
+ALL_ROWS: dict[str, HarnessInfo] = {**SHIPPED, **FRAMEWORKS}
 
 _TABLE_HEADER = (
-    "| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |\n"
-    "|---|---|---|---|---|---|---|"
-)
-
-_FRAMEWORK_TABLE_HEADER = (
-    "| Framework | Tier | Tested | Invocation | Notes |\n|---|---|---|---|---|"
+    "| Harness | Tier | Tested range | Protocol | Fidelity | Managed policy | Invocation "
+    "| Notes |\n"
+    "|---|---|---|---|---|---|---|---|"
 )
 
 
-def framework(name: str) -> FrameworkInfo:
-    """Return one certified framework recipe's metadata (KeyError if unknown)."""
+def framework(name: str) -> HarnessInfo:
+    """Return one certified framework recipe's matrix row (KeyError if unknown)."""
     return FRAMEWORKS[name]
-
-
-def render_framework_table() -> str:
-    """Render the deterministic framework matrix (sorted by name)."""
-    lines = [_FRAMEWORK_TABLE_HEADER]
-    for name in sorted(FRAMEWORKS):
-        info = FRAMEWORKS[name]
-        lines.append(
-            f"| `{info.framework}` | {info.tier} | {info.tested} | "
-            f"{info.invocation} | {info.notes} |"
-        )
-    return "\n".join(lines)
-
-
-def render_framework_marker_block() -> str:
-    """The generated framework block, including its markers."""
-    return f"{_FRAMEWORK_BEGIN}\n{render_framework_table()}\n{_FRAMEWORK_END}"
 
 
 def range_for(harness: str) -> HarnessRange:
@@ -197,11 +210,12 @@ def range_for(harness: str) -> HarnessRange:
 def render_table() -> str:
     """Render the deterministic compatibility table (sorted by harness id)."""
     lines = [_TABLE_HEADER]
-    for harness in sorted(SHIPPED):
-        info = SHIPPED[harness]
+    for harness in sorted(ALL_ROWS):
+        info = ALL_ROWS[harness]
         lines.append(
             f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
-            f"{info.protocol or '—'} | {info.fidelity} | {info.invocation} | {info.notes} |"
+            f"{info.protocol or '—'} | {info.fidelity} | {info.managed_policy} | "
+            f"{info.invocation} | {info.notes} |"
         )
     return "\n".join(lines)
 

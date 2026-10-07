@@ -1,0 +1,8 @@
+{
+  "event_version": "0.2.0",
+  "type": "recorder-config-changed",
+  "emitted_at": "2026-01-02T03:04:05+00:00",
+  "emitter": "agentwatch",
+  "reason": "effective hook config digest changed",
+  "evidence": { "old_digest": "0123456789abcdef", "new_digest": "fedcba9876543210", "changed": { "user": true } }
+}

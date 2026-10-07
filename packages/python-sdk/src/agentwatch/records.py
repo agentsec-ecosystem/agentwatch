@@ -172,6 +172,16 @@ class SecurityEventType(str, Enum):
     # v0.2.0: a cross-agent delegation was observed (A2A-2, PRD 45). An
     # observation of an on-behalf-of hop, never an authorization verdict.
     AGENT_DELEGATION = "agent-delegation"
+    # M29 DEP-2: the effective recorder hook/permission config digest changed —
+    # an observation that recording config moved, never a verdict.
+    RECORDER_CONFIG_CHANGED = "recorder-config-changed"
+    # M29 APV-2 (WS-A): a permission-mode transition was observed per call
+    # (e.g. default -> bypass -> default), reconstructed from the record stream.
+    MODE_TRANSITION = "mode-transition"
+    # M29 EXT-3 forward-compatible placeholder: a capability inventory digest
+    # changed. The event originates in M30 CAP-2 (not built); adding it to the
+    # vocabulary/mappings now keeps sinks and consumers stable.
+    CAPABILITY_CHANGED = "capability-changed"
 
 
 # ---------------------------------------------------------------------------

@@ -17,8 +17,12 @@ PRD 29 (LLM explanation layer).
 - The eval harness **judges detectors**; detectors judge nothing, and the LLM stays out of the trust path
   (PRD 29/14). LLM detectors are evaluated by the same harness (local-model-first): `run_eval(..., llm_client=…)`
   appends `create_llm_detectors(client)` to the rule set — strictly additive, degrading to no-op when the local
-  endpoint is unavailable (`services/analytics/tests/test_llm_eval.py`). Publishing the LLM numbers needs a running
-  local model (tracked on DET-4).
+  endpoint is unavailable (`services/analytics/tests/test_llm_eval.py`). The harness runs all detectors in **one
+  event loop** (an async client is loop-bound). **Published numbers:** `scripts/detector_eval_llm.py` runs the LLM
+  detectors over `services/analytics/data/detector-llm-corpus-v0.json` and writes
+  [`detector-llm-numbers.json`](../reference/detector-llm-numbers.json) — against a local `Qwen3.5-9B-MLX-4bit`,
+  `semantic_loop` and `quality_degradation` are **1.0 precision/recall**; `output_drift` needs an embeddings
+  endpoint (excluded here); the remaining detectors need richer positives.
 
 ### Non-silent gate (DET-2)
 

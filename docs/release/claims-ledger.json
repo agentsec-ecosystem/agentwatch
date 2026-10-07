@@ -384,6 +384,17 @@
         "file:packages/python-sdk/tests/sdk_conformance_registry.py"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C37",
+      "claim": "The 6 LLM detectors run through the shared harness and their per-detector numbers are published from a local model.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detector_fires_with_a_scripted_local_model",
+        "file:scripts/detector_eval_llm.py",
+        "file:docs/reference/detector-llm-numbers.json"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

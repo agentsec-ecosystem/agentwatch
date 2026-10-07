@@ -68,9 +68,28 @@ class EvalReport:
         return tp / (tp + fn) if (tp + fn) else 0.0
 
 
-def _fires(detector: BaseDetector, summary: RunSummary, spans: list[SpanNode]) -> bool:
-    result = asyncio.run(detector.detect_async(summary, spans, None))
-    return result is not None
+async def _eval_cases(
+    cases: list[DetectorCase], active: list[BaseDetector]
+) -> list[Outcome]:
+    """Run every detector over every case inside one event loop.
+
+    A single loop matters for the LLM detectors (DET-4): an async HTTP client is
+    bound to the loop that first used it, so per-call ``asyncio.run`` would break
+    it after the first call.
+    """
+    outcomes: list[Outcome] = []
+    for case in cases:
+        for detector in active:
+            result = await detector.detect_async(case.summary, case.spans, None)
+            outcomes.append(
+                Outcome(
+                    case_id=case.id,
+                    detector=detector.anomaly_type,
+                    fired=result is not None,
+                    expected=detector.anomaly_type in case.expected,
+                )
+            )
+    return outcomes
 
 
 def run_eval(
@@ -91,19 +110,7 @@ def run_eval(
         active = create_all_detectors()
         if llm_client is not None:
             active = active + create_llm_detectors(llm_client)
-    outcomes: list[Outcome] = []
-    for case in cases:
-        for detector in active:
-            name = detector.anomaly_type
-            outcomes.append(
-                Outcome(
-                    case_id=case.id,
-                    detector=name,
-                    fired=_fires(detector, case.summary, case.spans),
-                    expected=name in case.expected,
-                )
-            )
-    return EvalReport(tuple(outcomes))
+    return EvalReport(tuple(asyncio.run(_eval_cases(cases, active))))
 
 
 def _tool_spans(tool_names: list[str]) -> list[SpanNode]:

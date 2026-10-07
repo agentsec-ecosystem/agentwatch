@@ -24,8 +24,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     `crashed` end-state (S33), and never executes foreign content (ADR-0024). Python 3.14 stdlib `compression.zstd`
     or the new `agentwatch[codex]` extra (#339).
   - DET-4: the 6 LLM-augmented detectors run through the shared offline eval harness (`run_eval(..., llm_client=…)`
-    + `create_llm_detectors(client)`), local-model-first and strictly additive (degrade to no-op without a model);
-    the rule trust path is unchanged. Published numbers require a running local model (#343).
+    + `create_llm_detectors(client)`), local-model-first and strictly additive; all detectors now run in one event
+    loop (an async LLM client is loop-bound). Numbers published in `docs/reference/detector-llm-numbers.json`
+    (local `Qwen3.5-9B-MLX-4bit`: `semantic_loop` and `quality_degradation` 1.0/1.0; `output_drift` needs an
+    embeddings endpoint). The rule trust path is unchanged (#343).
   - UI-2: an **Operator** console view rendering identity/attribution (IDN-1/S14), SIEM sink health
     (targets + `degraded`), and content-free detector telemetry, backed by read-only endpoints
     `GET /api/v1/attribution`, `/siem-health`, `/detector-telemetry` (openapi + typed client regenerated).

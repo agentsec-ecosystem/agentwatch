@@ -793,6 +793,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--include-bom", dest="include_bom", action="store_true", help="include bom.cdx.json (S9)"
     )
     evidence.add_argument(
+        "--include",
+        dest="include",
+        action="append",
+        default=None,
+        metavar="MEMBER",
+        help="extra bundle member: incident-report.json (COR-3)",
+    )
+    evidence.add_argument(
         "--redact-paths", dest="redact_paths", action="store_true", help="mask filesystem paths"
     )
     verify_release_cmd = sub.add_parser(
@@ -1266,6 +1274,7 @@ def _run_evidence(args: argparse.Namespace) -> int:
             args.target,
             include_bom=args.include_bom,
             redact_paths=args.redact_paths,
+            includes=tuple(args.include or ()),
         )
     except ValueError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)

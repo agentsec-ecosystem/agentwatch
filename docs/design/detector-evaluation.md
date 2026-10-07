@@ -79,8 +79,10 @@ coverage, governance (no secrets/PII), verdicts, and drift. Every published numb
 - Map detector findings/events to the **AIR** schema (architecture/mechanism/control/agency/outcome) and AIID's
   **GMF** taxonomy; optional incident tags on `annotate` (S20), metadata-only. (Implemented: `agentwatch.incident_taxonomy`
   — every event has a correspondent or explicit `None`; `annotate --incident-tag`.)
-- `evidence <id> --include incident-report.json` emits a registry-shaped, redacted report; submission is a human
-  act — a test proves no auto-egress path exists.
+- `evidence <id> --include incident-report.json` emits a registry-shaped, redacted report
+  (`agentwatch.incident_report`; schema `agentwatch.incident-report/1`, fixture
+  `schema/vectors/incident/incident-report.schema.json`); submission is a human act — a test proves no
+  auto-egress path exists, and tool arguments/content are never included.
 - Registry/postmortem mining (COR-4) is a standing practice: cited, shape-synthesized fixtures only.
 
 ## Non-goals

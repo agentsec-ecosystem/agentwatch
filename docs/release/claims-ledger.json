@@ -479,6 +479,19 @@
         "doc:docs/release/v0.2.0/migration-guide.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C45",
+      "claim": "Evidence bundles can carry a registry-shaped, redacted incident report with AIR/GMF findings; it never includes tool arguments or content and has no auto-egress path.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_report.py::test_report_is_schema_shaped",
+        "test:packages/python-sdk/tests/test_incident_report.py::test_report_never_carries_tool_arguments",
+        "test:packages/python-sdk/tests/test_incident_report.py::test_module_has_no_egress_path",
+        "file:schema/vectors/incident/incident-report.schema.json",
+        "doc:docs/design/detector-evaluation.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

@@ -30,6 +30,7 @@ from agentwatch.annotate import operator_notes
 from agentwatch.bom import build_bom, to_cyclonedx
 from agentwatch.denials import denial_sequences
 from agentwatch.forensic import statement
+from agentwatch.incident_report import INCIDENT_REPORT_FILENAME, build_incident_report
 from agentwatch.inventory import build_inventory, inventory_to_json
 from agentwatch.records import effective_producer, validate_record
 from agentwatch.session_export import export_session
@@ -186,6 +187,7 @@ def build_bundle(
     *,
     include_bom: bool = False,
     redact_paths: bool = False,
+    includes: tuple[str, ...] = (),
     now: datetime | None = None,
 ) -> EvidenceBundle:
     """Assemble a self-contained evidence bundle for one session."""
@@ -298,6 +300,11 @@ def build_bundle(
             }
         ),
     }
+    for include in includes:
+        if include == INCIDENT_REPORT_FILENAME:
+            members[include] = _json_bytes(build_incident_report(store, session_id, now=moment))
+        else:
+            raise ValueError(f"unknown include {include!r}")
     if include_bom:
         members["bom.cdx.json"] = _json_bytes(to_cyclonedx(build_bom(store, session_id=session_id)))
     schema_dir = _schema_dir()

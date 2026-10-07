@@ -55,7 +55,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch inventory [--session-id ID] [--project PATH] [--snapshot] [--diff] [--server NAME] [--json]` | List recorded agents + MCP servers; `--snapshot`/`--diff` show tool-surface drift (R9; S4 M20) | **implemented** (M9; M20) |
 | `agentwatch retention apply [--profile P] [--json]` | Tombstone records older than the retention window: a named profile (`high-risk-12mo` 365d / `general-6mo` 180d / `custom` = `store.retention_days`); the change is recorded (S5) | **implemented** (M9; profiles M28 CMP-3) |
 | `agentwatch purge <id> --yes [--reason TEXT]` | Tombstone one session (right to erasure) | **implemented** (M9) |
-| `agentwatch evidence <session-id> [--out PATH] [--include-bom] [--redact-paths]` | Build a self-contained, offline-verifiable bundle | **implemented** (M15 S1) |
+| `agentwatch evidence <session-id> [--out PATH] [--include-bom] [--include incident-report.json] [--redact-paths]` | Build a self-contained, offline-verifiable bundle (the report is registry-shaped + redacted; no auto-egress) | **implemented** (M15 S1; incident report M28 COR-3) |
 | `agentwatch evidence verify bundle.zip` | Re-verify a bundle offline (intact/complete/leak-free) | **implemented** (M15 S1) |
 | `agentwatch-verify <bundle.zip\|store.jsonl>` | Standalone stdlib verifier (zipapp), no install | **implemented** (M15 S12) |
 | `agentwatch bom [--session-id ID \| --project PATH \| --machine] [--format cyclonedx\|json]` | Agent Bill of Materials, observed (CycloneDX 1.5) | **implemented** (M15 S9) |

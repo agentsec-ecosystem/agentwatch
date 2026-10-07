@@ -98,12 +98,14 @@ Code) and the XHT-3 cross-parser diff (its own CI workflow provisions the two pa
 
 ## Open items (not signed off)
 
-Only `WIN-1` (#350) remains blocked (needs a Windows host/CI leg — cannot be verified on this macOS host).
-Everything else landed: `COD-1`/`XHT-3`/`LOG-1` were unblocked by downloading the verified Codex format
-(kvsankar/agent-history + `openai/codex` source), two independent pinned parsers (agent-history, agent-ouija),
-and the OpenCode SDK schema; `LG-1` gained an O1 SDK conformance pack; `DET-4` published real numbers against a
-live local `Qwen3.5-9B-MLX-4bit`; `CCA-1` added the consent-gated Compliance API ingest. `27.R` (this record)
-plus the maintainer's human sign-off and a decision on `WIN-1` (resolve or re-point) are what remain before the
-milestone is declared closed.
+`WIN-1` (#350) is **partial**: the Windows service supervision (Task Scheduler XML) and a `windows-latest` CI leg
+are drafted and tested on any OS, but the **named-pipe transport** and an end-to-end **CUJ-1 timing run on
+Windows** cannot be verified from this macOS host — the CI leg will confirm itself on GitHub. Everything else
+landed: `COD-1`/`XHT-3`/`LOG-1` were unblocked by downloading the verified Codex format (kvsankar/agent-history +
+`openai/codex` source), two independent pinned parsers (agent-history, agent-ouija), and the OpenCode SDK schema;
+`LG-1` gained an O1 SDK conformance pack; `DET-4` published real numbers against a live local
+`Qwen3.5-9B-MLX-4bit`; `CCA-1` added the consent-gated Compliance API ingest. `27.R` (this record) plus the
+maintainer's human sign-off and a decision on `WIN-1` (resolve or re-point) are what remain before the milestone
+is declared closed.
 
 ## Final gate (M27 batch, all changes)

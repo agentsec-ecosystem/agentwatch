@@ -755,6 +755,69 @@
         "doc:docs/design/sdk-lifecycle.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A security-event vocabulary contribution was submitted to OTel GenAI semconv (OTel GenAI semconv); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "An authorization-taxonomy-v2 contribution was submitted to the IETF Agent Audit Trail draft (IETF AAT); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "A capability-changed event-shape contribution was submitted to Agent Trace; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "A security-event class-mapping contribution was submitted to OCSF; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "An ASI/AST coverage-vocabulary contribution was submitted to OWASP Agentic; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C57",
+      "claim": "The owasp-asi-2026 compliance framework gives every ASI risk row a regenerating command or an explicit 'not evidenced', includes an AST10 section, carries a non-certification statement, and runs every evidenced row's command in the executable-docs gate.",
+      "source": "docs/design/owasp-asi-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_all_ten_asi_rows_are_present_with_the_required_fields",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_ast10_section_is_present",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_every_evidenced_row_command_runs_in_the_docs_gate",
+        "doc:docs/compliance/owasp-asi-2026.md",
+        "doc:docs/design/owasp-asi-mapping.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

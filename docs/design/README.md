@@ -43,7 +43,7 @@ Subsystem designs and architecture for agentwatch. Design decisions are centrali
 | [legal-hold.md](legal-hold.md) | Legal hold suspends retention/purge with provenance (v0.2.0-expanded) | proposed |
 | [environment-fingerprint.md](environment-fingerprint.md) | Environment fingerprint + delta in `diff`/`drift` (v0.2.0-expanded) | proposed |
 | [browser-verifier.md](browser-verifier.md) | Offline, zero-network browser evidence verifier (v0.2.0-expanded) | proposed |
-| [owasp-asi-mapping.md](owasp-asi-mapping.md) | OWASP Agentic ASI + Skills Top-10 coverage mapping (v0.2.0-expanded) | proposed |
+| [owasp-asi-mapping.md](owasp-asi-mapping.md) | OWASP Agentic ASI + Skills Top-10 coverage mapping (v0.2.0-expanded) | published |
 | [outcomes-signals.md](outcomes-signals.md) | Deterministic outcome facts + recurring failure signatures (v0.2.0-expanded) | proposed |
 | [runner-segments.md](runner-segments.md) | Sealed CI/cloud runner segments + chain-of-custody import (v0.2.0-expanded) | proposed |
 

@@ -19,6 +19,7 @@
 | [Backwards-compatibility policy](backwards-compatibility-policy.md) | Stable surfaces, deprecation cycles |
 | [Comparison](comparison.md) | vs adjacent tools |
 | [v0.2.0 research sources](v0.2.0-research-sources.md) | Raw provenance for the v0.2.0 PRDs (standards, OSS, vendor facts, papers) |
+| [Standards participation plan](standards-participation.md) | Target specs, owner, proposals, contributions ("submitted"), quarterly cadence |
 | [i18n & locale](i18n.md) | UTC timestamps; English-first; full i18n deferred |
 | [Resource cost](resource-cost.md) | CPU/memory/disk/network to the operator |
 | [Performance](performance.md) | Recording-path p99 latency vs NFR-1, generated from a run (Q4) |

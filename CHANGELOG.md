@@ -91,6 +91,17 @@ versioning: [Semantic Versioning](https://semver.org/).
     the recorder is not running, single flush-on-exit, idempotent (no double spans).
     `agentwatch/instrument` is a callable module; the implementation is `agentwatch.autoinstrument`
     (#447).
+- v0.2.0 Expanded I (M29):
+  - ASI-1: `compliance report --framework owasp-asi-2026` renders a coverage map with one row per OWASP Top 10
+    for Agentic Applications 2026 risk (ASI01–ASI10) plus an Agentic Skills Top-10 (AST01–AST10) section. Each row
+    states what the record evidences, the regenerating command (or `not evidenced`, naming the owning dependency
+    29.APV-3/29.A2A-1-2/30.CAP-1-2/30.SBX-1), what it cannot evidence, and a fidelity tier; every evidenced row's
+    command runs in the executable-docs gate and nothing claims prevention or certification (#451).
+  - STD-1: the standards participation plan is published (`docs/reference/standards-participation.md`) with an
+    owner, five target specs (OTel GenAI semconv, IETF AAT, Agent Trace, OCSF, OWASP Agentic), what is proposed
+    (event vocabulary, authorization taxonomy v2, `capability-changed`), a quarterly re-pin/engagement cadence, and
+    an external-adopter count. **DD-05 is closed by ADR-0045**; each spec has ≥1 contribution tracked in the claims
+    ledger as **"submitted"** — never "adopted" (#452).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

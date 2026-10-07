@@ -13,6 +13,8 @@ agentwatch compliance report --framework eu-ai-act-art12 [--period P] [--out FIL
 
 Frameworks: `generic`, `eu-ai-act-art12`, `eu-ai-act-art14`, `iso-42001`,
 `iso-27001`, `soc2`, `nist-800-92` (templates added by CMP-2; Art. 14 by APV-3).
+Frameworks: `generic`, `eu-ai-act-art12`, `iso-42001`, `iso-27001`, `soc2`,
+`nist-800-92` (templates added by CMP-2), `owasp-asi-2026` (ASI-1 coverage map).
 
 ### Framework templates (CMP-2)
 
@@ -30,6 +32,20 @@ computed checks above:
 | `generic` | the default catalog (8 controls) | — |
 
 Templates are offline and every row still names a regenerating command.
+
+### `owasp-asi-2026` (ASI-1)
+
+A **coverage map**, not a control catalog. One row per OWASP Top-10 for Agentic
+Applications 2026 risk (ASI01–ASI10) plus an Agentic Skills Top-10 (AST01–AST10)
+section. Each row carries: what the record **evidences**, the **command** that
+regenerates it (or `not evidenced`), what it **cannot evidence**, and a
+**fidelity tier** (`evidenced` | `signal` | `not evidenced`). A row whose capture
+is not yet landed says `not evidenced` and names the owning dependency
+(29.APV-3, 29.A2A-1/2, 30.CAP-1/2, 30.SBX-1) — never fake evidence. The rows and
+their executable commands live in [../compliance/owasp-asi-2026.md](../compliance/owasp-asi-2026.md)
+and are covered by the executable-docs gate; the mapping is in
+[../design/owasp-asi-mapping.md](../design/owasp-asi-mapping.md). The report never
+claims prevention or certification.
 
 ## Rows
 

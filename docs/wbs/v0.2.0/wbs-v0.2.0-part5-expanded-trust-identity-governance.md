@@ -33,6 +33,8 @@ HLD-1 — legal holds suspend retention/purge with recorded override provenance 
 `agentwatch hold add/list/release`, `retention apply --dry-run`, `purge --override-reason`),
 ADR-0041; tests `packages/python-sdk/tests/test_legal_hold.py`. **BLOCKED:** propagation to every
 derived index/export needs 30.EXT-5 / LUI-2 (M30), absent from this branch.
+**Status:** 🔄 in progress — the `m29/standards` workstream landed **29.STD-1** (#452) and **29.ASI-1** (#451);
+remaining M29 tickets are tracked in parallel workstreams.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

@@ -36,7 +36,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-DOC_GLOBS = ("docs/examples/investigations/*.md",)
+DOC_GLOBS = (
+    "docs/examples/investigations/*.md",
+    "docs/compliance/owasp-asi-2026.md",
+)
 _FENCE = re.compile(r"^```(?P<info>[^\n`]*)\n(?P<body>.*?)^```[ \t]*$", re.M | re.DOTALL)
 
 

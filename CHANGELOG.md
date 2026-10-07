@@ -50,6 +50,28 @@ versioning: [Semantic Versioning](https://semver.org/).
   - CCO-2: the Claude Agent SDK / headless runs land through the same native path as
     `source: sdk-native` (producer `kind=sdk`) with identity from resource attributes; a CI-executed
     gallery recipe (`examples/claude_agent_sdk_otel.py`) and a framework-matrix row (#445).
+- v0.2.0 Expanded I — Trust, Identity & Governance (M29):
+  - ACC-1: a documented, enforceable fleet **role × data-class** read-access model
+    (`agentwatch.access`) — roles `self` / `team-reviewer` / `security-auditor` / `admin`
+    against `metadata` / `identity-hashed` / `identity-resolved` / `content` / `evidence`.
+    A cross-role read returns nothing and is appended as a `store-access` record; the owner
+    sees who read their records via `agentwatch access log --owner ID`; identity resolution
+    is an explicit, recorded action; the default fleet profile is least-privileged
+    (metadata-only, hashed identity). `agentwatch access check`/`matrix` publish the model.
+    ADR-0040 (#448).
+  - ACC-2: `agentwatch governance notice` renders what is recorded/not, who can see it,
+    retention, and erasure **from the live effective config**; every statement maps to a
+    config key or documented guarantee and unbackable claims are omitted and listed as
+    refused ("not legal advice" banner). A DPIA starter (`docs/compliance/dpia-starter.md`)
+    carries the counsel-review banner and embeds the notice command (#449).
+  - HLD-1: legal holds suspend retention and purge. `agentwatch hold add/list/release`
+    places a hold on a session/project/time/principal scope; while active, retention
+    **skips** held records (`retention apply --dry-run` lists them + hold IDs) and `purge`
+    **fails closed** with the hold ref. An explicit `--override-reason` records a
+    session-scoped override that is conspicuous in an evidence bundle and the compliance
+    report's retention row (`holds`/`overrides`). Holds/releases/refusals/overrides are
+    hash-chain records; D-K tombstones are preserved. Derived-index propagation is
+    declared blocked on 30.EXT-5. ADR-0041 (#450).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

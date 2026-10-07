@@ -693,6 +693,42 @@
         "doc:docs/reference/compatibility.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A fleet/multi-user reader sees only the data classes their role is granted; a disallowed cross-user read returns nothing and is recorded, so the subject can see who read their records and when.",
+      "source": "docs/design/access-and-governance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_access.py::test_cross_role_read_returns_nothing_and_is_recorded",
+        "test:packages/python-sdk/tests/test_access.py::test_identity_resolution_is_an_explicit_recorded_action",
+        "test:packages/python-sdk/tests/test_access.py::test_access_log_is_scoped_to_the_owner",
+        "doc:docs/adr/0040-fleet-role-model.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "`agentwatch governance notice` renders what is recorded, what is not, who can see it, retention, and erasure from the live effective configuration; every statement maps to a config key or documented guarantee and any claim the config cannot back is omitted and listed as refused, with a 'not legal advice' banner.",
+      "source": "docs/compliance/dpia-starter.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_every_statement_maps_to_a_config_key_or_a_guarantee",
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_egress_claim_is_refused_when_export_is_enabled",
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_dpia_starter_carries_a_counsel_review_banner",
+        "doc:docs/design/access-and-governance.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "A legal hold suspends retention and purge: held records survive retention and a rebuild-from-chain, purge fails closed with the hold reference, and an override requires a stated reason and is recorded as a session-scoped chain record.",
+      "source": "docs/design/legal-hold.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_fails_closed_on_a_held_session_and_records_the_refusal",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_override_requires_a_reason_and_is_conspicuous",
+        "doc:docs/adr/0041-legal-hold.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

@@ -23,6 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from agentwatch.claude_otel import NON_TOOL_EVENTS, otel_join_summary
 from agentwatch.harness_drift import harness_drift_observations
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.recorder_state import CoverageWindow, coverage_windows
@@ -79,6 +80,7 @@ _NON_TOOL_NAMES = frozenset(
         "context-compacted",
         "permission-prompt",
     }
+    | set(NON_TOOL_EVENTS)
 )
 
 
@@ -128,11 +130,13 @@ class CoverageReport:
     windows: tuple[CoverageWindow, ...] = ()
     since: str | None = None
     totals: dict[str, Any] = field(default_factory=dict)
+    otel_join: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "transcripts_present": self.transcripts_present,
             "since": self.since,
+            "otel_join": self.otel_join,
             "sessions": [
                 {
                     "session_id": s.session_id,
@@ -183,6 +187,8 @@ class CoverageReport:
             f"  totals: {totals.get('store_calls', 0)}/{totals.get('transcript_calls', 0)} calls, "
             f"unexplained {totals.get('unexplained', 0)}"
         )
+        if self.otel_join is not None:
+            lines.append(f"  native telemetry join: {self.otel_join}")
         return "\n".join(lines)
 
 
@@ -575,6 +581,7 @@ def build_coverage(
         windows=tuple(coverage_windows(store)),
         since=since,
         totals=totals,
+        otel_join=otel_join_summary(records),
     )
 
 

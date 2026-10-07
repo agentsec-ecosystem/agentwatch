@@ -5,7 +5,7 @@ it to hook records by `tool_use_id`, replacing inference with authoritative fact
 permission decision source that feeds [authorization provenance](authorization-provenance-v2.md)). Disagreements are
 classified observations; the hook path stays the zero-config default.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M26–M27 · Sources:
+**Status:** implemented (CCO-1 2026-10-06; CCO-2 pending) · **Milestone:** M29 · Sources:
 [PRD 51](../prd/51-harness-native-telemetry-and-framework-reach.md), [otel-mapping.md](otel-mapping.md),
 [observability.md](observability.md).
 

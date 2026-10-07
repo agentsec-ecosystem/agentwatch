@@ -577,6 +577,19 @@
         "file:docs/design/authorization-provenance-v2.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "Claude Code native OTel is ingested, joined to hook records by tool_use_id, with disagreements classified and exact vendor cost.",
+      "source": "docs/design/native-telemetry-join.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_join_classifies_an_outcome_discrepancy",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_coverage_reports_native_telemetry_join",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_transcode_api_request_reports_exact_cost",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_default_metadata_only_omits_prompt_content",
+        "file:docs/design/native-telemetry-join.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

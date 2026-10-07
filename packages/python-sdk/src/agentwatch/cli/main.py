@@ -553,10 +553,11 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance"),
+        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance", "claude-otel"),
         default="otel",
         help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
-        "claude-compliance is an Anthropic Compliance API export, requires --consent)",
+        "claude-otel is Claude Code native OTel (CCO-1); claude-compliance is an "
+        "Anthropic Compliance API export, requires --consent)",
     )
     ingest.add_argument(
         "--consent",

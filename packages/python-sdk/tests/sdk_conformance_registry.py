@@ -15,6 +15,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 from agentwatch import conformance
+from agentwatch.claude_otel import transcode_claude_otel
 from agentwatch.config import SDKConfig
 from agentwatch.ingest import transcode_otel
 from agentwatch.langgraph import _NodeCallbackHandler
@@ -22,6 +23,7 @@ from agentwatch.records import AgentRecord
 from agentwatch.tracer import configure_tracing, reset_tracing
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "langgraph-sdk"
+CLAUDE_OTEL_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "claude-otel"
 
 
 def _span_payload(span: Any) -> dict[str, Any]:
@@ -65,6 +67,12 @@ def replay_langgraph(events: Any) -> list[AgentRecord]:
         reset_tracing()
 
 
+def replay_claude_otel(payload: Any) -> list[AgentRecord]:
+    """Transcode a Claude Code native OTel payload through the real CCO-1 path."""
+    records, _problems = transcode_claude_otel(payload, source="claude-code-otel")
+    return records
+
+
 def langgraph_spec() -> conformance.SdkSpec:
     return conformance.SdkSpec(
         name="langgraph",
@@ -74,11 +82,31 @@ def langgraph_spec() -> conformance.SdkSpec:
     )
 
 
+def claude_otel_spec() -> conformance.SdkSpec:
+    return conformance.SdkSpec(
+        name="claude-code-otel",
+        replay=replay_claude_otel,
+        fixtures_dir=CLAUDE_OTEL_FIXTURES,
+        error_cls=ValueError,
+    )
+
+
 def register_sdk_packs() -> None:
-    if "langgraph" not in {spec.name for spec in conformance.registered_sdks()}:
+    registered = {spec.name for spec in conformance.registered_sdks()}
+    if "langgraph" not in registered:
         conformance.register_sdk(langgraph_spec())
+    if "claude-code-otel" not in registered:
+        conformance.register_sdk(claude_otel_spec())
 
 
 register_sdk_packs()
 
-__all__ = ["FIXTURES", "langgraph_spec", "register_sdk_packs", "replay_langgraph"]
+__all__ = [
+    "CLAUDE_OTEL_FIXTURES",
+    "FIXTURES",
+    "claude_otel_spec",
+    "langgraph_spec",
+    "register_sdk_packs",
+    "replay_claude_otel",
+    "replay_langgraph",
+]

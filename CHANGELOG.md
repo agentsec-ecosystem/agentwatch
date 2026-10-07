@@ -6,6 +6,16 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Trust, Identity & Governance (M29):
+  - APV-1: authorization provenance v2 (`authz-v2`, PRD 49) — an additive metadata-only `authorization`
+    object (`source`/`deny`/`evidence`) on records, with the legacy S14 five-value `approval` mapped at read
+    time by `effective_authorization` and never written back; a classifier-approved call is `classifier` and
+    a bypass-mode call is `bypass`, and `unknown` is never inferred from `outcome=ok` (#438).
+  - CCO-1: Claude Code native OTel ingest (`ingest --format claude-otel`) maps `tool_decision`
+    (`decision_source`), `permission_mode_changed`, `api_request`/`tool_result` (exact vendor cost) and
+    `user_prompt`/`mcp_server_connection`; joins to hook records by `tool_use_id` with disagreements recorded
+    as classified discrepancies; `coverage` reports "N joined, M hook-only, K otel-only, D discrepancies
+    (classified)"; redaction runs on ingest and unmappable input is quarantined (B4) (#444).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

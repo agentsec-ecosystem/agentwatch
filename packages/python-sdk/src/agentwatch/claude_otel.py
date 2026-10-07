@@ -231,17 +231,10 @@ def _cost(attrs: Mapping[str, Any]) -> float | None:
             return float(value)
         except (TypeError, ValueError):
             continue
+    metric_value = attrs.get("_value")
+    if isinstance(metric_value, (int, float)) and not isinstance(metric_value, bool):
+        return float(metric_value)
     return None
-
-
-def _redact(value: Any, cfg: RedactionConfig) -> Any:
-    if isinstance(value, str):
-        return cfg.apply(value, allowed=True)
-    if isinstance(value, Mapping):
-        return {key: _redact(item, cfg) for key, item in value.items()}
-    if isinstance(value, list):
-        return [_redact(item, cfg) for item in value]
-    return value
 
 
 def _captured_text(value: Any, cfg: RedactionConfig | None) -> tuple[str | None, RecordPrivacyMode]:

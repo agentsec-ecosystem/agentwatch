@@ -110,6 +110,36 @@ def test_missing_mode_is_unknown() -> None:
     assert effective_modes([record])[id(record)] is PermissionMode.UNKNOWN
 
 
+def test_transition_mode_reads_arguments_when_field_absent() -> None:
+    from agentwatch.records import AgentRecord, Producer, ProducerKind, StepType, ToolCall
+
+    record = AgentRecord(
+        session_id="s1",
+        agent=AgentIdentity(identity="worker"),
+        tool=ToolCall(name=MODE_CHANGED_TOOL, arguments={"to": "plan"}),
+        outcome=Outcome.OK,
+        started_at=BASE,
+        harness="claude-code",
+        producer=Producer(kind=ProducerKind.INGEST, name="claude-code-otel"),
+        step_type=None,
+    )
+    from agentwatch.permission_mode import transition_mode
+
+    assert transition_mode(record) is PermissionMode.PLAN
+
+    bad = AgentRecord(
+        session_id="s1",
+        agent=AgentIdentity(identity="worker"),
+        tool=ToolCall(name=MODE_CHANGED_TOOL, arguments={"to": "nonsense"}),
+        outcome=Outcome.OK,
+        started_at=BASE,
+        harness="claude-code",
+        producer=Producer(kind=ProducerKind.INGEST, name="claude-code-otel"),
+        step_type=None,
+    )
+    assert transition_mode(bad) is PermissionMode.UNKNOWN
+
+
 def test_adapter_records_permission_mode() -> None:
     message: dict[str, Any] = {
         "phase": "pre",

@@ -79,6 +79,16 @@ def test_native_unknown_decision_source_is_none() -> None:
     assert authorization_from_decision_source("mystery") is None
 
 
+def test_permission_mode_from_rejects_unknown_values() -> None:
+    from agentwatch.authorization import permission_mode_from
+    from agentwatch.records import PermissionMode
+
+    assert permission_mode_from("bypassPermissions") is PermissionMode.BYPASS_PERMISSIONS
+    assert permission_mode_from("nonsense") is PermissionMode.UNKNOWN
+    assert permission_mode_from(None) is PermissionMode.UNKNOWN
+    assert permission_mode_from(5) is PermissionMode.UNKNOWN
+
+
 def test_classifier_is_never_user_or_rule() -> None:
     auth = authorization_from_decision_source("classifier")
     assert auth is not None

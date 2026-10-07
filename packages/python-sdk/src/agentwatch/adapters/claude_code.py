@@ -28,6 +28,7 @@ from agentwatch.records import (
     AgentRecord,
     Approval,
     Authorization,
+    AuthorizationEvidence,
     AuthorizationSource,
     CredentialClass,
     Outcome,
@@ -450,8 +451,14 @@ def _normalize_message(
         decision_source=native_decision_source(event),
         permission_mode=mode,
     )
+    # Only a v2-specific fact (a native decision source, or bypass mode) is
+    # persisted. A pure S14 fallback stays on the legacy `approval` field and is
+    # mapped by `effective_authorization` at read time — never written back.
     recorded_authorization: Authorization | None = (
-        v2 if v2.source is not AuthorizationSource.UNKNOWN else None
+        v2
+        if v2.source is not AuthorizationSource.UNKNOWN
+        and v2.evidence is not AuthorizationEvidence.INFERRED
+        else None
     )
     # Permission mode is a time-varying fact (M29 APV-2); absent stays unknown on
     # read and is never inferred.

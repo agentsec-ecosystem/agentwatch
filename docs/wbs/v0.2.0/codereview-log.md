@@ -54,3 +54,48 @@ closed when fixed + tested. Waived items carry a reason.
 - **Independent human risk sign-off:** ✅ **approved** by the maintainer (Debashish Ghosal, `@deghosal-2026`)
   on **2026-10-05** — no unresolved findings; the two waived items (#5 pre-existing v0.1.0 analytics E501,
   #6 CUR-1 live capture) are accepted with the reasons recorded above. Closes #373.
+
+---
+
+# v0.2.0 — M27 Code Review Log
+
+Record of the M27 (Surfaces) code review (#379). One row per finding; closed when fixed + tested.
+
+**Scope reviewed:** every landed M27 ticket — MCP-1..6 (#333–#338), GEM-2 (#342), DET-5 (#344), COR-2 (#345),
+SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434),
+27.T (#377), plus DET-4 (#343, core) and LG-1 (#348, partial).
+
+## Findings
+
+| # | Ticket | Finding | Severity | Resolution | Status |
+|---|---|---|---|---|---|
+| 1 | M27 batch | MCP `DOCUMENTED_GAPS` shrank as surfaces landed (resources → prompts → tasks); the old `resources/read`-rejected test contradicted the new behavior | Medium | Test updated to reject a still-gapped method (`prompts/get`); capability/gap/conformance pack moved together per surface | Fixed |
+| 2 | M27 batch | New test/source rows exceeded `ruff` line length and one append-tuple lambda broke `mypy --strict` | Low | Wrapped rows; typed closure; `ruff`/`mypy` clean on all packages | Fixed (`e5c2a4b`) |
+| 3 | API-1 (#330) | Adding UI-2 endpoints drifted the generated `openapi.json` + typed client | Medium | Regenerated via `scripts/generate_openapi.py`; drift test green | Fixed |
+| 4 | LG-1 / DET-4 | LLM `EmbeddingDriftDetector` shares `anomaly_type="output_drift"` with the rule detector | Low (documented) | LLM detectors kept out of the rule factory by **class** (property-tested); not entangled in the trust path | Accepted |
+| 5 | COD-1/LOG-1/CCA-1/XHT-3/WIN-1 | No published rollout/log format, independent parsers, consented API pull, or Windows host available in this environment | Medium (accepted) | **Declared blocked** on each issue; not fabricated | Waived with reason |
+
+## Guardrails honored (M27)
+
+- **Monitor-only** — MCP proxy relays; elicitation recorded, never answered (`test_mcp_proxy_elicitation.py`).
+- **Redaction before storage** — resource URI / prompt name / task id are secret-scanned metadata; `annotate --incident-tag` scrubbed (`test_incident_taxonomy.py`); telemetry is content-free (`test_detector_telemetry.py`).
+- **Foreign content never executed** (ADR-0024) — no reader path spawns a shell; COD-1 blocked rather than guessed.
+- **No egress** — detector telemetry is local-only NDJSON; sinks remain opt-in + self-test gated.
+- **Deterministic trust path** — LLM detectors are strictly additive and outside the rule factory (`test_llm_eval.py`).
+
+## Gate results (M27 batch)
+
+| Gate | Result |
+|---|---|
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **95.28%** (1711 passed, 1 skipped); `services/api` **95.75%** (53 passed); `services/analytics` **95.18%** (728 passed); repo guard **34 passed** |
+| `make lint` (ruff zero) | clean (all three packages) |
+| `make typecheck` (mypy `--strict`) | clean (all three packages) |
+| `make web-test` (vitest + axe) | 14 passed |
+| Claims ledger | 32 claims / 81 live evidence links, check green |
+
+## Open items (not signed off)
+
+`DET-4` (#343, published LLM numbers need a running local model), `LG-1` (#348, O1 SDK pack contract), and the
+blocked capture tickets `COD-1`/`LOG-1`/`CCA-1`/`XHT-3`/`WIN-1` remain open (declared on their issues). The
+M27 milestone is **not** declared closed; those tickets need resolution or an explicit maintainer re-point to a
+named milestone per the standard exit criteria.

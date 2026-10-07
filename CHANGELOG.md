@@ -25,6 +25,9 @@ versioning: [Semantic Versioning](https://semver.org/).
   - EXT-3: security-event schema gains `recorder-config-changed` (DEP-2), `mode-transition` (APV-2/WS-A), and
     the forward-compatible `capability-changed` placeholder (M30 CAP-2, not built) — with OCSF/CloudEvents
     mappings, fixtures, and the schema changelog (#453).
+  - EXT-7: the compatibility matrix gains a **Managed policy** column (`effective`/`blocked`/`unknown`/`n/a`)
+    and framework rows (ADK / Strands / OpenAI Agents SDK / Claude Agent SDK) as a generator input WS-D (FWK-1)
+    will populate; the generated block and drill note are updated (#454).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

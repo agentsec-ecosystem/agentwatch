@@ -617,6 +617,19 @@
         "file:schema/security-event.schema.json"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "The compatibility matrix carries a Managed policy column (`effective`/`blocked`/`unknown`/`n/a`), a normal Claude Code user/project install is shown `blocked` under `allowManagedHooksOnly` with the managed path noted, and framework rows (ADK/Strands/OpenAI Agents SDK/Claude Agent SDK) are a generator input WS-D (FWK-1) populates — not shipped adapters.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_every_shipped_row_carries_a_managed_policy_value",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_claude_code_is_honest_about_managed_hooks_only",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_framework_rows_are_a_ws_d_input",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_doc_has_the_regenerated_block",
+        "doc:docs/reference/compatibility.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

@@ -26,6 +26,12 @@
 > (`agentwatch init --service` → `%APPDATA%\agentwatch\agentwatch-task.xml`); a `windows-latest` CI leg
 > (`.github/workflows/windows.yml`) exercises the platform-independent SDK subset. Named-pipe transport and an
 > end-to-end CUJ-1 timing run on Windows are tracked on WIN-1.
+>
+> **Managed policy (M29 DEP-1/EXT-7):** the generated table carries a **Managed policy** column
+> (`effective` / `blocked` / `unknown` / `n/a`). A normal Claude Code user/project install is **blocked** under
+> `allowManagedHooksOnly`; agentwatch ships a managed hook / force-enabled org-plugin path so it can still run
+> (`docs/design/managed-policy-install.md`). Framework rows (ADK / Strands / OpenAI Agents SDK / Claude Agent SDK)
+> are a **generator input that WS-D (FWK-1) populates** — they are not shipped adapters.
 
 > **B1:** v0.1.0 is Claude Code only (meta-MVP); the ecosystem ≥2-Tier-1 threshold is met by v0.3.0.
 >
@@ -38,13 +44,17 @@
 > (see the [hook contract](../design/claude-code-hook-contract.md)); declared gaps apply.
 
 <!-- BEGIN GENERATED HARNESS MATRIX -->
-| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |
-|---|---|---|---|---|---|---|
-| `claude-code` | Tier-1 | 2.0–2.x | — | live-verified | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon |
-| `codex-cli` | Tier-1 | 0.65–0.x | — | fixture-verified | log-reader (`ingest --agent codex`) | rollout JSONL / .jsonl.zst; format-derived + cross-parser validated (COD-1/XHT-3); live capture pending |
-| `crewai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
-| `cursor` | Tier-1 | 1.7–1.x | — | fixture-verified | native hooks (`hooks.json`) | full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending |
-| `gemini-cli` | Tier-1 | modeled | — | modeled | native OTel telemetry (`ingest --format otel`) | native approval/principal mapping (GEM-2); live capture pending |
-| `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
-| `pydantic-ai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
+| Harness | Tier | Tested range | Protocol | Fidelity | Managed policy | Invocation | Notes |
+|---|---|---|---|---|---|---|---|
+| `claude-code` | Tier-1 | 2.0–2.x | — | live-verified | blocked | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon; under `allowManagedHooksOnly` a user/project install is blocked — managed hook/plugin path (DEP-1) |
+| `codex-cli` | Tier-1 | 0.65–0.x | — | fixture-verified | n/a | log-reader (`ingest --agent codex`) | rollout JSONL / .jsonl.zst; format-derived + cross-parser validated (COD-1/XHT-3); live capture pending |
+| `crewai` | Tier-2 | modeled | — | modeled | n/a | native adapter (modeled) |  |
+| `cursor` | Tier-1 | 1.7–1.x | — | fixture-verified | unknown | native hooks (`hooks.json`) | full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending |
+| `gemini-cli` | Tier-1 | modeled | — | modeled | n/a | native OTel telemetry (`ingest --format otel`) | native approval/principal mapping (GEM-2); live capture pending |
+| `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | n/a | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
+| `pydantic-ai` | Tier-2 | modeled | — | modeled | n/a | native adapter (modeled) |  |
+| `claude-agent-sdk` | Tier-2 | modeled | — | modeled | n/a | instrument() / headless | recipe + attribute mapping pending (populated by WS-D (FWK-1, #446)) |
+| `google-adk` | Tier-2 | modeled | — | modeled | n/a | instrument() / OTel GenAI | recipe + attribute mapping pending (populated by WS-D (FWK-1, #446)) |
+| `openai-agents-sdk` | Tier-2 | modeled | — | modeled | n/a | instrument() / OpenInference | recipe + attribute mapping pending (populated by WS-D (FWK-1, #446)) |
+| `strands` | Tier-2 | modeled | — | modeled | n/a | instrument() / OTel GenAI | recipe + attribute mapping pending (populated by WS-D (FWK-1, #446)) |
 <!-- END GENERATED HARNESS MATRIX -->

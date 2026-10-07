@@ -33,6 +33,19 @@ FIDELITY_FIXTURE = "fixture-verified"
 FIDELITY_MODELED = "modeled"
 FIDELITY_TIERS: tuple[str, ...] = (FIDELITY_LIVE, FIDELITY_FIXTURE, FIDELITY_MODELED)
 
+# Managed-policy status (M29 EXT-7): the honest state of a hook-based recorder
+# under Claude Code managed settings (`allowManagedHooksOnly`, etc.).
+MANAGED_EFFECTIVE = "effective"
+MANAGED_BLOCKED = "blocked"
+MANAGED_UNKNOWN = "unknown"
+MANAGED_NA = "n/a"
+MANAGED_POLICY_STATUSES: tuple[str, ...] = (
+    MANAGED_EFFECTIVE,
+    MANAGED_BLOCKED,
+    MANAGED_UNKNOWN,
+    MANAGED_NA,
+)
+
 
 @dataclass(frozen=True)
 class HarnessRange:
@@ -58,6 +71,25 @@ class HarnessInfo:
     invocation: str
     notes: str = ""
     protocol: str = ""
+    managed_policy: str = MANAGED_NA
+
+
+@dataclass(frozen=True)
+class FrameworkRow:
+    """One instrumentation-framework row (an input WS-D/FWK-1 populates).
+
+    Frameworks are not shipped harness adapters, so they never enter ``SHIPPED``
+    (the conformance registry's single source of truth). The generator renders
+    them alongside the adapter rows once WS-D fills them in.
+    """
+
+    name: str
+    tier: str
+    fidelity: str
+    invocation: str
+    populated_by: str
+    notes: str = ""
+    managed_policy: str = MANAGED_NA
 
 
 # Adapter metadata registry: the generated table's single source of truth. Every
@@ -69,7 +101,11 @@ SHIPPED: dict[str, HarnessInfo] = {
         tested=HarnessRange("2.0", "2.x"),
         fidelity=FIDELITY_LIVE,
         invocation="native hooks (`agentwatch init`)",
-        notes="PreToolUse/PostToolUse + local daemon",
+        notes=(
+            "PreToolUse/PostToolUse + local daemon; under `allowManagedHooksOnly` a "
+            "user/project install is blocked — managed hook/plugin path (DEP-1)"
+        ),
+        managed_policy=MANAGED_BLOCKED,
     ),
     "cursor": HarnessInfo(
         harness="cursor",
@@ -80,6 +116,7 @@ SHIPPED: dict[str, HarnessInfo] = {
         notes=(
             "full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending"
         ),
+        managed_policy=MANAGED_UNKNOWN,
     ),
     "codex-cli": HarnessInfo(
         harness="codex-cli",
@@ -127,9 +164,48 @@ SHIPPED: dict[str, HarnessInfo] = {
     ),
 }
 
+# Instrumentation-framework rows (input for WS-D / FWK-1, #446). These are not
+# shipped harness adapters, so they stay out of ``SHIPPED``; the generator
+# renders them alongside adapter rows once WS-D fills in recipes + mappings.
+FRAMEWORKS: dict[str, FrameworkRow] = {
+    "google-adk": FrameworkRow(
+        name="google-adk",
+        tier="Tier-2",
+        fidelity=FIDELITY_MODELED,
+        invocation="instrument() / OTel GenAI",
+        populated_by="WS-D (FWK-1, #446)",
+        notes="recipe + attribute mapping pending",
+    ),
+    "strands": FrameworkRow(
+        name="strands",
+        tier="Tier-2",
+        fidelity=FIDELITY_MODELED,
+        invocation="instrument() / OTel GenAI",
+        populated_by="WS-D (FWK-1, #446)",
+        notes="recipe + attribute mapping pending",
+    ),
+    "openai-agents-sdk": FrameworkRow(
+        name="openai-agents-sdk",
+        tier="Tier-2",
+        fidelity=FIDELITY_MODELED,
+        invocation="instrument() / OpenInference",
+        populated_by="WS-D (FWK-1, #446)",
+        notes="recipe + attribute mapping pending",
+    ),
+    "claude-agent-sdk": FrameworkRow(
+        name="claude-agent-sdk",
+        tier="Tier-2",
+        fidelity=FIDELITY_MODELED,
+        invocation="instrument() / headless",
+        populated_by="WS-D (FWK-1, #446)",
+        notes="recipe + attribute mapping pending",
+    ),
+}
+
 _TABLE_HEADER = (
-    "| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |\n"
-    "|---|---|---|---|---|---|---|"
+    "| Harness | Tier | Tested range | Protocol | Fidelity | Managed policy | Invocation "
+    "| Notes |\n"
+    "|---|---|---|---|---|---|---|---|"
 )
 
 
@@ -139,13 +215,21 @@ def range_for(harness: str) -> HarnessRange:
 
 
 def render_table() -> str:
-    """Render the deterministic compatibility table (sorted by harness id)."""
+    """Render the deterministic compatibility table (shipped adapters + frameworks)."""
     lines = [_TABLE_HEADER]
     for harness in sorted(SHIPPED):
         info = SHIPPED[harness]
         lines.append(
             f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
-            f"{info.protocol or '—'} | {info.fidelity} | {info.invocation} | {info.notes} |"
+            f"{info.protocol or '—'} | {info.fidelity} | {info.managed_policy} | "
+            f"{info.invocation} | {info.notes} |"
+        )
+    for name in sorted(FRAMEWORKS):
+        row = FRAMEWORKS[name]
+        lines.append(
+            f"| `{row.name}` | {row.tier} | modeled | — | {row.fidelity} | "
+            f"{row.managed_policy} | {row.invocation} | {row.notes} "
+            f"(populated by {row.populated_by}) |"
         )
     return "\n".join(lines)
 

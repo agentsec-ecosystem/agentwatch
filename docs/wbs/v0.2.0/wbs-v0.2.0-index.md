@@ -70,11 +70,11 @@ Exit criteria · Design docs).
 > `mypy --strict` clean. **Re-pointed (blocked, declared):** UI-1 → M30 (console), XHT-2 → M31 (field tests).
 > Milestone closed 2026-10-06.
 >
-> **Progress:** 🚧 **M27 (Surfaces) in progress** (2026-10-06) — **done:** MCP-1..6 (#333–#338), GEM-2 (#342),
-> DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)**, **XHT-3
-> (#352)**, **LOG-1 (#340)**, UI-2 (#431), A11Y-1 (#432), RUN-1 (#433), TUT-1 (#434), 27.T (#377),
-> 27.D (#378). **Partial:** DET-4 (#343), LG-1 (#348). **Blocked (declared):** CCA-1 (#341), WIN-1 (#350).
-> Open: 27.R (#379). Milestone gate green at HEAD.
+> **Progress:** 🚧 **M27 (Surfaces) in progress** (2026-10-06) — **done (26):** MCP-1..6 (#333–#338), GEM-2
+> (#342), DET-4 (#343), DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-1 (#348), LG-2 (#349), EXA-1
+> (#351), COD-1 (#339), XHT-3 (#352), LOG-1 (#340), CCA-1 (#341), UI-2 (#431), A11Y-1 (#432), RUN-1 (#433),
+> TUT-1 (#434), 27.T (#377), 27.D (#378). **Blocked (declared):** WIN-1 (#350, needs a Windows host). Open:
+> 27.R (#379). Milestone gate green at HEAD.
 
 ## Track → ticket map
 

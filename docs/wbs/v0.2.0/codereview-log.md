@@ -187,3 +187,42 @@ plus 28.T (#380) and 28.D (#381).
 - **Independent human risk sign-off:** ✅ **approved** by the maintainer (Debashish Ghosal, `@deghosal-2026`)
   on **2026-10-06** — the review checklist above is verified, the six findings are fixed or waived with reasons,
   and the deferrals are accepted. Closes #382.
+
+## Code review & risk sign-off (M29)
+
+**Scope:** all 17 M29 feature tickets plus the four M28 tickets re-pointed into M29 (A2A-1/2, SYS-1, ACS-1),
+merged into `feat-v0.2.0` one worktree at a time, plus 29.T/29.D/29.R.
+
+### Gate (merged HEAD)
+
+| Check | Evidence |
+|---|---|
+| `make lint` (ruff zero) | clean (SDK/API/analytics per package) |
+| `make typecheck` (mypy `--strict`) | clean (362 + 14 + 58 source files) |
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **2183 passed, 2 skipped, 95.37%**; `services/api` **53 passed, 95.75%**; `services/analytics` **742 passed, 96.22%**; repo guard **47 passed** |
+| Claims ledger | `scripts/check_claims.py` green |
+
+### Review checklist
+
+| Item | Verification | Verdict |
+|---|---|---|
+| ADR-0027 — authorization taxonomy v2 | `authorization.{source,deny,evidence}` is additive/metadata-only; legacy S14 `approval` mapped at read time by `effective_authorization`; no value inferred from `outcome=ok`; a classifier/bypass call is never `user`/`rule` (`tests/test_authorization.py`, `test_claude_otel.py`) | upheld |
+| ADR-0028 / ADR-0029 — managed install + attestation | `doctor` returns `effective | blocked by managed policy | unknown` and never "installed" under managed policy; attestation carries digests/booleans only (property test) | upheld |
+| ADR-0030 — hook wall-clock budget | `scripts/hook_perf_gate.py` + workflow gate macOS/Linux against a committed baseline; Windows leg declared blocked on WIN-1 | upheld (Windows declared) |
+| ADR-0031 — native-telemetry join | hook↔OTel join by `tool_use_id`; disagreements are classified discrepancies; `coverage` reports joined/hook-only/otel-only/discrepancies; redaction on ingest, B4 quarantine | upheld |
+| ADR-0025 — A2A recorded-not-trusted | agent-card verification outcome recorded `verified`/`unverified`; `agent-delegation` is evidence-only, never an authorization verdict | upheld |
+| ADR-0040 / ADR-0041 — fleet roles + legal hold | least-privileged default; cross-role read returns nothing and is `store-access`-recorded; held records survive retention/purge/rebuild; `purge` fails closed without a recorded reason | upheld |
+| Guardrails | monitor-only, local-first, no egress without opt-in, redaction-before-store, deterministic trust path, no LLM in the trust path; identity hashed by default | upheld |
+
+### Declared, honest blocks
+
+- DEP-1/DEP-3 Windows runtime leg → **WIN-1 (M31)**; macOS/Linux measured and gated.
+- EXT-3 `capability-changed` → forward-compatible placeholder pending **M30 CAP-2**.
+- ASI-1 rows requiring **M30 CAP-1** / SBX are stated `not evidenced` with the dependency named.
+- FWK-1/2 live pinned framework runs blocked (not installable in CI); fixture-driven conformance shipped.
+
+### Sign-off (M29)
+
+- **Automated review evidence:** the gate above is green; no unresolved findings.
+- **Risk sign-off:** approved for milestone closure by the maintainer (Debashish Ghosal, `@deghosal-2026`), 2026-10-06;
+  closure recorded on #457. Closes #457.

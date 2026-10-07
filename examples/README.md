@@ -9,6 +9,7 @@ explicitly **illustrative** (it needs an external service; the reason is listed)
 | [`security_event_consumer.py`](security_event_consumer.py) | security-event stream (hook/daemon) | **executed** | Validates each event against the shipped schema; copy-and-adapt consumer. |
 | [`ocsf_consumer.py`](ocsf_consumer.py) | OCSF 1.5.0 → SIEM | **executed** | Validates the OCSF envelope from `export-session --format ocsf`. |
 | [`demo-agent/`](demo-agent/) | raw Python SDK → OTLP → collector | illustrative | Needs the `langgraph`/OTLP extras and a collector; see its README. |
+| [`framework_recipes.py`](framework_recipes.py) | ADK / Strands / OpenAI Agents (OpenInference) / Claude Agent SDK → OTel ingest | **executed** | Prints the certified recipes and replays a fixture through `agentwatch ingest`; live framework run BLOCKED here (tier `modeled`). |
 
 The gallery index is enforced by `packages/python-sdk/tests/test_examples_gallery.py`:
 a recipe must exist, be indexed here, and — if marked **executed** — pass in CI.

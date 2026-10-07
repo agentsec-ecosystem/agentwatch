@@ -1,0 +1,64 @@
+{
+  "framework": "claude-agent-sdk",
+  "pinned": "0.1.0",
+  "identity": "reviewer",
+  "tokens": 90,
+  "cost_usd": 0.0012,
+  "mapped": [
+    "gen_ai.operation.name",
+    "gen_ai.tool.name",
+    "gen_ai.agent.name",
+    "gen_ai.usage.total_tokens",
+    "gen_ai.usage.cost",
+    "service.name"
+  ],
+  "expected_unmapped": ["claude_agent_sdk.extra", "tool_use_id"],
+  "expected": [
+    {"tool": "invoke_agent", "step_type": "observe"},
+    {"tool": "read_file", "step_type": "observe"}
+  ],
+  "input": {
+    "resourceSpans": [
+      {
+        "resource": {
+          "attributes": [
+            {"key": "service.name", "value": {"stringValue": "claude-agent-sdk-app"}}
+          ]
+        },
+        "scopeSpans": [
+          {
+            "spans": [
+              {
+                "traceId": "cca-trace-1",
+                "spanId": "cca-span-1",
+                "name": "invoke_agent reviewer",
+                "startTimeUnixNano": "1767000300000000000",
+                "endTimeUnixNano": "1767000301000000000",
+                "attributes": [
+                  {"key": "gen_ai.operation.name", "value": {"stringValue": "invoke_agent"}},
+                  {"key": "gen_ai.agent.name", "value": {"stringValue": "reviewer"}},
+                  {"key": "gen_ai.conversation.id", "value": {"stringValue": "sess-claude-agent-1"}},
+                  {"key": "gen_ai.usage.total_tokens", "value": {"intValue": "90"}},
+                  {"key": "gen_ai.usage.cost", "value": {"doubleValue": 0.0012}}
+                ]
+              },
+              {
+                "traceId": "cca-trace-1",
+                "spanId": "cca-span-2",
+                "name": "execute_tool read_file",
+                "startTimeUnixNano": "1767000301000000000",
+                "endTimeUnixNano": "1767000301500000000",
+                "attributes": [
+                  {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+                  {"key": "gen_ai.tool.name", "value": {"stringValue": "read_file"}},
+                  {"key": "tool_use_id", "value": {"stringValue": "toolu_123"}},
+                  {"key": "claude_agent_sdk.extra", "value": {"stringValue": "x"}}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

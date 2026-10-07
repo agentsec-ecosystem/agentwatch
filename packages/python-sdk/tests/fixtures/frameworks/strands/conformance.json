@@ -1,0 +1,66 @@
+{
+  "framework": "strands",
+  "pinned": "1.0.0",
+  "identity": "research",
+  "tokens": 200,
+  "cost_usd": 0.004,
+  "mapped": [
+    "gen_ai.operation.name",
+    "gen_ai.tool.name",
+    "gen_ai.agent.name",
+    "gen_ai.usage.total_tokens",
+    "gen_ai.usage.cost",
+    "service.name"
+  ],
+  "expected_unmapped": ["strands.agent.id"],
+  "expected": [
+    {"tool": "invoke_agent", "step_type": "observe"},
+    {"tool": "web_search", "step_type": "observe"}
+  ],
+  "input": {
+    "resourceSpans": [
+      {
+        "resource": {
+          "attributes": [
+            {"key": "service.name", "value": {"stringValue": "strands-research"}},
+            {"key": "telemetry.sdk.name", "value": {"stringValue": "opentelemetry"}}
+          ]
+        },
+        "scopeSpans": [
+          {
+            "spans": [
+              {
+                "traceId": "strands-trace-1",
+                "spanId": "strands-span-1",
+                "name": "invoke_agent research",
+                "startTimeUnixNano": "1767000100000000000",
+                "endTimeUnixNano": "1767000101000000000",
+                "attributes": [
+                  {"key": "gen_ai.operation.name", "value": {"stringValue": "invoke_agent"}},
+                  {"key": "gen_ai.agent.name", "value": {"stringValue": "research"}},
+                  {"key": "gen_ai.provider.name", "value": {"stringValue": "bedrock"}},
+                  {"key": "gen_ai.request.model", "value": {"stringValue": "anthropic.claude-3-5"}},
+                  {"key": "gen_ai.conversation.id", "value": {"stringValue": "strands-session-1"}},
+                  {"key": "gen_ai.usage.total_tokens", "value": {"intValue": "200"}},
+                  {"key": "gen_ai.usage.cost", "value": {"doubleValue": 0.004}},
+                  {"key": "strands.agent.id", "value": {"stringValue": "agent-7"}}
+                ]
+              },
+              {
+                "traceId": "strands-trace-1",
+                "spanId": "strands-span-2",
+                "name": "execute_tool web_search",
+                "startTimeUnixNano": "1767000101000000000",
+                "endTimeUnixNano": "1767000101500000000",
+                "attributes": [
+                  {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+                  {"key": "gen_ai.tool.name", "value": {"stringValue": "web_search"}}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

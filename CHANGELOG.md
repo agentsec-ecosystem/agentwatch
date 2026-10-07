@@ -6,6 +6,18 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Expanded I (M29):
+  - FWK-1: certified framework recipes (Google ADK, Strands Agents, OpenAI Agents SDK via
+    OpenInference, Claude Agent SDK) route native/community OTel into the **shared**
+    `agentwatch ingest --format otel` path. `agentwatch.ingest` now maps OTel GenAI **and**
+    OpenInference attributes with an explicit, sorted `unmapped` bucket (also surfaced on
+    `IngestStats.unmapped`), takes run identity from resource attributes, and stamps the
+    ingestion `source` on the record's `producer`. Recipes are pinned, held to O1 conformance
+    packs, and carry a `modeled` compatibility-matrix row; the frameworks are not installable
+    in the CI sandbox so the live run is **BLOCKED** (never faked). New:
+    `agentwatch/frameworks.py`, `docs/reference/framework-recipes.md`,
+    `examples/framework_recipes.py`, `scripts/check_framework_drift.py` +
+    `.github/workflows/framework-drift.yml` (#446).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

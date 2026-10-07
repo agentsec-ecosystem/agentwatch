@@ -127,6 +127,51 @@ SHIPPED: dict[str, HarnessInfo] = {
     ),
 }
 
+# FWK-1 certified framework recipes (M29, PRD 51). These reach agentwatch through
+# the shared OTel ingest path rather than a JSON-RPC adapter, so they are a
+# separate registry from ``SHIPPED`` and carry their own honest tier. No recipe is
+# live-verified: the frameworks are not installable on the build host.
+FRAMEWORKS: dict[str, HarnessInfo] = {
+    "adk": HarnessInfo(
+        harness="adk",
+        tier="Tier-2",
+        tested=HarnessRange("1.5.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Google ADK native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "strands": HarnessInfo(
+        harness="strands",
+        tier="Tier-2",
+        tested=HarnessRange("1.0.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Strands Agents native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "openai-agents": HarnessInfo(
+        harness="openai-agents",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OpenInference → OTLP (`agentwatch ingest --format otel`)",
+        notes=(
+            "OpenAI Agents SDK via OpenInference; fixture-driven, live run BLOCKED "
+            "(not installable here)"
+        ),
+    ),
+    "claude-agent-sdk": HarnessInfo(
+        harness="claude-agent-sdk",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="shared Claude Code OTel (`ingest --format otel`)",
+        notes="Routes through 29.CCO-1 (WS-A); tool_use_id join owned by CCO-1, live run BLOCKED",
+    ),
+}
+
+# Every row the generated table renders: shipped adapters + framework recipes.
+ALL_ROWS: dict[str, HarnessInfo] = {**SHIPPED, **FRAMEWORKS}
+
 _TABLE_HEADER = (
     "| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |\n"
     "|---|---|---|---|---|---|---|"
@@ -141,8 +186,8 @@ def range_for(harness: str) -> HarnessRange:
 def render_table() -> str:
     """Render the deterministic compatibility table (sorted by harness id)."""
     lines = [_TABLE_HEADER]
-    for harness in sorted(SHIPPED):
-        info = SHIPPED[harness]
+    for harness in sorted(ALL_ROWS):
+        info = ALL_ROWS[harness]
         lines.append(
             f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
             f"{info.protocol or '—'} | {info.fidelity} | {info.invocation} | {info.notes} |"

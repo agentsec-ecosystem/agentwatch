@@ -1,0 +1,41 @@
+# Framework recipe drift — the FWK-1 certified recipes pin one framework version
+# each (M29 #446). A framework release can move the pinned version or rename an OTel
+# attribute; this job surfaces the version divergence for a human. On a machine
+# with the frameworks installed, refresh
+# packages/python-sdk/tests/fixtures/frameworks/upstream.json from the package
+# index and re-run the conformance pack before promoting the tier.
+name: Framework drift
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Check framework recipe drift
+        id: drift
+        continue-on-error: true
+        run: python scripts/check_framework_drift.py
+      - name: Open an issue on drift
+        if: steps.drift.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Framework recipe drift detected" \
+            --body "The nightly FWK-1 framework-drift check found a pinned version divergence. Review whether the framework's OTel attributes changed, update packages/python-sdk/tests/fixtures/frameworks/upstream.json and the recipe pin in agentwatch/frameworks.py, and re-run tests/test_frameworks.py. Live tiers are only promoted after a real pinned run." \
+            --label "0.2.0,enhancement"

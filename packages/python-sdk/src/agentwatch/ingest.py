@@ -45,6 +45,100 @@ HARNESS_ID = "otel"
 # Foreign OTel/NDJSON traces are ingested, not live-captured (M15 S26).
 INGEST_PRODUCER = Producer(kind=ProducerKind.INGEST, name=HARNESS_ID)
 
+# Resource attributes are carried alongside a span so framework recipes can take
+# run identity from the resource envelope (FWK-1).
+_RESOURCE_ATTRIBUTES_KEY = "__resource_attributes__"
+
+# The OTel GenAI attributes agentwatch consumes (semconv-pinned, M22 W4; FWK-1).
+GENAI_ATTRIBUTES: frozenset[str] = frozenset(
+    {
+        "gen_ai.operation.name",
+        "gen_ai.tool.name",
+        "gen_ai.agent.name",
+        "gen_ai.agent.version",
+        "gen_ai.conversation.id",
+        "gen_ai.request.model",
+        "gen_ai.provider.name",
+        "gen_ai.usage.total_tokens",
+        "gen_ai.usage.prompt_tokens",
+        "gen_ai.usage.input_tokens",
+        "gen_ai.usage.completion_tokens",
+        "gen_ai.usage.output_tokens",
+        "gen_ai.usage.cost",
+        "gen_ai.usage.total_cost",
+        "gen_ai.tool.args",
+        "gen_ai.tool.result",
+        "gen_ai.response.content",
+        "cwd",
+    }
+)
+
+# The Arize OpenInference vocabulary the OpenAI Agents SDK (and other community
+# instrumentors) emits; "complementary to OpenTelemetry" (FWK-1).
+OPENINFERENCE_ATTRIBUTES: frozenset[str] = frozenset(
+    {
+        "openinference.span.kind",
+        "tool.name",
+        "tool.description",
+        "input.value",
+        "input.mime_type",
+        "output.value",
+        "output.mime_type",
+        "llm.model_name",
+        "llm.provider",
+        "llm.system",
+        "llm.token_count.prompt",
+        "llm.token_count.completion",
+        "llm.token_count.total",
+        "llm.cost.prompt",
+        "llm.cost.completion",
+        "llm.cost.total",
+        "llm.invocation_parameters",
+        "retrieval.documents",
+        "agent.name",
+    }
+)
+
+# Standard resource attributes the transcoder understands (identity/telemetry).
+RESOURCE_ATTRIBUTES: frozenset[str] = frozenset(
+    {
+        "service.name",
+        "service.version",
+        "telemetry.sdk.name",
+        "telemetry.sdk.language",
+        "telemetry.sdk.version",
+        "deployment.environment",
+        "host.name",
+        "process.pid",
+        "process.runtime.name",
+    }
+)
+
+KNOWN_ATTRIBUTES: frozenset[str] = (
+    GENAI_ATTRIBUTES | OPENINFERENCE_ATTRIBUTES | RESOURCE_ATTRIBUTES
+)
+
+
+@dataclass(frozen=True)
+class AttributeCoverage:
+    """Which span attributes the transcoder consumed, and which it did not.
+
+    ``unmapped`` is explicit so a framework attribute agentwatch does not
+    understand is surfaced for a human (and a drift job) rather than silently
+    dropped (FWK-1).
+    """
+
+    mapped: tuple[str, ...] = ()
+    unmapped: tuple[str, ...] = ()
+
+
+def map_attributes(attrs: Mapping[str, Any]) -> AttributeCoverage:
+    """Split ``attrs`` into the keys agentwatch maps and the explicit unmapped bucket."""
+    known = [key for key in attrs if key in KNOWN_ATTRIBUTES]
+    unknown = [key for key in attrs if key not in KNOWN_ATTRIBUTES]
+    return AttributeCoverage(mapped=tuple(sorted(known)), unmapped=tuple(sorted(unknown)))
+
+
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
     PrivacyMode.TRUNCATED: RecordPrivacyMode.TRUNCATED,
@@ -76,6 +170,8 @@ class IngestStats:
     skipped: int
     duplicates: int
     problems: tuple[IngestProblem, ...] = ()
+    # Framework/vendor attributes the transcoder did not map (explicit, FWK-1).
+    unmapped: tuple[str, ...] = ()
 
 
 # ---------------------------------------------------------------------------
@@ -151,6 +247,12 @@ def _flatten_spans(payload: Any) -> list[Mapping[str, Any]]:
         for resource_span in resource:
             if not isinstance(resource_span, Mapping):
                 continue
+            resource = resource_span.get("resource")
+            resource_attrs = (
+                _attributes(resource.get("attributes"))
+                if isinstance(resource, Mapping)
+                else {}
+            )
             scopes = resource_span.get("scopeSpans") or resource_span.get(
                 "instrumentationLibrarySpans"
             )
@@ -158,7 +260,15 @@ def _flatten_spans(payload: Any) -> list[Mapping[str, Any]]:
                 continue
             for scope in scopes:
                 if isinstance(scope, Mapping) and isinstance(scope.get("spans"), list):
-                    spans.extend(s for s in scope["spans"] if isinstance(s, Mapping))
+                    for span in scope["spans"]:
+                        if not isinstance(span, Mapping):
+                            continue
+                        if resource_attrs:
+                            merged = dict(span)
+                            merged[_RESOURCE_ATTRIBUTES_KEY] = resource_attrs
+                            spans.append(merged)
+                        else:
+                            spans.append(span)
         return spans
     if any(key in payload for key in ("name", "traceId", "spanId", "startTimeUnixNano")):
         return [payload]
@@ -198,26 +308,33 @@ def _capture(
 # Transcoding
 # ---------------------------------------------------------------------------
 
-# Gateway-reported exact cost attributes (source-stamped, GWY-2).
+# Gateway-reported exact cost attributes (source-stamped, GWY-2) plus the
+# OpenInference ``llm.cost.*`` vocabulary (FWK-1).
 _COST_KEYS = (
     "gen_ai.usage.cost",
     "gen_ai.usage.total_cost",
     "portkey.cost",
     "litellm.cost",
     "llm.cost",
+    "llm.cost.total",
 )
 
 
 def _usage_tokens(attrs: Mapping[str, Any]) -> int | None:
-    total = attrs.get("gen_ai.usage.total_tokens")
-    if total is not None:
-        try:
-            return int(total)
-        except (TypeError, ValueError):
-            pass
-    prompt = attrs.get("gen_ai.usage.prompt_tokens", attrs.get("gen_ai.usage.input_tokens"))
+    for key in ("gen_ai.usage.total_tokens", "llm.token_count.total"):
+        total = attrs.get(key)
+        if total is not None:
+            try:
+                return int(total)
+            except (TypeError, ValueError):
+                pass
+    prompt = attrs.get(
+        "gen_ai.usage.prompt_tokens",
+        attrs.get("gen_ai.usage.input_tokens", attrs.get("llm.token_count.prompt")),
+    )
     completion = attrs.get(
-        "gen_ai.usage.completion_tokens", attrs.get("gen_ai.usage.output_tokens")
+        "gen_ai.usage.completion_tokens",
+        attrs.get("gen_ai.usage.output_tokens", attrs.get("llm.token_count.completion")),
     )
     if prompt is None and completion is None:
         return None
@@ -239,16 +356,59 @@ def _usage_cost(attrs: Mapping[str, Any]) -> float | None:
     return None
 
 
+def _first_str(attrs: Mapping[str, Any], *keys: str) -> str | None:
+    for key in keys:
+        value = attrs.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return None
 
-def _span_to_record(
+
+def _framework_tool_name(
+    kind: str | None, attrs: Mapping[str, Any], operation: Any
+) -> Any:
+    """Map an OpenInference span kind to a tool/step name (FWK-1).
+
+    GenAI spans carry ``gen_ai.*``; OpenInference spans carry
+    ``openinference.span.kind`` (AGENT/LLM/TOOL/CHAIN/RETRIEVER).
+    """
+    if kind == "LLM":
+        return attrs.get("llm.model_name") or attrs.get("gen_ai.request.model") or "llm"
+    if kind == "AGENT":
+        return _first_str(attrs, "agent.name", "gen_ai.agent.name") or "agent"
+    if kind == "TOOL":
+        return attrs.get("tool.name")
+    if kind == "RETRIEVER":
+        return "retriever"
+    return operation
+
+
+@dataclass(frozen=True)
+class SpanMapping:
+    """One span's record plus the attribute coverage it was built from."""
+
+    record: AgentRecord
+    coverage: AttributeCoverage
+
+
+def _span_mapping(
     span: Mapping[str, Any],
     *,
     source: str,
     redaction: RedactionConfig | None,
-) -> AgentRecord:
-    attrs = _attributes(span.get("attributes"))
+) -> SpanMapping:
+    span_attrs = _attributes(span.get("attributes"))
+    resource = span.get(_RESOURCE_ATTRIBUTES_KEY)
+    resource_attrs = dict(resource) if isinstance(resource, Mapping) else {}
+    # Span attributes win over resource attributes (OTel precedence).
+    attrs: dict[str, Any] = {**resource_attrs, **span_attrs}
+
     operation = attrs.get("gen_ai.operation.name")
-    tool_name = attrs.get("gen_ai.tool.name") or operation
+    kind = attrs.get("openinference.span.kind")
+    kind = kind.upper() if isinstance(kind, str) else None
+    tool_name = attrs.get("gen_ai.tool.name") or attrs.get("tool.name")
+    if not isinstance(tool_name, str) or not tool_name:
+        tool_name = _framework_tool_name(kind, attrs, operation)
     if not isinstance(tool_name, str) or not tool_name:
         tool_name = span.get("name") if isinstance(span.get("name"), str) else None
 
@@ -287,16 +447,19 @@ def _span_to_record(
         tool_kwargs["privacy_mode"] = privacy_mode
 
     duration = (end - start).total_seconds() * 1000 if end is not None else None
+    identity = _first_str(attrs, "gen_ai.agent.name", "agent.name", "service.name") or HARNESS_ID
     record = AgentRecord(
         session_id=session_id,
-        agent=AgentIdentity(identity=str(attrs.get("gen_ai.agent.name") or HARNESS_ID)),
+        agent=AgentIdentity(identity=identity),
         tool=ToolCall(**tool_kwargs),
         outcome=outcome,
         started_at=start,
         trace_id=trace_id,
         span_id=span_id,
         harness=HARNESS_ID,
-        producer=INGEST_PRODUCER,
+        # The source is stamped on the producer so an ingested framework stream is
+        # distinguishable from the default OTel stream (integrity distinction).
+        producer=Producer(kind=ProducerKind.INGEST, name=source),
         project=str(attrs["cwd"]) if isinstance(attrs.get("cwd"), str) else None,
         ended_at=end,
         duration_ms=duration,
@@ -306,7 +469,46 @@ def _span_to_record(
         cost_usd=_usage_cost(attrs),
     )
     validate_record(record.to_dict())
-    return record
+    return SpanMapping(record=record, coverage=map_attributes(attrs))
+
+
+def _span_to_record(
+    span: Mapping[str, Any],
+    *,
+    source: str,
+    redaction: RedactionConfig | None,
+) -> AgentRecord:
+    """The record half of :func:`_span_mapping` (back-compat internal helper)."""
+    return _span_mapping(span, source=source, redaction=redaction).record
+
+
+def transcode_otel_detailed(
+    payload: Any,
+    *,
+    source: str = "otel",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem], tuple[str, ...]]:
+    """Transcode one OTLP payload into records + problems + the unmapped bucket.
+
+    ``unmapped`` lists every attribute key (GenAI or OpenInference) the transcoder
+    did not consume, so a framework/vendor addition is explicit rather than
+    silently dropped (FWK-1).
+    """
+    spans = _flatten_spans(payload)
+    if not spans:
+        return [], [IngestProblem(source, "no OTel spans found")], ()
+    records: list[AgentRecord] = []
+    problems: list[IngestProblem] = []
+    unmapped: set[str] = set()
+    for index, span in enumerate(spans):
+        try:
+            mapping = _span_mapping(span, source=source, redaction=redaction)
+        except (IngestError, ValueError, KeyError, TypeError) as exc:
+            problems.append(IngestProblem(f"{source}#{index}", f"unmappable span: {exc}"))
+        else:
+            records.append(mapping.record)
+            unmapped.update(mapping.coverage.unmapped)
+    return records, problems, tuple(sorted(unmapped))
 
 
 def transcode_otel(
@@ -316,28 +518,20 @@ def transcode_otel(
     redaction: RedactionConfig | None = None,
 ) -> tuple[list[AgentRecord], list[IngestProblem]]:
     """Transcode one OTLP payload into records + problems (never raises per span)."""
-    spans = _flatten_spans(payload)
-    if not spans:
-        return [], [IngestProblem(source, "no OTel spans found")]
-    records: list[AgentRecord] = []
-    problems: list[IngestProblem] = []
-    for index, span in enumerate(spans):
-        try:
-            records.append(_span_to_record(span, source=source, redaction=redaction))
-        except (IngestError, ValueError, KeyError, TypeError) as exc:
-            problems.append(IngestProblem(f"{source}#{index}", f"unmappable span: {exc}"))
+    records, problems, _ = transcode_otel_detailed(payload, source=source, redaction=redaction)
     return records, problems
 
 
-def transcode_ndjson(
+def transcode_ndjson_detailed(
     text: str,
     *,
     source: str = "ndjson",
     redaction: RedactionConfig | None = None,
-) -> tuple[list[AgentRecord], list[IngestProblem]]:
-    """Transcode newline-delimited JSON (one OTLP payload or span per line)."""
+) -> tuple[list[AgentRecord], list[IngestProblem], tuple[str, ...]]:
+    """Newline-delimited JSON with the explicit unmapped bucket (FWK-1)."""
     records: list[AgentRecord] = []
     problems: list[IngestProblem] = []
+    unmapped: set[str] = set()
     for index, line in enumerate(text.splitlines()):
         line = line.strip()
         if not line:
@@ -347,9 +541,25 @@ def transcode_ndjson(
         except json.JSONDecodeError as exc:
             problems.append(IngestProblem(f"{source}#{index}", f"invalid JSON: {exc}"))
             continue
-        found, probs = transcode_otel(payload, source=f"{source}#{index}", redaction=redaction)
+        found, probs, unknown = transcode_otel_detailed(
+            payload, source=f"{source}#{index}", redaction=redaction
+        )
         records.extend(found)
         problems.extend(probs)
+        unmapped.update(unknown)
+    return records, problems, tuple(sorted(unmapped))
+
+
+def transcode_ndjson(
+    text: str,
+    *,
+    source: str = "ndjson",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem]]:
+    """Transcode newline-delimited JSON (one OTLP payload or span per line)."""
+    records, problems, _ = transcode_ndjson_detailed(
+        text, source=source, redaction=redaction
+    )
     return records, problems
 
 
@@ -454,6 +664,22 @@ def _decode_otlp_protobuf(data: bytes) -> Mapping[str, Any]:
     return cast("Mapping[str, Any]", _ids_to_hex(payload))
 
 
+def transcode_otlp_protobuf_detailed(
+    data: bytes,
+    *,
+    source: str = "otlp",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem], tuple[str, ...]]:
+    """OTLP protobuf with the explicit unmapped bucket (FWK-1)."""
+    try:
+        payload = _decode_otlp_protobuf(data)
+    except IngestError as exc:
+        return [], [IngestProblem(source, str(exc))], ()
+    except Exception as exc:  # protobuf DecodeError and friends, never raised on
+        return [], [IngestProblem(source, f"undecodable OTLP protobuf: {exc}")], ()
+    return transcode_otel_detailed(payload, source=source, redaction=redaction)
+
+
 def transcode_otlp_protobuf(
     data: bytes,
     *,
@@ -461,13 +687,10 @@ def transcode_otlp_protobuf(
     redaction: RedactionConfig | None = None,
 ) -> tuple[list[AgentRecord], list[IngestProblem]]:
     """Transcode one bare OTLP protobuf request; undecodable bytes are a problem."""
-    try:
-        payload = _decode_otlp_protobuf(data)
-    except IngestError as exc:
-        return [], [IngestProblem(source, str(exc))]
-    except Exception as exc:  # protobuf DecodeError and friends, never raised on
-        return [], [IngestProblem(source, f"undecodable OTLP protobuf: {exc}")]
-    return transcode_otel(payload, source=source, redaction=redaction)
+    records, problems, _ = transcode_otlp_protobuf_detailed(
+        data, source=source, redaction=redaction
+    )
+    return records, problems
 
 
 def iter_grpc_messages(stream: BinaryIO) -> Iterator[bytes]:
@@ -491,6 +714,24 @@ def iter_grpc_messages(stream: BinaryIO) -> Iterator[bytes]:
         yield body
 
 
+def transcode_grpc_chunks_detailed(
+    stream: BinaryIO,
+    *,
+    source: str = "otlp-grpc",
+    redaction: RedactionConfig | None = None,
+) -> Iterator[tuple[list[AgentRecord], list[IngestProblem], tuple[str, ...], bytes]]:
+    """Stream a gRPC-framed OTLP file as ``(records, problems, unmapped, raw)``."""
+    try:
+        messages = iter_grpc_messages(stream)
+        for index, body in enumerate(messages):
+            found, probs, unknown = transcode_otlp_protobuf_detailed(
+                body, source=f"{source}#{index}", redaction=redaction
+            )
+            yield found, probs, unknown, body
+    except IngestError as exc:
+        yield [], [IngestProblem(source, str(exc))], (), b""
+
+
 def transcode_grpc_chunks(
     stream: BinaryIO,
     *,
@@ -498,15 +739,10 @@ def transcode_grpc_chunks(
     redaction: RedactionConfig | None = None,
 ) -> Iterator[tuple[list[AgentRecord], list[IngestProblem], bytes]]:
     """Stream a gRPC-framed OTLP file as ``(records, problems, raw)`` chunks."""
-    try:
-        messages = iter_grpc_messages(stream)
-        for index, body in enumerate(messages):
-            found, probs = transcode_otlp_protobuf(
-                body, source=f"{source}#{index}", redaction=redaction
-            )
-            yield found, probs, body
-    except IngestError as exc:
-        yield [], [IngestProblem(source, str(exc))], b""
+    for found, probs, _unknown, body in transcode_grpc_chunks_detailed(
+        stream, source=source, redaction=redaction
+    ):
+        yield found, probs, body
 
 
 # ---------------------------------------------------------------------------
@@ -528,6 +764,28 @@ def resolve_ingest_paths(target: Path) -> list[Path]:
     return [target]
 
 
+def transcode_detailed(
+    path: Path, *, fmt: str, source: str | None = None, redaction: RedactionConfig | None = None
+) -> tuple[list[AgentRecord], list[IngestProblem], tuple[str, ...]]:
+    """Read one source file and transcode it, with the explicit unmapped bucket."""
+    name = source or path.stem
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        return [], [IngestProblem(name, f"unreadable: {exc}")], ()
+    text = raw.decode("utf-8", errors="replace")
+    if fmt == "ndjson":
+        return transcode_ndjson_detailed(text, source=name, redaction=redaction)
+    if fmt == "aat":
+        records, problems = transcode_aat(text, source=name, redaction=redaction)
+        return records, problems, ()
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return transcode_otlp_protobuf_detailed(raw, source=name, redaction=redaction)
+    return transcode_otel_detailed(payload, source=name, redaction=redaction)
+
+
 def transcode(
     path: Path, *, fmt: str, source: str | None = None, redaction: RedactionConfig | None = None
 ) -> tuple[list[AgentRecord], list[IngestProblem]]:
@@ -536,21 +794,8 @@ def transcode(
     ``otel`` accepts JSON and, auto-detected, a bare OTLP protobuf
     ``ExportTraceServiceRequest``; the JSON path is unchanged.
     """
-    name = source or path.stem
-    try:
-        raw = path.read_bytes()
-    except OSError as exc:
-        return [], [IngestProblem(name, f"unreadable: {exc}")]
-    text = raw.decode("utf-8", errors="replace")
-    if fmt == "ndjson":
-        return transcode_ndjson(text, source=name, redaction=redaction)
-    if fmt == "aat":
-        return transcode_aat(text, source=name, redaction=redaction)
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError:
-        return transcode_otlp_protobuf(raw, source=name, redaction=redaction)
-    return transcode_otel(payload, source=name, redaction=redaction)
+    records, problems, _ = transcode_detailed(path, fmt=fmt, source=source, redaction=redaction)
+    return records, problems
 
 
 def run_ingest(
@@ -567,21 +812,27 @@ def run_ingest(
     Idempotent on ``(session_id, span_id)`` so re-ingesting the same trace does not
     inflate the store. Unmappable input is quarantined (when a log is given) and
     counted, never dropped silently. ``otlp-grpc`` streams frame by frame so a
-    large file is never fully loaded.
+    large file is never fully loaded. Attributes the transcoder did not map are
+    reported in ``unmapped`` (FWK-1).
     """
     files = 0
     records = 0
     skipped = 0
     duplicates = 0
     problems: list[IngestProblem] = []
+    unmapped: set[str] = set()
     existing = {(record.session_id, record.span_id) for record in store.records()}
 
     def _add(
-        found: Iterable[AgentRecord], probs: Iterable[IngestProblem], raw: bytes | str
+        found: Iterable[AgentRecord],
+        probs: Iterable[IngestProblem],
+        raw: bytes | str,
+        unknown: Iterable[str] = (),
     ) -> None:
         nonlocal records, skipped, duplicates
         probs = list(probs)
         problems.extend(probs)
+        unmapped.update(unknown)
         if quarantine is not None:
             for problem in probs:
                 quarantine.add(raw, reason=problem.reason)
@@ -603,17 +854,20 @@ def run_ingest(
         name = source or path.stem
         if fmt == "otlp-grpc":
             with path.open("rb") as handle:
-                for found, probs, raw in transcode_grpc_chunks(
+                for found, probs, unknown, raw in transcode_grpc_chunks_detailed(
                     handle, source=name, redaction=redaction
                 ):
-                    _add(found, probs, raw)
+                    _add(found, probs, raw, unknown)
             continue
-        found, probs = transcode(path, fmt=fmt, source=name, redaction=redaction)
-        _add(found, probs, path.read_bytes().decode("utf-8", errors="replace"))
+        found, probs, unknown = transcode_detailed(
+            path, fmt=fmt, source=name, redaction=redaction
+        )
+        _add(found, probs, path.read_bytes().decode("utf-8", errors="replace"), unknown)
     return IngestStats(
         files=files,
         records=records,
         skipped=skipped,
         duplicates=duplicates,
         problems=tuple(problems),
+        unmapped=tuple(sorted(unmapped)),
     )

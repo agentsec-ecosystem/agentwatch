@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "note": "Recorded upstream versions for the FWK-1 drift canary. Refresh from the package index on a machine with the frameworks installed; a pin that moves without refreshing this file is drift.",
+  "frameworks": {
+    "adk": "1.5.0",
+    "strands": "1.0.0",
+    "openai-agents": "0.1.0",
+    "claude-agent-sdk": "0.1.0"
+  }
+}

@@ -565,6 +565,19 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "Certified framework recipes (ADK, Strands, OpenAI Agents SDK via OpenInference, Claude Agent SDK) map OTel GenAI and OpenInference attributes through the shared ingest path with an explicit unmapped bucket and carry a compatibility-matrix tier; no live run is claimed until it is verified.",
+      "source": "docs/reference/framework-recipes.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_frameworks.py::test_recipe_transcodes_fixture_with_explicit_unmapped",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_every_recipe_declares_its_blocked_live_run",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_framework_rows_carry_a_tier_in_the_compatibility_matrix",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_framework_sdk_conformance_packs_conform",
+        "doc:docs/reference/framework-recipes.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

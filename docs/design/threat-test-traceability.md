@@ -27,3 +27,16 @@ Every new trust surface the v0.2.0 program introduces, traced to a regression te
 | Compliance-API pull | Explicit opt-in; pulls recorded as `store-access` | `test:packages/python-sdk/tests/test_store_access.py::test_record_store_access_appends_scope_and_kind` |
 | Identity-field abuse | Principals/delegation hashed by default in metadata-only | `test:packages/python-sdk/tests/test_identity.py::test_metadata_only_hashes_principal_and_chain` |
 | OTLP/gRPC streaming ingest | Bounded memory; no whole-stream load | `test:packages/python-sdk/tests/test_otlp_protobuf_ingest.py::test_large_grpc_stream_has_bounded_memory` |
+
+## v0.2.0 M27 surfaces (R5)
+
+The M27 surface expansion, traced to a regression test:
+
+| Surface | Control | Test |
+|---|---|---|
+| MCP unknown method / protocol drift | Reject with the method named; quarantine + harness-drift (S19), never silent | `test:packages/python-sdk/tests/test_mcp_proxy_fault_injection.py::test_daemon_quarantines_an_unknown_method` |
+| MCP elicitation (human-input) | Recorded, **never answered** (monitor-only); answer linked to approval (S14) | `test:packages/python-sdk/tests/test_mcp_proxy_elicitation.py::test_recorder_pairs_a_server_elicitation` |
+| MCP resource / prompt / task metadata | Surface key is secret-scanned metadata; body only under capture | `test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_resources_read_request_is_recorded` |
+| Detector telemetry | Opt-in, local-only, content-free (no trace/argument/prompt) | `test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free` |
+| Incident tags on `annotate` | Metadata-only; secret-scrubbed before storage | `test:packages/python-sdk/tests/test_incident_taxonomy.py::test_incident_tag_secret_is_masked` |
+| Operator console (UI-2) endpoints | Read-only over optional local files; absent → empty/neutral; no DB | `test:services/api/tests/test_operator_endpoints.py::test_attribution_absent_store_is_empty` |

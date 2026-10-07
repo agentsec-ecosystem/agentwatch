@@ -516,6 +516,18 @@
         "doc:docs/reference/detector-catalog.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C48",
+      "claim": "Agent memory reads/writes/deletes are recorded as observable records with metadata always recorded and content gated by privacy mode, and are filterable with `search --memory`.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_g9_memory_surfaces_are_observable",
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_metadata_is_always_recorded_and_content_is_not",
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_cli_search_memory",
+        "doc:docs/design/detector-evaluation.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

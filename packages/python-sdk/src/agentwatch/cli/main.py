@@ -510,6 +510,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="only records that read or link this MCP resource URI (MCP-2)",
     )
+    search.add_argument(
+        "--memory",
+        dest="memory",
+        action="store_true",
+        help="only agent memory read/write/delete records (DET-7)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
@@ -2032,6 +2038,7 @@ def _run_search(args: argparse.Namespace) -> int:
         approval=args.approval,
         identity=args.identity,
         mcp_resource=args.mcp_resource,
+        memory_only=args.memory,
         records=combined.records,
     )
     for record in records:

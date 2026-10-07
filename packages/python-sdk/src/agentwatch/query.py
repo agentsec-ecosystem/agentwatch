@@ -12,6 +12,7 @@ from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone, tzinfo
 
 from agentwatch.identity import identity_handles
+from agentwatch.memory import is_memory_record
 from agentwatch.records import AgentRecord, effective_approval, effective_producer
 from agentwatch.store import RecordStore
 
@@ -76,6 +77,7 @@ def search(
     approval: str | None = None,
     identity: str | None = None,
     mcp_resource: str | None = None,
+    memory_only: bool = False,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
@@ -86,6 +88,8 @@ def search(
     cutoff = since_cutoff(since) if since is not None else None
     result: list[AgentRecord] = []
     for record in records if records is not None else store.records():
+        if memory_only and not is_memory_record(record):
+            continue
         if tool is not None and record.tool.name != tool:
             continue
         if outcome is not None and record.outcome.value != outcome:

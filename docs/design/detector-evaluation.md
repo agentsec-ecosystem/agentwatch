@@ -76,7 +76,10 @@ coverage, governance (no secrets/PII), verdicts, and drift. Every published numb
   names the rule; it never encodes content or blocks. Precision/recall is published via the DET harness
   (`docs/reference/detector-catalog.md`).
 - Content-flow edges (S22) link source→sink without re-embedding content.
-- Memory read/write/delete recorded as observable surfaces + `search --memory` (closes the inherited G9 gap).
+- **DET-7 implemented:** memory reads/writes/deletes are recorded as observable records (`agentwatch.memory`,
+  tool name `memory`); the operation and key are always metadata, the memory content is captured only when the
+  privacy mode and the per-field `capture_memory` flag allow it, and `agentwatch search --memory` filters them
+  (closes the inherited G9 "no memory-audit" gap).
 
 ## Incident-registry interop (COR-2..4)
 

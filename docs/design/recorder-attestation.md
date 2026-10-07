@@ -5,9 +5,16 @@
 `recorder-config-changed` observation when that digest changes. Answers the auditor question *"was recording active at
 14:03?"* — which the chain alone cannot answer today.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M27 · Sources:
+**Status:** implemented (2026-10-06, v0.2.0 M29) · **Milestone:** M29 · Sources:
 [PRD 50](../prd/50-deployability-and-recorder-attestation.md), [recorder-attack-matrix.md](recorder-attack-matrix.md),
 [threat-model.md](threat-model.md).
+
+> **Implementation (M29 DEP-2, #442).** `agentwatch.attestation` computes a keyed config digest over booleans/mode
+> only and `attest_session` appends the `recorder-attested` fact, plus `recorder-config-changed` when the digest
+> moves; `init` emits it at recorder activation. `coverage` and `evidence` carry `attestation: present|absent`.
+> Digests/booleans only (property-tested). Same-user forgery remains out of scope. ADR-0029. **Integration note:**
+> the daemon appends the attestation on the `session-start` hook (once per session), and `init` emits it at recorder
+> activation; both call the same `attest_session` function.
 
 ## Why the chain alone is not enough
 

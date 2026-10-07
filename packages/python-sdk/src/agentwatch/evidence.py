@@ -168,6 +168,8 @@ def _coverage(store: RecordStore, session_id: str, entries: list[Any]) -> dict[s
             purges.append(entry.seq)
     # Chain-level parse errors are gaps too.
     gaps.extend(store.parse_error_lines)
+    from agentwatch.attestation import attestation_status
+
     return {
         "session_id": session_id,
         "records": sum(1 for e in entries if e.record is not None),
@@ -176,6 +178,7 @@ def _coverage(store: RecordStore, session_id: str, entries: list[Any]) -> dict[s
         "tombstones": sorted(tombstones),
         "tombstone_attribution": "unavailable (payload dropped); store-level list",
         "purges": sorted(purges),
+        "attestation": attestation_status(store),
         "complete": not gaps,
     }
 

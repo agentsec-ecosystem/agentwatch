@@ -12,6 +12,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     `hooks effective: yes | blocked by managed policy | unknown`, never "installed" when policy blocks the
     recorder; `init` warns that a user/project install will be inert and `managed_install_artifacts` generates
     the inert managed hook / org-plugin / MDM artifacts. Detect, never circumvent (#441).
+  - DEP-2: session-start recorder attestation + `recorder-config-changed` — a chain-recorded
+    `recorder-attested` fact (effective hook sources, a keyed config digest, managed-policy status, permission
+    mode) is appended on the daemon `session-start` hook and at `init`; a digest change raises
+    `recorder-config-changed`; `coverage`/`evidence` carry `attestation: present|absent`; digests/booleans only
+    (#442).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

@@ -577,6 +577,19 @@
         "doc:docs/design/managed-policy-install.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "A session-start recorder attestation (effective hook sources, a keyed config digest, managed-policy status, permission mode) is chain-recorded, a digest change raises `recorder-config-changed`, `coverage`/`evidence` carry `attestation: present|absent`, and the attestation stores digests/booleans only — never config values or secrets.",
+      "source": "docs/design/recorder-attestation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attest_session_appends_boolean_only_marker",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_stripped_hooks_raise_recorder_config_changed",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attestation_never_stores_config_values",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_coverage_and_evidence_surface_the_attestation",
+        "doc:docs/design/recorder-attestation.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

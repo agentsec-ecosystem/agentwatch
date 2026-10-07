@@ -14,6 +14,7 @@ bundle state *"recording was active from T1 to T2, configured as X."*
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -38,6 +39,9 @@ RETENTION_CHANGED_TOOL = "retention-changed"
 EXPORT_CONFIGURED_TOOL = "export-configured"
 COVERAGE_WINDOW_OPEN_TOOL = "coverage-window-open"
 COVERAGE_WINDOW_CLOSE_TOOL = "coverage-window-close"
+# M29 DEP-2: a session-start attestation fact + a config-change observation.
+RECORDER_ATTESTED_TOOL = "recorder-attested"
+RECORDER_CONFIG_CHANGED_TOOL = "recorder-config-changed"
 
 MARKER_TOOLS = frozenset(
     {
@@ -49,6 +53,8 @@ MARKER_TOOLS = frozenset(
         EXPORT_CONFIGURED_TOOL,
         COVERAGE_WINDOW_OPEN_TOOL,
         COVERAGE_WINDOW_CLOSE_TOOL,
+        RECORDER_ATTESTED_TOOL,
+        RECORDER_CONFIG_CHANGED_TOOL,
         KEY_ROTATION_TOOL,
     }
 )
@@ -256,6 +262,42 @@ def _record_transition(
         return MarkerReport(tool, None, coalesced=True)
     entry = _append_marker(store, tool, arguments, now=now)
     return MarkerReport(tool, entry.seq)
+
+
+def record_attestation(
+    store: RecordStore,
+    arguments: dict[str, Any],
+    *,
+    now: datetime | None = None,
+) -> MarkerReport:
+    """Append one ``recorder-attested`` marker (coalesced when identical to the last).
+
+    ``arguments`` carry booleans and digests only; callers never pass config
+    values (M29 DEP-2, PRD 50).
+    """
+    last = _marker_arguments(store, RECORDER_ATTESTED_TOOL)
+    if last and last[-1] == arguments:
+        return MarkerReport(RECORDER_ATTESTED_TOOL, None, coalesced=True)
+    entry = _append_marker(store, RECORDER_ATTESTED_TOOL, arguments, now=now)
+    return MarkerReport(RECORDER_ATTESTED_TOOL, entry.seq)
+
+
+def record_recorder_config_changed(
+    store: RecordStore,
+    *,
+    old_digest: str,
+    new_digest: str,
+    changed: Mapping[str, bool],
+    now: datetime | None = None,
+) -> MarkerReport:
+    """Append a ``recorder-config-changed`` observation (digests plus changed flags)."""
+    arguments: dict[str, Any] = {
+        "old_digest": _clean(old_digest),
+        "new_digest": _clean(new_digest),
+        "changed": {str(key): bool(value) for key, value in changed.items()},
+    }
+    entry = _append_marker(store, RECORDER_CONFIG_CHANGED_TOOL, arguments, now=now)
+    return MarkerReport(RECORDER_CONFIG_CHANGED_TOOL, entry.seq)
 
 
 def open_coverage_window(

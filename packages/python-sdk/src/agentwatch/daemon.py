@@ -141,6 +141,9 @@ class Daemon:
         self._pending_prompt: dict[str, datetime] = {}
         # Idempotency keys already persisted, so re-delivery appends nothing (F2).
         self._seen: set[tuple[str, str | None, str | None]] = set()
+        # Sessions already attested (M29 DEP-2), so a re-delivered SessionStart
+        # does not append a second attestation.
+        self._attested_sessions: set[str] = set()
 
     def is_alive(self) -> bool:
         """Whether the serve thread is running."""
@@ -415,7 +418,34 @@ class Daemon:
             if appended is not None:
                 self._seen.add(key)
                 written.append(appended)
+        if phase == "session-start":
+            # DEP-2: a chain-recorded session-start attestation (metadata only).
+            self._attest_session(raw_event)
         return written
+
+    def _attest_session(self, raw_event: Mapping[str, Any]) -> None:
+        """Append one session-start attestation fact (best-effort; never breaks recording)."""
+        session_id = str(raw_event.get("session_id") or "")
+        if not session_id or session_id in self._attested_sessions:
+            return
+        self._attested_sessions.add(session_id)
+        try:
+            from agentwatch.attestation import attest_session
+            from agentwatch.install import hooks_installed, resolve_scope
+            from agentwatch.managed_policy import detect_managed_policy
+
+            policy = detect_managed_policy()
+            attest_session(
+                self.store,
+                managed=policy.managed_agentwatch,
+                user=hooks_installed(resolve_scope("user").settings_path),
+                project=hooks_installed(resolve_scope("project").settings_path),
+                plugin=bool(policy.force_enabled_plugins),
+                managed_policy=policy.blocks_user_hooks,
+            )
+        except (OSError, ValueError, TypeError):
+            # Attestation is advisory; a failure must never affect recording.
+            self._attested_sessions.discard(session_id)
 
     @staticmethod
     def _key(record: AgentRecord) -> tuple[str, str | None, str | None]:

@@ -23,6 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from agentwatch.attestation import attestation_status
 from agentwatch.harness_drift import harness_drift_observations
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.recorder_state import CoverageWindow, coverage_windows
@@ -128,11 +129,13 @@ class CoverageReport:
     windows: tuple[CoverageWindow, ...] = ()
     since: str | None = None
     totals: dict[str, Any] = field(default_factory=dict)
+    attestation: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "transcripts_present": self.transcripts_present,
             "since": self.since,
+            "attestation": self.attestation,
             "sessions": [
                 {
                     "session_id": s.session_id,
@@ -183,6 +186,8 @@ class CoverageReport:
             f"  totals: {totals.get('store_calls', 0)}/{totals.get('transcript_calls', 0)} calls, "
             f"unexplained {totals.get('unexplained', 0)}"
         )
+        if self.attestation is not None:
+            lines.append(f"  attestation: {self.attestation}")
         return "\n".join(lines)
 
 
@@ -575,6 +580,7 @@ def build_coverage(
         windows=tuple(coverage_windows(store)),
         since=since,
         totals=totals,
+        attestation=attestation_status(store),
     )
 
 

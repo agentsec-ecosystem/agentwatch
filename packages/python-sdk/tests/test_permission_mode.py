@@ -140,7 +140,10 @@ def test_otel_mode_change_sets_the_mode_field() -> None:
                                 "body": {"stringValue": "claude_code.permission_mode_changed"},
                                 "attributes": [
                                     {"key": "session.id", "value": {"stringValue": "s1"}},
-                                    {"key": "to_mode", "value": {"stringValue": "bypassPermissions"}},
+                                    {
+                                        "key": "to_mode",
+                                        "value": {"stringValue": "bypassPermissions"},
+                                    },
                                 ],
                             }
                         ],

@@ -806,7 +806,9 @@ def _validate_record_dict(data: Any) -> None:
     if data.get("authorization") is not None:
         _validate_authorization_dict(data["authorization"])
     if "permission_mode" in data:
-        _check_enum(data["permission_mode"], where, "permission_mode", PermissionMode, nullable=True)
+        _check_enum(
+            data["permission_mode"], where, "permission_mode", PermissionMode, nullable=True
+        )
     if "environment" in data:
         _check_table(data["environment"], where, "environment", nullable=True)
     if "truncated" in data:

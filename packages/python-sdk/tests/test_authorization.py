@@ -33,7 +33,9 @@ from agentwatch.records import (
 )
 
 
-def _record(*, approval: Approval | None, authorization: Authorization | None = None) -> AgentRecord:
+def _record(
+    *, approval: Approval | None, authorization: Authorization | None = None
+) -> AgentRecord:
     return AgentRecord(
         session_id="s1",
         agent=AgentIdentity(identity="worker"),

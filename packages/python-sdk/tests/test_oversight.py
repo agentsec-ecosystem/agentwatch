@@ -11,6 +11,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import pytest
+
 from agentwatch.oversight import OVERSIGHT_VERSION, build_oversight, render_oversight
 from agentwatch.records import (
     AgentIdentity,
@@ -131,6 +133,7 @@ def test_destructive_authorization_cross_tab(tmp_path: Path) -> None:
 
 def test_latency_only_when_both_timestamps_exist(tmp_path: Path) -> None:
     report = build_oversight(_store(tmp_path))
+    assert report.human is not None
     assert report.human.prompted == 1
     assert report.human.approved == 1
     assert report.human.approve_rate == 1.0
@@ -143,6 +146,7 @@ def test_latency_is_na_without_prompts(tmp_path: Path) -> None:
     store = RecordStore(tmp_path / "records.jsonl")
     store.append(_call("s1", BASE, source=AuthorizationSource.CLASSIFIER, command="ls"))
     report = build_oversight(store)
+    assert report.human is not None
     assert report.human.prompted == 0
     assert report.human.latency.median_ms is None
     assert "n/a" in report.human.latency.note
@@ -178,7 +182,9 @@ def test_render_and_json(tmp_path: Path) -> None:
     assert "destructive" in text
 
 
-def test_cli_oversight_json(tmp_path: Path, capsys) -> None:
+def test_cli_oversight_json(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     _store(store_dir)

@@ -65,7 +65,9 @@ def _attrs(pairs: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def _transcode(*events: dict[str, Any], resource: dict[str, Any] | None = None):
+def _transcode(
+    *events: dict[str, Any], resource: dict[str, Any] | None = None
+) -> tuple[list[Any], list[Any]]:
     return claude_otel.transcode_claude_otel(_payload(list(events), resource=resource))
 
 

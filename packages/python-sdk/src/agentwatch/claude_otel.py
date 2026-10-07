@@ -175,7 +175,10 @@ def _iter_metric_points(payload: Any) -> Iterable[tuple[str, dict[str, Any], Map
                         attrs = _attributes(point.get("attributes"))
                         merged = {**resource_attrs, **attrs}
                         merged.setdefault("_value", point.get("asDouble", point.get("asInt")))
-                        yield name[len(_EVENT_PREFIX):] if name.startswith(_EVENT_PREFIX) else name, merged, point
+                        normalized = (
+                            name[len(_EVENT_PREFIX):] if name.startswith(_EVENT_PREFIX) else name
+                        )
+                        yield normalized, merged, point
 
 
 # ---------------------------------------------------------------------------
@@ -210,7 +213,9 @@ def _tokens(attrs: Mapping[str, Any]) -> int | None:
     completion = attrs.get("output_tokens", attrs.get("gen_ai.usage.output_tokens"))
     if prompt is None and completion is None:
         value = attrs.get("_value")
-        return int(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return int(value)
+        return None
     try:
         return int(prompt or 0) + int(completion or 0)
     except (TypeError, ValueError):
@@ -522,7 +527,7 @@ def transcode_claude_otel(
         except (ValueError, KeyError, TypeError) as exc:
             problems.append(IngestProblem(here, f"unmappable native event: {exc}"))
 
-    for index, (name, attrs, point) in enumerate(_iter_metric_points(payload)):
+    for _index, (name, attrs, point) in enumerate(_iter_metric_points(payload)):
         record = _metric_record(name, attrs, {}, at=_timestamp(point), producer=producer)
         if record is not None:
             records.append(record)
@@ -607,9 +612,11 @@ def _merge_otel(records: list[AgentRecord]) -> dict[str, Any]:
     """Collapse the native events for one ``tool_use_id`` into one view."""
     merged: dict[str, Any] = {"outcome": None, "cost_usd": None, "authorization": None}
     for record in records:
-        if record.outcome is Outcome.DENIED or record.outcome is Outcome.ERROR:
-            merged["outcome"] = record.outcome
-        elif merged["outcome"] is None:
+        if (
+            record.outcome is Outcome.DENIED
+            or record.outcome is Outcome.ERROR
+            or merged["outcome"] is None
+        ):
             merged["outcome"] = record.outcome
         if record.cost_usd is not None:
             merged["cost_usd"] = record.cost_usd

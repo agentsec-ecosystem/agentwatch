@@ -293,7 +293,9 @@ def build_oversight(
         scoped = [record for record in mode_records if record.session_id == session_id]
         intervals = mode_intervals(scoped)
         if intervals:
-            sessions.append(SessionMode(session_id, intervals[0].mode.value, intervals[-1].mode.value))
+            sessions.append(
+                SessionMode(session_id, intervals[0].mode.value, intervals[-1].mode.value)
+            )
         else:
             sessions.append(SessionMode(session_id, "unknown", "unknown"))
 
@@ -396,12 +398,14 @@ def render_oversight(report: OversightReport) -> str:
             f"reject: {_ratio(report.human.rejected, report.human.prompted)}"
         )
         latency = report.human.latency
-        if latency.median_ms is None:
+        median_ms = latency.median_ms
+        if median_ms is None:
             lines.append(f"    time-to-decision: {latency.note}")
         else:
+            fraction = latency.sub_second_fraction or 0.0
             lines.append(
-                f"    time-to-decision: median {latency.median_ms:.0f}ms; "
-                f"sub-second {latency.sub_second_fraction * 100:.1f}% "
+                f"    time-to-decision: median {median_ms:.0f}ms; "
+                f"sub-second {fraction * 100:.1f}% "
                 f"({latency.decisions} decision(s))"
             )
     lines.append("")

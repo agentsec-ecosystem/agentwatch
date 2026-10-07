@@ -162,7 +162,9 @@ _TABLE_HEADER = (
     "|---|---|---|---|---|---|---|"
 )
 
-_FRAMEWORK_TABLE_HEADER = "| Framework | Tier | Tested | Invocation | Notes |\n|---|---|---|---|---|"
+_FRAMEWORK_TABLE_HEADER = (
+    "| Framework | Tier | Tested | Invocation | Notes |\n|---|---|---|---|---|"
+)
 
 
 def framework(name: str) -> FrameworkInfo:
@@ -176,7 +178,8 @@ def render_framework_table() -> str:
     for name in sorted(FRAMEWORKS):
         info = FRAMEWORKS[name]
         lines.append(
-            f"| `{info.framework}` | {info.tier} | {info.tested} | {info.invocation} | {info.notes} |"
+            f"| `{info.framework}` | {info.tier} | {info.tested} | "
+            f"{info.invocation} | {info.notes} |"
         )
     return "\n".join(lines)
 

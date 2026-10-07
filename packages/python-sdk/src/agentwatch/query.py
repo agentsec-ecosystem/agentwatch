@@ -105,10 +105,10 @@ def search(
     per call from transition observations, then filters (M29 APV-2).
     """
     cutoff = since_cutoff(since) if since is not None else None
-    source = list(records) if records is not None else list(store.records())
-    modes = effective_modes(source) if permission_mode is not None else None
+    candidates = list(records) if records is not None else list(store.records())
+    modes = effective_modes(candidates) if permission_mode is not None else None
     result: list[AgentRecord] = []
-    for record in source:
+    for record in candidates:
         if memory_only and not is_memory_record(record):
             continue
         if tool is not None and record.tool.name != tool:
@@ -123,9 +123,9 @@ def search(
             continue
         if approval is not None:
             legacy = effective_approval(record).value
-            source = effective_authorization(record).source.value
+            auth_source = effective_authorization(record).source.value
             accepted = _APPROVAL_ALIASES.get(approval, frozenset({approval}))
-            if legacy != approval and source not in accepted:
+            if legacy != approval and auth_source not in accepted:
                 continue
         if identity is not None:
             needle = identity.strip().lower()

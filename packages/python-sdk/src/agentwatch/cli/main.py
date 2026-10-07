@@ -689,8 +689,12 @@ def _build_parser() -> argparse.ArgumentParser:
     oversight_cmd = sub.add_parser(
         "oversight", help="authorization + human-oversight facts (M29 APV-3)"
     )
-    oversight_cmd.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
-    oversight_cmd.add_argument("--project", default=None, help="only records for this project (cwd)")
+    oversight_cmd.add_argument(
+        "--since", default=None, help="relative (2d/12h/30m) or ISO timestamp"
+    )
+    oversight_cmd.add_argument(
+        "--project", default=None, help="only records for this project (cwd)"
+    )
     oversight_cmd.add_argument(
         "--by",
         choices=OVERSIGHT_BY_OPTIONS,

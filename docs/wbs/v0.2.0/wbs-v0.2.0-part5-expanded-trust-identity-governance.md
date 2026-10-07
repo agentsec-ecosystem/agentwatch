@@ -13,7 +13,8 @@ the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0.2.0-pa
 
 ## Milestone M29 — Expanded I: Trust, Identity & Governance (PRD 49–51, 56, 59)
 
-**Status:** ⏳ not started
+**Status:** 🔄 in progress — the `m29/standards` workstream landed **29.STD-1** (#452); remaining M29 tickets are
+tracked in parallel workstreams.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

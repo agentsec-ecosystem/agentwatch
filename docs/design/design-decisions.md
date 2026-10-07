@@ -8,7 +8,7 @@ Centralized decision log. Referenced as `DD-NN`. **All decisions below were acce
 | DD-02 | Record format = OTel GenAI spans (`execute_tool`) + a versioned security-event schema | accepted | Standards alignment; portability; schema is the differentiator |
 | DD-03 | Local-first storage; export opt-in via OTLP | accepted | Privacy by default (R6) |
 | DD-04 | Adapter boundary as an explicit contract; Claude Code hooks are the first implementation | accepted | Harness-agnostic by construction (R3) |
-| DD-05 | Contribute schema improvements upstream to OTel GenAI; do not fork; keep a repo-local copy until adopted | accepted | Adoption > control |
+| DD-05 | Contribute schema improvements upstream to OTel GenAI; do not fork; keep a repo-local copy until adopted | closed (ADR-0045) | Adoption > control; closed 2026-10-06 by the standards participation plan (owner, five target specs, quarterly cadence) |
 | DD-06 | Redaction happens at normalization time, before storage | accepted | Never persist secrets (R7) |
 | DD-07 | Storage hash-chained for tamper evidence | accepted | Forensic trust (R11) |
 | DD-08 | **v0.1.0 store:** append-only JSONL + hash chain; Postgres used for analytics in v0.2.0 | accepted | Simple, local-first, tamper-evident; matches the shipped analytics stack when it lands |
@@ -29,7 +29,7 @@ Centralized decision log. Referenced as `DD-NN`. **All decisions below were acce
 
 ```
 ### DD-NN — Title
-- **Status:** proposed | accepted | superseded
+- **Status:** proposed | accepted | superseded | closed
 - **Context:**
 - **Decision:**
 - **Consequences:**

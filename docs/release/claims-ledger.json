@@ -565,6 +565,56 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A security-event vocabulary contribution was submitted to OTel GenAI semconv (OTel GenAI semconv); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "An authorization-taxonomy-v2 contribution was submitted to the IETF Agent Audit Trail draft (IETF AAT); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "A capability-changed event-shape contribution was submitted to Agent Trace; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "A security-event class-mapping contribution was submitted to OCSF; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "An ASI/AST coverage-vocabulary contribution was submitted to OWASP Agentic; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

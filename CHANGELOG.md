@@ -6,6 +6,12 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Expanded I (M29):
+  - STD-1: the standards participation plan is published (`docs/reference/standards-participation.md`) with an
+    owner, five target specs (OTel GenAI semconv, IETF AAT, Agent Trace, OCSF, OWASP Agentic), what is proposed
+    (event vocabulary, authorization taxonomy v2, `capability-changed`), a quarterly re-pin/engagement cadence, and
+    an external-adopter count. **DD-05 is closed by ADR-0045**; each spec has ≥1 contribution tracked in the claims
+    ledger as **"submitted"** — never "adopted" (#452).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

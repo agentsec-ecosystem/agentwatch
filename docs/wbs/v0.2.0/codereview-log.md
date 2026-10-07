@@ -199,7 +199,7 @@ merged into `feat-v0.2.0` one worktree at a time, plus 29.T/29.D/29.R.
 |---|---|
 | `make lint` (ruff zero) | clean (SDK/API/analytics per package) |
 | `make typecheck` (mypy `--strict`) | clean (362 + 14 + 58 source files) |
-| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **2183 passed, 2 skipped, 95.37%**; `services/api` **53 passed, 95.75%**; `services/analytics` **742 passed, 96.22%**; repo guard **47 passed** |
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **2210 passed, 2 skipped, 95.76%**; `services/api` **53 passed, 95.75%**; `services/analytics` **742 passed, 96.22%**; repo guard **47 passed** |
 | Claims ledger | `scripts/check_claims.py` green |
 
 ### Review checklist

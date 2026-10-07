@@ -527,6 +527,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "otlp-grpc streams gRPC-framed OTLP; aat is IETF Agent Audit Trail)",
     )
     ingest.add_argument(
+        "--agent",
+        choices=("codex",),
+        default=None,
+        help="read a harness's native logs instead of --format "
+        "(codex = rollout JSONL / .jsonl.zst, M27 COD-1)",
+    )
+    ingest.add_argument(
         "--capture",
         choices=("metadata-only", "truncated", "hashed", "full"),
         default="metadata-only",
@@ -2355,6 +2362,29 @@ def _run_ingest(args: argparse.Namespace) -> int:
         print("agentwatch: no sources found", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     redaction = redaction_config_from_mode(args.capture)
+    if args.agent == "codex":
+        from agentwatch.codex_rollout import ingest_rollouts
+
+        rollout_stats = ingest_rollouts(paths, store, redaction=redaction)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "files": rollout_stats.files,
+                        "records": rollout_stats.records,
+                        "skipped": rollout_stats.skipped,
+                        "duplicates": rollout_stats.duplicates,
+                        "dangling": rollout_stats.dangling,
+                    }
+                )
+            )
+        else:
+            print(
+                f"ingested {rollout_stats.records} records from {rollout_stats.files} file(s); "
+                f"{rollout_stats.skipped} skipped; {rollout_stats.duplicates} duplicate(s); "
+                f"{rollout_stats.dangling} dangling session(s)"
+            )
+        return 0
     stats = run_ingest(
         paths,
         store,

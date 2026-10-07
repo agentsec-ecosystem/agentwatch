@@ -25,9 +25,11 @@ Status: living.
 - Claude Code is fully supported (v0.1.0 M3). Cursor ships a native-hooks adapter on the published contract
   (v0.2.0 M25, CUR-2) with a version-tagged, secret-scanned, MIT/vendor-documented audit corpus
   (`tests/testkit/`, 25.CUR-1) — so the row is **`fixture-verified`**, not yet `live-verified` (that awaits a
-  consented capture from a real install). Codex CLI, Gemini CLI, and the Tier-2 frameworks CrewAI and
-  PydanticAI have **provisional (modeled)** adapters — their native event shapes are assumed, not captured.
-  Real fixtures for all of them land in later milestones (M14 field tests / N4 version matrix).
+  consented capture from a real install). **Codex CLI** now has a rollout **reader** (`ingest --agent codex`,
+  M27 COD-1) validated against the published format (kvsankar/agent-history, verified from `openai/codex` source)
+  and cross-parsed by XHT-3 — its row is `fixture-verified` (live capture pending). Gemini CLI and the Tier-2
+  frameworks CrewAI and PydanticAI still have **provisional (modeled)** adapters — their native event shapes are
+  assumed, not captured. Real fixtures for those land in later milestones (M14 field tests / N4 version matrix).
 - Cursor cloud agents (cursor.com/agents) do not run the `sessionStart`/`sessionEnd`/MCP/Tab/`workspaceOpen`
   hooks; this is a declared gap (`cloud-agent-hook-events`), not a silent one.
 - MCP interposition (`agentwatch mcp-proxy`, M10 N1) records `tools/call` over **stdio and Streamable HTTP**

@@ -7,6 +7,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - COD-1: a Codex CLI rollout **reader** (`agentwatch ingest --agent codex`) for `~/.codex/sessions/**`
+    `rollout-*.jsonl(.zst)` — pairs `function_call`/`function_call_output` (+ custom/shell/web-search),
+    parses the JSON-string arguments, dedups repeated plaintext (F2), marks an unanswered call as an inferred
+    `crashed` end-state (S33), and never executes foreign content (ADR-0024). Python 3.14 stdlib `compression.zstd`
+    or the new `agentwatch[codex]` extra (#339).
   - DET-4: the 6 LLM-augmented detectors run through the shared offline eval harness (`run_eval(..., llm_client=…)`
     + `create_llm_detectors(client)`), local-model-first and strictly additive (degrade to no-op without a model);
     the rule trust path is unchanged. Published numbers require a running local model (#343).

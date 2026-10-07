@@ -54,15 +54,15 @@
     },
     "codex-cli/exec_begin.json": {
       "fingerprint": "d6cb1ef743ad3b72",
-      "version": "modeled"
+      "version": "0.x"
     },
     "codex-cli/exec_end_error.json": {
       "fingerprint": "53166c449d135e85",
-      "version": "modeled"
+      "version": "0.x"
     },
     "codex-cli/patch_apply.json": {
       "fingerprint": "2d2f3dba0fac7934",
-      "version": "modeled"
+      "version": "0.x"
     },
     "crewai/agent_end.json": {
       "fingerprint": "e867a8cdf462ea86",

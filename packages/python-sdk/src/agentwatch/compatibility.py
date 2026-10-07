@@ -84,9 +84,13 @@ SHIPPED: dict[str, HarnessInfo] = {
     "codex-cli": HarnessInfo(
         harness="codex-cli",
         tier="Tier-1",
-        tested=HarnessRange("modeled", "modeled"),
-        fidelity=FIDELITY_MODELED,
-        invocation="native adapter (modeled)",
+        tested=HarnessRange("0.65", "0.x"),
+        fidelity=FIDELITY_FIXTURE,
+        invocation="log-reader (`ingest --agent codex`)",
+        notes=(
+            "rollout JSONL / .jsonl.zst; format-derived corpus + cross-parser validation (COD-1/XHT-3); "
+            "live capture pending"
+        ),
     ),
     "gemini-cli": HarnessInfo(
         harness="gemini-cli",

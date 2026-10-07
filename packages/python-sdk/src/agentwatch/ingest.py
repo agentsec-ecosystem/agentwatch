@@ -520,6 +520,7 @@ def resolve_ingest_paths(target: Path) -> list[Path]:
             [
                 *target.rglob("*.json"),
                 *target.rglob("*.jsonl"),
+                *target.rglob("*.jsonl.zst"),
                 *target.rglob("*.pb"),
                 *target.rglob("*.otlp"),
             ]

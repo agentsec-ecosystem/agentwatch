@@ -22,6 +22,9 @@ versioning: [Semantic Versioning](https://semver.org/).
     (`scripts/codemod_agent_exec_trace.py`), a `CONTRIBUTING.md`, and ADR-0046..0048 (#369).
   - MIG-1: a v0.1.0 → v0.2.0 migration guide (`docs/release/v0.2.0/migration-guide.md`) and a frozen-store
     upgrade test (#436).
+  - DATA-1: the derived Postgres index DDL (`schema/derived-index.sql`) — every table carries `source_seq` /
+    `source_hash` back-references to the chain, so the index is derived-only and rebuildable; documented in
+    `docs/design/data-dictionary.md` (#435).
 - v0.2.0 Surfaces (M27):
   - WIN-1 (partial): Windows service supervision — `render_unit("win32")` generates a **Task Scheduler XML**
     (logon trigger, least privilege, restart-on-failure) and a `windows-latest` **CI leg**

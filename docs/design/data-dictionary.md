@@ -15,6 +15,23 @@ Status: **draft** (v0.2.0+). The v0.1.0 record contract itself is in
 | `cohorts` | `agent_name`, `agent_version`, `window_start`, `run_count`, `cost`, `retry_rate`, `success_rate` |
 | `fleet_rollup` | `agent_name`, `run_count`, `anomaly_count`, `status` |
 
+## Derived index (rebuildable) — `schema/derived-index.sql`
+
+The fleet/multi-tenant query tier is a **derived** Postgres index ([derived-postgres](derived-postgres.md)):
+it is rebuilt from the chain and may be dropped at any time. The DDL lives in
+[`schema/derived-index.sql`](../../schema/derived-index.sql). Every table carries `source_seq` and
+`source_hash` back-references so a row always traces to the chain entry it came from — the chain remains the
+source of truth, and no query here authorizes data the store cannot reproduce.
+
+| Table | Purpose | Key + back-ref columns |
+|---|---|---|
+| `sessions` | one agent session | `session_id`, `project`, `harness`, `agent_name`, `agent_version`, `source_seq`, `source_hash` |
+| `records` | tool/behavior records | `record_id`, `session_id`, `seq`, `tool`, `outcome`, `record_phase`, `source_seq`, `source_hash` |
+| `events` | security events | `event_id`, `session_id`, `type`, `emitter`, `source_seq`, `source_hash` |
+| `usage` | tokens / cost / duration rollups | `usage_id`, `session_id`, `tokens`, `cost_usd`, `duration_ms`, `source_seq`, `source_hash` |
+| `identity` | the `agent_identity` dimension | `identity_id`, `session_id`, `credential_class`, `workload_identity`, `principal_hash`, `delegation_chain`, `source_seq`, `source_hash` |
+| `detectors` | anomaly findings | `finding_id`, `session_id`, `detector`, `severity`, `explanation`, `source_seq`, `source_hash` |
+
 ## Record & security-event contract (v0.2.0 additions)
 
 The normative field contract is the [record-format spec](../reference/record-format-spec.md) and

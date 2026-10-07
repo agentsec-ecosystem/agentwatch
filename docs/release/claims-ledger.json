@@ -528,6 +528,18 @@
         "doc:docs/design/detector-evaluation.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C49",
+      "claim": "The Postgres query tier is a derived, rebuildable index: every table carries source_seq/source_hash back-references to the hash-chained store, which remains the source of truth.",
+      "source": "docs/design/data-dictionary.md",
+      "evidence": [
+        "test:tests/test_derived_index_ddl.py::test_every_table_has_source_back_references",
+        "test:tests/test_derived_index_ddl.py::test_ddl_is_present_and_declares_derived_only",
+        "file:schema/derived-index.sql",
+        "doc:docs/design/data-dictionary.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

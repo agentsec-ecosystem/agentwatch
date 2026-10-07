@@ -1,0 +1,8 @@
+{
+  "event_version": "0.2.0",
+  "type": "mode-transition",
+  "emitted_at": "2026-01-02T03:04:05+00:00",
+  "emitter": "agentwatch",
+  "reason": "default -> bypass",
+  "evidence": { "from": "default", "to": "bypass", "source": "permission-mode" }
+}

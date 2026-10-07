@@ -41,11 +41,21 @@ v0.2.0 release bump (M30 30.3), so `0.2.0` is accepted for forward compatibility
 ## Security event (v0.2.0 additions)
 
 `event_version` range is `0.1.0`–`0.2.0` (current emit `0.1.0`). `type` ∈ {`denied`, `policy-fired`, `secret-detected`,
-`revoked`, `halted`, `drift-detected`, `tool-surface-changed`, `agent-delegation`}, `emitted_at`,
+`revoked`, `halted`, `drift-detected`, `tool-surface-changed`, `agent-delegation`, `recorder-config-changed`,
+`mode-transition`, `capability-changed`}, `emitted_at`,
 `emitter`, optional `reason`, `policy_id`, `tool`, `credential_ref`, `evidence`.
 
 `agent-delegation` (A2A-2, PRD 45, additive) is an **observation** that a cross-agent
 delegation occurred — never an authorization verdict.
+
+`recorder-config-changed` (M29 DEP-2, PRD 50) is an observation that the effective recorder hook/permission config
+digest changed; its `evidence` carries the two keyed digests and the changed booleans only — **never** config values.
+
+`mode-transition` (M29 APV-2, PRD 49; also produced by WS-A) is an observation of a permission-mode transition
+(e.g. `default` → `bypass` → `default`), reconstructed from the record stream.
+
+`capability-changed` (M29 EXT-3) is a **forward-compatible placeholder**: it is in the vocabulary and mappings so
+sinks and consumers stay stable, but the event originates in **M30 CAP-2** (capability inventory, not built).
 
 ## Python model (M2)
 
@@ -98,6 +108,9 @@ No secret/PII is ever persisted (`DD-06`); values follow the privacy modes in
 | `revoked` | a credential is revoked | agentkeys |
 | `halted` | an agent is halted/paused | agenthalt |
 | `drift-detected` | a metric deviates from its trailing baseline (observation only) | agentwatch (M11) |
+| `recorder-config-changed` | the effective recorder hook/permission config digest changed (M29 DEP-2) | agentwatch |
+| `mode-transition` | an observed permission-mode transition (M29 APV-2) | agentwatch |
+| `capability-changed` | a capability inventory digest changed (placeholder; M30 CAP-2) | agentwatch (reserved) |
 
 ### Decisions
 

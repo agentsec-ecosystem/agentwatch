@@ -98,6 +98,9 @@ def test_enums_match_the_schema() -> None:
         "drift-detected",
         "tool-surface-changed",
         "agent-delegation",
+        "recorder-config-changed",
+        "mode-transition",
+        "capability-changed",
     ]
 
 

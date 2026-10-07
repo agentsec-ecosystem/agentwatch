@@ -25,6 +25,9 @@ caught.
 | `drift-detected` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
 | `tool-surface-changed` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
 | `agent-delegation` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
+| `recorder-config-changed` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
+| `mode-transition` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
+| `capability-changed` | Detection Finding | 2004 | Findings (2) | Create (1) | 200401 |
 
 `type_uid = class_uid * 100 + activity_id`.
 

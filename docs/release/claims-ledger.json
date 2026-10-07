@@ -604,6 +604,19 @@
         "doc:docs/reference/performance.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "The security-event vocabulary adds `recorder-config-changed` and `mode-transition` with OCSF/CloudEvents mappings and fixtures, and adds `capability-changed` as a forward-compatible placeholder for M30 CAP-2 (not built); the schema changelog and stewardship check pass.",
+      "source": "schema/CHANGELOG.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_enum_matches_the_code_vocabulary",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_every_new_type_has_ocsf_and_cloudevents_mappings",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_policy_passes",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_capability_changed_is_a_documented_forward_placeholder",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

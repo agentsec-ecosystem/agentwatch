@@ -19,6 +19,12 @@ emit version stays `0.1.0` until the v0.2.0 release bump (M30 30.3).
 - `security-event.schema.json` `event_version` accepts `0.1.0` and `0.2.0`;
   new event type `agent-delegation` (A2A-2, PRD 45) — an observation of a
   cross-agent delegation, never an authorization verdict.
+- `security-event.schema.json` (M29 EXT-3) adds `recorder-config-changed`
+  (DEP-2, PRD 50 — the effective recorder config digest changed; digests/
+  booleans only), `mode-transition` (APV-2, PRD 49 — an observed permission-mode
+  transition), and `capability-changed` (a forward-compatible placeholder for
+  M30 CAP-2, not built). OCSF/CloudEvents mappings and fixtures updated; the
+  `agentwatch.security-event` readers accept them additively.
 
 ## 0.1.0 — 2026-10-03
 

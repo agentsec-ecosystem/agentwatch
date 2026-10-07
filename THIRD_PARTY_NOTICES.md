@@ -64,3 +64,23 @@ corpus. Provenance and reproduction steps:
   affiliated with or endorsed by Cursor.
 
 Other dependencies are listed in the SBOM published with each release.
+
+## XHT-3 cross-parser validation tools (used in CI, not redistributed)
+
+The Codex rollout reader (M27 COD-1) is cross-checked against two independent
+OSS parsers on a golden fixture (`.github/workflows/xht3-cross-parser.yml`). They
+are **cloned at a pinned commit and run only in CI** — no code is vendored into
+this repository.
+
+- **kvsankar/agent-history** — **License:** MIT · Copyright (c) 2025 Sankaranarayanan Viswanathan ·
+  **Source:** https://github.com/kvsankar/agent-history · **Pin:** `56c766ad182689c887e575a1a387dfec2e4a5ebd` ·
+  **Used:** its `codex_read_jsonl_messages` parser cross-checks tool-call tuples; its `docs/codex-format.md`
+  documents the rollout format.
+
+- **kylesnowschwartz/agent-ouija** — **License:** MIT · Copyright (c) 2025 Kyle Snow Schwartz ·
+  **Source:** https://github.com/kylesnowschwartz/agent-ouija · **Pin:** `c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc` ·
+  **Used:** its `codex/rollout` parser cross-checks the session id/cwd and tool-I/O counts.
+
+- **openai/codex** — the format is grounded in the Codex CLI source
+  (`codex-rs/core/src/rollout/recorder.rs`, `codex-rs/protocol/src/protocol.rs`), consulted as the authoritative
+  format reference. Codex is a product of OpenAI; this project is not affiliated with or endorsed by OpenAI.

@@ -48,7 +48,11 @@ Fixture sources to mine for real shapes (all OSS/published):
 
 ### 2. File-format replay (offline)
 
-For file formats, adopt OSS test fixtures as golden corpora and cross-check against two independent parsers:
+For file formats, adopt OSS test fixtures as golden corpora and cross-check against two independent parsers
+(**implemented, XHT-3:** `scripts/xht3_cross_validate.py` + `.github/workflows/xht3-cross-parser.yml` diff the
+Codex rollout reader against a pinned **kvsankar/agent-history** (Python) and **kylesnowschwartz/agent-ouija** (Go)
+on `packages/python-sdk/tests/fixtures/codex-cli/golden/`; a divergence fails or is a documented gap, and both
+pins + licenses are recorded in `THIRD_PARTY_NOTICES.md`):
 - **kvsankar/agent-history** (`docs/codex-format.md` verified from source; supports `CODEX_SESSIONS_DIR` override —
   designed for testing; 728 unit + 16 E2E tests).
 - **ahmojo/codex-claude-transfer** (Go; treats rollout JSONL as source of truth; handles `.jsonl.zst`; Claude↔Codex

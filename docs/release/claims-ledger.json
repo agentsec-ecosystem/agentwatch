@@ -350,6 +350,18 @@
         "test:packages/python-sdk/tests/test_codex_rollout.py::test_reader_never_spawns_a_shell"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C34",
+      "claim": "The Codex rollout reader is cross-validated against two independent, commit-pinned OSS parsers on a golden fixture (divergence fails CI).",
+      "source": "docs/design/cross-harness-testing.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_xht3_cross_parser.py::test_cross_parser_diff_has_no_unexplained_divergence",
+        "test:packages/python-sdk/tests/test_xht3_cross_parser.py::test_golden_fixture_replays_through_our_reader",
+        "file:scripts/xht3_cross_validate.py",
+        "file:.github/workflows/xht3-cross-parser.yml"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

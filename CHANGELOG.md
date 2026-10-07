@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - XHT-3: the Codex rollout reader is cross-validated against **two independent, commit-pinned OSS parsers**
+    (kvsankar/agent-history Python; kylesnowschwartz/agent-ouija Go) on a golden fixture via
+    `scripts/xht3_cross_validate.py` + `.github/workflows/xht3-cross-parser.yml`; a divergence fails the job,
+    and both pins/licenses are recorded in `THIRD_PARTY_NOTICES.md` (#352).
   - COD-1: a Codex CLI rollout **reader** (`agentwatch ingest --agent codex`) for `~/.codex/sessions/**`
     `rollout-*.jsonl(.zst)` — pairs `function_call`/`function_call_output` (+ custom/shell/web-search),
     parses the JSON-string arguments, dedups repeated plaintext (F2), marks an unanswered call as an inferred

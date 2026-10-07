@@ -88,8 +88,8 @@ SHIPPED: dict[str, HarnessInfo] = {
         fidelity=FIDELITY_FIXTURE,
         invocation="log-reader (`ingest --agent codex`)",
         notes=(
-            "rollout JSONL / .jsonl.zst; format-derived corpus + cross-parser validation (COD-1/XHT-3); "
-            "live capture pending"
+            "rollout JSONL / .jsonl.zst; format-derived + cross-parser validated "
+            "(COD-1/XHT-3); live capture pending"
         ),
     ),
     "gemini-cli": HarnessInfo(

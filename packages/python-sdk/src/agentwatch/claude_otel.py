@@ -696,6 +696,23 @@ def join_records(
     )
 
 
+def transcode_agent_sdk(
+    payload: Any,
+    *,
+    source: str = "sdk-native",
+    redaction: RedactionConfig | None = None,
+) -> tuple[list[AgentRecord], list[IngestProblem]]:
+    """Transcode a Claude Agent SDK / headless OTel payload (CCO-2).
+
+    An Agent-SDK program runs the same CLI, so it emits the same telemetry and
+    lands through the same mapping — only the producer is ``producer.kind=sdk`` /
+    ``name=sdk-native`` and identity comes from the resource attributes.
+    """
+    return transcode_claude_otel(
+        payload, source=source, redaction=redaction, producer=SDK_PRODUCER
+    )
+
+
 def otel_join_summary(records: Iterable[AgentRecord], *, harness: str = HARNESS_ID) -> str | None:
     """The ``coverage`` join line, or ``None`` when no native telemetry is present."""
     materialized = list(records)
@@ -716,5 +733,6 @@ __all__ = [
     "is_otel_record",
     "join_records",
     "otel_join_summary",
+    "transcode_agent_sdk",
     "transcode_claude_otel",
 ]

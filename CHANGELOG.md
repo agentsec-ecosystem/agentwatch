@@ -25,6 +25,9 @@ versioning: [Semantic Versioning](https://semver.org/).
     `user_prompt`/`mcp_server_connection`; joins to hook records by `tool_use_id` with disagreements recorded
     as classified discrepancies; `coverage` reports "N joined, M hook-only, K otel-only, D discrepancies
     (classified)"; redaction runs on ingest and unmappable input is quarantined (B4) (#444).
+  - CCO-2: the Claude Agent SDK / headless runs land through the same native path as
+    `source: sdk-native` (producer `kind=sdk`) with identity from resource attributes; a CI-executed
+    gallery recipe (`examples/claude_agent_sdk_otel.py`) and a framework-matrix row (#445).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

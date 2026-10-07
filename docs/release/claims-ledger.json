@@ -616,6 +616,18 @@
         "file:docs/design/authorization-provenance-v2.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "A Claude Agent SDK / headless program's telemetry lands through the same native path as source sdk-native with identity from resource attributes.",
+      "source": "docs/prd/51-harness-native-telemetry-and-framework-reach.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_uses_the_same_path_with_sdk_native_producer",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_identity_comes_from_resource_attributes",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_is_in_the_framework_matrix",
+        "doc:examples/README.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

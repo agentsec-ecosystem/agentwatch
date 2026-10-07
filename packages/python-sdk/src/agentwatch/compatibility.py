@@ -127,10 +127,63 @@ SHIPPED: dict[str, HarnessInfo] = {
     ),
 }
 
+@dataclass(frozen=True)
+class FrameworkInfo:
+    """One certified framework/SDK recipe's compatibility metadata (FWK/CCO)."""
+
+    framework: str
+    tier: str
+    tested: str
+    invocation: str
+    notes: str = ""
+
+
+# Certified framework recipes (each a CI-executed path into the same ingest).
+# Unlike the adapter registry above, a framework reaches agentwatch through its
+# own native/community OTel, so it is not held to the adapter conformance pack.
+FRAMEWORKS: dict[str, FrameworkInfo] = {
+    "claude-agent-sdk": FrameworkInfo(
+        framework="claude-agent-sdk",
+        tier="Tier-2",
+        tested="2.x",
+        invocation="native OTel (`ingest --format claude-otel`, `source: sdk-native`)",
+        notes=(
+            "Claude Agent SDK / headless runs the same CLI + telemetry as Claude Code; "
+            "identity comes from resource attributes (CCO-2)"
+        ),
+    ),
+}
+
+_FRAMEWORK_BEGIN = "<!-- BEGIN GENERATED FRAMEWORK MATRIX -->"
+_FRAMEWORK_END = "<!-- END GENERATED FRAMEWORK MATRIX -->"
+
 _TABLE_HEADER = (
     "| Harness | Tier | Tested range | Protocol | Fidelity | Invocation | Notes |\n"
     "|---|---|---|---|---|---|---|"
 )
+
+_FRAMEWORK_TABLE_HEADER = "| Framework | Tier | Tested | Invocation | Notes |\n|---|---|---|---|---|"
+
+
+def framework(name: str) -> FrameworkInfo:
+    """Return one certified framework recipe's metadata (KeyError if unknown)."""
+    return FRAMEWORKS[name]
+
+
+def render_framework_table() -> str:
+    """Render the deterministic framework matrix (sorted by name)."""
+    lines = [_FRAMEWORK_TABLE_HEADER]
+    for name in sorted(FRAMEWORKS):
+        info = FRAMEWORKS[name]
+        lines.append(
+            f"| `{info.framework}` | {info.tier} | {info.tested} | {info.invocation} | {info.notes} |"
+        )
+    return "\n".join(lines)
+
+
+def render_framework_marker_block() -> str:
+    """The generated framework block, including its markers."""
+    return f"{_FRAMEWORK_BEGIN}\n{render_framework_table()}\n{_FRAMEWORK_END}"
 
 
 def range_for(harness: str) -> HarnessRange:

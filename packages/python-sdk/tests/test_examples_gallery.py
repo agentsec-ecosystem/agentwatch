@@ -25,6 +25,7 @@ AT = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
 RECIPES: dict[str, tuple[str, bool]] = {
     "security_event_consumer.py": ("security-event stream", True),
     "ocsf_consumer.py": ("OCSF 1.5.0", True),
+    "claude_agent_sdk_otel.py": ("Claude Agent SDK OTel", True),
     "demo-agent": ("raw Python SDK", False),
 }
 
@@ -64,6 +65,16 @@ def test_ocsf_recipe_runs() -> None:
 
     assert problems == []
     assert len(valid) == 1
+
+
+def test_claude_agent_sdk_recipe_runs() -> None:
+    module = _load("claude_agent_sdk_otel")
+    fixture = EXAMPLES / "fixtures" / "claude_agent_sdk_otel.json"
+
+    records = module.transcribe(module.load_payload(fixture))
+
+    assert records
+    assert all(record["producer"]["name"] == "sdk-native" for record in records)
 
 
 def test_illustrative_recipe_is_not_required_to_run() -> None:

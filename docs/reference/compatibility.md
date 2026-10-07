@@ -48,3 +48,9 @@
 | `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
 | `pydantic-ai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
 <!-- END GENERATED HARNESS MATRIX -->
+
+<!-- BEGIN GENERATED FRAMEWORK MATRIX -->
+| Framework | Tier | Tested | Invocation | Notes |
+|---|---|---|---|---|
+| `claude-agent-sdk` | Tier-2 | 2.x | native OTel (`ingest --format claude-otel`, `source: sdk-native`) | Claude Agent SDK / headless runs the same CLI + telemetry as Claude Code; identity comes from resource attributes (CCO-2) |
+<!-- END GENERATED FRAMEWORK MATRIX -->

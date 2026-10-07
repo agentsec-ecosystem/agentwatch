@@ -22,6 +22,21 @@ Batch-processor defaults follow the OTel spec so the SDK feels native: bounded q
 delay, max batch size, a Simple processor for tests, and ForceFlush on shutdown. Sampling is configurable via our
 config layers, with semantic aliases to `OTEL_TRACES_SAMPLER` where the meaning overlaps (kept, not replaced).
 
+## Auto-detect (FWK-2)
+
+`agentwatch.instrument()` is one call that detects the installed supported
+frameworks (ADK, Strands, OpenAI Agents SDK via OpenInference, Claude Agent SDK),
+points their OTel export at the local collector (standard
+`OTEL_EXPORTER_OTLP_ENDPOINT`, plus the OpenInference instrumentor for the OpenAI
+Agents SDK), takes identity from the environment, and **prints what it instrumented
+and what it could not** — a detected framework that is not wired is reported as a
+gap, never dropped silently. It is a **no-op** when the recorder is not running (the
+local health endpoint does not answer), registers a single `atexit` ForceFlush, and
+is **idempotent** (a second call does not re-wire, so there are no double spans).
+Implementation: `agentwatch.autoinstrument`; the public entry point is the callable
+`agentwatch.instrument` module (its `invoke_agent`/`set_output` helpers are
+unchanged). Framework recipes and tiers: [`framework-recipes.md`](../reference/framework-recipes.md).
+
 ## Lifecycle (SDK-1)
 
 - `shutdown()` — at-most-once; idempotent-ish; after shutdown a **valid no-op** tracer is returned; never raises.

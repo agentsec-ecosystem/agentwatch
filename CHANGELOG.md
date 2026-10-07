@@ -18,6 +18,13 @@ versioning: [Semantic Versioning](https://semver.org/).
     `agentwatch/frameworks.py`, `docs/reference/framework-recipes.md`,
     `examples/framework_recipes.py`, `scripts/check_framework_drift.py` +
     `.github/workflows/framework-drift.yml` (#446).
+  - FWK-2: `agentwatch.instrument()` auto-detect — one call detects installed supported
+    frameworks, wires their OTel to the local collector (standard OTLP env + the OpenInference
+    instrumentor for the OpenAI Agents SDK), takes identity from the environment, and prints what
+    it instrumented **and what it could not** (no silent partial instrumentation). No-op safe when
+    the recorder is not running, single flush-on-exit, idempotent (no double spans).
+    `agentwatch/instrument` is a callable module; the implementation is `agentwatch.autoinstrument`
+    (#447).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

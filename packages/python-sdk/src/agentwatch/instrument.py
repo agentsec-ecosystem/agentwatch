@@ -48,8 +48,11 @@ Usage
 
 from __future__ import annotations
 
+import sys
+import types
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Any
 
 from opentelemetry import trace
 from opentelemetry.trace import Span, SpanKind
@@ -150,3 +153,23 @@ def set_output(span: Span, output: str, *, redaction: RedactionConfig | None = N
         output = redacted
     span.set_attribute(GEN_AI_RESPONSE_CONTENT, output)
     span.set_attribute(GEN_AI_AGENT_OUTPUT, output)
+
+
+class _CallableInstrumentModule(types.ModuleType):
+    """Makes ``agentwatch.instrument(...)`` the FWK-2 auto-detect entry point.
+
+    The module's run-instrumentation helpers (:func:`invoke_agent`,
+    :func:`set_output`) are unchanged; making the *module object* callable lets the
+    public API read as one call — ``agentwatch.instrument()`` — without a second
+    name colliding with the module (PRD 51 §FWK-2).
+    """
+
+    def __call__(self, **kwargs: Any) -> Any:
+        from agentwatch.autoinstrument import instrument as _instrument
+
+        return _instrument(**kwargs)
+
+
+# PEP 562 does not cover ``__call__``; assigning the module's class is the supported
+# way to make a module callable while keeping every import path intact.
+sys.modules[__name__].__class__ = _CallableInstrumentModule

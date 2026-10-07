@@ -115,3 +115,8 @@ Version
 """
 
 __version__ = "0.1.0"
+
+# Public auto-detect entry point (M29 FWK-2): importing the submodules here binds
+# ``agentwatch.instrument`` (callable) and ``agentwatch.autoinstrument``.
+from agentwatch import autoinstrument as autoinstrument  # noqa: E402
+from agentwatch import instrument as instrument  # noqa: E402

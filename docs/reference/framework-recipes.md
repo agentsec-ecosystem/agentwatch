@@ -102,6 +102,20 @@ in the explicit `unmapped` bucket — visible, not silently dropped.
   This is what makes the Claude Agent SDK's CCO-1 dependency honest: `tool_use_id`
   shows up as unmapped until the shared ingest owns it.
 
+## One-call onboarding — `agentwatch.instrument()`
+
+```python
+import agentwatch
+agentwatch.instrument()   # detects installed frameworks, wires them, prints detected + gaps
+```
+
+`agentwatch.instrument()` (M29 FWK-2) is the embedder's two-line on-ramp: it
+detects the installed supported frameworks, points their OTel at the local
+collector, takes identity from the environment, and prints **what it instrumented
+and what it could not** (no silent partial instrumentation). It no-ops when the
+recorder is not running, registers a single flush-on-exit, and is idempotent. See
+[`design/sdk-lifecycle.md`](../design/sdk-lifecycle.md) §Auto-detect (FWK-2).
+
 ## CI
 
 - Fixture conformance: `packages/python-sdk/tests/test_frameworks.py` (attribute

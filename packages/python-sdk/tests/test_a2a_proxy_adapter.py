@@ -245,3 +245,170 @@ def test_passes_the_shared_conformance_runner() -> None:
     import conformance_registry
 
     conformance.assert_conforms(conformance_registry.a2a_proxy_spec())
+
+
+def test_message_response_with_kind_message() -> None:
+    message = _request(
+        direction="response",
+        tool_name="message/send",
+        rpc={
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": {"kind": "message", "messageId": "m-2", "role": "agent"},
+        },
+    )
+    record = a2a_proxy.normalize(message)[0]
+    assert record.tool.arguments == {"message_id": "m-2", "role": "agent"}
+
+
+def test_response_metadata_falls_back_to_the_event() -> None:
+    message = _request(
+        direction="response",
+        tool_name="message/send",
+        task_id="t-ev",
+        rpc={"jsonrpc": "2.0", "id": 7, "result": {"kind": "unknown"}},
+    )
+    record = a2a_proxy.normalize(message)[0]
+    assert record.tool.arguments == {"task_id": "t-ev"}
+
+
+def test_missing_timestamp_defaults_to_now() -> None:
+    message = _request()
+    del message["event"]["timestamp"]
+
+    assert a2a_proxy.normalize(message)[0].started_at is not None
+
+
+def test_invalid_timestamp_is_rejected() -> None:
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize(_request(timestamp="not-a-date"))
+
+
+def test_call_id_wins_over_the_rpc_id() -> None:
+    assert a2a_proxy.normalize(_request(call_id="c1"))[0].span_id == "a2a:remote-scheduler:c1"
+
+
+def test_missing_rpc_id_means_no_span_id() -> None:
+    message = _request(rpc={"jsonrpc": "2.0", "method": "tasks/get", "params": {"id": "t"}})
+    assert a2a_proxy.normalize(message)[0].span_id is None
+
+
+def test_request_without_params_is_rejected() -> None:
+    message = _request(rpc={"jsonrpc": "2.0", "id": 1, "method": "message/send"})
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize(message)
+
+
+def test_message_send_without_a_message_object_is_rejected() -> None:
+    message = _request(
+        rpc={"jsonrpc": "2.0", "id": 1, "method": "message/send", "params": {}}
+    )
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize(message)
+
+
+def test_non_object_message_is_rejected() -> None:
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize("not-an-object")  # type: ignore[arg-type]
+
+
+def test_missing_event_is_rejected() -> None:
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize({"phase": "a2a"})
+
+
+def test_missing_rpc_is_rejected() -> None:
+    message = {"phase": "a2a", "event": {"agent": "a", "direction": "request"}}
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize(message)
+
+
+def test_card_exchange_without_a_card_is_rejected() -> None:
+    message = {
+        "phase": "a2a",
+        "harness": "a2a-proxy",
+        "event": {"agent": "a", "session_id": "s", "direction": "card"},
+    }
+    with pytest.raises(a2a_proxy.A2aProxyAdapterError):
+        a2a_proxy.normalize(message)
+
+
+def test_card_without_a_name_falls_back_to_the_event_agent() -> None:
+    card = {"provider": {"organization": "Acme"}, "version": "1.0.0"}
+    message = {
+        "phase": "a2a",
+        "harness": "a2a-proxy",
+        "event": {
+            "agent": "remote-scheduler",
+            "session_id": "s-1",
+            "direction": "card",
+            "card": card,
+            "timestamp": "2026-01-02T03:04:05+00:00",
+        },
+    }
+    record = a2a_proxy.normalize(message)[0]
+
+    assert record.tool.arguments is not None
+    assert record.tool.arguments["agent"] == "remote-scheduler"
+    assert record.tool.arguments["org"] == "Acme"
+    assert record.host is None
+
+
+def test_response_content_is_captured_when_redaction_allows() -> None:
+    message = _request(
+        direction="response",
+        tool_name="message/send",
+        rpc={
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": {"kind": "task", "id": "t-1", "status": {"state": "completed"}},
+        },
+    )
+    record = a2a_proxy.normalize(
+        message, redaction=RedactionConfig(mode=PrivacyMode.TRUNCATED)
+    )[0]
+
+    assert record.tool.response is not None
+    assert record.tool.response["kind"] == "task"
+
+
+def test_scalar_values_in_captured_content_are_kept() -> None:
+    message = _request(
+        rpc={
+            "jsonrpc": "2.0",
+            "id": 7,
+            "method": "message/send",
+            "params": {"message": {"messageId": "m-1", "parts": [{"text": "hi"}], "count": 3}},
+        }
+    )
+    record = a2a_proxy.normalize(
+        message, redaction=RedactionConfig(mode=PrivacyMode.TRUNCATED)
+    )[0]
+
+    assert record.tool.arguments is not None
+    assert record.tool.arguments["count"] == 3
+
+
+def test_delegation_via_a_card_derives_org_agent_and_workload_identity() -> None:
+    card = {
+        "name": "Remote Scheduler",
+        "url": "https://scheduler.acme.example/a2a",
+        "provider": {"organization": "Acme"},
+    }
+    records = a2a_proxy.normalize(_request(card=card))
+    delegation = [r for r in records if r.tool.name == "agent-delegation"][0]
+
+    assert delegation.security_event is not None
+    assert delegation.security_event.evidence is not None
+    assert delegation.security_event.evidence["remote_org"] == "Acme"
+    assert delegation.security_event.evidence["remote_agent"] == "Remote Scheduler"
+    assert delegation.security_event.evidence["card_outcome"] == "unverified"
+    assert delegation.agent.workload_identity == "https://scheduler.acme.example/a2a"
+    assert delegation.host == "scheduler.acme.example"
+
+
+def test_delegation_without_a_local_agent_uses_a_single_entry_chain() -> None:
+    records = a2a_proxy.normalize(_request(remote_org="Acme"))
+    delegation = [r for r in records if r.tool.name == "agent-delegation"][0]
+
+    assert delegation.agent.delegation_chain == ("remote-scheduler",)

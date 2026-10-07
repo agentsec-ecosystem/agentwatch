@@ -41,14 +41,27 @@ class _UpstreamHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length)
         self.seen.append({"headers": dict(self.headers), "body": body, "path": self.path})
         message = json.loads(body) if body else {}
-        reply = {
-            "jsonrpc": "2.0",
-            "id": message.get("id"),
-            "result": {"kind": "task", "id": "t-1", "status": {"state": "completed"}},
-        }
+        if isinstance(message, list):
+            reply: Any = [
+                {
+                    "jsonrpc": "2.0",
+                    "id": item.get("id"),
+                    "result": {"kind": "task", "id": "t-1", "status": {"state": "completed"}},
+                }
+                for item in message
+            ]
+        else:
+            reply = {
+                "jsonrpc": "2.0",
+                "id": message.get("id"),
+                "result": {"kind": "task", "id": "t-1", "status": {"state": "completed"}},
+            }
         self._reply(json.dumps(reply).encode(), "application/json")
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib naming
+        if "jsonrpc" in self.path:
+            self._reply(b'{"jsonrpc": "2.0", "id": 1, "result": {}}', "application/json")
+            return
         self._reply(json.dumps(CARD).encode(), "application/json")
 
 
@@ -163,3 +176,87 @@ def test_upstream_failure_is_502_and_records_error(monkeypatch: pytest.MonkeyPat
 def test_create_http_proxy_requires_a_route() -> None:
     with pytest.raises(ValueError):
         a2a_proxy.create_http_proxy({})
+
+
+def test_http_batch_post_is_recorded(
+    monkeypatch: pytest.MonkeyPatch, upstream: ThreadingHTTPServer
+) -> None:
+    url = f"http://127.0.0.1:{upstream.server_address[1]}/"
+    server, port, frames = _start_proxy(monkeypatch, {"scheduler": url})
+    try:
+        batch = json.dumps(
+            [
+                {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "message/send",
+                    "params": {"message": {"messageId": "m-1"}},
+                }
+            ]
+        ).encode()
+        status, _ = _request(port, "POST", "/scheduler", batch)
+        assert status == 200
+        assert [f["event"]["direction"] for f in frames] == ["request", "response"]
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_get_without_a_card_is_not_recorded(
+    monkeypatch: pytest.MonkeyPatch, upstream: ThreadingHTTPServer
+) -> None:
+    url = f"http://127.0.0.1:{upstream.server_address[1]}/jsonrpc"
+    server, port, frames = _start_proxy(monkeypatch, {"scheduler": url})
+    try:
+        status, data = _request(port, "GET", "/scheduler")
+        assert status == 200
+        assert b"jsonrpc" in data
+        assert frames == []
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_route_with_a_query_string(
+    monkeypatch: pytest.MonkeyPatch, upstream: ThreadingHTTPServer
+) -> None:
+    url = f"http://127.0.0.1:{upstream.server_address[1]}/a2a?tenant=acme"
+    server, port, frames = _start_proxy(monkeypatch, {"scheduler": url})
+    try:
+        status, _ = _request(port, "POST", "/scheduler", _send())
+        assert status == 200
+        assert "tenant=acme" in _UpstreamHandler.seen[-1]["path"]
+        assert [f["event"]["direction"] for f in frames] == ["request", "response"]
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_bad_content_length_is_tolerated(
+    monkeypatch: pytest.MonkeyPatch, upstream: ThreadingHTTPServer
+) -> None:
+    url = f"http://127.0.0.1:{upstream.server_address[1]}/"
+    server, port, _ = _start_proxy(monkeypatch, {"scheduler": url})
+    try:
+        connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+        connection.putrequest("POST", "/scheduler")
+        connection.putheader("Content-Length", "not-a-number")
+        connection.endheaders()
+        response = connection.getresponse()
+        response.read()
+        connection.close()
+        assert response.status == 200
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_https_route_failure_is_502_and_records_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    server, port, frames = _start_proxy(monkeypatch, {"scheduler": "https://127.0.0.1:1/"})
+    try:
+        status, _ = _request(port, "POST", "/scheduler", _send())
+        assert status == 502
+        assert frames[1]["event"]["rpc"]["error"]["message"]
+    finally:
+        server.shutdown()
+        server.server_close()

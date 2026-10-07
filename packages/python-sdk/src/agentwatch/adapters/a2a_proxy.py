@@ -124,11 +124,6 @@ def _span_id(agent: str, event: Mapping[str, Any], rpc: Mapping[str, Any]) -> st
     return f"a2a:{agent}:{raw_id}"
 
 
-def _string_field(source: Mapping[str, Any] | None, key: str) -> str | None:
-    value = source.get(key) if source is not None else None
-    return value if isinstance(value, str) and value else None
-
-
 def _request_metadata(method: str, params: Mapping[str, Any]) -> dict[str, str]:
     """The correlation ids carried by a recorded A2A request."""
     metadata: dict[str, str] = {}

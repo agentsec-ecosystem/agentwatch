@@ -152,11 +152,6 @@ def card_frame(
     return _frame(agent, session_id, "card", card=card, source=source, **kwargs)
 
 
-def is_jsonrpc_response(message: Any) -> bool:
-    """Whether ``message`` is a JSON-RPC response (no method, has an id)."""
-    return isinstance(message, Mapping) and "method" not in message and "id" in message
-
-
 def is_recordable_request(message: Any) -> bool:
     """Whether ``message`` is a JSON-RPC request for a recorded A2A surface."""
     return (

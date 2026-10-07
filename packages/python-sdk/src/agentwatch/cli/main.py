@@ -528,10 +528,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     ingest.add_argument(
         "--agent",
-        choices=("codex",),
+        choices=("codex", "opencode"),
         default=None,
         help="read a harness's native logs instead of --format "
-        "(codex = rollout JSONL / .jsonl.zst, M27 COD-1)",
+        "(codex = rollout JSONL / .jsonl.zst; opencode = storage tree, M27 COD-1/LOG-1)",
     )
     ingest.add_argument(
         "--capture",
@@ -2357,11 +2357,34 @@ def _run_ingest(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store_dir = Path(cfg.store.path).expanduser()
     store = RecordStore(store_dir / "records.jsonl")
+    redaction = redaction_config_from_mode(args.capture)
+    if args.agent == "opencode":
+        from agentwatch.opencode_reader import ingest_storage
+
+        opencode_stats = ingest_storage(Path(args.path).expanduser(), store, redaction=redaction)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "records": opencode_stats.records,
+                        "sessions": opencode_stats.sessions,
+                        "skipped": opencode_stats.skipped,
+                        "duplicates": opencode_stats.duplicates,
+                        "dangling": opencode_stats.dangling,
+                    }
+                )
+            )
+        else:
+            print(
+                f"ingested {opencode_stats.records} records from {opencode_stats.sessions} "
+                f"session(s); {opencode_stats.skipped} skipped; "
+                f"{opencode_stats.duplicates} duplicate(s); {opencode_stats.dangling} dangling"
+            )
+        return 0
     paths = resolve_ingest_paths(Path(args.path).expanduser())
     if not paths:
         print("agentwatch: no sources found", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
-    redaction = redaction_config_from_mode(args.capture)
     if args.agent == "codex":
         from agentwatch.codex_rollout import ingest_rollouts
 

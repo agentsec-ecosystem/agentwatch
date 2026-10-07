@@ -78,7 +78,7 @@ fidelity-per-effort order (PRD 27 strategy):
 |---|---|---|
 | Native hooks | JSON on stdin to a command; same contract as Claude Code | **Cursor** (full loop incl. blocking before-events, `beforeReadFile`, `afterAgentThought`), OpenCode (`tool.execute.before/after`, `session.*`, `file.changed`) |
 | Native OTel | built-in telemetry → OTLP/JSON/GCP, ingested | **Gemini CLI** (`telemetry` settings; `active_approval_mode`→approval, `user.email`→hashed principal, `installation.id`/`session.id`→identity — GEM-2) |
-| Log-read | read the files the agent already writes | **Codex** (rollout JSONL; `.jsonl.zst`, dangling sessions — reader M27 COD-1), long-tail CLIs |
+| Log-read | read the files the agent already writes | **Codex** (rollout JSONL; `.jsonl.zst`, dangling sessions — reader M27 COD-1), **OpenCode** (storage tree — reader M27 LOG-1), long-tail CLIs |
 | Interposition | proxy the wire protocol | MCP (2026-07-28 surface), **A2A** (signed agent cards) |
 
 Contract additions: an adapter declares its **fidelity tier** (`live-verified | fixture-verified | modeled`) and

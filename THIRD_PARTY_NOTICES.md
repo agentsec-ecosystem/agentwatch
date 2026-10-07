@@ -84,3 +84,7 @@ this repository.
 - **openai/codex** — the format is grounded in the Codex CLI source
   (`codex-rs/core/src/rollout/recorder.rs`, `codex-rs/protocol/src/protocol.rs`), consulted as the authoritative
   format reference. Codex is a product of OpenAI; this project is not affiliated with or endorsed by OpenAI.
+
+- **sst/opencode** — **License:** MIT · **Source:** https://github.com/sst/opencode · the OpenCode transcript
+  reader (M27 LOG-1) is implemented against the generated SDK types
+  (`packages/sdk/js/src/v2/gen/types.gen.ts`: `Session`, `ToolPart`, `ToolState`). No code is vendored.

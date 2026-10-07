@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - LOG-1: an OpenCode transcript **reader** (`agentwatch ingest --agent opencode`) for the MIT SDK-documented
+    storage tree (`session/part/**`: `ToolPart` with `callID`/`tool`/`state.status`/`input`/`output`/`error`),
+    paired ACT/OBSERVE records, dangling `running`/`pending` parts flagged, read-only with `producer: import`
+    (the `log-read` capture level) (#340).
   - XHT-3: the Codex rollout reader is cross-validated against **two independent, commit-pinned OSS parsers**
     (kvsankar/agent-history Python; kylesnowschwartz/agent-ouija Go) on a golden fixture via
     `scripts/xht3_cross_validate.py` + `.github/workflows/xht3-cross-parser.yml`; a divergence fails the job,

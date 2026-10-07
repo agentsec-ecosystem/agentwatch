@@ -87,11 +87,14 @@ SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)**, **XHT-3 (#352
 
 | Gate | Result |
 |---|---|
-| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **95.28%** (1711 passed, 1 skipped); `services/api` **95.75%** (53 passed); `services/analytics` **95.18%** (728 passed); repo guard **34 passed** |
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **95.02%** (1735 passed, 2 skipped); `services/api` **95.75%** (53 passed); `services/analytics` **95.18%** (728 passed); repo guard **34 passed** |
 | `make lint` (ruff zero) | clean (all three packages) |
-| `make typecheck` (mypy `--strict`) | clean (all three packages) |
+| `make typecheck` (mypy `--strict`) | clean (303 + 14 + 53 source files) |
 | `make web-test` (vitest + axe) | 14 passed |
-| Claims ledger | 32 claims / 81 live evidence links, check green |
+| Claims ledger | 38 claims / 101 live evidence links, check green |
+
+The 2 SDK skips are expected and non-blocking: the live-capture golden corpus (needs a machine running Claude
+Code) and the XHT-3 cross-parser diff (its own CI workflow provisions the two parsers; green there).
 
 ## Open items (not signed off)
 

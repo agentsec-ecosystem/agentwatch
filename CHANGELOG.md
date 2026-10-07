@@ -15,6 +15,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     is an explicit, recorded action; the default fleet profile is least-privileged
     (metadata-only, hashed identity). `agentwatch access check`/`matrix` publish the model.
     ADR-0040 (#448).
+  - ACC-2: `agentwatch governance notice` renders what is recorded/not, who can see it,
+    retention, and erasure **from the live effective config**; every statement maps to a
+    config key or documented guarantee and unbackable claims are omitted and listed as
+    refused ("not legal advice" banner). A DPIA starter (`docs/compliance/dpia-starter.md`)
+    carries the counsel-review banner and embeds the notice command (#449).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

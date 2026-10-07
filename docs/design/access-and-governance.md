@@ -35,10 +35,13 @@ module defines and enforces the model and the recording boundary that path must 
 
 ## Notice & DPIA starter (ACC-2)
 
-`agentwatch governance notice` renders, from the live effective config (`config explain`): what is recorded, what is not,
-who can see it, retention, how to request erasure. **Every statement maps to a config key or documented guarantee**;
+Implemented in `agentwatch.governance`; `agentwatch governance notice` renders, from the live effective config
+(`config explain`): what is recorded, what is not, who can see it, retention, how to request erasure. **Every statement
+maps to a config key or documented guarantee** (a statement naming an unknown key fails loudly at construction);
 unbackable statements are omitted and listed ("refused to claim") so the notice cannot over-promise (e.g., "never leaves
-the machine" while an export sink is enabled). A DPIA starter in `docs/compliance/` carries a "not legal advice" banner.
+the machine" while an export or event sink is enabled, or any legal-determination claim). A DPIA starter in
+[`docs/compliance/dpia-starter.md`](../compliance/dpia-starter.md) carries a "not legal advice" banner and embeds the
+`agentwatch governance notice` command.
 
 ## Identity hashing
 
@@ -47,5 +50,5 @@ Default: on-behalf-of principal and delegation are keyed-hashed (IDN-1); plainte
 ## Testing
 
 - Matrix enforced; cross-role read empty + logged (FT-ACC-1) — `tests/test_access.py`.
-- Notice omits unbackable claims; the omitted list is emitted (ACC-2).
+- Notice omits unbackable claims; the omitted list is emitted (ACC-2) — `tests/test_governance_notice.py`.
 - Identity resolution appears in the subject's access log — `tests/test_access.py`.

@@ -70,6 +70,7 @@ from agentwatch.flow import (
     record_flow_observations,
     render_flows,
 )
+from agentwatch.governance import build_notice, render_notice
 from agentwatch.health import fetch_health, local_snapshot
 from agentwatch.impact import build_impact, render_impact
 from agentwatch.importer import import_transcripts, resolve_paths
@@ -340,6 +341,16 @@ def _build_parser() -> argparse.ArgumentParser:
     access_check_p.add_argument("--json", action="store_true", help="emit the decision as JSON")
     access_matrix_p = access_sub.add_parser("matrix", help="print the role x data-class matrix")
     access_matrix_p.add_argument("--json", action="store_true", help="emit the matrix as JSON")
+
+    governance_cmd = sub.add_parser(
+        "governance", help="governance artifacts from the effective config (M29 ACC-2)"
+    )
+    governance_sub = governance_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    governance_notice = governance_sub.add_parser(
+        "notice",
+        help="what is recorded/not, who can see it, retention, erasure (not legal advice)",
+    )
+    governance_notice.add_argument("--json", action="store_true", help="emit the notice as JSON")
 
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
@@ -1998,6 +2009,20 @@ def _run_access(args: argparse.Namespace) -> int:
     return 0 if decision.allowed else _EXIT_INSTALL_ERROR
 
 
+def _run_governance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    notice = build_notice(cfg)
+    if args.json:
+        print(json.dumps(notice.to_dict(), indent=2))
+    else:
+        print(render_notice(notice))
+    return 0
+
+
 def _run_union(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2767,6 +2792,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_config(args)
     if args.command == "access":
         return _run_access(args)
+    if args.command == "governance":
+        return _run_governance(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":

@@ -33,6 +33,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch access log --owner ID [--json]` | Self-visible access log: who (by role) read my records, and when — every cross-user read is a `store-access` record | **implemented** (M29 ACC-1) |
 | `agentwatch access check --role R --data-class D --owner ID [--reader ID] [--same-team] [--content] [--json]` | Evaluate one role × data-class read against the model, record it, and deny (nonzero) a read outside the matrix | **implemented** (M29 ACC-1) |
 | `agentwatch access matrix [--json]` | Print the published role × data-class matrix | **implemented** (M29 ACC-1) |
+| `agentwatch governance notice [--json]` | Render what is recorded/not, who can see it, retention, and erasure **from the live effective config**; every statement maps to a config key or guarantee, unbackable claims are listed as refused, and a "not legal advice" banner is always shown | **implemented** (M29 ACC-2) |
 | `agentwatch union [--session-id ID] [--source hook\|sdk] [--json]` | Read-time union of hook records and SDK spans; `source` + chain-protection stated (S11 M21) | **implemented** (M21) |
 | `agentwatch checkpoint export [--sign] [--tsa URL] [--output PATH] [--json]` | Emit the latest checkpoint digest; optional ed25519 signature and RFC 3161 token (W7/W9 M22) | **implemented** (M22) |
 | `agentwatch checkpoint verify FILE --public-key PATH [--json]` | Verify a signed checkpoint export with a raw ed25519 public key (W9 M22) | **implemented** (M22) |

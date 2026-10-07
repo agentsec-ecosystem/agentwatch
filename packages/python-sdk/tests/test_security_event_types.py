@@ -103,6 +103,14 @@ def test_capability_changed_is_a_documented_forward_placeholder() -> None:
     assert "CAP-2" in spec
 
 
+def test_new_types_are_in_the_incident_taxonomy() -> None:
+    from agentwatch.incident_taxonomy import AIR_BY_EVENT, GMF_BY_EVENT
+
+    for member in NEW_TYPES:
+        assert member.value in AIR_BY_EVENT
+        assert member.value in GMF_BY_EVENT
+
+
 def test_new_event_fixtures_validate() -> None:
     for name in ("mode-transition.json", "recorder-config-changed.json", "capability-changed.json"):
         path = FIXTURES / name

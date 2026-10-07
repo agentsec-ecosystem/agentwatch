@@ -590,6 +590,20 @@
         "doc:docs/design/recorder-attestation.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "The end-to-end hook wall-clock (two fresh-interpreter hooks per tool call) is published per OS with a user-visible budget (< 500 ms per tool call at p99) and a 500-call session overhead quote, and is gated in CI; Windows is reported blocked on WIN-1, not silently measured.",
+      "source": "docs/reference/performance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_budget_violation_is_detected",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_windows_is_blocked_not_measured",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_session_overhead_quote",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_ci_workflow_gates_the_hook_wallclock",
+        "workflow:.github/workflows/hook-perf.yml",
+        "doc:docs/reference/performance.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

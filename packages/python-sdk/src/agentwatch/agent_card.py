@@ -118,18 +118,18 @@ def _public_key(spec: Any, alg: str) -> Any:
         if kty == "OKP" and spec.get("crv") == "Ed25519":
             return Ed25519PublicKey.from_public_bytes(_b64url_decode(str(spec["x"])))
         if kty == "EC" and spec.get("crv") == "P-256":
-            numbers = EllipticCurvePublicNumbers(
+            ec_numbers = EllipticCurvePublicNumbers(
                 int.from_bytes(_b64url_decode(str(spec["x"])), "big"),
                 int.from_bytes(_b64url_decode(str(spec["y"])), "big"),
                 SECP256R1(),
             )
-            return numbers.public_key()
+            return ec_numbers.public_key()
         if kty == "RSA":
-            numbers = RSAPublicNumbers(
+            rsa_numbers = RSAPublicNumbers(
                 int.from_bytes(_b64url_decode(str(spec["e"])), "big"),
                 int.from_bytes(_b64url_decode(str(spec["n"])), "big"),
             )
-            return numbers.public_key()
+            return rsa_numbers.public_key()
         raise ValueError("unsupported JWK")
     if isinstance(spec, str):
         try:

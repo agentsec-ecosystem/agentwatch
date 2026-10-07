@@ -179,6 +179,7 @@ def test_unverified_card_is_recorded_as_unverified(
     }
     record = a2a_proxy.normalize(message)[0]
 
+    assert record.tool.arguments is not None
     assert record.tool.arguments["outcome"] == "unverified"
     assert record.tool.arguments["reason"] == "unsigned"
     assert record.authorization is None

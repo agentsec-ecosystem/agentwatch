@@ -166,6 +166,7 @@ def test_agent_card_exchange_is_recorded_with_a_digest() -> None:
     assert record.tool.arguments["agent"] == "Remote Scheduler"
     assert record.tool.arguments["org"] == "Acme"
     assert len(record.tool.arguments["card_digest"]) == 64
+    assert record.step_type is not None
     assert record.step_type.value == "observe"
     assert record.host == "scheduler.acme.example"
 

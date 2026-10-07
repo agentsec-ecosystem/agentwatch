@@ -53,6 +53,7 @@
 <!-- BEGIN GENERATED HARNESS MATRIX -->
 | Harness | Tier | Tested range | Protocol | Fidelity | Managed policy | Invocation | Notes |
 |---|---|---|---|---|---|---|---|
+| `a2a-proxy` | proxy | 1.0 | 1.0 | fixture-verified | n/a | `agentwatch a2a-proxy` / `a2aAgents` install | A2A tasks/messages/artifacts + signed agent cards; deterministic card provenance; agent-delegation observation; declared gaps relayed |
 | `adk` | Tier-2 | 1.5.0–1.x | — | modeled | n/a | OTel GenAI over OTLP (`agentwatch ingest --format otel`) | Google ADK native spans; fixture-driven, live run BLOCKED (not installable here) |
 | `claude-agent-sdk` | Tier-2 | 0.1.0–0.x | — | modeled | n/a | shared Claude Code OTel (`ingest --format claude-otel`, `sdk-native`) | Routes through 29.CCO-1 (WS-A); tool_use_id join owned by CCO-1, live run BLOCKED |
 | `claude-code` | Tier-1 | 2.0–2.x | — | live-verified | blocked | native hooks (`agentwatch init`) | PreToolUse/PostToolUse + local daemon; under `allowManagedHooksOnly` a user/project install is blocked — managed hook/plugin path (DEP-1) |

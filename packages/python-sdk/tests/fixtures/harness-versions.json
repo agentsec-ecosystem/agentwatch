@@ -1,5 +1,29 @@
 {
   "fixtures": {
+    "a2a-proxy/error-response.json": {
+      "fingerprint": "5ef4e6972ec8961a",
+      "version": "1.0"
+    },
+    "a2a-proxy/message-send-request.json": {
+      "fingerprint": "86c0fd7ec1feb473",
+      "version": "1.0"
+    },
+    "a2a-proxy/message-send-response.json": {
+      "fingerprint": "16842256ea64534f",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-cancel-request.json": {
+      "fingerprint": "3cb4c506fbcc6508",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-get-request.json": {
+      "fingerprint": "3cb4c506fbcc6508",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-get-response.json": {
+      "fingerprint": "05f4fdc967fba92f",
+      "version": "1.0"
+    },
     "claude-code/mcp_tool.json": {
       "fingerprint": "811613fba75cc889",
       "version": "2.x"

@@ -8,6 +8,8 @@ a file that changed after install is left untouched.
 
 from __future__ import annotations
 
+import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -100,3 +102,118 @@ def test_resolve_a2a_proxy_command_falls_back_to_module() -> None:
 
     assert command.command == "/nonexistent/python"
     assert command.args_prefix == ("-m", "agentwatch.a2a_proxy")
+
+
+def test_resolve_a2a_proxy_command_prefers_a_sibling(tmp_path: Path) -> None:
+    interpreter = tmp_path / "python"
+    sibling = tmp_path / "agentwatch-a2a-proxy"
+    sibling.write_text("#!/bin/sh\n")
+
+    command = a2a_config.resolve_a2a_proxy_command(str(interpreter))
+
+    assert command.command == str(sibling)
+    assert command.args_prefix == ()
+
+
+def test_resolve_a2a_proxy_command_uses_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(shutil, "which", lambda name: "/usr/local/bin/agentwatch-a2a-proxy")
+
+    command = a2a_config.resolve_a2a_proxy_command("/nonexistent/python")
+
+    assert command.command == "/usr/local/bin/agentwatch-a2a-proxy"
+
+
+def test_resolve_user_scope_and_reject_an_unknown_scope(tmp_path: Path) -> None:
+    target = a2a_config.resolve_a2a_scope("user", home=tmp_path)
+
+    assert target.path == tmp_path / ".a2a.json"
+    with pytest.raises(a2a_config.A2aConfigError):
+        a2a_config.resolve_a2a_scope("team", cwd=tmp_path)
+
+
+def test_non_object_config_is_refused(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_bytes(b"[1, 2, 3]")
+
+    with pytest.raises(a2a_config.A2aConfigError):
+        a2a_config.install_a2a_proxy(target, proxy_command=_command())
+
+
+def test_agents_key_must_be_an_object(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_bytes(b'{"a2aAgents": 5}')
+
+    with pytest.raises(a2a_config.A2aConfigError):
+        a2a_config.install_a2a_proxy(target, proxy_command=_command())
+
+
+def test_explicit_agent_selection_reports_skips(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_text(
+        json.dumps(
+            {
+                "a2aAgents": {
+                    "a": {"command": "a", "args": []},
+                    "b": {"command": "b", "args": []},
+                }
+            }
+        )
+    )
+
+    report = a2a_config.install_a2a_proxy(
+        target, proxy_command=_command(), agents=["a", "missing"]
+    )
+
+    assert report.repointed == ("a",)
+    assert report.skipped == ("missing",)
+
+
+def test_non_command_entries_are_skipped(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_text(
+        json.dumps(
+            {
+                "a2aAgents": {
+                    "a": 5,
+                    "b": {"args": []},
+                    "c": {"command": "c", "args": []},
+                }
+            }
+        )
+    )
+
+    report = a2a_config.install_a2a_proxy(target, proxy_command=_command())
+
+    assert report.repointed == ("c",)
+
+
+def test_unreadable_manifest_is_ignored(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_text("{}")
+    (tmp_path / ".a2a.json.agentwatch-a2a-manifest.json").write_text("not json")
+
+    report = a2a_config.uninstall_a2a_proxy(target)
+
+    assert report.reason == "not installed"
+
+
+def test_uninstall_with_a_missing_config_file(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_bytes(b'{"a2aAgents": {"a": {"command": "a", "args": []}}}')
+    a2a_config.install_a2a_proxy(target, proxy_command=_command())
+    target.path.unlink()
+
+    report = a2a_config.uninstall_a2a_proxy(target)
+
+    assert report.reason == "config file is missing"
+
+
+def test_uninstall_with_a_missing_backup(tmp_path: Path) -> None:
+    target = _target(tmp_path)
+    target.path.write_bytes(b'{"a2aAgents": {"a": {"command": "a", "args": []}}}')
+    a2a_config.install_a2a_proxy(target, proxy_command=_command())
+    (tmp_path / ".a2a.json.agentwatch-a2a-backup").unlink()
+
+    report = a2a_config.uninstall_a2a_proxy(target)
+
+    assert report.reason is not None and "backup missing" in report.reason

@@ -130,6 +130,18 @@ SHIPPED: dict[str, HarnessInfo] = {
         ),
         protocol="2026-07-28",
     ),
+    "a2a-proxy": HarnessInfo(
+        harness="a2a-proxy",
+        tier="proxy",
+        tested=HarnessRange("1.0", "1.0"),
+        fidelity=FIDELITY_FIXTURE,
+        invocation="`agentwatch a2a-proxy` / `a2aAgents` install",
+        notes=(
+            "A2A tasks/messages/artifacts + signed agent cards; deterministic card "
+            "provenance; agent-delegation observation; declared gaps relayed"
+        ),
+        protocol="1.0",
+    ),
     "crewai": HarnessInfo(
         harness="crewai",
         tier="Tier-2",

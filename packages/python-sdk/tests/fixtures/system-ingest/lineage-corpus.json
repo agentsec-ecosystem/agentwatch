@@ -1,0 +1,54 @@
+{
+  "schema": "system-ingest-lineage-corpus/1",
+  "note": "Shape-synthesized synthetic process tree with known session membership; used to publish the lineage false-join precision. No real capture content.",
+  "session_pids": {
+    "s-alpha": [100],
+    "s-beta": [200]
+  },
+  "events": [
+    {
+      "type": "process_exec",
+      "pid": 100,
+      "ppid": 1,
+      "comm": "node",
+      "timestamp": "2026-01-02T03:04:05Z",
+      "session_id": "s-alpha"
+    },
+    {
+      "type": "network_connect",
+      "pid": 102,
+      "ppid": 100,
+      "comm": "node",
+      "daddr": "1.2.3.4",
+      "dport": 443,
+      "timestamp": "2026-01-02T03:04:06Z"
+    },
+    {
+      "type": "process_exec",
+      "pid": 200,
+      "ppid": 1,
+      "comm": "python",
+      "timestamp": "2026-01-02T03:04:07Z",
+      "session_id": "s-beta"
+    },
+    {
+      "type": "network_connect",
+      "pid": 201,
+      "ppid": 200,
+      "comm": "python",
+      "daddr": "5.6.7.8",
+      "dport": 80,
+      "timestamp": "2026-01-02T03:04:08Z"
+    },
+    {
+      "type": "network_connect",
+      "pid": 999,
+      "ppid": 1,
+      "comm": "sshd",
+      "daddr": "9.9.9.9",
+      "dport": 22,
+      "timestamp": "2026-01-02T03:04:09Z"
+    }
+  ],
+  "truth": ["s-alpha", "s-alpha", "s-beta", "s-beta", null]
+}

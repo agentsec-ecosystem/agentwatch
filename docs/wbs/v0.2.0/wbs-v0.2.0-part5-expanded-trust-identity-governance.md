@@ -34,7 +34,17 @@ HLD-1 — legal holds suspend retention/purge with recorded override provenance 
 ADR-0041; tests `packages/python-sdk/tests/test_legal_hold.py`. **BLOCKED:** propagation to every
 derived index/export needs 30.EXT-5 / LUI-2 (M30), absent from this branch.
 **Status:** 🔄 in progress — the `m29/standards` workstream landed **29.STD-1** (#452) and **29.ASI-1** (#451);
-remaining M29 tickets are tracked in parallel workstreams.
+remaining M29 tickets are tracked in parallel workstreams. The `m29/sys-acs` workstream lands the M28 items
+re-pointed to M29: **29.SYS-1** (#366) and **29.ACS-1** (#367).
+
+**Progress:** SYS-1 — opt-in Linux system-effects ingest (`agentwatch.system_ingest`, AgentSight/Tracee-shaped,
+`ingest --format system-ingest --consent`), records labeled `source: system-ingest`, lineage join never silently
+attributed (`unjoined:system-ingest`), synthetic-corpus false-join precision published, `classify`/`impact`
+extended to syscall truth (`docs/design/system-effects-ingest.md`); tests
+`packages/python-sdk/tests/test_system_ingest.py`. ACS-1 — ACS Guardian audit-trail ingest
+(`agentwatch.acs`, `ingest --format acs`), Guardian decisions → `denied`/`policy-fired` with AAT
+`record_phase: pre_execution`, spec version pinned + drift check, unknown frame quarantined
+(`docs/design/acs-interop.md`); tests `packages/python-sdk/tests/test_acs_ingest.py`.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

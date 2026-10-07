@@ -653,16 +653,28 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance", "claude-otel"),
+        choices=(
+            "otel",
+            "otlp-grpc",
+            "ndjson",
+            "aat",
+            "claude-compliance",
+            "claude-otel",
+            "system-ingest",
+            "acs",
+        ),
         default="otel",
         help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
         "claude-otel is Claude Code native OTel (CCO-1); claude-compliance is an "
-        "Anthropic Compliance API export, requires --consent)",
+        "Anthropic Compliance API export, requires --consent; system-ingest is the "
+        "Linux-only opt-in system-effects layer (SYS-1), requires --consent; acs is "
+        "an ACS Guardian audit trail (ACS-1))",
     )
     ingest.add_argument(
         "--consent",
         action="store_true",
-        help="explicit opt-in for the egress-adjacent claude-compliance pull (M27 CCA-1)",
+        help="explicit opt-in for the egress-adjacent claude-compliance pull (M27 CCA-1) "
+        "and the Linux-only system-effects layer (M29 SYS-1)",
     )
     ingest.add_argument(
         "--agent",
@@ -2835,6 +2847,8 @@ def _run_ingest(args: argparse.Namespace) -> int:
         return 0
     if args.format == "claude-compliance":
         return _run_ingest_claude_compliance(args, store, paths, redaction)
+    if args.format == "system-ingest":
+        return _run_ingest_system(args, store, store_dir, paths, redaction)
     stats = run_ingest(
         paths,
         store,
@@ -2857,6 +2871,55 @@ def _run_ingest(args: argparse.Namespace) -> int:
     else:
         print(
             f"ingested {stats.records} records from {stats.files} file(s); "
+            f"{stats.skipped} skipped; {stats.duplicates} already present; "
+            f"{len(stats.problems)} problem(s)"
+        )
+    return 0
+
+
+def _run_ingest_system(
+    args: argparse.Namespace,
+    store: RecordStore,
+    store_dir: Path,
+    paths: list[Path],
+    redaction: Any,
+) -> int:
+    """Opt-in Linux system-effects ingest (M29 SYS-1)."""
+    from agentwatch.quarantine import QuarantineLog
+    from agentwatch.system_ingest import SessionIndex, run_system_ingest
+
+    if not args.consent:
+        print(
+            "agentwatch: --format system-ingest is Linux-only and requires --consent",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    sessions = SessionIndex.from_records(store.records())
+    stats = run_system_ingest(
+        paths,
+        store,
+        opted_in=True,
+        sessions=sessions,
+        quarantine=QuarantineLog(store_dir / "quarantine.jsonl"),
+        redaction=redaction,
+    )
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "files": stats.files,
+                    "records": stats.records,
+                    "skipped": stats.skipped,
+                    "duplicates": stats.duplicates,
+                    "problems": [
+                        {"source": p.source, "reason": p.reason} for p in stats.problems
+                    ],
+                }
+            )
+        )
+    else:
+        print(
+            f"ingested {stats.records} system record(s) from {stats.files} file(s); "
             f"{stats.skipped} skipped; {stats.duplicates} already present; "
             f"{len(stats.problems)} problem(s)"
         )

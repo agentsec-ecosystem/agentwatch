@@ -75,6 +75,12 @@ Exit criteria · Design docs).
 > 27.T, 27.D); **WIN-1 declared and re-pointed to M31 field tests** (service unit + `windows-latest` leg landed;
 > named-pipe transport + CUJ-1 Windows timing). Gate green (`make test`: SDK 95.02%/1735, API 95.75%/53,
 > analytics 95.18%/728, repo guard 34; ruff/mypy/web clean). 27.R signed off (maintainer, 2026-10-06).
+>
+> **Progress:** ✅ **M28 (Depth) complete** (2026-10-06) — 12 feature/support tickets done (CMP-4, IDN-4, CMP-3,
+> GOV-1, MIG-1, COR-3, OTEL-4, DET-6, DET-7, DATA-1, TSS-1, COR-4). **Phased to v0.2.x (explicit, issues kept
+> open/re-pointed):** PG-1..3 (re-sequenced behind the embedded index `LUI-2` per ADR-0035), A2A-1/2, SYS-1,
+> ACS-1. Gate green (`make test`: SDK 95.14%, API 95.75%/53, analytics 95.24%/742, repo guard 47; `ruff`,
+> `mypy --strict`, web vitest clean). No tag in M28.
 
 ## Track → ticket map
 

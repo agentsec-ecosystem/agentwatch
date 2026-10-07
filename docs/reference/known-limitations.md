@@ -17,7 +17,13 @@ Status: living.
 - ~~28/35 detectors silent on the HF field-test corpus.~~ **Resolved in M26 (DET-2/DET-3):** 38/38 rule detectors are
   non-silent on the field-test matrix, with generated, drift-guarded precision/recall in the catalog (proving test:
   `services/analytics/tests/test_detector_non_silent.py`).
-- No PydanticAI adapter; no policy-overlay view; no memory-audit UI.
+- ~~No memory-audit.~~ **Closed in M28 (DET-7):** memory read/write/delete are recorded (metadata always;
+  content gated by privacy mode) and filterable with `agentwatch search --memory` (proving test:
+  `packages/python-sdk/tests/test_memory_surface.py`). A dedicated memory-audit **UI** is still absent.
+- No PydanticAI adapter; no policy-overlay view.
+- **Phased to v0.2.x (M28 cut-line, declared not dropped):** the derived Postgres query tier (`PG-1..3` →
+  M30, re-sequenced behind the embedded index `LUI-2`), and A2A interposition/provenance (`A2A-1/2`), a
+  system-effects ingest (`SYS-1`), and an ACS Guardian ingest (`ACS-1`) → M29 (need external specs/captures).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

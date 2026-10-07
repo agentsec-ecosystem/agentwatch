@@ -116,3 +116,61 @@ live local `Qwen3.5-9B-MLX-4bit`; `CCA-1` added the consent-gated Compliance API
   recorded above. Closes #379.
 
 ## Final gate (M27 batch, all changes)
+
+See `## Final gate (M27 batch, all changes)` results above (recorded in the M27 section headers).
+
+---
+
+# v0.2.0 — M28 Code Review Log
+
+Record of the M28 (Depth) code review (#382). One row per finding; closed when fixed + tested.
+
+**Scope reviewed:** every landed M28 ticket — CMP-4 (#361), IDN-4 (#363), CMP-3 (#360), GOV-1 (#369), MIG-1
+(#436), COR-3 (#358), OTEL-4 (#362), DET-6 (#356), DET-7 (#357), DATA-1 (#435), TSS-1 (#368), COR-4 (#359),
+plus 28.T (#380) and 28.D (#381).
+
+## Findings
+
+| # | Ticket | Finding | Severity | Resolution | Status |
+|---|---|---|---|---|---|
+| 1 | M28 batch | New detector tickets (IDN-4, DET-6) coupled many drift surfaces: factory count, `AnomalyType` enum, scenario matrix, public corpus, generated catalog, and count tests | Medium | Each registration moved together; counts/enums/corpus/catalog regenerated; deterministic guard tests added | Fixed |
+| 2 | CMP-3 (#360) | `retention apply` now records a `retention-changed` marker (S5); the marker is appended **after** the run so the report's `purged`/`kept` still describe the records the window applied to | Low | Two existing CLI tests updated; new profile tests added | Fixed |
+| 3 | M28 batch | `make lint`'s Makefile loop continued past a failing package (ruff E501/F841 in new tests), so lint could exit 0 with violations | Medium | Files fixed; `mypy --strict` independently caught the same class of issues; per-package `ruff check` verified clean | Fixed |
+| 4 | IDN-4 / DET-6 / TSS-1 | Tests under `mypy --strict` needed Optional-guarded indexing (`Mapping|None`, `dict|None`) and a `jsonschema` untyped-import marker | Low | Guards/casts/annotations added; `mypy --strict` clean on all packages | Fixed |
+| 5 | PG-1..3 (#353–#355) | Derived Postgres index re-sequenced behind the embedded index (`LUI-2`, PRD 54/ADR-0035); no Postgres tier is built in M28 | Medium (accepted) | **Phased, not dropped** — re-pointed to M30; `DATA-1` shipped the DDL/dictionary groundwork | Waived with reason |
+| 6 | A2A-1/2 (#364/#365), SYS-1 (#366), ACS-1 (#367) | A2A v1.0 wire spec + signed agent cards, Linux system-effects spec, and ACS Guardian audit-trail spec are not built in-repo | Medium (accepted) | **Phased, not dropped** per the WBS cut-line — re-pointed to M29; not fabricated | Waived with reason |
+
+## Guardrails honored (M28)
+
+- **Monitor-only, never enforcement** — injection-shape and credential-hygiene are observations; retention
+  tombstones (never hard-deletes, D-K); signing stores digests only.
+- **Redaction before storage** — the incident report carries no tool arguments/content; `credential_class` is a
+  classification, never a value; memory content is gated by privacy mode + `capture_memory`.
+- **Foreign content / no egress** — the incident-report module is egress-audited; the export is
+  `manual-voluntary` (`auto_egress: false`).
+- **Deterministic trust path** — injection heuristics are deterministic; the high-false-positive imperative-density
+  rule is off by default.
+- **Single source of truth** — schema→TS spike reads `schema/`; derived-index DDL carries `source_seq`/`source_hash`
+  back-refs.
+
+## Gate results (M28 batch)
+
+| Gate | Result |
+|---|---|
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **95.14%**; `services/api` **95.75%** (53 passed); `services/analytics` **95.24%** (742 passed); repo guard **47 passed** |
+| `make lint` (ruff zero) | clean (SDK/API/analytics verified per package) |
+| `make typecheck` (mypy `--strict`) | clean (314 + 14 + 58 source files) |
+| `make web-test` (vitest + axe) | 14 passed |
+| Claims ledger | 51 claims / 156 live evidence links, check green |
+
+## Deferred (re-pointed)
+
+- **PG-1..3** (#353–#355) → **M30** (derived Postgres query tier; re-sequenced behind `LUI-2`).
+- **A2A-1/2** (#364/#365), **SYS-1** (#366), **ACS-1** (#367) → **M29** (external specs / real captures).
+- Each issue carries a phasing comment (explicit, not dropped). No tag in M28.
+
+## Sign-off (M28)
+
+- **Automated review evidence:** recorded above; the final gate is green (table above).
+- **Deferrals:** six tickets phased to M29/M30 with reasons recorded.
+- **Independent human risk sign-off:** pending maintainer (Debashish Ghosal, `@deghosal-2026`). Closes #382.

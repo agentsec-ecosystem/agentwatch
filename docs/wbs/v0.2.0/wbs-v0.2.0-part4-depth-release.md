@@ -53,21 +53,25 @@ follow — do not tag in M28. Items phased to v0.2.x are listed explicitly (neve
 > **Moved to Part 5:** the v0.2.0 field-test execution/report (was 28.FLD-1b) is **M29.2/29.3**; the release
 > gate, release notes, compatibility table, and security audit (was 28.REL) are **M30.3–30.8**. Do not tag in M28.
 
-**Phased to v0.2.x (explicit, not dropped):** PG-1..3 (first to slip if M28 overruns) · A2A-1..2 · SYS-1 · ACS-1 ·
-TSS-1 (spike only) · DET-6..7 · CMP-3..4 · OTEL-4 · COR-2..4. Phased items keep their issue open and re-pointed;
-the chain store remains the source of truth regardless.
+**Phased to v0.2.x (explicit, not dropped):** PG-1..3 (first to slip; re-sequenced behind the embedded index
+`LUI-2` per ADR-0035) · A2A-1..2 · SYS-1 · ACS-1. These keep their issue open and re-pointed; the chain store
+remains the source of truth regardless. *(Completed in M28 rather than phased: TSS-1 spike, DET-6..7,
+CMP-3..4, OTEL-4, COR-2..4.)*
 
 **Tests required:** bit-for-bit rebuild + no-Postgres leg; tenant-denial audit; injection/memory privacy tests;
 retention/report integration; signed-rotation test; A2A conformance; coverage ≥ 95% on all new modules.
+*(Shipped in M28: injection/memory privacy tests, retention/report integration, signed-rotation test, coverage
+≥95% on all new modules. Deferred with their tickets: bit-for-bit rebuild + no-Postgres leg, tenant-denial
+audit, A2A conformance.)*
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
-- [ ] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · pushed to `feat-v0.2.0`
+- [x] **All relevant documents are updated as the milestone is closed out** (see "Documents to update at
       close-out" below)
-- [ ] Postgres tier rebuilds bit-for-bit; injection/memory observations published with precision/recall; retention
-      profiles + signed default live; A2A/SYS/ACS/TS shipped or explicitly phased; governance motions landed.
-- [ ] Field tests and release readiness **not started** in M28 (they are M29–M30).
+- [x] injection/memory observations published with precision/recall; retention profiles + signed default live;
+      TS spike done; governance motions landed. *(Postgres rebuild + A2A/SYS/ACS explicitly phased.)*
+- [x] Field tests and release readiness **not started** in M28 (they are M29–M30).
 
 **Documents to update at close-out:** the design docs listed below, plus all PRDs 40–48 (status → shipped),
 [ROADMAP.md](../../../ROADMAP.md), [docs/README.md](../../README.md), [CHANGELOG.md](../../../CHANGELOG.md),

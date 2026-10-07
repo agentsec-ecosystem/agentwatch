@@ -565,6 +565,18 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "Under Claude Code managed policy that blocks user/project hooks, `doctor` reports `hooks effective: blocked by managed policy` and never claims \"installed\"; it detects, never circumvents, and managed installs are removed by the admin mechanism.",
+      "source": "docs/design/managed-policy-install.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_blocked_never_says_installed",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_managed_hook_is_effective",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_unreadable_policy_is_unknown",
+        "doc:docs/design/managed-policy-install.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

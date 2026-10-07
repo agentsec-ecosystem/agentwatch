@@ -80,6 +80,7 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.inventory import build_inventory, inventory_to_json, render_inventory
+from agentwatch.managed_policy import detect_managed_policy, install_guidance
 from agentwatch.mcp_config import (
     install_mcp_proxy,
     resolve_mcp_proxy_command,
@@ -1011,6 +1012,10 @@ def _run_init(args: argparse.Namespace) -> int:
 
     for warning in preflight(detect_claude_version()):
         print(f"agentwatch: warning: {warning}", file=sys.stderr)
+
+    guidance = install_guidance(detect_managed_policy())
+    if guidance is not None:
+        print(f"agentwatch: warning: {guidance}", file=sys.stderr)
 
     try:
         install_hooks(target.settings_path, command, async_hooks=not args.sync_hooks)

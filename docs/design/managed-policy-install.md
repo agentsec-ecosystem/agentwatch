@@ -4,9 +4,16 @@
 user/project hooks are blocked (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and configuration arrives via
 MDM or server-managed settings. Also defines what `doctor` may claim: never "installed" when policy blocks the recorder.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M27 · Sources:
+**Status:** implemented (2026-10-06, v0.2.0 M29) · **Milestone:** M29 · Sources:
 [PRD 50](../prd/50-deployability-and-recorder-attestation.md), [claude-code-hook-contract.md](claude-code-hook-contract.md),
 [recorder-attestation.md](recorder-attestation.md).
+
+> **Implementation (M29 DEP-1, #441).** `agentwatch.managed_policy` reads the effective managed settings and
+> `doctor` reports `hooks effective: yes | blocked by managed policy | unknown` (never "installed" when blocked).
+> `init` warns when a user/project install would be inert and points at the managed path; `managed_install_artifacts`
+> generates the inert managed hook / org-plugin / MDM artifacts. Detection only — never circumvention. **Verified
+> on fixture configurations on macOS/Linux; the Windows managed-settings path and an on-a-clean-machine MDM
+> verification are BLOCKED on WIN-1 (Windows service + named-pipe transport re-pointed to M31).** ADR-0028.
 
 ## The failure mode
 

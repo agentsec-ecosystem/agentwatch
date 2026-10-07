@@ -29,6 +29,13 @@ from agentwatch.install import (
     resolve_hook_command,
     resolve_scope,
 )
+from agentwatch.managed_policy import (
+    HOOKS_EFFECTIVE_BLOCKED,
+    HOOKS_EFFECTIVE_UNKNOWN,
+    HOOKS_EFFECTIVE_YES,
+    ManagedPolicy,
+    detect_managed_policy,
+)
 from agentwatch.redact import redaction_config_from_mode
 from agentwatch.selftest import run_redaction_self_test
 from agentwatch.signing import signing_status
@@ -110,21 +117,52 @@ def _check_distribution() -> CheckResult:
     return CheckResult("distribution", WARN, warning, f"reinstall with `{naming.FULL_INSTALL}`")
 
 
-def _check_hooks(settings_paths: Mapping[str, Path]) -> CheckResult:
+def _check_hooks(
+    settings_paths: Mapping[str, Path], policy: ManagedPolicy | None = None
+) -> CheckResult:
+    effective = policy or ManagedPolicy()
     installed = [scope for scope, path in settings_paths.items() if hooks_installed(Path(path))]
+
+    # DEP-1: never claim "installed" when the effective policy blocks the recorder.
+    if effective.error is not None:
+        return CheckResult(
+            "hooks",
+            WARN,
+            f"hooks effective: {HOOKS_EFFECTIVE_UNKNOWN} (managed settings unreadable)",
+            "fix or remove the managed settings file, or point "
+            "AGENTWATCH_MANAGED_SETTINGS at the right path",
+        )
+    if effective.blocks_user_hooks:
+        if effective.managed_agentwatch:
+            return CheckResult(
+                "hooks",
+                PASS,
+                f"hooks effective: {HOOKS_EFFECTIVE_YES} (managed hook/plugin)",
+            )
+        return CheckResult(
+            "hooks",
+            WARN,
+            f"hooks effective: {HOOKS_EFFECTIVE_BLOCKED} ({effective.reason})",
+            "deploy agentwatch as a managed hook or force-enabled org plugin "
+            "(docs/design/managed-policy-install.md)",
+        )
+
     if len(installed) == 1:
-        return CheckResult("hooks", PASS, f"installed ({installed[0]})")
+        return CheckResult(
+            "hooks", PASS, f"hooks effective: {HOOKS_EFFECTIVE_YES} (installed: {installed[0]})"
+        )
     if not installed:
         return CheckResult(
             "hooks",
             WARN,
-            "not installed in any scope",
+            "hooks effective: no (not installed in any scope)",
             "run `agentwatch init` to install hooks",
         )
     return CheckResult(
         "hooks",
         WARN,
-        f"installed in both scopes ({', '.join(sorted(installed))})",
+        f"hooks effective: {HOOKS_EFFECTIVE_YES} but installed in both scopes "
+        f"({', '.join(sorted(installed))})",
         "remove one scope to avoid double-recording",
     )
 
@@ -292,6 +330,7 @@ def run_checks(
     store_path: Path | str | None = None,
     socket_path: Path | str | None = None,
     settings_paths: Mapping[str, Path] | None = None,
+    managed_paths: Sequence[Path] | None = None,
     executable: str | None = None,
 ) -> list[CheckResult]:
     """Run the ordered checklist and return every result.
@@ -304,6 +343,8 @@ def run_checks(
         store_path: override the records JSONL path (tests).
         socket_path: override the daemon socket path (tests).
         settings_paths: override ``{"project": Path, "user": Path}`` (tests).
+        managed_paths: override the managed-settings locations (tests); the
+            platform locations are used when ``None``.
         executable: interpreter used to resolve the hook entry point (tests).
     """
     if cfg is None or config_error is not None:
@@ -319,10 +360,11 @@ def run_checks(
         "project": resolve_scope("project").settings_path,
         "user": resolve_scope("user").settings_path,
     }
+    policy = detect_managed_policy(managed_paths)
 
     return [
         _check_config(cfg, None),
-        _check_hooks(resolved_settings),
+        _check_hooks(resolved_settings, policy),
         _check_daemon(resolved_socket),
         _check_hook_entrypoint(executable),
         _check_store_chain(resolved_store),

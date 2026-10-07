@@ -6,6 +6,12 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
+  - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
+    managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports
+    `hooks effective: yes | blocked by managed policy | unknown`, never "installed" when policy blocks the
+    recorder; `init` warns that a user/project install will be inert and `managed_install_artifacts` generates
+    the inert managed hook / org-plugin / MDM artifacts. Detect, never circumvent (#441).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

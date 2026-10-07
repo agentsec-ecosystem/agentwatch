@@ -64,6 +64,10 @@ Status: living.
   *assignment* — which human holds which role, and under a managed policy — is supplied per request
   until **29.DEP-1** (PRD 50, WS-B) lands. A wrong or missing role denies rather than silently granting
   (proving test: `packages/python-sdk/tests/test_access.py::test_cross_role_read_returns_nothing_and_is_recorded`).
+- Legal holds are enforced on the **chain store** (retention skips; `purge` fails closed with a recorded
+  override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
+  index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
+  exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
 
 ## Policy
 

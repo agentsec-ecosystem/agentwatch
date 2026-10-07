@@ -589,6 +589,18 @@
         "doc:docs/design/access-and-governance.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "A legal hold suspends retention and purge: held records survive retention and a rebuild-from-chain, purge fails closed with the hold reference, and an override requires a stated reason and is recorded as a session-scoped chain record.",
+      "source": "docs/design/legal-hold.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_fails_closed_on_a_held_session_and_records_the_refusal",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_override_requires_a_reason_and_is_conspicuous",
+        "doc:docs/adr/0041-legal-hold.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

@@ -15,7 +15,7 @@ import json
 import os
 import sys
 from collections.abc import Iterable, Sequence
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -72,6 +72,14 @@ from agentwatch.flow import (
 )
 from agentwatch.governance import build_notice, render_notice
 from agentwatch.health import fetch_health, local_snapshot
+from agentwatch.holds import (
+    active_holds,
+    held_skips,
+    parse_scope,
+    record_hold_add,
+    record_hold_release,
+    render_holds,
+)
 from agentwatch.impact import build_impact, render_impact
 from agentwatch.importer import import_transcripts, resolve_paths
 from agentwatch.ingest import resolve_ingest_paths, run_ingest
@@ -351,6 +359,26 @@ def _build_parser() -> argparse.ArgumentParser:
         help="what is recorded/not, who can see it, retention, erasure (not legal advice)",
     )
     governance_notice.add_argument("--json", action="store_true", help="emit the notice as JSON")
+
+    hold_cmd = sub.add_parser(
+        "hold", help="legal holds that suspend retention/purge (M29 HLD-1)"
+    )
+    hold_sub = hold_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    hold_add = hold_sub.add_parser("add", help="place a hold on a scope")
+    hold_add.add_argument(
+        "--scope",
+        required=True,
+        help="session:<id> | project:<path> | principal:<id> | time:<start>..<end>",
+    )
+    hold_add.add_argument("--reason", required=True, help="why the hold exists (recorded)")
+    hold_add.add_argument("--ref", default=None, help="external reference, e.g. CASE-123")
+    hold_add.add_argument("--json", action="store_true", help="emit the hold as JSON")
+    hold_list = hold_sub.add_parser("list", help="list active holds")
+    hold_list.add_argument("--json", action="store_true", help="emit the holds as JSON")
+    hold_release = hold_sub.add_parser("release", help="release an active hold")
+    hold_release.add_argument("hold_id", help="the hold id, e.g. H17")
+    hold_release.add_argument("--reason", default=None, help="why the hold is released")
+    hold_release.add_argument("--json", action="store_true", help="emit the result as JSON")
 
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
@@ -761,6 +789,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "or custom (store.retention_days; default)",
     )
     retention_apply.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="report what would be tombstoned (and which records a hold skips); change nothing",
+    )
+    retention_apply.add_argument(
         "--json", action="store_true", help="emit the retention report as JSON"
     )
 
@@ -769,6 +802,12 @@ def _build_parser() -> argparse.ArgumentParser:
     purge.add_argument("--yes", action="store_true", help="confirm irreversible tombstoning")
     purge.add_argument(
         "--reason", default=None, help="metadata-only reason recorded with the purge"
+    )
+    purge.add_argument(
+        "--override-reason",
+        dest="override_reason",
+        default=None,
+        help="proceed despite an active legal hold; the stated reason is recorded (conspicuous)",
     )
 
     quarantine_cmd = sub.add_parser(
@@ -2023,6 +2062,47 @@ def _run_governance(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_hold(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "list":
+        holds = active_holds(store)
+        if args.json:
+            print(json.dumps({"holds": [hold.to_dict() for hold in holds]}))
+        else:
+            print(render_holds(holds))
+        return 0
+
+    if args.action == "release":
+        released = record_hold_release(store, args.hold_id, reason=args.reason)
+        if released is None:
+            print(f"agentwatch: no active hold {args.hold_id}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps({"released": released}))
+        else:
+            print(f"agentwatch: released hold {released}")
+        return 0
+
+    try:
+        scope = parse_scope(args.scope)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    hold = record_hold_add(store, scope, reason=args.reason, ref=args.ref)
+    if args.json:
+        print(json.dumps(hold.to_dict()))
+    else:
+        ref = f" (ref {hold.ref})" if hold.ref else ""
+        print(f"agentwatch: placed hold {hold.hold_id} on {hold.scope.label()}{ref}")
+    return 0
+
+
 def _run_union(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2161,11 +2241,24 @@ def _run_purge(args: argparse.Namespace) -> int:
         print("agentwatch: refusing to purge without --yes", file=sys.stderr)
         return _EXIT_USAGE_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
-    report = store.purge_session(args.session_id, reason=args.reason)
+    report = store.purge_session(
+        args.session_id,
+        reason=args.reason,
+        override_reason=args.override_reason,
+    )
+    if report.blocked_by_hold is not None:
+        print(
+            f"agentwatch: refusing to purge session {args.session_id}: active legal hold "
+            f"{report.blocked_by_hold}; pass --override-reason with a recorded reason to proceed",
+            file=sys.stderr,
+        )
+        return _EXIT_INSTALL_ERROR
     if not report.found:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     print(f"agentwatch: purged {report.purged} record(s) for session {args.session_id}")
+    if report.override_reason:
+        print(f"agentwatch: legal hold override recorded: {report.override_reason}")
     return 0
 
 
@@ -2207,29 +2300,39 @@ def _run_retention(args: argparse.Namespace) -> int:
     )
     profile = resolve_retention_profile(args.profile, retention_days=cfg.store.retention_days)
     previous = last_state(store).retention_days
-    report = store.apply_retention(retention_days=profile.retention_days)
+    report = store.apply_retention(retention_days=profile.retention_days, dry_run=args.dry_run)
     # Record the policy change *after* the run so the report's counts describe the
     # records the window applied to, not the marker we add to explain it (S5).
-    record_retention_changed(store, old=previous, new=profile.retention_days, profile=profile.name)
-    status = store.verify()
-    if args.json:
-        print(
-            json.dumps(
-                {
-                    "purged": report.purged,
-                    "kept": report.kept,
-                    "chain_ok": status.ok,
-                    "broken_at": status.broken_at,
-                    "retention_days": profile.retention_days,
-                    "profile": profile.name,
-                }
-            )
+    if not args.dry_run:
+        record_retention_changed(
+            store, old=previous, new=profile.retention_days, profile=profile.name
         )
+    status = store.verify()
+    payload: dict[str, Any] = {
+        "purged": report.purged,
+        "kept": report.kept,
+        "chain_ok": status.ok,
+        "broken_at": status.broken_at,
+        "retention_days": profile.retention_days,
+        "profile": profile.name,
+    }
+    if report.held:
+        payload["held"] = report.held
+    if args.dry_run:
+        payload["dry_run"] = True
+        cutoff = datetime.now(timezone.utc) - timedelta(days=profile.retention_days)
+        payload["skipped"] = [skip.to_dict() for skip in held_skips(store, cutoff)]
+    if args.json:
+        print(json.dumps(payload))
     else:
         print(
             f"agentwatch: retention ({profile.name}) purged {report.purged}, "
             f"kept {report.kept} ({profile.retention_days} day window)"
         )
+        if report.held:
+            print(f"  {report.held} record(s) skipped by an active legal hold")
+        if args.dry_run:
+            print("  dry run: nothing was tombstoned")
         if not status.ok:
             print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
     return 0 if status.ok else _EXIT_INSTALL_ERROR
@@ -2794,6 +2897,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_access(args)
     if args.command == "governance":
         return _run_governance(args)
+    if args.command == "hold":
+        return _run_hold(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":

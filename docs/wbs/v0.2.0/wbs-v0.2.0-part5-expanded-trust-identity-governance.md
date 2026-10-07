@@ -13,14 +13,18 @@ the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0.2.0-pa
 
 ## Milestone M29 — Expanded I: Trust, Identity & Governance (PRD 49–51, 56, 59)
 
-**Status:** ⏳ in progress — **29.ACC-1 (#448) and 29.ACC-2 (#449) implemented** on `m29/governance` (WS-C);
-HLD-1 in flight.
+**Status:** ⏳ in progress — **29.ACC-1 (#448), 29.ACC-2 (#449), 29.HLD-1 (#450) implemented** on
+`m29/governance` (WS-C). HLD-1 derived-index propagation is **BLOCKED on 30.EXT-5** (declared).
 
 **Progress:** ACC-1 — role × data-class read model + self-visible access log (`agentwatch.access`,
 `agentwatch access log/check/matrix`), ADR-0040; tests `packages/python-sdk/tests/test_access.py`.
 ACC-2 — `agentwatch governance notice` from the live effective config + DPIA starter
 (`agentwatch.governance`, `docs/compliance/dpia-starter.md`); tests
 `packages/python-sdk/tests/test_governance_notice.py`.
+HLD-1 — legal holds suspend retention/purge with recorded override provenance (`agentwatch.holds`,
+`agentwatch hold add/list/release`, `retention apply --dry-run`, `purge --override-reason`),
+ADR-0041; tests `packages/python-sdk/tests/test_legal_hold.py`. **BLOCKED:** propagation to every
+derived index/export needs 30.EXT-5 / LUI-2 (M30), absent from this branch.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

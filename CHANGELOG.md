@@ -20,6 +20,14 @@ versioning: [Semantic Versioning](https://semver.org/).
     config key or documented guarantee and unbackable claims are omitted and listed as
     refused ("not legal advice" banner). A DPIA starter (`docs/compliance/dpia-starter.md`)
     carries the counsel-review banner and embeds the notice command (#449).
+  - HLD-1: legal holds suspend retention and purge. `agentwatch hold add/list/release`
+    places a hold on a session/project/time/principal scope; while active, retention
+    **skips** held records (`retention apply --dry-run` lists them + hold IDs) and `purge`
+    **fails closed** with the hold ref. An explicit `--override-reason` records a
+    session-scoped override that is conspicuous in an evidence bundle and the compliance
+    report's retention row (`holds`/`overrides`). Holds/releases/refusals/overrides are
+    hash-chain records; D-K tombstones are preserved. Derived-index propagation is
+    declared blocked on 30.EXT-5. ADR-0041 (#450).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

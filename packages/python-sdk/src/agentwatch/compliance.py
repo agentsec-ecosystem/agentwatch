@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from agentwatch.configuration import AgentwatchConfig
+from agentwatch.holds import active_holds, hold_records
 from agentwatch.recorder_state import last_state
 from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
@@ -66,6 +67,8 @@ class RetentionStatus:
     records: int
     status: str  # configured | overdue | unknown
     detail: str = ""
+    holds: int = 0
+    overrides: int = 0
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -74,6 +77,8 @@ class RetentionStatus:
             "records": self.records,
             "status": self.status,
             "detail": self.detail,
+            "holds": self.holds,
+            "overrides": self.overrides,
         }
 
 
@@ -341,25 +346,48 @@ _TEMPLATES: dict[str, tuple[tuple[str, str, str, tuple[str, ...]], ...]] = {
 
 
 def _retention_status(
-    records: list[AgentRecord], config: AgentwatchConfig, now: datetime
+    store: RecordStore, records: list[AgentRecord], config: AgentwatchConfig, now: datetime
 ) -> RetentionStatus:
     days = config.store.retention_days
     oldest: int | None = None
     if records:
         oldest = max(0, int((now - min(r.started_at for r in records)).total_seconds() // 86400))
+    active = len(active_holds(store))
+    overrides = sum(1 for marker in hold_records(store) if marker.action == "purge-override")
     if not days or days <= 0:
         return RetentionStatus(
-            days, oldest, len(records), UNKNOWN, "no retention window configured"
+            days,
+            oldest,
+            len(records),
+            UNKNOWN,
+            "no retention window configured",
+            holds=active,
+            overrides=overrides,
         )
+    hold_note = (
+        f"; {active} active legal hold(s), {overrides} purge override(s)"
+        if active or overrides
+        else ""
+    )
     if oldest is not None and oldest > days:
         return RetentionStatus(
             days,
             oldest,
             len(records),
             "overdue",
-            f"oldest record is {oldest}d old but retention is {days}d",
+            f"oldest record is {oldest}d old but retention is {days}d{hold_note}",
+            holds=active,
+            overrides=overrides,
         )
-    return RetentionStatus(days, oldest, len(records), "configured", "within the retention window")
+    return RetentionStatus(
+        days,
+        oldest,
+        len(records),
+        "configured",
+        f"within the retention window{hold_note}",
+        holds=active,
+        overrides=overrides,
+    )
 
 
 _STATEMENT = (
@@ -412,7 +440,7 @@ def build_report(
         installation="this installation",
         generated_at=moment,
         controls=controls,
-        retention=_retention_status(records, cfg, moment),
+        retention=_retention_status(store, records, cfg, moment),
         signature=signature,
         statement=_STATEMENT,
     )
@@ -432,7 +460,8 @@ def render_report(report: ComplianceReport) -> str:
         lines.append(
             f"  retention: {report.retention.status} "
             f"(window={report.retention.retention_days}d, "
-            f"oldest={report.retention.oldest_record_days}d)"
+            f"oldest={report.retention.oldest_record_days}d, "
+            f"holds={report.retention.holds}, overrides={report.retention.overrides})"
         )
     if report.signature is not None:
         signed = "signed" if report.signature.signed else "unsigned"

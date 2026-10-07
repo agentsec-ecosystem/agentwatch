@@ -25,6 +25,9 @@ versioning: [Semantic Versioning](https://semver.org/).
   - DATA-1: the derived Postgres index DDL (`schema/derived-index.sql`) — every table carries `source_seq` /
     `source_hash` back-references to the chain, so the index is derived-only and rebuildable; documented in
     `docs/design/data-dictionary.md` (#435).
+  - TSS-1: the TypeScript-SDK decision (ADR-0049) — directionally accepted for v0.3.0, **not shipped** in
+    v0.2.0 — with a schema-portability spike (`scripts/generate_ts_types.py` + a round-trip contract test)
+    proving the JSON Schema generates usable TS types (#368).
 - v0.2.0 Surfaces (M27):
   - WIN-1 (partial): Windows service supervision — `render_unit("win32")` generates a **Task Scheduler XML**
     (logon trigger, least privilege, restart-on-failure) and a `windows-latest` **CI leg**

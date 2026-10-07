@@ -540,6 +540,18 @@
         "doc:docs/design/data-dictionary.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C50",
+      "claim": "The JSON Schema is portable to generated TypeScript types (spike); a shipped TypeScript SDK is explicitly deferred to v0.3.0.",
+      "source": "docs/adr/0049-typescript-sdk-decision.md",
+      "evidence": [
+        "test:tests/test_ts_schema_portability.py::test_generates_typescript_interfaces",
+        "test:tests/test_ts_schema_portability.py::test_a_v0_2_0_record_round_trips_through_the_schema",
+        "script:scripts/generate_ts_types.py",
+        "doc:docs/adr/0049-typescript-sdk-decision.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

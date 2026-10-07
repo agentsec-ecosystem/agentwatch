@@ -3,7 +3,9 @@
 **BLUF:** Two-line instrumentation for raw Python and LangGraph, emitting OTel GenAI spans. Preserved from
 the shipped project (DD-12).
 
-Status: **draft**.
+Status: **draft**. A TypeScript SDK is directionally accepted for v0.3.0 but **not shipped** in v0.2.0
+(ADR-0049); the schema→TS portability premise is proven by `scripts/generate_ts_types.py` and
+`tests/test_ts_schema_portability.py`.
 
 ```python
 from agentwatch import AgentTracer, trace_agent, tool_span

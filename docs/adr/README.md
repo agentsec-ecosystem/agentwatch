@@ -33,6 +33,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |
 | [0047](0047-credential-hygiene-observation.md) | Credential-hygiene observation | accepted |
 | [0048](0048-plugin-api-versioning.md) | Plugin API versioning promise | accepted |
+| [0049](0049-typescript-sdk-decision.md) | TypeScript SDK decision (spike; ship deferred) | accepted |
 
 > ADR numbers **0027–0045** are reserved for the v0.2.0-expanded program (PRD 49–59, milestones M29+); their
 > design docs reference the numbers, and the files land with those milestones.

@@ -22,8 +22,14 @@ Status: living.
   `packages/python-sdk/tests/test_memory_surface.py`). A dedicated memory-audit **UI** is still absent.
 - No PydanticAI adapter; no policy-overlay view.
 - **Phased to v0.2.x (M28 cut-line, declared not dropped):** the derived Postgres query tier (`PG-1..3` →
-  M30, re-sequenced behind the embedded index `LUI-2`), and A2A interposition/provenance (`A2A-1/2`), a
-  system-effects ingest (`SYS-1`), and an ACS Guardian ingest (`ACS-1`) → M29 (need external specs/captures).
+  M30, re-sequenced behind the embedded index `LUI-2`), and A2A interposition/provenance (`A2A-1/2`) → M29
+  (need external specs/captures). *(Landed in M29: a system-effects ingest (`SYS-1`) and an ACS Guardian
+  ingest (`ACS-1`); see below.)*
+- **System-effects ingest (`SYS-1`, M29) is Linux-only.** `agentwatch ingest --format system-ingest`
+  reads an AgentSight/Tracee-shaped foreign stream and is **opt-in** (`--consent`); every record is labeled
+  `source: system-ingest`, a lineage not owned by exactly one session is `unjoined` (never guessed), and the
+  synthetic-corpus false-join precision is published (1.00/1.00). agentwatch **does not build probes**
+  (Linux-root eBPF); macOS/Windows are the declared gap. `platform_covered("darwin") is False`.
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

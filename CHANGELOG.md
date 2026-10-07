@@ -28,6 +28,12 @@ versioning: [Semantic Versioning](https://semver.org/).
   - EXT-7: the compatibility matrix gains a **Managed policy** column (`effective`/`blocked`/`unknown`/`n/a`)
     and framework rows (ADK / Strands / OpenAI Agents SDK / Claude Agent SDK) as a generator input WS-D (FWK-1)
     will populate; the generated block and drill note are updated (#454).
+  - SYS-1: opt-in Linux system-effects ingest (`agentwatch.system_ingest`) — AgentSight/Tracee-shaped
+    process-exec/network-connect events are joined to sessions by process lineage/time-window (±300 s), every
+    record is labeled `source: system-ingest`, an unowned/ambiguous/out-of-window lineage is filed under
+    `unjoined:system-ingest` (never guessed), `classify`/`impact` extend to syscall truth, and the
+    synthetic-corpus false-join precision is published (1.00/1.00); `ingest --format system-ingest --consent`;
+    no probes built; macOS/Windows declared not-covered (#366).
 - v0.2.0 Trust, Identity & Governance (M29):
   - APV-1: authorization provenance v2 (`authz-v2`, PRD 49) — an additive metadata-only `authorization`
     object (`source`/`deny`/`evidence`) on records, with the legacy S14 five-value `approval` mapped at read

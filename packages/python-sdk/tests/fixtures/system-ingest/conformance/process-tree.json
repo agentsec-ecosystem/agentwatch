@@ -1,0 +1,29 @@
+{
+  "input": {
+    "session_pids": {
+      "s1": [100]
+    },
+    "events": [
+      {
+        "type": "process_exec",
+        "pid": 100,
+        "ppid": 1,
+        "comm": "node",
+        "timestamp": "2026-01-02T03:04:05Z"
+      },
+      {
+        "type": "network_connect",
+        "pid": 102,
+        "ppid": 100,
+        "comm": "node",
+        "daddr": "1.2.3.4",
+        "dport": 443,
+        "timestamp": "2026-01-02T03:04:06Z"
+      }
+    ]
+  },
+  "expected": [
+    { "tool": "system:process-exec", "step_type": "observe" },
+    { "tool": "system:network-connect", "step_type": "observe" }
+  ]
+}

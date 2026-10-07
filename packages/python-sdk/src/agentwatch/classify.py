@@ -430,8 +430,29 @@ def _url_host(arguments: Mapping[str, Any]) -> str | None:
     return None
 
 
+def _classify_system(record: Any) -> list[Fact]:
+    """Facts for the foreign system-effects layer (M29 SYS-1).
+
+    Network destinations are structural truth carried on ``tool.server`` even in
+    metadata-only mode; a process exec is classified from its captured command.
+    The ``system:`` tool namespace is machine-distinguishable from hook tools.
+    """
+    name = record.tool.name
+    arguments = record.tool.arguments or {}
+    if name == "system:network-connect":
+        target = record.tool.server or arguments.get("target")
+        return [Fact(NETWORK, EXACT, "syscall network connect", target if isinstance(target, str) else None)]
+    if name == "system:process-exec":
+        exe = arguments.get("exe")
+        if isinstance(exe, str) and exe:
+            return classify_command(exe)
+    return [Fact(UNCLASSIFIED, EXACT, f"unclassified system event {name}", None)]
+
+
 def classify_record(record: Any) -> list[Fact]:
     """Classify a stored record; metadata-only records say so explicitly."""
+    if record.tool.name.startswith("system:"):
+        return _classify_system(record)
     arguments = record.tool.arguments
     if arguments is None:
         return [Fact(UNCLASSIFIED, EXACT, "arguments not captured (metadata-only)", None)]

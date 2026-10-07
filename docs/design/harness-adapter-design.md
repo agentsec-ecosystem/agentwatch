@@ -85,6 +85,12 @@ Contract additions: an adapter declares its **fidelity tier** (`live-verified | 
 its **capture level**; blocking-hook events are recorded as observations and **never answered** (monitor-only, R2).
 Foreign log/rollout content follows the untrusted-data rule ([ADR-0024](../adr/0024-foreign-data-threat-posture.md)).
 
+**System-effects layer (M29 SYS-1).** A fifth level — the system calls *below* the tool call — is ingested from an
+AgentSight/Tracee-shaped foreign stream, **Linux-only and opt-in** (we do not build Linux-root eBPF probes). It is
+joined to sessions by process lineage/time-window, every record is labeled `source: system-ingest`, and a lineage
+that is not owned by exactly one session is filed under `unjoined:system-ingest` rather than guessed. See
+[system-effects-ingest.md](system-effects-ingest.md).
+
 See [cross-harness-testing.md](cross-harness-testing.md) for how compatibility is verified without the CLIs.
 
 ## Future

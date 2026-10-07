@@ -25,9 +25,17 @@ from typing import Any
 
 from agentwatch.claude_otel import NON_TOOL_EVENTS, otel_join_summary
 from agentwatch.harness_drift import harness_drift_observations
+from agentwatch.permission_mode import effective_modes
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.recorder_state import CoverageWindow, coverage_windows
-from agentwatch.records import AgentRecord, ProducerKind, StepType, _parse_iso, effective_producer
+from agentwatch.records import (
+    AgentRecord,
+    PermissionMode,
+    ProducerKind,
+    StepType,
+    _parse_iso,
+    effective_producer,
+)
 from agentwatch.store import RecordStore
 from agentwatch.transcript import extract_tool_calls
 
@@ -187,6 +195,11 @@ class CoverageReport:
             f"  totals: {totals.get('store_calls', 0)}/{totals.get('transcript_calls', 0)} calls, "
             f"unexplained {totals.get('unexplained', 0)}"
         )
+        if totals.get("mode_unknown"):
+            lines.append(
+                f"  permission mode: {totals.get('mode_known', 0)} known, "
+                f"{totals['mode_unknown']} unknown"
+            )
         if self.otel_join is not None:
             lines.append(f"  native telemetry join: {self.otel_join}")
         return "\n".join(lines)
@@ -563,12 +576,21 @@ def build_coverage(
     transcript_total = sum(s.transcript_calls for s in known)
     store_total = sum(s.store_calls for s in known)
     rate = (store_total / transcript_total) if transcript_total else None
+    modes = effective_modes(records)
+    tool_records = [record for record in records if is_tool_call_record(record)]
+    mode_known = sum(
+        1
+        for record in tool_records
+        if modes.get(id(record), PermissionMode.UNKNOWN) is not PermissionMode.UNKNOWN
+    )
     totals: dict[str, Any] = {
         "sessions": len(sessions),
         "known_sessions": len(known),
         "transcript_calls": transcript_total,
         "store_calls": store_total,
         "capture_rate": rate,
+        "mode_known": mode_known,
+        "mode_unknown": len(tool_records) - mode_known,
         "unexplained": sum(s.unexplained for s in sessions),
         "gaps": {
             cause: sum(g.count for s in sessions for g in s.gaps if g.cause == cause)

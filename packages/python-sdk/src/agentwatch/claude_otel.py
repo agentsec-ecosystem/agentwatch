@@ -20,7 +20,7 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from typing import Any
 
-from agentwatch.authorization import authorization_from_decision_source
+from agentwatch.authorization import authorization_from_decision_source, permission_mode_from
 from agentwatch.ingest import (
     IngestProblem,
     _any_value,
@@ -279,6 +279,7 @@ def _base_record(
     tokens: int | None = None,
     cost_usd: float | None = None,
     authorization: Authorization | None = None,
+    permission_mode: PermissionMode | None = None,
     security_event: SecurityEvent | None = None,
     duration_ms: float | None = None,
 ) -> AgentRecord:
@@ -302,6 +303,7 @@ def _base_record(
         tokens=tokens,
         cost_usd=cost_usd,
         authorization=authorization,
+        permission_mode=permission_mode,
         security_event=security_event,
         duration_ms=duration_ms,
     )
@@ -420,6 +422,7 @@ def _permission_mode_changed(
 ) -> AgentRecord:
     from_mode = _first_str(attrs, ("from_mode", "old_mode")) or PermissionMode.UNKNOWN.value
     to_mode = _first_str(attrs, ("to_mode", "new_mode", "mode")) or PermissionMode.UNKNOWN.value
+    mode = permission_mode_from(to_mode)
     return _base_record(
         attrs,
         resource,
@@ -430,6 +433,7 @@ def _permission_mode_changed(
         step_type=None,
         arguments={"from": from_mode, "to": to_mode},
         privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+        permission_mode=mode if mode is not PermissionMode.UNKNOWN else None,
     )
 
 

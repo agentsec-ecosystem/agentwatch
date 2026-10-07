@@ -35,6 +35,7 @@ from agentwatch.classify import (
 )
 from agentwatch.denials import DenialSequence, denial_sequences
 from agentwatch.identity import Attribution, attribution_for
+from agentwatch.permission_mode import ModeInterval, bypass_intervals
 from agentwatch.query import since_cutoff
 from agentwatch.records import AgentRecord
 from agentwatch.replay import replay_session
@@ -99,6 +100,7 @@ class ImpactReport:
     records: int = 0
     denials: tuple[DenialSequence, ...] = ()
     attribution: Attribution | None = None
+    bypass_intervals: tuple[ModeInterval, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -127,6 +129,7 @@ class ImpactReport:
             "vcs": [self._entry(e) for e in self.vcs],
             "credentials": [self._entry(e) for e in self.credentials],
             "unclassified": [self._entry(e) for e in self.unclassified],
+            "bypass_intervals": [interval.to_dict() for interval in self.bypass_intervals],
             "denials": [
                 {
                     "session_id": sequence.session_id,
@@ -267,6 +270,7 @@ def build_impact(
         records=len(records),
         denials=denial_sequences(records),
         attribution=attribution_for(records[-1]) if records else None,
+        bypass_intervals=bypass_intervals(records),
     )
 
 
@@ -351,6 +355,11 @@ def render_impact(report: ImpactReport) -> str:
             "enable capture for a full footprint"
         )
     lines.append(f"  widest action: {report.widest_action}")
+    for interval in report.bypass_intervals:
+        lines.append(
+            f"  bypass interval: {interval.start.isoformat()} -> {interval.end.isoformat()} "
+            f"({interval.calls} call(s))"
+        )
     if report.files:
         lines.append("  files:")
         for footprint in report.files:

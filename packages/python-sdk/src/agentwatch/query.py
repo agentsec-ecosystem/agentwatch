@@ -13,8 +13,10 @@ from datetime import datetime, timedelta, timezone, tzinfo
 
 from agentwatch.identity import identity_handles
 from agentwatch.memory import is_memory_record
+from agentwatch.permission_mode import effective_modes
 from agentwatch.records import (
     AgentRecord,
+    PermissionMode,
     effective_approval,
     effective_authorization,
     effective_producer,
@@ -93,16 +95,20 @@ def search(
     identity: str | None = None,
     mcp_resource: str | None = None,
     memory_only: bool = False,
+    permission_mode: str | None = None,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
 
     ``records`` overrides the source (M16 S28), so a caller can include archived
-    segments in the search.
+    segments in the search. ``permission_mode`` reconstructs the mode in force
+    per call from transition observations, then filters (M29 APV-2).
     """
     cutoff = since_cutoff(since) if since is not None else None
+    source = list(records) if records is not None else list(store.records())
+    modes = effective_modes(source) if permission_mode is not None else None
     result: list[AgentRecord] = []
-    for record in records if records is not None else store.records():
+    for record in source:
         if memory_only and not is_memory_record(record):
             continue
         if tool is not None and record.tool.name != tool:
@@ -131,6 +137,10 @@ def search(
             needle = mcp_resource.strip().lower()
             uri = _resource_uri(record)
             if not needle or uri is None or needle not in uri.lower():
+                continue
+        if modes is not None:
+            mode = modes.get(id(record), PermissionMode.UNKNOWN)
+            if mode.value != permission_mode:
                 continue
         if cutoff is not None and record.started_at < cutoff:
             continue

@@ -590,6 +590,19 @@
         "file:docs/design/native-telemetry-join.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "Permission mode is recorded per call with transition observations; a default-bypass-default session reconstructs and a missing mode is unknown in coverage.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_default_bypass_default_reconstructs",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_search_by_mode",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_coverage_counts_unknown_modes",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_impact_flags_the_bypass_interval",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

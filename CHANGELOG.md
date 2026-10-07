@@ -11,6 +11,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     object (`source`/`deny`/`evidence`) on records, with the legacy S14 five-value `approval` mapped at read
     time by `effective_authorization` and never written back; a classifier-approved call is `classifier` and
     a bypass-mode call is `bypass`, and `unknown` is never inferred from `outcome=ok` (#438).
+  - APV-2: permission mode is a first-class, time-varying fact — an additive `permission_mode` on every
+    call plus `permission-mode-changed` transition observations; `search --mode bypass` works, a
+    default→bypass→default session reconstructs, `impact` flags the bypass interval, and a missing mode is
+    `unknown` counted in `coverage` (#439).
   - CCO-1: Claude Code native OTel ingest (`ingest --format claude-otel`) maps `tool_decision`
     (`decision_source`), `permission_mode_changed`, `api_request`/`tool_result` (exact vendor cost) and
     `user_prompt`/`mcp_server_connection`; joins to hook records by `tool_use_id` with disagreements recorded

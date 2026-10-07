@@ -429,6 +429,7 @@ class AgentRecord:
     record_phase: RecordPhase | None = None
     approval: Approval | None = None
     authorization: Authorization | None = None
+    permission_mode: PermissionMode | None = None
     environment: dict[str, Any] | None = None
     truncated: dict[str, Any] | None = None
     security_event: SecurityEvent | None = None
@@ -477,6 +478,8 @@ class AgentRecord:
             data["approval"] = self.approval.value
         if self.authorization is not None:
             data["authorization"] = self.authorization.to_dict()
+        if self.permission_mode is not None:
+            data["permission_mode"] = self.permission_mode.value
         if self.environment is not None:
             data["environment"] = self.environment
         if self.truncated is not None:
@@ -492,6 +495,7 @@ class AgentRecord:
         phase = data.get("record_phase")
         approval = data.get("approval")
         authorization = data.get("authorization")
+        permission_mode = data.get("permission_mode")
         event = data.get("security_event")
         producer = data.get("producer")
         return cls(
@@ -519,6 +523,9 @@ class AgentRecord:
             approval=Approval(approval) if approval is not None else None,
             authorization=(
                 Authorization.from_dict(authorization) if authorization is not None else None
+            ),
+            permission_mode=(
+                PermissionMode(permission_mode) if permission_mode is not None else None
             ),
             environment=data.get("environment"),
             truncated=data.get("truncated"),
@@ -560,6 +567,7 @@ _RECORD_FIELDS = frozenset(
         "record_phase",
         "approval",
         "authorization",
+        "permission_mode",
         "environment",
         "truncated",
         "security_event",
@@ -797,6 +805,8 @@ def _validate_record_dict(data: Any) -> None:
         _check_enum(data["approval"], where, "approval", Approval, nullable=True)
     if data.get("authorization") is not None:
         _validate_authorization_dict(data["authorization"])
+    if "permission_mode" in data:
+        _check_enum(data["permission_mode"], where, "permission_mode", PermissionMode, nullable=True)
     if "environment" in data:
         _check_table(data["environment"], where, "environment", nullable=True)
     if "truncated" in data:
@@ -884,6 +894,17 @@ def effective_authorization(record: AgentRecord) -> Authorization:
         deny=AuthorizationDeny.UNKNOWN if source is AuthorizationSource.DENIED else None,
         evidence=AuthorizationEvidence.INFERRED,
     )
+
+
+def effective_permission_mode(record: AgentRecord) -> PermissionMode:
+    """The permission mode recorded on a call, or ``unknown`` when not exposed.
+
+    The mode is a time-varying fact; when a record does not carry it, the honest
+    value is ``unknown`` — never inferred (M29 APV-2, F8). A caller with session
+    context may reconstruct it from transition records
+    (:func:`agentwatch.permission_mode.effective_modes`).
+    """
+    return record.permission_mode if record.permission_mode is not None else PermissionMode.UNKNOWN
 
 
 def effective_record_phase(record: AgentRecord) -> RecordPhase:

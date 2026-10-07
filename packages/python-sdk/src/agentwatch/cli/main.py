@@ -513,6 +513,21 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
         help="only records with this authorization decision/source (M19 S14, M29 APV-1)",
     )
+    search.add_argument(
+        "--mode",
+        dest="permission_mode",
+        default=None,
+        choices=(
+            "default",
+            "acceptEdits",
+            "plan",
+            "auto",
+            "dontAsk",
+            "bypassPermissions",
+            "unknown",
+        ),
+        help="only records with this permission mode in force (M29 APV-2)",
+    )
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
     search.add_argument(
         "--identity",
@@ -2054,6 +2069,7 @@ def _run_search(args: argparse.Namespace) -> int:
         identity=args.identity,
         mcp_resource=args.mcp_resource,
         memory_only=args.memory,
+        permission_mode=args.permission_mode,
         records=combined.records,
     )
     for record in records:

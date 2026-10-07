@@ -109,6 +109,10 @@
       },
       "additionalProperties": false
     },
+    "permission_mode": {
+      "enum": ["default", "acceptEdits", "plan", "auto", "dontAsk", "bypassPermissions", "unknown", null],
+      "description": "Permission mode in force at the call (M29 APV-2). Additive in schema 0.2.0; absent on legacy records and read as 'unknown' — never inferred."
+    },
     "environment": {
       "type": ["object", "null"],
       "description": "Metadata-only session-start snapshot: VCS revision, OS principal, harness/OS (M19 S16/S29). No env-var values."

@@ -31,6 +31,7 @@ from agentwatch.records import (
     AuthorizationSource,
     CredentialClass,
     Outcome,
+    PermissionMode,
     Producer,
     ProducerKind,
     RecordPrivacyMode,
@@ -443,14 +444,18 @@ def _normalize_message(
     # Authorization v2 (M29 APV-1): a native decision source is authoritative;
     # a bypass mode means nothing was checking; else the S14 value maps with
     # evidence=inferred. `unknown` is never persisted as a claim.
+    mode = permission_mode_from(event.get("permission_mode"))
     v2 = derive_authorization(
         approval=approval,
         decision_source=native_decision_source(event),
-        permission_mode=permission_mode_from(event.get("permission_mode")),
+        permission_mode=mode,
     )
     recorded_authorization: Authorization | None = (
         v2 if v2.source is not AuthorizationSource.UNKNOWN else None
     )
+    # Permission mode is a time-varying fact (M29 APV-2); absent stays unknown on
+    # read and is never inferred.
+    recorded_mode: PermissionMode | None = mode if mode is not PermissionMode.UNKNOWN else None
     environment = (
         sanitize_environment(event.get("environment"), include_principal=include_principal)
         if phase == "session-start"
@@ -599,6 +604,7 @@ def _normalize_message(
             step_type=StepType.OBSERVE,
             approval=recorded_approval,
             authorization=recorded_authorization,
+            permission_mode=recorded_mode,
             security_event=denial,
         )
         return [record]
@@ -690,6 +696,7 @@ def _normalize_message(
         step_type=step_type,
         approval=recorded_approval,
         authorization=recorded_authorization,
+        permission_mode=recorded_mode,
         security_event=security_event,
     )
     return [record]

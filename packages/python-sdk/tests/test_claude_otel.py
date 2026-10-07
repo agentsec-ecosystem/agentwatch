@@ -605,6 +605,7 @@ def test_ingest_transcode_claude_otel_format(tmp_path: Path) -> None:
 
     records, problems = transcode(path, fmt="claude-otel")
     assert problems == []
+    assert records[0].producer is not None
     assert records[0].producer.name == "claude-code-otel"
 
     store = RecordStore(tmp_path / "records.jsonl")

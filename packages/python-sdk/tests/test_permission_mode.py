@@ -111,7 +111,7 @@ def test_missing_mode_is_unknown() -> None:
 
 
 def test_transition_mode_reads_arguments_when_field_absent() -> None:
-    from agentwatch.records import AgentRecord, Producer, ProducerKind, StepType, ToolCall
+    from agentwatch.records import AgentRecord, Producer, ProducerKind, ToolCall
 
     record = AgentRecord(
         session_id="s1",

@@ -392,10 +392,14 @@ def test_capability_and_reason_codes_are_captured() -> None:
     records, _ = acs.transcode_acs(_trail(request, response))
 
     (record,) = records
-    assert record.environment is not None
-    assert record.environment["capability"] == "network.egress"
-    assert record.security_event is not None
-    assert record.security_event.evidence["reason_codes"] == ["fides_p_t_failed"]
+    environment = record.environment
+    assert environment is not None
+    assert environment["capability"] == "network.egress"
+    event = record.security_event
+    assert event is not None
+    evidence = event.evidence
+    assert evidence is not None
+    assert evidence["reason_codes"] == ["fides_p_t_failed"]
 
 
 def test_unknown_namespace_method_is_quarantined() -> None:

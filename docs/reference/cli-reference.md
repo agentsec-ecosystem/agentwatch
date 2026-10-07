@@ -53,7 +53,7 @@ The launcher is equivalent to `agentwatch <command>`. It invokes `python3 -m age
 | `agentwatch fleet ingest HOST=PATH ...` / `fleet show [--json] [--no-group-by-host]` | Opt-in multi-host fleet aggregation (R13) | **implemented** (M11) |
 | `agentwatch drift --metric M [--bucket session\|hour] [--window N] [--z-threshold Z] [--emit] [--deploys FILE] [--json]` | Trailing-baseline drift signals, optional `drift-detected` events + deployment correlation | **implemented** (M11) |
 | `agentwatch inventory [--session-id ID] [--project PATH] [--snapshot] [--diff] [--server NAME] [--json]` | List recorded agents + MCP servers; `--snapshot`/`--diff` show tool-surface drift (R9; S4 M20) | **implemented** (M9; M20) |
-| `agentwatch retention apply [--json]` | Tombstone records older than `store.retention_days` | **implemented** (M9) |
+| `agentwatch retention apply [--profile P] [--json]` | Tombstone records older than the retention window: a named profile (`high-risk-12mo` 365d / `general-6mo` 180d / `custom` = `store.retention_days`); the change is recorded (S5) | **implemented** (M9; profiles M28 CMP-3) |
 | `agentwatch purge <id> --yes [--reason TEXT]` | Tombstone one session (right to erasure) | **implemented** (M9) |
 | `agentwatch evidence <session-id> [--out PATH] [--include-bom] [--redact-paths]` | Build a self-contained, offline-verifiable bundle | **implemented** (M15 S1) |
 | `agentwatch evidence verify bundle.zip` | Re-verify a bundle offline (intact/complete/leak-free) | **implemented** (M15 S1) |

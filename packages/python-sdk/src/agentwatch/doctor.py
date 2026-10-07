@@ -15,6 +15,7 @@ import os
 import shutil
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -218,15 +219,35 @@ def _check_store_disk(cfg: AgentwatchConfig, store: Path) -> CheckResult:
     )
 
 
-def _check_retention(cfg: AgentwatchConfig) -> CheckResult:
-    if cfg.store.retention_days >= 1:
-        return CheckResult("retention", PASS, f"{cfg.store.retention_days} day(s)")
-    return CheckResult(
-        "retention",
-        FAIL,
-        f"retention_days={cfg.store.retention_days}",
-        "set store.retention_days to at least 1",
-    )
+def _check_retention(cfg: AgentwatchConfig, store_path: Path | None = None) -> CheckResult:
+    if cfg.store.retention_days < 1:
+        return CheckResult(
+            "retention",
+            FAIL,
+            f"retention_days={cfg.store.retention_days}",
+            "set store.retention_days to at least 1",
+        )
+    overdue = _overdue_records(store_path, cfg.store.retention_days)
+    if overdue:
+        return CheckResult(
+            "retention",
+            WARN,
+            f"{overdue} record(s) older than the {cfg.store.retention_days} day window",
+            "run `agentwatch retention apply` (or pick a profile)",
+        )
+    return CheckResult("retention", PASS, f"{cfg.store.retention_days} day(s)")
+
+
+def _overdue_records(store_path: Path | None, retention_days: int) -> int:
+    """Records past the retention window — a visible sign the run was missed."""
+    if store_path is None or not Path(store_path).exists():
+        return 0
+    cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
+    try:
+        records = RecordStore(Path(store_path)).records()
+    except (OSError, ValueError):  # pragma: no cover - unreadable store
+        return 0
+    return sum(1 for record in records if record.started_at < cutoff)
 
 
 def _check_harness_drift(store_path: Path) -> CheckResult:
@@ -307,7 +328,7 @@ def run_checks(
         _check_store_chain(resolved_store),
         _check_redaction(cfg),
         _check_store_disk(cfg, resolved_store),
-        _check_retention(cfg),
+        _check_retention(cfg, resolved_store),
         _check_harness_drift(resolved_store),
         _check_signing(resolved_store),
         _check_distribution(),

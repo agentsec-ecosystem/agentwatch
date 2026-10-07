@@ -38,7 +38,7 @@ Each row is computed, never asserted:
 |---|---|---|
 | `log-integrity` | `agentwatch verify-store` | the hash chain verifies |
 | `redaction-default` | `agentwatch verify-privacy` | `privacy.mode` is not `full` |
-| `retention-configured` | `agentwatch retention apply` | a retention window is set |
+| `retention-configured` | `agentwatch retention apply` | a retention window is set (cites the active profile) |
 | `checkpointing` | `agentwatch checkpoint` | `store.checkpoint_every` is set |
 | `recording-coverage` | `agentwatch coverage` | `unknown` without a transcript |
 | `identity-attribution` | `agentwatch search --identity` | records carry an on-behalf-of/workload identity |

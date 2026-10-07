@@ -114,10 +114,12 @@ from agentwatch.query import search, since_cutoff
 from agentwatch.receipts import record_receipt, redact_preview
 from agentwatch.recorder_state import (
     close_coverage_window,
+    last_state,
     open_coverage_window,
     reconcile_config,
     record_recorder_installed,
     record_recorder_uninstalled,
+    record_retention_changed,
 )
 from agentwatch.records import EVENT_VERSION, SecurityEvent, SecurityEventType, validate_event
 from agentwatch.redact import redaction_config_from_mode
@@ -125,6 +127,7 @@ from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
+from agentwatch.retention import profile_names, resolve_retention_profile
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
@@ -689,7 +692,14 @@ def _build_parser() -> argparse.ArgumentParser:
     retention = sub.add_parser("retention", help="store retention controls (M9 R11)")
     retention_sub = retention.add_subparsers(dest="action", metavar="ACTION", required=True)
     retention_apply = retention_sub.add_parser(
-        "apply", help="tombstone records older than store.retention_days"
+        "apply", help="tombstone records older than the retention window (profile)"
+    )
+    retention_apply.add_argument(
+        "--profile",
+        choices=profile_names(),
+        default=None,
+        help="retention profile: high-risk-12mo (365d, AAT §9), general-6mo (180d), "
+        "or custom (store.retention_days; default)",
     )
     retention_apply.add_argument(
         "--json", action="store_true", help="emit the retention report as JSON"
@@ -2074,7 +2084,12 @@ def _run_retention(args: argparse.Namespace) -> int:
     store = RecordStore(
         Path(cfg.store.path).expanduser() / "records.jsonl", max_size_mb=cfg.store.max_size_mb
     )
-    report = store.apply_retention(retention_days=cfg.store.retention_days)
+    profile = resolve_retention_profile(args.profile, retention_days=cfg.store.retention_days)
+    previous = last_state(store).retention_days
+    report = store.apply_retention(retention_days=profile.retention_days)
+    # Record the policy change *after* the run so the report's counts describe the
+    # records the window applied to, not the marker we add to explain it (S5).
+    record_retention_changed(store, old=previous, new=profile.retention_days, profile=profile.name)
     status = store.verify()
     if args.json:
         print(
@@ -2084,14 +2099,15 @@ def _run_retention(args: argparse.Namespace) -> int:
                     "kept": report.kept,
                     "chain_ok": status.ok,
                     "broken_at": status.broken_at,
-                    "retention_days": cfg.store.retention_days,
+                    "retention_days": profile.retention_days,
+                    "profile": profile.name,
                 }
             )
         )
     else:
         print(
-            f"agentwatch: retention purged {report.purged}, kept {report.kept} "
-            f"({cfg.store.retention_days} day window)"
+            f"agentwatch: retention ({profile.name}) purged {report.purged}, "
+            f"kept {report.kept} ({profile.retention_days} day window)"
         )
         if not status.ok:
             print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)

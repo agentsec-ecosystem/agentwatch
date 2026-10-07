@@ -78,6 +78,7 @@ class RecorderState:
     installed: bool | None = None
     privacy_mode: str | None = None
     retention_days: int | None = None
+    retention_profile: str | None = None
     export_enabled: bool | None = None
     export_format: str | None = None
 
@@ -210,16 +211,18 @@ def record_privacy_mode_changed(
 
 
 def record_retention_changed(
-    store: RecordStore, *, old: int | None, new: int, now: datetime | None = None
+    store: RecordStore,
+    *,
+    old: int | None,
+    new: int,
+    profile: str | None = None,
+    now: datetime | None = None,
 ) -> MarkerReport:
     """Append a ``retention-changed`` marker (coalesced when unchanged)."""
-    return _record_transition(
-        store,
-        RETENTION_CHANGED_TOOL,
-        {"old": UNKNOWN if old is None else str(old), "new": str(new)},
-        new,
-        now=now,
-    )
+    arguments: dict[str, Any] = {"old": UNKNOWN if old is None else str(old), "new": str(new)}
+    if profile is not None:
+        arguments["profile"] = _clean(profile)
+    return _record_transition(store, RETENTION_CHANGED_TOOL, arguments, new, now=now)
 
 
 def record_export_configured(
@@ -350,6 +353,7 @@ def last_state(store: RecordStore) -> RecorderState:
     installed: bool | None = None
     privacy_mode: str | None = None
     retention_days: int | None = None
+    retention_profile: str | None = None
     export_enabled: bool | None = None
     export_format: str | None = None
     for marker in reversed(recorder_markers(store)):
@@ -364,6 +368,7 @@ def last_state(store: RecordStore) -> RecorderState:
             retention_days = (
                 int(raw) if isinstance(raw, (int, str)) and str(raw).isdigit() else None
             )
+            retention_profile = _optional_str(marker.arguments.get("profile"))
         elif marker.tool == EXPORT_CONFIGURED_TOOL and export_enabled is None:
             export_enabled = bool(marker.arguments.get("enabled", False))
             export_format = _optional_str(marker.arguments.get("format"))
@@ -371,6 +376,7 @@ def last_state(store: RecordStore) -> RecorderState:
         installed=installed,
         privacy_mode=privacy_mode,
         retention_days=retention_days,
+        retention_profile=retention_profile,
         export_enabled=export_enabled,
         export_format=export_format,
     )

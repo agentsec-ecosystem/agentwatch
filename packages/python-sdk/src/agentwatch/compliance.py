@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from agentwatch.configuration import AgentwatchConfig
+from agentwatch.recorder_state import last_state
 from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
 
@@ -132,9 +133,11 @@ def _log_integrity(
 def _retention_configured(
     store: RecordStore, config: AgentwatchConfig, records: list[AgentRecord]
 ) -> tuple[str, str]:
-    days = config.store.retention_days
+    state = last_state(store)
+    days = state.retention_days or config.store.retention_days
     if days and days > 0:
-        return PASS, f"retention configured for {days} day(s)"
+        label = f" (profile {state.retention_profile})" if state.retention_profile else ""
+        return PASS, f"retention configured for {days} day(s){label}"
     return UNKNOWN, "no retention window configured"
 
 
@@ -167,9 +170,7 @@ def _identity_attribution(
     attributed = sum(
         1
         for record in records
-        if record.agent.principal
-        or record.agent.workload_identity
-        or record.agent.delegation_chain
+        if record.agent.principal or record.agent.workload_identity or record.agent.delegation_chain
     )
     if attributed:
         return PASS, f"{attributed} record(s) carry an on-behalf-of/workload identity"
@@ -403,8 +404,7 @@ def build_report(
     signature = SignatureStatus(
         signed=False,
         detail=(
-            "checkpoint signing is not enabled (opt-in); "
-            "unsigned checkpoints verify integrity only"
+            "checkpoint signing is not enabled (opt-in); unsigned checkpoints verify integrity only"
         ),
     )
     return ComplianceReport(

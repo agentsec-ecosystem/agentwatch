@@ -8,6 +8,7 @@
 | [Compatibility](compatibility.md) | Harness × version matrix |
 | [Known limitations](known-limitations.md) | Honest gaps, including inherited ones |
 | [Detector catalog](detector-catalog.md) | The 39 detectors by category |
+| [Detector fixture provenance](detector-fixtures.md) | Cited, shape-synthesized benchmark fixtures + changelog |
 | [Identity mapping](identity-mapping.md) | agentwatch agent identity ↔ AIMS/WIMSE ↔ NCCoE |
 | [Record format spec](record-format-spec.md) | Normative record + security-event contract, versioning/deprecation |
 | [Store format](store-format.md) | Envelope, chain, tombstones, marker records, vectors |

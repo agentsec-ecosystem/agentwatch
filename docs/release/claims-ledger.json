@@ -552,6 +552,19 @@
         "doc:docs/adr/0049-typescript-sdk-decision.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C51",
+      "claim": "Public detector fixtures are shape-synthesized, cite a public source per benchmark family, and additions are logged; no external corpus content is copied.",
+      "source": "docs/reference/detector-fixtures.md",
+      "evidence": [
+        "test:services/analytics/tests/test_fixture_provenance.py::test_every_benchmark_source_is_cited",
+        "test:services/analytics/tests/test_fixture_provenance.py::test_provenance_states_shape_synthesized_only",
+        "test:services/analytics/tests/test_fixture_provenance.py::test_provenance_has_a_changelog",
+        "file:schema/vectors/detectors/detector-corpus-v1.json",
+        "doc:docs/reference/detector-fixtures.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

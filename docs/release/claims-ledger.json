@@ -603,6 +603,19 @@
         "file:docs/design/authorization-provenance-v2.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "agentwatch oversight produces a deterministic, offline authorization mix, human approve/reject latency, and a cls1 destructive x authorization cross-tab.",
+      "source": "docs/prd/49-authorization-and-oversight.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_oversight.py::test_destructive_authorization_cross_tab",
+        "test:packages/python-sdk/tests/test_oversight.py::test_latency_only_when_both_timestamps_exist",
+        "test:packages/python-sdk/tests/test_oversight.py::test_authorization_mix_matches_hand_computed_totals",
+        "test:packages/python-sdk/tests/test_oversight.py::test_compliance_has_art14_oversight_row",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

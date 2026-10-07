@@ -101,6 +101,8 @@ from agentwatch.notarize import (
     verify_checkpoint,
 )
 from agentwatch.ocsf import session_cloudevents, session_ocsf
+from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
+from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
 from agentwatch.quarantine import (
     QuarantineError,
@@ -683,6 +685,19 @@ def _build_parser() -> argparse.ArgumentParser:
         help="ground-truth source for reconciliation (default: claude-code)",
     )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
+
+    oversight_cmd = sub.add_parser(
+        "oversight", help="authorization + human-oversight facts (M29 APV-3)"
+    )
+    oversight_cmd.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
+    oversight_cmd.add_argument("--project", default=None, help="only records for this project (cwd)")
+    oversight_cmd.add_argument(
+        "--by",
+        choices=OVERSIGHT_BY_OPTIONS,
+        default="source",
+        help="group the authorization mix by this dimension (default: source)",
+    )
+    oversight_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     compliance_cmd = sub.add_parser("compliance", help="offline compliance reports (M26 CMP-1)")
     compliance_sub = compliance_cmd.add_subparsers(dest="compliance_command", required=True)
@@ -2223,6 +2238,24 @@ def _run_compliance(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_oversight(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_oversight(
+            store, since=args.since, project=args.project, by=args.by
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    print(json.dumps(report.to_dict(), indent=2) if args.json else render_oversight(report))
+    return 0
+
+
 def _run_quarantine(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2794,6 +2827,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_coverage(args)
     if args.command == "compliance":
         return _run_compliance(args)
+    if args.command == "oversight":
+        return _run_oversight(args)
     if args.command == "bom":
         return _run_bom(args)
     if args.command == "retention":

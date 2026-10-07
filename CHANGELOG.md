@@ -15,6 +15,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     call plus `permission-mode-changed` transition observations; `search --mode bypass` works, a
     default→bypass→default session reconstructs, `impact` flags the bypass interval, and a missing mode is
     `unknown` counted in `coverage` (#439).
+  - APV-3: the `agentwatch oversight` report — authorization mix (shares with denominators), sessions
+    by start/end mode, human-prompt approve/reject + time-to-decision (latency only with paired
+    timestamps, else "n/a (n calls)"), and a cls1 destructive/network/credential-adjacent ×
+    authorization cross-tab; deterministic, offline, version-stamped; surfaced in `digest` and the
+    compliance report as `eu-ai-act-art14` (Art. 14 / ASI09) (#440).
   - CCO-1: Claude Code native OTel ingest (`ingest --format claude-otel`) maps `tool_decision`
     (`decision_source`), `permission_mode_changed`, `api_request`/`tool_result` (exact vendor cost) and
     `user_prompt`/`mcp_server_connection`; joins to hook records by `tool_use_id` with disagreements recorded

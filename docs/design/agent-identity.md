@@ -65,6 +65,10 @@ pre-Q4-2026 audit ask). It is an **observation**, not a verdict; precision/recal
 - AAT export populates the identity fields ([aat-mapping.md](aat-mapping.md)).
 - A2A **signed agent cards** (v1.0) provide cryptographic workload identity; the card-signature verification outcome
   is recorded as `verified`/`unverified` and is **never silently trusted** as authorization (PRD 45, ADR-0025).
+  **Implemented (M29 A2A-2):** [`agentwatch.agent_card`](../../packages/python-sdk/src/agentwatch/agent_card.py) verifies
+  the card JWS deterministically against a held key (local `AGENTWATCH_A2A_JWKS` or an explicit mapping) and returns a
+  `CardProvenance` whose outcome is recorded on the `a2a/agent-card` observation; a cross-agent hand-off emits an
+  `agent-delegation` observation that extends `tree`/`trace` across org boundaries (evidence, never a verdict).
 
 ## Mapping doc
 

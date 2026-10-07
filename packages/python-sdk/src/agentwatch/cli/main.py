@@ -1013,6 +1013,26 @@ def _build_parser() -> argparse.ArgumentParser:
         "server_command", nargs=argparse.REMAINDER, help="-- <server command> [args...]"
     )
 
+    a2a = sub.add_parser("a2a-proxy", help="run the A2A interposition proxy (M29 A2A-1)")
+    a2a.add_argument("--agent", default=None, help="stdio mode: A2A agent name (tool.server)")
+    a2a.add_argument("--socket", default=None, help="daemon socket path override")
+    a2a.add_argument("--remote-org", default=None, help="remote organization (delegation)")
+    a2a.add_argument("--http", action="store_true", help="serve HTTP routes instead of stdio")
+    a2a.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
+    a2a.add_argument(
+        "--port", type=int, default=8766, help="HTTP bind port (default 8766; 0 = ephemeral)"
+    )
+    a2a.add_argument(
+        "--route",
+        action="append",
+        default=[],
+        metavar="NAME=URL",
+        help="HTTP route (repeatable): A2A agent name to upstream URL",
+    )
+    a2a.add_argument(
+        "agent_command", nargs=argparse.REMAINDER, help="-- <agent command> [args...]"
+    )
+
     return parser
 
 
@@ -1324,6 +1344,36 @@ def _run_mcp_proxy(args: argparse.Namespace) -> int:
         )
         return _EXIT_USAGE_ERROR
     return run_stdio(args.server, command, socket_path=args.socket)
+
+
+def _run_a2a_proxy(args: argparse.Namespace) -> int:
+    if args.http:
+        from agentwatch.a2a_proxy import parse_routes, serve_http
+
+        try:
+            routes = parse_routes(args.route)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        if not routes:
+            print("agentwatch: a2a-proxy --http requires --route NAME=URL", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+
+    from agentwatch.a2a_proxy import run_stdio
+
+    command: list[str] = list(args.agent_command)
+    if command and command[0] == "--":
+        command = command[1:]
+    if not command or args.agent is None:
+        print(
+            "agentwatch: a2a-proxy requires --agent NAME -- <command> [args...]",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    return run_stdio(
+        args.agent, command, socket_path=args.socket, remote_org=args.remote_org
+    )
 
 
 def _run_archive(args: argparse.Namespace) -> int:
@@ -1718,7 +1768,8 @@ _COMMANDS_FOR_COMPLETION = (
     "init status sessions replay export verify-store verify-release "
     "verify-privacy event doctor tail "
     "completions uninstall inventory search diff view explain import ingest fleet drift retention "
-    "purge export-session mcp-proxy annotate redact bom evidence coverage quarantine archive "
+    "purge export-session mcp-proxy a2a-proxy annotate redact bom evidence coverage "
+    "quarantine archive "
     "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance"
 )
 
@@ -2994,6 +3045,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_uninstall(args)
     if args.command == "mcp-proxy":
         return _run_mcp_proxy(args)
+    if args.command == "a2a-proxy":
+        return _run_a2a_proxy(args)
     if args.command == "sessions":
         return _run_sessions(args)
     if args.command == "verify-store":

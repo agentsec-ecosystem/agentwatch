@@ -79,11 +79,19 @@ fidelity-per-effort order (PRD 27 strategy):
 | Native hooks | JSON on stdin to a command; same contract as Claude Code | **Cursor** (full loop incl. blocking before-events, `beforeReadFile`, `afterAgentThought`), OpenCode (`tool.execute.before/after`, `session.*`, `file.changed`) |
 | Native OTel | built-in telemetry → OTLP/JSON/GCP, ingested | **Gemini CLI** (`telemetry` settings; `active_approval_mode`→approval, `user.email`→hashed principal, `installation.id`/`session.id`→identity — GEM-2) |
 | Log-read | read the files the agent already writes | **Codex** (rollout JSONL; `.jsonl.zst`, dangling sessions — reader M27 COD-1), **OpenCode** (storage tree — reader M27 LOG-1), long-tail CLIs |
-| Interposition | proxy the wire protocol | MCP (2026-07-28 surface), **A2A** (signed agent cards) |
+| Interposition | proxy the wire protocol | MCP (2026-07-28 surface), **A2A** (tasks/messages/artifacts + agent-card exchanges; M29 A2A-1, [ADR-0025](../adr/0025-a2a-interposition.md)) |
 
 Contract additions: an adapter declares its **fidelity tier** (`live-verified | fixture-verified | modeled`) and
 its **capture level**; blocking-hook events are recorded as observations and **never answered** (monitor-only, R2).
 Foreign log/rollout content follows the untrusted-data rule ([ADR-0024](../adr/0024-foreign-data-threat-posture.md)).
+
+**A2A interposition (M29 A2A-1).** `agentwatch a2a-proxy` mirrors the MCP proxy for the agent↔agent protocol
+([PRD 45](../prd/45-new-capture-surfaces.md), [ADR-0025](../adr/0025-a2a-interposition.md)): stdio and HTTP relays
+frame `message/send`, `message/stream`, `tasks/get`, and `tasks/cancel` (intent → outcome, artifacts as
+observations) plus agent-card exchanges; `tasks/resubscribe` and the push-notification-config family are declared
+gaps (relayed, never silently dropped). Consent-first install re-points an A2A client's `a2aAgents` entries and
+`uninstall` restores the file byte-identically (agentwatch's interposition convention; A2A defines no standard
+client config). Records enter through the same redaction/dedup/hash-chain path as MCP.
 
 See [cross-harness-testing.md](cross-harness-testing.md) for how compatibility is verified without the CLIs.
 

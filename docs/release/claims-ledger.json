@@ -818,6 +818,33 @@
         "doc:docs/design/owasp-asi-mapping.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C73",
+      "claim": "The A2A interposition proxy records tasks/messages/artifacts and agent-card exchanges over stdio and HTTP, rejects its declared gaps explicitly, and its consent-first install restores the client config byte-identically.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_a2a_proxy_adapter.py::test_message_send_request_becomes_an_intent_record",
+        "test:packages/python-sdk/tests/test_a2a_proxy_adapter.py::test_task_response_becomes_an_outcome_record_and_artifacts",
+        "test:packages/python-sdk/tests/test_a2a_proxy_stdio.py::test_records_request_and_response",
+        "test:packages/python-sdk/tests/test_a2a_config.py::test_uninstall_restores_the_exact_original_bytes",
+        "doc:docs/design/harness-adapter-design.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C74",
+      "claim": "A2A agent-card signatures are verified deterministically (verified/unverified, never assumed, never an authorization) and a cross-org hand-off is recorded as an agent-delegation observation that extends tree/trace.",
+      "source": "docs/design/agent-identity.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_a2a_agent_card.py::test_verified_card_records_a_verified_outcome",
+        "test:packages/python-sdk/tests/test_a2a_agent_card.py::test_unverified_card_is_recorded_as_unverified",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_message_send_to_a_remote_org_emits_an_agent_delegation_observation",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_delegation_is_never_an_authorization_verdict",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_trace_extends_across_the_organization_boundary",
+        "doc:docs/design/agent-identity.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

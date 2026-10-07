@@ -22,8 +22,9 @@ Status: living.
   `packages/python-sdk/tests/test_memory_surface.py`). A dedicated memory-audit **UI** is still absent.
 - No PydanticAI adapter; no policy-overlay view.
 - **Phased to v0.2.x (M28 cut-line, declared not dropped):** the derived Postgres query tier (`PG-1..3` →
-  M30, re-sequenced behind the embedded index `LUI-2`), and A2A interposition/provenance (`A2A-1/2`), a
-  system-effects ingest (`SYS-1`), and an ACS Guardian ingest (`ACS-1`) → M29 (need external specs/captures).
+  M30, re-sequenced behind the embedded index `LUI-2`), a system-effects ingest (`SYS-1`), and an ACS
+  Guardian ingest (`ACS-1`) → M29 (need external specs/captures). **A2A interposition + signed-card
+  provenance (`A2A-1/2`) shipped in M29** (`agentwatch a2a-proxy`; see below).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)
@@ -50,6 +51,18 @@ Status: living.
   roadmap. This retires the former `sampling` gap: it left by the standard, not by us.
   HTTP mode holds each forwarded request/response in memory (bounded by the upstream body); a truly
   unbounded SSE stream is relayed while open but only its `data:` frames are parsed.
+- **A2A interposition** (`agentwatch a2a-proxy`, M29 A2A-1) records A2A `message/send`, `message/stream`,
+  `tasks/get`, and `tasks/cancel` (intent → outcome), task artifacts, and agent-card exchanges over stdio
+  and HTTP; `tasks/resubscribe` and the push-notification-config family are declared gaps (relayed, never
+  silently dropped). Consent-first install re-points an A2A client's `a2aAgents` entries and `uninstall`
+  restores the file byte-identically — agentwatch's interposition convention, since A2A defines no standard
+  client config file. **Signed-card provenance (A2A-2):** a card's JWS signature is verified deterministically
+  against a held key (local `AGENTWATCH_A2A_JWKS` or an explicit mapping); the outcome is recorded as
+  `verified`/`unverified` and is **never** an authorization. Cards we cannot verify (unsigned, unknown key,
+  unsupported alg) are recorded `unverified` with a reason. Canonicalization is RFC 8785-style (sorted keys,
+  no whitespace); full JCS number-normalization is a declared gap. A cross-agent hand-off is recorded as an
+  `agent-delegation` observation that extends `tree`/`trace` across org boundaries; it is evidence of an
+  on-behalf-of hop, never a verdict.
 - OTel/NDJSON ingestion (`agentwatch ingest`, M10 N2) is a **transcoder, not a general OTel backend**
   (D-Q): it maps GenAI spans/attributes onto records + security events and quarantines what does not
   normalize. OTLP JSON and newline-delimited JSON only — not OTLP/gRPC or protobuf — and a huge OTLP JSON

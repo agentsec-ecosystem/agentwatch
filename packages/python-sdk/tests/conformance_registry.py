@@ -11,6 +11,7 @@ from pathlib import Path
 
 from agentwatch import conformance
 from agentwatch.adapters import (
+    a2a_proxy,
     claude_code,
     codex_cli,
     crewai,
@@ -21,6 +22,17 @@ from agentwatch.adapters import (
 )
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
+
+
+def a2a_proxy_spec() -> conformance.AdapterSpec:
+    return conformance.AdapterSpec(
+        name=a2a_proxy.HARNESS_ID,
+        normalize=a2a_proxy.normalize,
+        capabilities=a2a_proxy.CAPABILITIES,
+        documented_gaps=a2a_proxy.DOCUMENTED_GAPS,
+        error_cls=a2a_proxy.A2aProxyAdapterError,
+        fixtures_dir=FIXTURES / "a2a-proxy",
+    )
 
 
 def claude_code_spec() -> conformance.AdapterSpec:
@@ -107,6 +119,7 @@ def _shipped_specs() -> list[conformance.AdapterSpec]:
         codex_cli_spec(),
         gemini_cli_spec(),
         mcp_proxy_spec(),
+        a2a_proxy_spec(),
         crewai_spec(),
         pydantic_ai_spec(),
     ]

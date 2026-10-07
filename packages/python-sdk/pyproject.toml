@@ -70,6 +70,7 @@ agentwatch = "agentwatch.cli:main"
 agentwatch-hook = "agentwatch.hook:main"
 agentwatch-daemon = "agentwatch.daemon:main"
 agentwatch-mcp-proxy = "agentwatch.mcp_proxy:main"
+agentwatch-a2a-proxy = "agentwatch.a2a_proxy:main"
 
 [project.urls]
 Homepage = "https://github.com/agentsec-ecosystem/agentwatch"

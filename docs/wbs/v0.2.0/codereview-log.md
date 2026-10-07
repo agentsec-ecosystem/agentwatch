@@ -169,8 +169,21 @@ plus 28.T (#380) and 28.D (#381).
 - **A2A-1/2** (#364/#365), **SYS-1** (#366), **ACS-1** (#367) → **M29** (external specs / real captures).
 - Each issue carries a phasing comment (explicit, not dropped). No tag in M28.
 
+## Review checklist (M28)
+
+| Item | Verification | Verdict |
+|---|---|---|
+| ADR-0019 — derived-index invariant | `DATA-1` DDL carries `source_seq`/`source_hash` back-refs on every table and the header states the chain is the source of truth; `tests/test_derived_index_ddl.py` guards it. `PG-1..3` are phased (no Postgres tier in M28), so nothing bypasses the chain | ✅ upheld |
+| ADR-0020 — identity hashing | `IDN-4` exports the credential **class** only (`agentwatch.credential_class`), never a value; `principal`/`delegation_chain` hashing is unchanged, and the `agentwatch.credential_class` attribute is a classification | ✅ upheld |
+| ADR-0024 — foreign data | `COR-3`/`COR-4` add registry-facing artifacts; the incident report is redacted and egress-audited (`test_module_has_no_egress_path`), fixtures are shape-synthesized and cited, no reader executes foreign content | ✅ upheld |
+| ADR-0025 — A2A recorded-not-trusted | `A2A-1/2` are phased; the identity mapping states a card-verification outcome is recorded `verified`/`unverified` and is **never** treated as authorization | ✅ upheld (phased) |
+| Phased items listed + re-pointed | `PG-1..3` → M30; `A2A-1/2`, `SYS-1`, `ACS-1` → M29; each issue carries a phasing comment | ✅ recorded |
+| Registry export is human-initiated only | Incident report `submission.mode = manual-voluntary`, `auto_egress: false`; no submission anywhere is automatic | ✅ upheld |
+
 ## Sign-off (M28)
 
 - **Automated review evidence:** recorded above; the final gate is green (table above).
 - **Deferrals:** six tickets phased to M29/M30 with reasons recorded.
-- **Independent human risk sign-off:** pending maintainer (Debashish Ghosal, `@deghosal-2026`). Closes #382.
+- **Independent human risk sign-off:** ✅ **approved** by the maintainer (Debashish Ghosal, `@deghosal-2026`)
+  on **2026-10-06** — the review checklist above is verified, the six findings are fixed or waived with reasons,
+  and the deferrals are accepted. Closes #382.

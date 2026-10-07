@@ -146,7 +146,7 @@ FRAMEWORKS: dict[str, HarnessInfo] = {
         tested=HarnessRange("1.0.0", "1.x"),
         fidelity=FIDELITY_MODELED,
         invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
-        notes="Strands Agents native spans; fixture-driven, live run BLOCKED (not installable here)",
+        notes="Strands native spans; fixture-driven, live run BLOCKED (not installable here)",
     ),
     "openai-agents": HarnessInfo(
         harness="openai-agents",

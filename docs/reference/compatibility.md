@@ -50,5 +50,5 @@
 | `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
 | `openai-agents` | Tier-2 | 0.1.0–0.x | — | modeled | OpenInference → OTLP (`agentwatch ingest --format otel`) | OpenAI Agents SDK via OpenInference; fixture-driven, live run BLOCKED (not installable here) |
 | `pydantic-ai` | Tier-2 | modeled | — | modeled | native adapter (modeled) |  |
-| `strands` | Tier-2 | 1.0.0–1.x | — | modeled | OTel GenAI over OTLP (`agentwatch ingest --format otel`) | Strands Agents native spans; fixture-driven, live run BLOCKED (not installable here) |
+| `strands` | Tier-2 | 1.0.0–1.x | — | modeled | OTel GenAI over OTLP (`agentwatch ingest --format otel`) | Strands native spans; fixture-driven, live run BLOCKED (not installable here) |
 <!-- END GENERATED HARNESS MATRIX -->

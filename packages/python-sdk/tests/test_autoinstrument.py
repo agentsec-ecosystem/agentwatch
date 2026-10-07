@@ -11,13 +11,13 @@ injectable seams (``find_spec``, ``is_running``, ``wire``, ``register_exit``).
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator, MutableMapping
 
 import pytest
 
 import agentwatch
 from agentwatch import autoinstrument
-from agentwatch.frameworks import RECIPES
+from agentwatch.frameworks import RECIPES, FrameworkRecipe
 
 
 @pytest.fixture(autouse=True)
@@ -27,7 +27,7 @@ def _reset() -> Iterator[None]:
     autoinstrument.reset()
 
 
-def _find_spec(*modules: str):
+def _find_spec(*modules: str) -> Callable[[str], object | None]:
     present = set(modules)
 
     def probe(module: str) -> object | None:
@@ -79,7 +79,9 @@ def test_instruments_detected_frameworks_and_wires_the_collector() -> None:
 
 
 def test_a_wiring_failure_is_reported_not_silently_dropped() -> None:
-    def wire(recipe, endpoint, env):  # noqa: ANN001 - test seam
+    def wire(
+        recipe: FrameworkRecipe, endpoint: str, env: MutableMapping[str, str]
+    ) -> None:
         if recipe.name == "strands":
             raise RuntimeError("instrumentor exploded")
 
@@ -115,7 +117,7 @@ def test_an_unsupported_framework_is_an_explicit_gap() -> None:
 def test_second_call_is_idempotent_and_does_not_rewire() -> None:
     wired: list[str] = []
 
-    def _instrument():  # noqa: ANN202
+    def _instrument() -> autoinstrument.InstrumentReport:
         return autoinstrument.instrument(
             find_spec=_find_spec("google.adk"),
             is_running=lambda: True,
@@ -136,7 +138,7 @@ def test_second_call_is_idempotent_and_does_not_rewire() -> None:
 def test_flush_on_exit_is_registered_once() -> None:
     registered: list[object] = []
 
-    def _instrument():  # noqa: ANN202
+    def _instrument() -> autoinstrument.InstrumentReport:
         return autoinstrument.instrument(
             find_spec=_find_spec("google.adk"),
             is_running=lambda: True,
@@ -183,7 +185,8 @@ def test_it_prints_detected_frameworks_and_gaps(
 
 
 def test_default_running_probe_is_false_when_nothing_listens() -> None:
-    assert autoinstrument._default_is_running({"AGENTWATCH_HEALTH_ENDPOINT": "127.0.0.1:1"}) is False
+    env = {"AGENTWATCH_HEALTH_ENDPOINT": "127.0.0.1:1"}
+    assert autoinstrument._default_is_running(env) is False
 
 
 def test_default_wire_sets_the_otlp_endpoint() -> None:

@@ -23,7 +23,7 @@ import importlib.util
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 
-from agentwatch.compatibility import FIDELITY_MODELED, FIDELITY_TIERS
+from agentwatch.compatibility import FIDELITY_MODELED
 
 # Re-export the tier vocabulary so recipes carry a compatibility-matrix tier.
 TIER_MODELED = FIDELITY_MODELED
@@ -151,7 +151,7 @@ RECIPES: dict[str, FrameworkRecipe] = {
         identity_keys=("agent.name", "service.name"),
         step_map=_OPENINFERENCE_STEPS,
         cost_keys=_OPENINFERENCE_COST_KEYS,
-        notes="OpenAI Agents SDK via Arize OpenInference; openinference.* span kinds and llm.* usage.",
+        notes="OpenAI Agents SDK via OpenInference; openinference.* / llm.* attributes.",
     ),
     "claude-agent-sdk": FrameworkRecipe(
         name="claude-agent-sdk",

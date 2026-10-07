@@ -23,7 +23,7 @@ import importlib.util
 import os
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 from agentwatch import frameworks
@@ -80,7 +80,9 @@ class InstrumentReport:
         if self.noop:
             lines.append("agentwatch.instrument: no-op (recorder not running)")
         else:
-            lines.append(f"agentwatch.instrument: instrumented {len(self.instrumented)} framework(s)")
+            lines.append(
+                f"agentwatch.instrument: instrumented {len(self.instrumented)} framework(s)"
+            )
         lines.append(f"  detected: {', '.join(self.detected) or '(none)'}")
         lines.append(f"  instrumented: {', '.join(self.instrumented) or '(none)'}")
         lines.append(f"  already: {', '.join(self.already) or '(none)'}")
@@ -135,7 +137,7 @@ def _default_is_running(env: Mapping[str, str]) -> bool:
     endpoint = env.get(HEALTH_ENDPOINT_ENV, DEFAULT_HEALTH_ENDPOINT)
     try:
         with urllib.request.urlopen(_health_url(endpoint), timeout=0.5) as response:  # noqa: S310
-            return 200 <= response.status < 300
+            return bool(200 <= response.status < 300)
     except (OSError, ValueError, urllib.error.URLError):
         return False
 
@@ -153,11 +155,9 @@ def _default_wire(
     """
     env["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint
     if recipe.name == "openai-agents":
-        from openinference.instrumentation.openai_agents import (  # noqa: PLC0415
-            OpenAIAgentsInstrumentor,
-        )
-
-        OpenAIAgentsInstrumentor().instrument()
+        module = importlib.import_module("openinference.instrumentation.openai_agents")
+        instrumentor = cast("Any", module).OpenAIAgentsInstrumentor
+        instrumentor().instrument()
 
 
 def flush_active_provider() -> bool:

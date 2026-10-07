@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -31,8 +32,9 @@ FRAMEWORKS = ("adk", "strands", "openai-agents", "claude-agent-sdk")
 SOURCES = {"otel-genai", "openinference", "claude-code-otel"}
 
 
-def _fixture(name: str) -> dict:
-    return json.loads((FIXTURES / name / "conformance.json").read_text(encoding="utf-8"))
+def _fixture(name: str) -> dict[str, Any]:
+    data = json.loads((FIXTURES / name / "conformance.json").read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", data)
 
 
 def test_every_recipe_is_pinned_and_tiered() -> None:
@@ -128,7 +130,7 @@ def test_framework_recipes_doc_covers_every_framework() -> None:
 
 
 def test_framework_recipe_is_indexed_in_the_examples_gallery() -> None:
-    assert f"[`framework_recipes.py`](framework_recipes.py)" in GALLERY_README.read_text(
+    assert "[`framework_recipes.py`](framework_recipes.py)" in GALLERY_README.read_text(
         encoding="utf-8"
     )
     assert GALLERY_RECIPE.exists()

@@ -6,6 +6,28 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
+  - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
+    managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports
+    `hooks effective: yes | blocked by managed policy | unknown`, never "installed" when policy blocks the
+    recorder; `init` warns that a user/project install will be inert and `managed_install_artifacts` generates
+    the inert managed hook / org-plugin / MDM artifacts. Detect, never circumvent (#441).
+  - DEP-2: session-start recorder attestation + `recorder-config-changed` — a chain-recorded
+    `recorder-attested` fact (effective hook sources, a keyed config digest, managed-policy status, permission
+    mode) is appended on the daemon `session-start` hook and at `init`; a digest change raises
+    `recorder-config-changed`; `coverage`/`evidence` carry `attestation: present|absent`; digests/booleans only
+    (#442).
+  - DEP-3: end-to-end hook wall-clock per OS + budget + CI gate — `agentwatch.hook_perf` measures the real
+    `agentwatch-hook pre` process-spawn cost against a draining socket; `scripts/hook_perf_gate.py`
+    (`.github/workflows/hook-perf.yml`) gates macOS/Linux against a committed per-OS baseline and publishes the
+    table plus a 500-call session overhead in `reference/performance.md`; Windows is reported blocked on WIN-1
+    (#443).
+  - EXT-3: security-event schema gains `recorder-config-changed` (DEP-2), `mode-transition` (APV-2/WS-A), and
+    the forward-compatible `capability-changed` placeholder (M30 CAP-2, not built) — with OCSF/CloudEvents
+    mappings, fixtures, and the schema changelog (#453).
+  - EXT-7: the compatibility matrix gains a **Managed policy** column (`effective`/`blocked`/`unknown`/`n/a`)
+    and framework rows (ADK / Strands / OpenAI Agents SDK / Claude Agent SDK) as a generator input WS-D (FWK-1)
+    will populate; the generated block and drill note are updated (#454).
 - v0.2.0 Trust, Identity & Governance (M29):
   - APV-1: authorization provenance v2 (`authz-v2`, PRD 49) — an additive metadata-only `authorization`
     object (`source`/`deny`/`evidence`) on records, with the legacy S14 five-value `approval` mapped at read

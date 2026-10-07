@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from agentwatch.claude_otel import NON_TOOL_EVENTS, otel_join_summary
+from agentwatch.attestation import attestation_status
 from agentwatch.harness_drift import harness_drift_observations
 from agentwatch.permission_mode import effective_modes
 from agentwatch.quarantine import QuarantineLog
@@ -138,12 +139,14 @@ class CoverageReport:
     windows: tuple[CoverageWindow, ...] = ()
     since: str | None = None
     totals: dict[str, Any] = field(default_factory=dict)
+    attestation: str | None = None
     otel_join: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "transcripts_present": self.transcripts_present,
             "since": self.since,
+            "attestation": self.attestation,
             "otel_join": self.otel_join,
             "sessions": [
                 {

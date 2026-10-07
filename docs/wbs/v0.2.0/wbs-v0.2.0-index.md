@@ -70,11 +70,11 @@ Exit criteria · Design docs).
 > `mypy --strict` clean. **Re-pointed (blocked, declared):** UI-1 → M30 (console), XHT-2 → M31 (field tests).
 > Milestone closed 2026-10-06.
 >
-> **Progress:** 🚧 **M27 (Surfaces) in progress** (2026-10-06) — **done (26):** MCP-1..6 (#333–#338), GEM-2
-> (#342), DET-4 (#343), DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-1 (#348), LG-2 (#349), EXA-1
-> (#351), COD-1 (#339), XHT-3 (#352), LOG-1 (#340), CCA-1 (#341), UI-2 (#431), A11Y-1 (#432), RUN-1 (#433),
-> TUT-1 (#434), 27.T (#377), 27.D (#378). **Blocked (declared):** WIN-1 (#350, needs a Windows host). Open:
-> 27.R (#379). Milestone gate green at HEAD.
+> **Progress:** ✅ **M27 (Surfaces) complete** (2026-10-06) — 26 feature/support tickets done (MCP-1..6, GEM-2,
+> DET-4, DET-5, COR-2, SIEM-1/2, LG-1, LG-2, EXA-1, COD-1, XHT-3, LOG-1, CCA-1, UI-2, A11Y-1, RUN-1, TUT-1,
+> 27.T, 27.D); **WIN-1 declared and re-pointed to M31 field tests** (service unit + `windows-latest` leg landed;
+> named-pipe transport + CUJ-1 Windows timing). Gate green (`make test`: SDK 95.02%/1735, API 95.75%/53,
+> analytics 95.18%/728, repo guard 34; ruff/mypy/web clean). 27.R signed off (maintainer, 2026-10-06).
 
 ## Track → ticket map
 

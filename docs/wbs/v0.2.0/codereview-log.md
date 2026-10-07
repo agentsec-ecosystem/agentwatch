@@ -96,16 +96,23 @@ SIEM-1/2 (#346/#347), LG-2 (#349), EXA-1 (#351), **COD-1 (#339)**, **XHT-3 (#352
 The 2 SDK skips are expected and non-blocking: the live-capture golden corpus (needs a machine running Claude
 Code) and the XHT-3 cross-parser diff (its own CI workflow provisions the two parsers; green there).
 
-## Open items (not signed off)
+## Deferred (re-pointed)
 
-`WIN-1` (#350) is **partial**: the Windows service supervision (Task Scheduler XML) and a `windows-latest` CI leg
-are drafted and tested on any OS, but the **named-pipe transport** and an end-to-end **CUJ-1 timing run on
-Windows** cannot be verified from this macOS host — the CI leg will confirm itself on GitHub. Everything else
-landed: `COD-1`/`XHT-3`/`LOG-1` were unblocked by downloading the verified Codex format (kvsankar/agent-history +
-`openai/codex` source), two independent pinned parsers (agent-history, agent-ouija), and the OpenCode SDK schema;
-`LG-1` gained an O1 SDK conformance pack; `DET-4` published real numbers against a live local
-`Qwen3.5-9B-MLX-4bit`; `CCA-1` added the consent-gated Compliance API ingest. `27.R` (this record) plus the
-maintainer's human sign-off and a decision on `WIN-1` (resolve or re-point) are what remain before the milestone
-is declared closed.
+`WIN-1` (#350) is **deferred to M31 field tests** (declared, not dropped): the Windows service supervision (Task
+Scheduler XML) and a `windows-latest` CI leg landed and are tested on any OS, but the **named-pipe transport**
+and an end-to-end **CUJ-1 timing run on Windows** cannot be verified from this macOS host — they run in M31.
+
+Everything else landed: `COD-1`/`XHT-3`/`LOG-1` were unblocked by downloading the verified Codex format
+(kvsankar/agent-history + `openai/codex` source), two independent pinned parsers (agent-history, agent-ouija),
+and the OpenCode SDK schema; `LG-1` gained an O1 SDK conformance pack; `DET-4` published real numbers against a
+live local `Qwen3.5-9B-MLX-4bit`; `CCA-1` added the consent-gated Compliance API ingest.
+
+## Sign-off (M27)
+
+- **Automated review evidence:** recorded above; the final gate is green (table above).
+- **Deferral:** `WIN-1` re-pointed to M31 field tests (reason recorded).
+- **Independent human risk sign-off:** ✅ **approved** by the maintainer (Debashish Ghosal, `@deghosal-2026`)
+  on **2026-10-06** — no unresolved findings; the one deferral (WIN-1 → M31) is accepted with the reason
+  recorded above. Closes #379.
 
 ## Final gate (M27 batch, all changes)

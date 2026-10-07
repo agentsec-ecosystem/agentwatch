@@ -12,13 +12,14 @@ Tier-2, Windows, the examples gallery, and cross-parser validation.
 
 ## Milestone M27 — Surfaces (PRD 42–47)
 
-**Status:** 🚧 **in progress** (2026-10-06) — **done (26):** MCP-1..6 (#333–#338), GEM-2 (#342), DET-4 (#343,
+**Status:** ✅ **complete** (2026-10-06) — **done (26):** MCP-1..6 (#333–#338), GEM-2 (#342), DET-4 (#343,
 LLM numbers published), DET-5 (#344), COR-2 (#345), SIEM-1/2 (#346/#347), LG-1 (#348, O1 SDK pack), LG-2 (#349),
 EXA-1 (#351), COD-1 (#339), XHT-3 (#352), LOG-1 (#340) (unblocked by downloading the verified Codex format, two
 pinned OSS parsers, and the OpenCode SDK schema), CCA-1 (#341, Compliance API ingest), UI-2 (#431), A11Y-1 (#432),
-RUN-1 (#433), TUT-1 (#434), 27.T (#377), 27.D (#378). **Partial:** WIN-1 (#350, Task Scheduler service unit +
-`windows-latest` CI leg drafted; named-pipe transport + CUJ-1 timing unverified). Milestone gate (`make test`:
-SDK/API/analytics ≥95%, repo guard 34; `ruff`/`mypy`/web clean) run; 27.R open.
+RUN-1 (#433), TUT-1 (#434), 27.T (#377), 27.D (#378). **Deferred (declared, re-pointed):** WIN-1 (#350, Task
+Scheduler service unit + `windows-latest` CI leg landed; named-pipe transport + CUJ-1 Windows timing moved to
+**M31 field tests**). Milestone gate (`make test`: SDK/API/analytics ≥95%, repo guard 34; `ruff`/`mypy`/web
+clean) green; **27.R signed off** (maintainer approved 2026-10-06).
 
 **Goal:** Reach real harnesses across the long tail and every MCP surface, harden the SOC feed, and open the
 Tier-2 framework and Windows lanes.

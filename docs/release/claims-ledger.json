@@ -630,7 +630,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C52",
+      "id": "C58",
       "claim": "Under Claude Code managed policy that blocks user/project hooks, `doctor` reports `hooks effective: blocked by managed policy` and never claims \"installed\"; it detects, never circumvents, and managed installs are removed by the admin mechanism.",
       "source": "docs/design/managed-policy-install.md",
       "evidence": [
@@ -642,7 +642,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C53",
+      "id": "C59",
       "claim": "A session-start recorder attestation (effective hook sources, a keyed config digest, managed-policy status, permission mode) is chain-recorded, a digest change raises `recorder-config-changed`, `coverage`/`evidence` carry `attestation: present|absent`, and the attestation stores digests/booleans only \u2014 never config values or secrets.",
       "source": "docs/design/recorder-attestation.md",
       "evidence": [
@@ -655,7 +655,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C54",
+      "id": "C60",
       "claim": "The end-to-end hook wall-clock (two fresh-interpreter hooks per tool call) is published per OS with a user-visible budget (< 500 ms per tool call at p99) and a 500-call session overhead quote, and is gated in CI; Windows is reported blocked on WIN-1, not silently measured.",
       "source": "docs/reference/performance.md",
       "evidence": [
@@ -669,7 +669,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C55",
+      "id": "C61",
       "claim": "The security-event vocabulary adds `recorder-config-changed` and `mode-transition` with OCSF/CloudEvents mappings and fixtures, and adds `capability-changed` as a forward-compatible placeholder for M30 CAP-2 (not built); the schema changelog and stewardship check pass.",
       "source": "schema/CHANGELOG.md",
       "evidence": [
@@ -682,7 +682,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C56",
+      "id": "C62",
       "claim": "The compatibility matrix carries a Managed policy column (`effective`/`blocked`/`unknown`/`n/a`), a normal Claude Code user/project install is shown `blocked` under `allowManagedHooksOnly` with the managed path noted, and framework rows (ADK/Strands/OpenAI Agents SDK/Claude Agent SDK) are a generator input WS-D (FWK-1) populates \u2014 not shipped adapters.",
       "source": "docs/reference/compatibility.md",
       "evidence": [
@@ -695,7 +695,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C52",
+      "id": "C63",
       "claim": "A fleet/multi-user reader sees only the data classes their role is granted; a disallowed cross-user read returns nothing and is recorded, so the subject can see who read their records and when.",
       "source": "docs/design/access-and-governance.md",
       "evidence": [
@@ -707,7 +707,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C53",
+      "id": "C64",
       "claim": "`agentwatch governance notice` renders what is recorded, what is not, who can see it, retention, and erasure from the live effective configuration; every statement maps to a config key or documented guarantee and any claim the config cannot back is omitted and listed as refused, with a 'not legal advice' banner.",
       "source": "docs/compliance/dpia-starter.md",
       "evidence": [
@@ -719,7 +719,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C54",
+      "id": "C65",
       "claim": "A legal hold suspends retention and purge: held records survive retention and a rebuild-from-chain, purge fails closed with the hold reference, and an override requires a stated reason and is recorded as a session-scoped chain record.",
       "source": "docs/design/legal-hold.md",
       "evidence": [
@@ -731,7 +731,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C52",
+      "id": "C66",
       "claim": "Certified framework recipes (ADK, Strands, OpenAI Agents SDK via OpenInference, Claude Agent SDK) map OTel GenAI and OpenInference attributes through the shared ingest path with an explicit unmapped bucket and carry a compatibility-matrix tier; no live run is claimed until it is verified.",
       "source": "docs/reference/framework-recipes.md",
       "evidence": [
@@ -744,7 +744,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C53",
+      "id": "C67",
       "claim": "agentwatch.instrument() detects installed supported frameworks, wires their telemetry to the local collector, and reports what it instrumented and what it could not (no silent partial instrumentation); it is no-op safe when the recorder is not running, registers a single flush-on-exit, and is idempotent (no double spans).",
       "source": "docs/design/sdk-lifecycle.md",
       "evidence": [
@@ -757,7 +757,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C52",
+      "id": "C68",
       "claim": "A security-event vocabulary contribution was submitted to OTel GenAI semconv (OTel GenAI semconv); submitted, not adopted.",
       "source": "docs/reference/standards-participation.md#contributions-submitted",
       "evidence": [
@@ -767,7 +767,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C53",
+      "id": "C69",
       "claim": "An authorization-taxonomy-v2 contribution was submitted to the IETF Agent Audit Trail draft (IETF AAT); submitted, not adopted.",
       "source": "docs/reference/standards-participation.md#contributions-submitted",
       "evidence": [
@@ -777,7 +777,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C54",
+      "id": "C70",
       "claim": "A capability-changed event-shape contribution was submitted to Agent Trace; submitted, not adopted.",
       "source": "docs/reference/standards-participation.md#contributions-submitted",
       "evidence": [
@@ -787,7 +787,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C55",
+      "id": "C71",
       "claim": "A security-event class-mapping contribution was submitted to OCSF; submitted, not adopted.",
       "source": "docs/reference/standards-participation.md#contributions-submitted",
       "evidence": [
@@ -797,7 +797,7 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C56",
+      "id": "C72",
       "claim": "An ASI/AST coverage-vocabulary contribution was submitted to OWASP Agentic; submitted, not adopted.",
       "source": "docs/reference/standards-participation.md#contributions-submitted",
       "evidence": [

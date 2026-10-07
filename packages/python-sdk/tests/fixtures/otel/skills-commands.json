@@ -1,0 +1,30 @@
+{
+  "schema": "agentwatch.otel-skills-commands/1",
+  "cases": [
+    {
+      "harness": "claude-code",
+      "behavior": "skill-load",
+      "name": "pdf",
+      "operation": "load_skill"
+    },
+    {
+      "harness": "claude-code",
+      "behavior": "skill-resource",
+      "name": "pdf",
+      "resource": "references/REFERENCE.md",
+      "operation": "read_skill_resource"
+    },
+    {
+      "harness": "claude-code",
+      "behavior": "command",
+      "name": "Bash",
+      "operation": "execute_command"
+    }
+  ],
+  "declared_gaps": [
+    {
+      "harness": "gemini-cli",
+      "reason": "native telemetry exposes tool calls but not distinct skill/command spans"
+    }
+  ]
+}

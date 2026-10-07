@@ -45,6 +45,12 @@ spans**. v0.2.0 ([PRD 41](../prd/41-standards-and-interop-ii.md) OTEL-1..4):
 
 - Align operations to the canonical set: `create_agent`, `invoke_agent` (client/internal), `invoke_workflow`,
   `plan`, `execute_tool`, plus skills (`load skill`, `read skill resource`, command execution).
+  **OTEL-4 implemented:** `spans.skill_span(...)` emits `load_skill` / `read_skill_resource` (with
+  `agentwatch.skill.name` / `agentwatch.skill.resource`) and `spans.command_span(...)` emits
+  `execute_command` (command identity on `gen_ai.tool.name`). These are provisional agentwatch extensions
+  (`attrs.AGENTWATCH_EXTENSION_OPERATIONS`), kept out of the pinned upstream set; a harness that does not
+  expose skills/commands is a declared gap, never "no skill was used". Fixture:
+  `packages/python-sdk/tests/fixtures/otel/skills-commands.json`.
 - Re-pin the semconv version; carry it in `--version` + resource attributes; drift-check (W4).
 - Add **OTLP/gRPC + protobuf ingest** (streaming) alongside JSON.
 - State the privacy-mode ↔ content-capture mapping explicitly; metadata-only by default.

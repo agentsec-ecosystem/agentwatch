@@ -492,6 +492,18 @@
         "doc:docs/design/detector-evaluation.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C46",
+      "claim": "Skill and command-execution spans are emitted (load_skill, read_skill_resource, execute_command) where a harness exposes them; a harness that does not expose them is a declared gap.",
+      "source": "docs/design/otel-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_load_skill_span",
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_command_execution_span",
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_harnesses_that_do_not_expose_skills_are_a_declared_gap",
+        "file:packages/python-sdk/tests/fixtures/otel/skills-commands.json"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

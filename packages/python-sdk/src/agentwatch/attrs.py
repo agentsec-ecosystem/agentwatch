@@ -192,3 +192,21 @@ AGENT_SPAN_OPERATIONS: tuple[str, ...] = (
     SPAN_KIND_PLAN,
     SPAN_KIND_TOOL,
 )
+
+# Skills + command execution (OTEL-4). These are **provisional agentwatch
+# extensions**: the GenAI semconv describes the behaviors but has not pinned
+# operation names upstream, so they are kept out of ``AGENT_SPAN_OPERATIONS``
+# (the pinned set the drift check guards) until upstream adopts them.
+SPAN_KIND_LOAD_SKILL = "load_skill"
+SPAN_KIND_READ_SKILL_RESOURCE = "read_skill_resource"
+SPAN_KIND_EXECUTE_COMMAND = "execute_command"
+
+AGENTWATCH_EXTENSION_OPERATIONS: tuple[str, ...] = (
+    SPAN_KIND_LOAD_SKILL,
+    SPAN_KIND_READ_SKILL_RESOURCE,
+    SPAN_KIND_EXECUTE_COMMAND,
+)
+
+# Skill / command attributes (agentwatch namespaced; never content).
+AGENTWATCH_SKILL_NAME = "agentwatch.skill.name"
+AGENTWATCH_SKILL_RESOURCE = "agentwatch.skill.resource"

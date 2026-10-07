@@ -16,6 +16,16 @@ emit version stays `0.1.0` until the v0.2.0 release bump (M30 30.3).
   `agent_identity` dimension on `agent` (IDN-1): `workload_identity`,
   `credential_class` (`api-key` \| `oauth` \| `svid` \| `ambient/shared`),
   `principal`, `delegation_chain`.
+- `agent-record.schema.json` new optional `authorization` object (M29 APV-1,
+  PRD 49): `source` (`human-once` \| `human-remembered` \| `rule` \| `classifier`
+  \| `hook` \| `bypass` \| `not-required` \| `denied` \| `unknown`), `deny`
+  (`human` \| `rule` \| `classifier` \| `hook` \| `unknown`), `evidence`
+  (`harness-native` \| `inferred` \| `session-mode`). Additive; legacy `approval`
+  is mapped at read time and never written back.
+- `agent-record.schema.json` new optional `permission_mode` (M29 APV-2, PRD 49):
+  `default` \| `acceptEdits` \| `plan` \| `auto` \| `dontAsk` \|
+  `bypassPermissions` \| `unknown`. Additive; mode transitions are their own
+  `permission-mode-changed` observations, and a missing mode reads as `unknown`.
 - `security-event.schema.json` `event_version` accepts `0.1.0` and `0.2.0`;
   new event type `agent-delegation` (A2A-2, PRD 45) — an observation of a
   cross-agent delegation, never an authorization verdict.

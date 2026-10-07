@@ -101,6 +101,8 @@ from agentwatch.notarize import (
     verify_checkpoint,
 )
 from agentwatch.ocsf import session_cloudevents, session_ocsf
+from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
+from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
 from agentwatch.quarantine import (
     QuarantineError,
@@ -496,8 +498,37 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument(
         "--approval",
         default=None,
-        choices=("user", "auto", "not-required", "denied", "unknown"),
-        help="only records with this authorization decision (M19 S14)",
+        choices=(
+            # legacy S14 values
+            "user",
+            "auto",
+            "not-required",
+            "denied",
+            "unknown",
+            # authorization v2 sources (M29 APV-1)
+            "human-once",
+            "human-remembered",
+            "rule",
+            "classifier",
+            "hook",
+            "bypass",
+        ),
+        help="only records with this authorization decision/source (M19 S14, M29 APV-1)",
+    )
+    search.add_argument(
+        "--mode",
+        dest="permission_mode",
+        default=None,
+        choices=(
+            "default",
+            "acceptEdits",
+            "plan",
+            "auto",
+            "dontAsk",
+            "bypassPermissions",
+            "unknown",
+        ),
+        help="only records with this permission mode in force (M29 APV-2)",
     )
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
     search.add_argument(
@@ -539,10 +570,11 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance"),
+        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance", "claude-otel"),
         default="otel",
         help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
-        "claude-compliance is an Anthropic Compliance API export, requires --consent)",
+        "claude-otel is Claude Code native OTel (CCO-1); claude-compliance is an "
+        "Anthropic Compliance API export, requires --consent)",
     )
     ingest.add_argument(
         "--consent",
@@ -653,6 +685,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help="ground-truth source for reconciliation (default: claude-code)",
     )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
+
+    oversight_cmd = sub.add_parser(
+        "oversight", help="authorization + human-oversight facts (M29 APV-3)"
+    )
+    oversight_cmd.add_argument(
+        "--since", default=None, help="relative (2d/12h/30m) or ISO timestamp"
+    )
+    oversight_cmd.add_argument(
+        "--project", default=None, help="only records for this project (cwd)"
+    )
+    oversight_cmd.add_argument(
+        "--by",
+        choices=OVERSIGHT_BY_OPTIONS,
+        default="source",
+        help="group the authorization mix by this dimension (default: source)",
+    )
+    oversight_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     compliance_cmd = sub.add_parser("compliance", help="offline compliance reports (M26 CMP-1)")
     compliance_sub = compliance_cmd.add_subparsers(dest="compliance_command", required=True)
@@ -2039,6 +2088,7 @@ def _run_search(args: argparse.Namespace) -> int:
         identity=args.identity,
         mcp_resource=args.mcp_resource,
         memory_only=args.memory,
+        permission_mode=args.permission_mode,
         records=combined.records,
     )
     for record in records:
@@ -2189,6 +2239,24 @@ def _run_compliance(args: argparse.Namespace) -> int:
         print(f"agentwatch: wrote compliance report to {out}", file=sys.stderr)
     else:
         print(text)
+    return 0
+
+
+def _run_oversight(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_oversight(
+            store, since=args.since, project=args.project, by=args.by
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    print(json.dumps(report.to_dict(), indent=2) if args.json else render_oversight(report))
     return 0
 
 
@@ -2763,6 +2831,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_coverage(args)
     if args.command == "compliance":
         return _run_compliance(args)
+    if args.command == "oversight":
+        return _run_oversight(args)
     if args.command == "bom":
         return _run_bom(args)
     if args.command == "retention":

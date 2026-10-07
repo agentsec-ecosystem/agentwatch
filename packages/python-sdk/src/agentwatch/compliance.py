@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from agentwatch.configuration import AgentwatchConfig
+from agentwatch.oversight import build_oversight
 from agentwatch.recorder_state import last_state
 from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
@@ -26,13 +27,22 @@ FAIL = "fail"
 UNKNOWN = "unknown"
 
 # Frameworks CMP-2 provides templates for; the engine is framework-agnostic.
-FRAMEWORKS = ("generic", "eu-ai-act-art12", "iso-42001", "iso-27001", "soc2", "nist-800-92")
+FRAMEWORKS = (
+    "generic",
+    "eu-ai-act-art12",
+    "eu-ai-act-art14",
+    "iso-42001",
+    "iso-27001",
+    "soc2",
+    "nist-800-92",
+)
 
 STORE_REF = "docs/reference/store-format.md"
 FORENSIC_REF = "docs/design/forensic-soundness.md"
 IDENTITY_REF = "docs/design/agent-identity.md"
 EVIDENCE_REF = "docs/reference/evidence-verifier.md"
 COMPLIANCE_REF = "docs/reference/compliance.md"
+OVERSIGHT_REF = "docs/design/authorization-provenance-v2.md"
 
 
 @dataclass(frozen=True)
@@ -185,6 +195,19 @@ def _evidence_bundle(
     return UNKNOWN, "no recorded session to bundle"
 
 
+def _oversight_measurement(
+    store: RecordStore, config: AgentwatchConfig, records: list[AgentRecord]
+) -> tuple[str, str]:
+    report = build_oversight(store)
+    if report.total_calls:
+        return (
+            PASS,
+            f"{report.total_calls} call(s) carry an authorization source; "
+            f"{report.destructive_total} cls1 destructive/network/credential-adjacent",
+        )
+    return UNKNOWN, "no agent tool calls recorded to measure oversight"
+
+
 _CONTROLS: tuple[_ControlSpec, ...] = (
     _ControlSpec(
         "log-integrity",
@@ -235,6 +258,13 @@ _CONTROLS: tuple[_ControlSpec, ...] = (
         (EVIDENCE_REF, COMPLIANCE_REF),
         _evidence_bundle,
     ),
+    _ControlSpec(
+        "oversight-measurement",
+        "Human oversight is measured (authorization source + decisions)",
+        "agentwatch oversight",
+        (OVERSIGHT_REF,),
+        _oversight_measurement,
+    ),
 )
 
 
@@ -264,6 +294,20 @@ _TEMPLATES: dict[str, tuple[tuple[str, str, str, tuple[str, ...]], ...]] = {
             (IDENTITY_REF,),
         ),
         ("art12-4-integrity", "Integrity of the recorded log", "checkpointing", (FORENSIC_REF,)),
+    ),
+    "eu-ai-act-art14": (
+        (
+            "art14-human-oversight",
+            "Human oversight of the high-risk AI system (Art. 14; OWASP ASI09)",
+            "oversight-measurement",
+            (OVERSIGHT_REF,),
+        ),
+        (
+            "art14-authorization-provenance",
+            "Who/what authorized each action is recorded (Art. 14)",
+            "log-integrity",
+            (OVERSIGHT_REF, STORE_REF),
+        ),
     ),
     "iso-42001": (
         ("aims-logging", "AI management system event logging", "log-integrity", (STORE_REF,)),

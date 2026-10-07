@@ -21,13 +21,17 @@ from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any, cast
 
+from agentwatch.authorization import derive_authorization, permission_mode_from
 from agentwatch.identity import apply_identity_privacy
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
     Approval,
+    Authorization,
+    AuthorizationSource,
     CredentialClass,
     Outcome,
+    PermissionMode,
     Producer,
     ProducerKind,
     RecordPrivacyMode,
@@ -295,6 +299,25 @@ def derive_approval(
     return Approval.UNKNOWN
 
 
+def native_decision_source(event: Mapping[str, Any]) -> str | None:
+    """The harness-native permission decision source, when exposed.
+
+    Accepts the flat ``decision_source`` / ``permission_decision_source`` keys or
+    a nested ``tool_decision`` block (Claude Code native telemetry, CCO-1).
+    Absent stays ``None`` — never inferred.
+    """
+    for key in ("decision_source", "permission_decision_source"):
+        value = event.get(key)
+        if isinstance(value, str) and value:
+            return value
+    block = event.get("tool_decision")
+    if isinstance(block, Mapping):
+        value = block.get("decision_source")
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
 _ENV_STRINGS = {"harness": ("name", "version"), "os": ("system", "arch")}
 _ENV_AGENTWATCH = ("version",)
 _ENV_PRINCIPAL_INTS = ("uid", "pid", "ppid")
@@ -418,6 +441,21 @@ def _normalize_message(
     # Only persist a decision we actually have; absence reads back as `unknown`
     # so a record never claims an authorization the harness did not expose.
     recorded_approval = approval if approval is not Approval.UNKNOWN else None
+    # Authorization v2 (M29 APV-1): a native decision source is authoritative;
+    # a bypass mode means nothing was checking; else the S14 value maps with
+    # evidence=inferred. `unknown` is never persisted as a claim.
+    mode = permission_mode_from(event.get("permission_mode"))
+    v2 = derive_authorization(
+        approval=approval,
+        decision_source=native_decision_source(event),
+        permission_mode=mode,
+    )
+    recorded_authorization: Authorization | None = (
+        v2 if v2.source is not AuthorizationSource.UNKNOWN else None
+    )
+    # Permission mode is a time-varying fact (M29 APV-2); absent stays unknown on
+    # read and is never inferred.
+    recorded_mode: PermissionMode | None = mode if mode is not PermissionMode.UNKNOWN else None
     environment = (
         sanitize_environment(event.get("environment"), include_principal=include_principal)
         if phase == "session-start"
@@ -565,6 +603,8 @@ def _normalize_message(
             project=project,
             step_type=StepType.OBSERVE,
             approval=recorded_approval,
+            authorization=recorded_authorization,
+            permission_mode=recorded_mode,
             security_event=denial,
         )
         return [record]
@@ -655,6 +695,8 @@ def _normalize_message(
         duration_ms=duration_ms,
         step_type=step_type,
         approval=recorded_approval,
+        authorization=recorded_authorization,
+        permission_mode=recorded_mode,
         security_event=security_event,
     )
     return [record]

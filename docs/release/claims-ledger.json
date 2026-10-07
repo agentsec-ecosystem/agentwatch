@@ -565,6 +565,69 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A classifier-approved Claude Code call is recorded as authorization.source=classifier, never user/rule; a bypass-mode call is bypass.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_authorization.py::test_classifier_is_never_user_or_rule",
+        "test:packages/python-sdk/tests/test_authorization.py::test_adapter_records_bypass_without_prompt",
+        "test:packages/python-sdk/tests/test_authorization.py::test_ok_pre_event_has_no_authorization_field",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "Claude Code native OTel is ingested, joined to hook records by tool_use_id, with disagreements classified and exact vendor cost.",
+      "source": "docs/design/native-telemetry-join.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_join_classifies_an_outcome_discrepancy",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_coverage_reports_native_telemetry_join",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_transcode_api_request_reports_exact_cost",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_default_metadata_only_omits_prompt_content",
+        "file:docs/design/native-telemetry-join.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "Permission mode is recorded per call with transition observations; a default-bypass-default session reconstructs and a missing mode is unknown in coverage.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_default_bypass_default_reconstructs",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_search_by_mode",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_coverage_counts_unknown_modes",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_impact_flags_the_bypass_interval",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "agentwatch oversight produces a deterministic, offline authorization mix, human approve/reject latency, and a cls1 destructive x authorization cross-tab.",
+      "source": "docs/prd/49-authorization-and-oversight.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_oversight.py::test_destructive_authorization_cross_tab",
+        "test:packages/python-sdk/tests/test_oversight.py::test_latency_only_when_both_timestamps_exist",
+        "test:packages/python-sdk/tests/test_oversight.py::test_authorization_mix_matches_hand_computed_totals",
+        "test:packages/python-sdk/tests/test_oversight.py::test_compliance_has_art14_oversight_row",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "A Claude Agent SDK / headless program's telemetry lands through the same native path as source sdk-native with identity from resource attributes.",
+      "source": "docs/prd/51-harness-native-telemetry-and-framework-reach.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_uses_the_same_path_with_sdk_native_producer",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_identity_comes_from_resource_attributes",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_is_in_the_framework_matrix",
+        "doc:examples/README.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

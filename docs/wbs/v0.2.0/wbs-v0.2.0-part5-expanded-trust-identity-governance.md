@@ -13,7 +13,14 @@ the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0.2.0-pa
 
 ## Milestone M29 — Expanded I: Trust, Identity & Governance (PRD 49–51, 56, 59)
 
-**Status:** ⏳ not started
+**Status:** 🔄 in progress — APV-1/APV-2/APV-3/CCO-1/CCO-2 landed on `m29/telemetry-auth` (2026-10-06);
+DEP/FWK/ACC/HLD/ASI/STD/EXT tickets pending on their own branches.
+
+> **Progress (2026-10-06, branch `m29/telemetry-auth`):** authorization provenance v2 (`authz-v2` +
+> read-time legacy mapping), permission mode per call + transitions, the `oversight` report, Claude Code
+> native OTel ingest + `tool_use_id` join, and the Claude Agent SDK/headless path (`source: sdk-native`),
+> with design docs, schema changelog, claims-ledger entries, O1 conformance packs, and a generated
+> framework-matrix row updated. Full-suite/coverage/ruff/mypy gate run once at the end of this branch.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

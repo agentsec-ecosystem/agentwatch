@@ -33,7 +33,9 @@ v0.2.0 release bump (M30 30.3), so `0.2.0` is accepted for forward compatibility
 | `duration_ms`, `tokens`, `cost_usd` | number | — | |
 | `step_type` | enum | — | reason \| act \| observe \| verify |
 | `record_phase` | enum | — | `pre_execution` \| `post_execution` \| `unknown` (AAT-1, additive 0.2.0). Absent on legacy records and read as `unknown` (`effective_record_phase`); never inferred from `outcome`. |
-| `approval` | enum | — | Who authorized the call (M19 S14): `user` \| `auto` \| `not-required` \| `denied` \| `unknown`. Optional/additive: absent means `unknown` on read (`effective_approval`); only written when the harness exposed a decision. |
+| `approval` | enum | — | Legacy S14 value: `user` \| `auto` \| `not-required` \| `denied` \| `unknown`. Optional/additive: absent means `unknown` on read (`effective_approval`); only written when the harness exposed a decision. Superseded by `authorization` (M29 APV-1); retained for historical records. |
+| `authorization` | object | — | Authorization provenance v2 (M29 APV-1, taxonomy `authz-v2`): `source` ∈ {`human-once`, `human-remembered`, `rule`, `classifier`, `hook`, `bypass`, `not-required`, `denied`, `unknown`}, `deny` ∈ {`human`, `rule`, `classifier`, `hook`, `unknown`} when `source=denied`, `evidence` ∈ {`harness-native`, `inferred`, `session-mode`}. Absent on legacy records; read via `effective_authorization`. Metadata only. |
+| `permission_mode` | enum | — | Permission mode in force at the call (M29 APV-2): `default` \| `acceptEdits` \| `plan` \| `auto` \| `dontAsk` \| `bypassPermissions` \| `unknown`. Time-varying; a transition is its own `permission-mode-changed` observation. Absent reads as `unknown` (`effective_permission_mode`), never inferred. |
 | `environment` | object | — | Metadata-only session-start snapshot (M19 S16/S29): `{vcs, harness?, os?, agentwatch?, context, principal?}`. No env-var values. |
 | `truncated` | object | — | Visible truncation marker when a pathological record exceeded a limit (M21 S36): `{fields:[{field, original_bytes, rule}], record_bytes?}`. Truncation is never silent. |
 | `security_event` | object | — | See below |
@@ -46,6 +48,28 @@ v0.2.0 release bump (M30 30.3), so `0.2.0` is accepted for forward compatibility
 
 `agent-delegation` (A2A-2, PRD 45, additive) is an **observation** that a cross-agent
 delegation occurred — never an authorization verdict.
+
+## Authorization taxonomy v2 (M29 APV-1)
+
+`authorization` supersedes the S14 `approval` field (taxonomy `authz-v2`, PRD 49). Values are
+metadata-only. Derivation is first-match-wins: a harness-native decision source (Claude Code
+`tool_decision.decision_source` → `config`→`rule`, `hook`→`hook`, `user_permanent`→`human-remembered`,
+`user_temporary`→`human-once`, `reject`→`denied`:`human`, `classifier`→`classifier`) wins; then a
+`bypassPermissions` mode → `bypass` unless a more specific source is present; otherwise the S14 value maps
+with `evidence=inferred`. `unknown` is the honest default and is **never** inferred from `outcome=ok`.
+
+| Legacy `approval` | `authorization.source` | `deny` |
+|---|---|---|
+| `user` | `human-once` | — |
+| `auto` | `rule` | — |
+| `denied` | `denied` | `unknown` |
+| `not-required` | `not-required` | — |
+| `unknown` / absent | `unknown` | — |
+
+The mapping is applied by `effective_authorization()` at read time; the stored legacy value is never
+rewritten. `search --approval` accepts both the legacy values and the v2 sources (legacy `user` also
+matches `human-once`/`human-remembered`). OCSF/CloudEvents export carries the native record under
+`data`/`unmapped` accordingly; a value with no OCSF field is preserved, never dropped.
 
 ## Python model (M2)
 

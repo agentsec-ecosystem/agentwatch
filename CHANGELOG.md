@@ -6,6 +6,28 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Trust, Identity & Governance (M29):
+  - APV-1: authorization provenance v2 (`authz-v2`, PRD 49) — an additive metadata-only `authorization`
+    object (`source`/`deny`/`evidence`) on records, with the legacy S14 five-value `approval` mapped at read
+    time by `effective_authorization` and never written back; a classifier-approved call is `classifier` and
+    a bypass-mode call is `bypass`, and `unknown` is never inferred from `outcome=ok` (#438).
+  - APV-2: permission mode is a first-class, time-varying fact — an additive `permission_mode` on every
+    call plus `permission-mode-changed` transition observations; `search --mode bypass` works, a
+    default→bypass→default session reconstructs, `impact` flags the bypass interval, and a missing mode is
+    `unknown` counted in `coverage` (#439).
+  - APV-3: the `agentwatch oversight` report — authorization mix (shares with denominators), sessions
+    by start/end mode, human-prompt approve/reject + time-to-decision (latency only with paired
+    timestamps, else "n/a (n calls)"), and a cls1 destructive/network/credential-adjacent ×
+    authorization cross-tab; deterministic, offline, version-stamped; surfaced in `digest` and the
+    compliance report as `eu-ai-act-art14` (Art. 14 / ASI09) (#440).
+  - CCO-1: Claude Code native OTel ingest (`ingest --format claude-otel`) maps `tool_decision`
+    (`decision_source`), `permission_mode_changed`, `api_request`/`tool_result` (exact vendor cost) and
+    `user_prompt`/`mcp_server_connection`; joins to hook records by `tool_use_id` with disagreements recorded
+    as classified discrepancies; `coverage` reports "N joined, M hook-only, K otel-only, D discrepancies
+    (classified)"; redaction runs on ingest and unmappable input is quarantined (B4) (#444).
+  - CCO-2: the Claude Agent SDK / headless runs land through the same native path as
+    `source: sdk-native` (producer `kind=sdk`) with identity from resource attributes; a CI-executed
+    gallery recipe (`examples/claude_agent_sdk_otel.py`) and a framework-matrix row (#445).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

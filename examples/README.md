@@ -8,6 +8,7 @@ explicitly **illustrative** (it needs an external service; the reason is listed)
 |---|---|---|---|
 | [`security_event_consumer.py`](security_event_consumer.py) | security-event stream (hook/daemon) | **executed** | Validates each event against the shipped schema; copy-and-adapt consumer. |
 | [`ocsf_consumer.py`](ocsf_consumer.py) | OCSF 1.5.0 → SIEM | **executed** | Validates the OCSF envelope from `export-session --format ocsf`. |
+| [`claude_agent_sdk_otel.py`](claude_agent_sdk_otel.py) | Claude Agent SDK / headless OTel | **executed** | Transcodes a native export to `source: sdk-native` records (CCO-2); identity from resource attributes. |
 | [`demo-agent/`](demo-agent/) | raw Python SDK → OTLP → collector | illustrative | Needs the `langgraph`/OTLP extras and a collector; see its README. |
 
 The gallery index is enforced by `packages/python-sdk/tests/test_examples_gallery.py`:

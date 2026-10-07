@@ -546,6 +546,14 @@ def transcode(
         return transcode_ndjson(text, source=name, redaction=redaction)
     if fmt == "aat":
         return transcode_aat(text, source=name, redaction=redaction)
+    if fmt == "claude-otel":
+        from agentwatch import claude_otel
+
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError as exc:
+            return [], [IngestProblem(name, f"invalid JSON: {exc}")]
+        return claude_otel.transcode_claude_otel(payload, source=name, redaction=redaction)
     try:
         payload = json.loads(text)
     except json.JSONDecodeError:

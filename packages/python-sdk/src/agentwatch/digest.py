@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from agentwatch.cost import build_cost
 from agentwatch.denials import DenialSequence, denial_sequences
 from agentwatch.inventory import build_inventory
+from agentwatch.oversight import build_oversight
 from agentwatch.query import since_cutoff
 from agentwatch.recorder_state import coverage_windows
 from agentwatch.store import RecordStore
@@ -42,6 +43,9 @@ class DigestReport:
     coverage_active: bool | None
     agents_seen: tuple[str, ...]
     servers_seen: tuple[str, ...]
+    oversight_calls: int = 0
+    oversight_sources: tuple[tuple[str, int], ...] = ()
+    oversight_human: tuple[int, int] = (0, 0)
 
     @property
     def empty(self) -> bool:
@@ -85,6 +89,7 @@ def build_digest(
     servers_seen = tuple(
         sorted(server.server for server in inventory.servers if server.last_seen >= cutoff)
     )
+    oversight = build_oversight(store, since=since, now=moment)
     return DigestReport(
         since=since,
         start_utc=cutoff,
@@ -101,6 +106,14 @@ def build_digest(
         coverage_active=coverage_active,
         agents_seen=agents_seen,
         servers_seen=servers_seen,
+        oversight_calls=oversight.total_calls,
+        oversight_sources=tuple(
+            (row.source, row.calls) for row in oversight.sources
+        ),
+        oversight_human=(
+            oversight.human.approved if oversight.human else 0,
+            oversight.human.prompted if oversight.human else 0,
+        ),
     )
 
 
@@ -151,6 +164,18 @@ def render_digest(report: DigestReport) -> str:
         lines.extend(["", "## Inventory seen this window", ""])
         lines.extend(f"- agent: `{agent}`" for agent in report.agents_seen)
         lines.extend(f"- MCP server: `{server}`" for server in report.servers_seen)
+    lines.extend(["", "## Oversight", ""])
+    lines.append(f"- calls with an authorization source: {report.oversight_calls}")
+    if report.oversight_sources:
+        mix = ", ".join(
+            f"{source}={count}" for source, count in report.oversight_sources
+        )
+        lines.append(f"- authorization mix: {mix}")
+    if report.oversight_human[1]:
+        lines.append(
+            f"- human-prompted approvals: {report.oversight_human[0]}/"
+            f"{report.oversight_human[1]}"
+        )
     lines.extend(
         [
             "",

@@ -84,7 +84,34 @@
     },
     "approval": {
       "enum": ["user", "auto", "not-required", "denied", "unknown", null],
-      "description": "Who authorized the call (M19 S14). Absent on legacy records and read as 'unknown'."
+      "description": "Who authorized the call (M19 S14, legacy). Absent on legacy records and read as 'unknown'."
+    },
+    "authorization": {
+      "type": ["object", "null"],
+      "description": "Authorization provenance v2 (M29 APV-1, PRD 49). Additive in schema 0.2.0; absent on legacy records and read from `approval` at read time (never written back).",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "enum": [
+            "human-once",
+            "human-remembered",
+            "rule",
+            "classifier",
+            "hook",
+            "bypass",
+            "not-required",
+            "denied",
+            "unknown"
+          ]
+        },
+        "deny": { "enum": ["human", "rule", "classifier", "hook", "unknown", null] },
+        "evidence": { "enum": ["harness-native", "inferred", "session-mode", null] }
+      },
+      "additionalProperties": false
+    },
+    "permission_mode": {
+      "enum": ["default", "acceptEdits", "plan", "auto", "dontAsk", "bypassPermissions", "unknown", null],
+      "description": "Permission mode in force at the call (M29 APV-2). Additive in schema 0.2.0; absent on legacy records and read as 'unknown' — never inferred."
     },
     "environment": {
       "type": ["object", "null"],

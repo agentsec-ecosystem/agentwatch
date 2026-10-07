@@ -779,6 +779,11 @@ def transcode_detailed(
     if fmt == "aat":
         records, problems = transcode_aat(text, source=name, redaction=redaction)
         return records, problems, ()
+    if fmt == "acs":
+        from agentwatch import acs
+
+        records, problems = acs.transcode_acs(text, source=name, redaction=redaction)
+        return records, problems, ()
     if fmt == "claude-otel":
         from agentwatch import claude_otel
 

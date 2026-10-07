@@ -91,6 +91,11 @@ joined to sessions by process lineage/time-window, every record is labeled `sour
 that is not owned by exactly one session is filed under `unjoined:system-ingest` rather than guessed. See
 [system-effects-ingest.md](system-effects-ingest.md).
 
+**ACS Guardian interop (M29 ACS-1).** A Guardian's audit trail (ACS v0.1.0 JSON-RPC) is ingested at the
+Interposition level: decisions become `denied`/`policy-fired` events with `record_phase: pre_execution`,
+monitor-only (we never execute a decision), revision-pinned + drift-checked. See
+[acs-interop.md](acs-interop.md).
+
 See [cross-harness-testing.md](cross-harness-testing.md) for how compatibility is verified without the CLIs.
 
 ## Future

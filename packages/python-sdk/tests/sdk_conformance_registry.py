@@ -15,6 +15,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 from agentwatch import conformance
+from agentwatch.acs import transcode_acs
 from agentwatch.claude_otel import transcode_claude_otel
 from agentwatch.config import SDKConfig
 from agentwatch.ingest import transcode_otel
@@ -28,6 +29,7 @@ CLAUDE_OTEL_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "claude-ot
 SYSTEM_INGEST_FIXTURES = (
     Path(__file__).resolve().parent / "fixtures" / "system-ingest" / "conformance"
 )
+ACS_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "acs"
 
 
 def _span_payload(span: Any) -> dict[str, Any]:
@@ -111,6 +113,21 @@ def system_ingest_spec() -> conformance.SdkSpec:
     )
 
 
+def replay_acs(payload: Any) -> list[AgentRecord]:
+    """Replay an ACS Guardian audit-trail fixture through the real ACS-1 path."""
+    records, _ = transcode_acs(payload)
+    return records
+
+
+def acs_spec() -> conformance.SdkSpec:
+    return conformance.SdkSpec(
+        name="acs",
+        replay=replay_acs,
+        fixtures_dir=ACS_FIXTURES,
+        error_cls=ValueError,
+    )
+
+
 def register_sdk_packs() -> None:
     registered = {spec.name for spec in conformance.registered_sdks()}
     if "langgraph" not in registered:
@@ -119,17 +136,22 @@ def register_sdk_packs() -> None:
         conformance.register_sdk(claude_otel_spec())
     if "system-ingest" not in registered:
         conformance.register_sdk(system_ingest_spec())
+    if "acs" not in registered:
+        conformance.register_sdk(acs_spec())
 
 
 register_sdk_packs()
 
 __all__ = [
+    "ACS_FIXTURES",
     "CLAUDE_OTEL_FIXTURES",
     "FIXTURES",
     "SYSTEM_INGEST_FIXTURES",
+    "acs_spec",
     "claude_otel_spec",
     "langgraph_spec",
     "register_sdk_packs",
+    "replay_acs",
     "replay_claude_otel",
     "replay_langgraph",
     "replay_system_ingest",

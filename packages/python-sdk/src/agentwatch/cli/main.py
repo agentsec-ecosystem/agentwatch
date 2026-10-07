@@ -661,12 +661,14 @@ def _build_parser() -> argparse.ArgumentParser:
             "claude-compliance",
             "claude-otel",
             "system-ingest",
+            "acs",
         ),
         default="otel",
         help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
         "claude-otel is Claude Code native OTel (CCO-1); claude-compliance is an "
         "Anthropic Compliance API export, requires --consent; system-ingest is the "
-        "Linux-only opt-in system-effects layer (SYS-1), requires --consent)",
+        "Linux-only opt-in system-effects layer (SYS-1), requires --consent; acs is "
+        "an ACS Guardian audit trail (ACS-1))",
     )
     ingest.add_argument(
         "--consent",

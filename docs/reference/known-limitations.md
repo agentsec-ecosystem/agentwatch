@@ -30,6 +30,11 @@ Status: living.
   `source: system-ingest`, a lineage not owned by exactly one session is `unjoined` (never guessed), and the
   synthetic-corpus false-join precision is published (1.00/1.00). agentwatch **does not build probes**
   (Linux-root eBPF); macOS/Windows are the declared gap. `platform_covered("darwin") is False`.
+- **ACS Guardian ingest (`ACS-1`, M29) is monitor-only and revision-pinned.** `agentwatch ingest --format acs`
+  reads a Guardian audit trail (ACS v0.1.0 JSON-RPC) and records `deny`/`modify`/`ask`/`defer` as
+  `denied`/`policy-fired` with `record_phase: pre_execution`; enforcement stays in the Guardian and agentwatch
+  never executes a decision. The spec is young (watch item): signature and SessionContext-chain verification
+  (the ACS Crypto/Audit profiles) are **not** done, and the emit-side spike (PRD 45 §ACS-1b) is not built.
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

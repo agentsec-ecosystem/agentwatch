@@ -429,6 +429,19 @@
         "doc:docs/design/forensic-soundness.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C41",
+      "claim": "The credential class an agent acted under is recorded (never the value) and a deterministic, opt-in observation flags shared/ambient credentials.",
+      "source": "docs/reference/identity-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_credential_hygiene.py::test_ambient_shared_credential_is_exported",
+        "test:packages/python-sdk/tests/test_credential_hygiene.py::test_absent_credential_class_is_not_invented",
+        "test:services/analytics/tests/test_credential_hygiene_detector.py::test_fires_on_ambient_shared_credential",
+        "test:services/analytics/tests/test_credential_hygiene_detector.py::test_quiet_when_the_credential_is_unknown",
+        "doc:docs/reference/identity-mapping.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

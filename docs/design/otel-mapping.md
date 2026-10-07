@@ -30,6 +30,8 @@ privacy-mode ↔ content-capture mapping below (v0.2.0, M25); **OTEL-3** added O
 | conversation/session | `gen_ai.conversation.id` |
 | provider discriminator | `gen_ai.provider.name` |
 | operation name | `gen_ai.operation.name` (`invoke_agent`, `plan`, `execute_tool`, …) |
+| `agent.workload_type` | `gen_ai.agent.workload.type` |
+| `agent.credential_class` | `agentwatch.credential_class` (IDN-4; class only, never the value) |
 | content capture | opt-in content vs metadata-only (privacy-mode ↔ capture-ladder mapping) |
 
 ## Security events

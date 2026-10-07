@@ -9201,6 +9201,96 @@
       }
     },
     {
+      "detector": "credential-hygiene",
+      "detector_kwargs": {},
+      "dimension": "identity",
+      "expect_fire": false,
+      "id": "CH3",
+      "pool": null,
+      "severity": null,
+      "source": "benign-traffic",
+      "spans": [
+        {
+          "attributes": {
+            "agentwatch.credential_class": "api-key",
+            "gen_ai.tool.name": "Bash"
+          },
+          "child_spans": [],
+          "duration_ms": null,
+          "end_time": null,
+          "operation_name": "execute_tool",
+          "parent_span_id": null,
+          "span_id": "CH3-s0",
+          "start_time": null,
+          "status": null,
+          "trace_id": "CH3"
+        }
+      ],
+      "summary": {
+        "agent_name": "triage",
+        "agent_version": null,
+        "completed_at": null,
+        "duration_ms": null,
+        "estimated_cost": null,
+        "loop_count": 0,
+        "loop_detected": false,
+        "root_span_id": null,
+        "run_id": "run-1",
+        "started_at": null,
+        "status": null,
+        "total_interventions": 0,
+        "total_retries": 0,
+        "total_tool_calls": 2,
+        "trace_id": null,
+        "workload_type": null
+      }
+    },
+    {
+      "detector": "credential-hygiene",
+      "detector_kwargs": {},
+      "dimension": "identity",
+      "expect_fire": true,
+      "id": "CH1",
+      "pool": null,
+      "severity": "warning",
+      "source": "field-test-scenarios",
+      "spans": [
+        {
+          "attributes": {
+            "agentwatch.credential_class": "ambient/shared",
+            "gen_ai.tool.name": "Bash"
+          },
+          "child_spans": [],
+          "duration_ms": null,
+          "end_time": null,
+          "operation_name": "execute_tool",
+          "parent_span_id": null,
+          "span_id": "CH1-s0",
+          "start_time": null,
+          "status": null,
+          "trace_id": "CH1"
+        }
+      ],
+      "summary": {
+        "agent_name": "triage",
+        "agent_version": null,
+        "completed_at": null,
+        "duration_ms": null,
+        "estimated_cost": null,
+        "loop_count": 0,
+        "loop_detected": false,
+        "root_span_id": null,
+        "run_id": "run-1",
+        "started_at": null,
+        "status": null,
+        "total_interventions": 0,
+        "total_retries": 0,
+        "total_tool_calls": 1,
+        "trace_id": null,
+        "workload_type": null
+      }
+    },
+    {
       "detector": "loop",
       "detector_kwargs": {},
       "dimension": "tool-execution",

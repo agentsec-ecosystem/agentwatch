@@ -46,6 +46,7 @@ from analytics.detectors.cross_run import (
     FirstRunHeuristicDetector,
     RunFrequencyAnomalyDetector,
 )
+from analytics.detectors.identity import CredentialHygieneDetector
 from analytics.detectors.interaction import (
     ApprovalLatencyDetector,
     EscalationRateDetector,
@@ -579,6 +580,27 @@ add("NT1", NetworkToolDetector, True, lambda: (summ(total_tool_calls=1), [tool("
 add("NT2", NetworkToolDetector, True, lambda: (summ(total_tool_calls=2), [tool("wget"), tool("fetch")]), severity="info")
 add("NT3", NetworkToolDetector, False, lambda: (summ(total_tool_calls=3), [tool("Bash")] * 3))
 add("NT4", NetworkToolDetector, False, lambda: (summ(total_tool_calls=1), [tool("curl")]), allowlist=("curl",))
+
+# CredentialHygieneDetector (any span carrying credential_class: ambient/shared)
+add("CH1", CredentialHygieneDetector, True, lambda: (
+    summ(total_tool_calls=1),
+    [tool("Bash", extra={"agentwatch.credential_class": "ambient/shared"})],
+), severity="warning")
+add("CH2", CredentialHygieneDetector, True, lambda: (
+    summ(total_tool_calls=2),
+    [
+        tool("Bash", extra={"agentwatch.credential_class": "ambient/shared"}),
+        tool("Read", extra={"agentwatch.credential_class": "ambient/shared"}),
+    ],
+), severity="warning")
+add("CH3", CredentialHygieneDetector, False, lambda: (
+    summ(total_tool_calls=2),
+    [tool("Bash", extra={"agentwatch.credential_class": "api-key"})],
+))
+add("CH4", CredentialHygieneDetector, False, lambda: (
+    summ(total_tool_calls=2),
+    [tool("Bash"), tool("Read")],
+))
 
 
 # ======================= 9. LLM-augmented detectors =======================
@@ -1384,6 +1406,7 @@ _DIMENSIONS: dict[str, frozenset[str]] = {
         {"anomaly_cluster", "run_frequency_anomaly", "first_run_heuristic"}
     ),
     "harness-security": frozenset({"write-storm", "denied-cluster", "network-tool"}),
+    "identity": frozenset({"credential-hygiene"}),
 }
 
 

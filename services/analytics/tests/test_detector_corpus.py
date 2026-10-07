@@ -35,7 +35,7 @@ def test_corpus_is_versioned_and_populated() -> None:
     assert data["schema"] == "agentwatch.detector-corpus/1"
     assert data["version"] == "1"
     assert data["vocabulary"] == "draft-han-bmwg-agent-security-benchmark"
-    assert len(data["cases"]) == 143
+    assert len(data["cases"]) == 145
     assert set(data["sources"]) >= {"field-test-scenarios", "benign-traffic"}
 
 
@@ -53,7 +53,7 @@ def test_corpus_cases_are_machine_checkable() -> None:
     corpus = load_public_corpus(CORPUS)
     results = check_public_corpus(corpus)
 
-    assert len(results) == 143
+    assert len(results) == 145
     failed = [r.id for r in results if not r.ok]
     assert failed == [], failed
 

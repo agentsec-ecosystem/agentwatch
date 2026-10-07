@@ -137,6 +137,20 @@ CONTENT_ATTRIBUTE_KEYS: frozenset[str] = frozenset(
 )
 
 # ---------------------------------------------------------------------------
+# agentwatch extension attributes.
+# ---------------------------------------------------------------------------
+# Namespaced under ``agentwatch.*`` because they are agentwatch semantics, not
+# (yet) part of the upstream OTel GenAI conventions. Keep them here so the SDK,
+# the collector, and the analytics detectors agree on the exact string.
+# ---------------------------------------------------------------------------
+
+# What kind of credential the agent acted under (IDN-1/IDN-4): one of
+# ``api-key``, ``oauth``, ``svid``, ``ambient/shared``. A classification, never
+# a secret. Exported so the analytics credential-hygiene detector can flag
+# shared/ambient credentials over a run.
+AGENTWATCH_CREDENTIAL_CLASS = "agentwatch.credential_class"
+
+# ---------------------------------------------------------------------------
 # Span operation names.
 # ---------------------------------------------------------------------------
 # Values for ``gen_ai.operation.name``. These are the behavioral vocabulary the

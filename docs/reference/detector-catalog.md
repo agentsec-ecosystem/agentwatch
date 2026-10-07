@@ -71,7 +71,7 @@ Implemented in `services/analytics/src/analytics/detectors/claude_code.py`; regi
 ## Generated per-detector metrics (M26 DET-3)
 
 <!-- BEGIN GENERATED: detector-metrics -->
-_Generated from the 143-scenario field-test rule matrix (corpus `detector-corpus v1`, offline, scripted pool). Rule detectors non-silent: 38/38 (100%)._
+_Generated from the 145-scenario field-test rule matrix (corpus `detector-corpus v1`, offline, scripted pool). Rule detectors non-silent: 39/39 (100%)._
 
 | Detector | TP | FP | FN | TN | TPR | FPR |
 |---|---|---|---|---|---|---|
@@ -82,6 +82,7 @@ _Generated from the 143-scenario field-test rule matrix (corpus `detector-corpus
 | `cost_efficiency` | 2 | 0 | 0 | 2 | 100.0% | 0.0% |
 | `cost_spike` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
 | `cost_vs_baseline` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |
+| `credential-hygiene` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
 | `denied-cluster` | 2 | 0 | 0 | 1 | 100.0% | 0.0% |
 | `empty_response` | 1 | 0 | 0 | 1 | 100.0% | 0.0% |
 | `escalation_rate` | 3 | 0 | 0 | 2 | 100.0% | 0.0% |

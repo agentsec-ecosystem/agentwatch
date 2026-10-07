@@ -382,7 +382,7 @@ function Sidebar() {
       <div className="mt-auto border-t border-slate-800 p-4">
         <div className="rounded-xl bg-slate-800/50 px-3 py-2.5">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">v0.1.0</div>
-          <div className="mt-0.5 text-xs text-slate-400">35 detectors active</div>
+          <div className="mt-0.5 text-xs text-slate-400">39 detectors active</div>
         </div>
       </div>
     </nav>

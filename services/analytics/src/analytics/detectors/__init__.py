@@ -47,6 +47,7 @@ from analytics.detectors.cross_run import (
     FirstRunHeuristicDetector,
     RunFrequencyAnomalyDetector,
 )
+from analytics.detectors.identity import CredentialHygieneDetector
 from analytics.detectors.interaction import (
     ApprovalLatencyDetector,
     EscalationRateDetector,
@@ -151,6 +152,8 @@ def create_all_detectors() -> list[BaseDetector]:
         WriteStormDetector(),
         DeniedClusterDetector(),
         NetworkToolDetector(),
+        # Identity / credential hygiene (1, M28 IDN-4)
+        CredentialHygieneDetector(),
     ]
 
 
@@ -211,6 +214,7 @@ __all__ = [
     "WriteStormDetector",
     "DeniedClusterDetector",
     "NetworkToolDetector",
+    "CredentialHygieneDetector",
     "create_all_detectors",
     "create_llm_detectors",
 ]

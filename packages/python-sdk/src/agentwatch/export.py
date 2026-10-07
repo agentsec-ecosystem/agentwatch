@@ -30,6 +30,7 @@ from opentelemetry.sdk.trace.export import (
 from opentelemetry.trace import NonRecordingSpan, SpanContext, Status, StatusCode, TraceFlags
 
 from agentwatch.attrs import (
+    AGENTWATCH_CREDENTIAL_CLASS,
     CONTENT_ATTRIBUTE_KEYS,
     GEN_AI_AGENT_NAME,
     GEN_AI_CONVERSATION_ID,
@@ -196,6 +197,8 @@ def record_to_attributes(record: AgentRecord, seq: int) -> dict[str, Any]:
         attributes[GEN_AI_REQUEST_MODEL] = record.agent.model_version
     if record.agent.workload_type is not None:
         attributes["gen_ai.agent.workload.type"] = record.agent.workload_type
+    if record.agent.credential_class is not None:
+        attributes[AGENTWATCH_CREDENTIAL_CLASS] = record.agent.credential_class.value
     if record.tool.server is not None:
         attributes["mcp.server"] = record.tool.server
     if record.harness is not None:

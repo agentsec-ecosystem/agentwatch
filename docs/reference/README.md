@@ -7,7 +7,8 @@
 | [Adapter conformance](adapter-conformance.md) | How harness/framework adapters are verified |
 | [Compatibility](compatibility.md) | Harness × version matrix |
 | [Known limitations](known-limitations.md) | Honest gaps, including inherited ones |
-| [Detector catalog](detector-catalog.md) | The 40 detectors by category |
+| [Detector catalog](detector-catalog.md) | The 39 detectors by category |
+| [Identity mapping](identity-mapping.md) | agentwatch agent identity ↔ AIMS/WIMSE ↔ NCCoE |
 | [Record format spec](record-format-spec.md) | Normative record + security-event contract, versioning/deprecation |
 | [Store format](store-format.md) | Envelope, chain, tombstones, marker records, vectors |
 | [Evidence verifier](evidence-verifier.md) | Standalone, dependency-free bundle/store verifier (M15 S12) |

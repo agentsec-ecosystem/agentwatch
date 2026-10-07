@@ -20,7 +20,10 @@ which credential, on whose behalf, with whose approval* is answerable end to end
 > **IDN-3 (M26):** `agentwatch.identity.attribution_for()` renders one `Attribution` (agent, credential class,
 > on-behalf-of, delegation chain, approval) shown identically in `blame`, `tree`, `trace`, and `impact` (`--json`
 > and text), so a multi-agent fixture answers "which agent, under which credential, on whose behalf, with what
-> approval" in one command (CUJ-16). IDN-4 (credential-hygiene observation) remains.
+> approval" in one command (CUJ-16). **IDN-4 (M28):** the credential *class* is exported as the
+> `agentwatch.credential_class` span attribute and a deterministic `credential-hygiene` analytics detector
+> (`analytics.detectors.identity`) flags a run that acted under `ambient/shared`; the concept mapping to
+> AIMS/WIMSE/NCCoE is published in [reference/identity-mapping.md](../reference/identity-mapping.md).
 
 ## Two-layer model
 
@@ -66,7 +69,8 @@ pre-Q4-2026 audit ask). It is an **observation**, not a verdict; precision/recal
 ## Mapping doc
 
 A published mapping (agentwatch identity field ↔ AIMS/WIMSE ↔ NCCoE concept-paper questions) accompanies IDN-4, so
-the record layer can be cited by a federal reference architecture rather than guessed at.
+the record layer can be cited by a federal reference architecture rather than guessed at: see
+[reference/identity-mapping.md](../reference/identity-mapping.md).
 
 ## Standards & vendor landscape (why this is the right field set)
 

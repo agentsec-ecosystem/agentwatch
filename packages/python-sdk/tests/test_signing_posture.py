@@ -13,6 +13,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
 from agentwatch import doctor
 from agentwatch.aat import export_aat
 from agentwatch.cli.main import main
@@ -155,10 +157,12 @@ def test_signing_status_unconfigured(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------- surfaces
 
 
-def test_cli_checkpoint_rotate_records_event(tmp_path: Path, capsys) -> None:
+def test_cli_checkpoint_rotate_records_event(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
-    store = _store(store_dir / "records.jsonl")
+    _store(store_dir / "records.jsonl")
     old = load_or_create_key(store_dir / KEY_FILENAME)
 
     rc = main(["--set", f"store.path={store_dir}", "checkpoint", "rotate", "--json"])
@@ -175,7 +179,9 @@ def test_cli_checkpoint_rotate_records_event(tmp_path: Path, capsys) -> None:
     assert reloaded.verify().ok is True
 
 
-def test_verify_store_reports_signing_posture(tmp_path: Path, capsys) -> None:
+def test_verify_store_reports_signing_posture(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     _store(store_dir / "records.jsonl")

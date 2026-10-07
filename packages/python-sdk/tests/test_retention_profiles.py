@@ -103,7 +103,9 @@ def test_registry_and_names_agree() -> None:
 # --------------------------------------------------------------------------- apply
 
 
-def test_cli_apply_profile_drives_the_window_and_records_the_change(tmp_path: Path, capsys) -> None:
+def test_cli_apply_profile_drives_the_window_and_records_the_change(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     store = RecordStore(store_dir / "records.jsonl")
@@ -134,7 +136,9 @@ def test_cli_apply_profile_drives_the_window_and_records_the_change(tmp_path: Pa
     assert state.retention_days == 365
 
 
-def test_custom_profile_uses_config_window(tmp_path: Path, capsys) -> None:
+def test_custom_profile_uses_config_window(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     RecordStore(store_dir / "records.jsonl").append(_record(days_ago=10))
@@ -175,6 +179,7 @@ def test_doctor_warns_when_retention_was_not_applied(tmp_path: Path) -> None:
 
     retention = next(r for r in results if r.name == "retention")
     assert retention.status == doctor.WARN
+    assert retention.hint is not None
     assert "retention apply" in retention.hint
 
 
@@ -206,4 +211,5 @@ def test_compliance_report_cites_the_retention_profile(tmp_path: Path) -> None:
     report = build_report(reloaded, "eu-ai-act-art12", config=_cfg(store_dir, retention_days=365))
     retention = next(row for row in report.controls if row.control == "art12-2-retention")
 
+    assert retention.detail is not None
     assert "high-risk-12mo" in retention.detail

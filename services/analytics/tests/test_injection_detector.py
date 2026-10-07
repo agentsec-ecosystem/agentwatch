@@ -9,6 +9,8 @@ source span.
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 from analytics.detectors import create_all_detectors
 from analytics.detectors.injection import InjectionShapeDetector
 from analytics.models import RunSummary, SpanNode
@@ -43,7 +45,8 @@ def test_fires_on_instruction_override() -> None:
     assert anomaly is not None
     assert anomaly.anomaly_type == "injection-shape"
     assert anomaly.severity == "warning"
-    sources = anomaly.evidence["sources"]
+    assert anomaly.evidence is not None
+    sources = cast("list[dict[str, Any]]", anomaly.evidence["sources"])
     assert sources[0]["span_id"] == "s1"
     assert "instruction-override" in sources[0]["rules"]
 
@@ -55,7 +58,9 @@ def test_fires_on_hidden_instruction_marker() -> None:
     anomaly = detector.detect(_summary(), [_span(result=hidden)])
 
     assert anomaly is not None
-    assert "hidden-instruction" in anomaly.evidence["sources"][0]["rules"]
+    assert anomaly.evidence is not None
+    sources = cast("list[dict[str, Any]]", anomaly.evidence["sources"])
+    assert "hidden-instruction" in sources[0]["rules"]
 
 
 def test_quiet_on_benign_content() -> None:
@@ -79,7 +84,9 @@ def test_imperative_density_can_be_opted_in() -> None:
     anomaly = detector.detect(_summary(), [_span(result=imperative)])
 
     assert anomaly is not None
-    assert "imperative-density" in anomaly.evidence["sources"][0]["rules"]
+    assert anomaly.evidence is not None
+    sources = cast("list[dict[str, Any]]", anomaly.evidence["sources"])
+    assert "imperative-density" in sources[0]["rules"]
 
 
 def test_registered_in_the_factory() -> None:

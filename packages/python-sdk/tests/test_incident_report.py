@@ -12,8 +12,9 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 import pytest
 
 from agentwatch.annotate import annotate_session
@@ -35,7 +36,9 @@ MODULE = Path(__file__).resolve().parents[1] / "src" / "agentwatch" / "incident_
 AT = datetime(2026, 10, 6, 12, 0, 0, tzinfo=timezone.utc)
 
 
-def _record(name: str, *, outcome: Outcome = Outcome.OK, args: object = None) -> AgentRecord:
+def _record(
+    name: str, *, outcome: Outcome = Outcome.OK, args: dict[str, Any] | None = None
+) -> AgentRecord:
     return AgentRecord(
         session_id="s1",
         agent=AgentIdentity(identity="agent"),
@@ -53,7 +56,7 @@ def _store(tmp_path: Path) -> RecordStore:
     return store
 
 
-def _validate(report: dict) -> None:
+def _validate(report: dict[str, Any]) -> None:
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     jsonschema.validate(report, schema)
 

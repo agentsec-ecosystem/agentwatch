@@ -37,6 +37,7 @@ def test_fires_on_ambient_shared_credential() -> None:
     assert anomaly is not None
     assert anomaly.anomaly_type == "credential-hygiene"
     assert anomaly.severity == "warning"
+    assert anomaly.evidence is not None
     assert anomaly.evidence["credential_class"] == "ambient/shared"
     assert anomaly.evidence["count"] == 1
 

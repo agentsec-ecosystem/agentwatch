@@ -9,10 +9,12 @@ they are agentwatch provisional extensions until upstream adopts them).
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from pathlib import Path
+from typing import Any
 
 import pytest
+from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
@@ -45,6 +47,10 @@ def _exporter() -> InMemorySpanExporter:
     return exporter
 
 
+def _attrs(span: ReadableSpan) -> Mapping[str, Any]:
+    return span.attributes or {}
+
+
 def test_operation_vocabulary_is_declared_as_an_extension() -> None:
     assert SPAN_KIND_LOAD_SKILL == "load_skill"
     assert SPAN_KIND_READ_SKILL_RESOURCE == "read_skill_resource"
@@ -65,8 +71,8 @@ def test_load_skill_span() -> None:
         pass
 
     span = exporter.get_finished_spans()[0]
-    assert span.attributes[GEN_AI_OPERATION_NAME] == SPAN_KIND_LOAD_SKILL
-    assert span.attributes[AGENTWATCH_SKILL_NAME] == "pdf"
+    assert _attrs(span)[GEN_AI_OPERATION_NAME] == SPAN_KIND_LOAD_SKILL
+    assert _attrs(span)[AGENTWATCH_SKILL_NAME] == "pdf"
 
 
 def test_read_skill_resource_span() -> None:
@@ -76,8 +82,8 @@ def test_read_skill_resource_span() -> None:
         pass
 
     span = exporter.get_finished_spans()[0]
-    assert span.attributes[GEN_AI_OPERATION_NAME] == SPAN_KIND_READ_SKILL_RESOURCE
-    assert span.attributes[AGENTWATCH_SKILL_RESOURCE] == "references/REFERENCE.md"
+    assert _attrs(span)[GEN_AI_OPERATION_NAME] == SPAN_KIND_READ_SKILL_RESOURCE
+    assert _attrs(span)[AGENTWATCH_SKILL_RESOURCE] == "references/REFERENCE.md"
 
 
 def test_command_execution_span() -> None:
@@ -87,8 +93,8 @@ def test_command_execution_span() -> None:
         pass
 
     span = exporter.get_finished_spans()[0]
-    assert span.attributes[GEN_AI_OPERATION_NAME] == SPAN_KIND_EXECUTE_COMMAND
-    assert span.attributes[GEN_AI_TOOL_NAME] == "Bash"
+    assert _attrs(span)[GEN_AI_OPERATION_NAME] == SPAN_KIND_EXECUTE_COMMAND
+    assert _attrs(span)[GEN_AI_TOOL_NAME] == "Bash"
 
 
 def test_command_span_nests_under_an_open_skill_span() -> None:
@@ -124,7 +130,7 @@ def test_fixture_cases_drive_the_helpers() -> None:
                 pass
 
     spans = exporter.get_finished_spans()
-    operations = [span.attributes[GEN_AI_OPERATION_NAME] for span in spans]
+    operations = [_attrs(span)[GEN_AI_OPERATION_NAME] for span in spans]
     assert operations == [case["operation"] for case in fixture["cases"]]
 
 

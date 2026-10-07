@@ -130,7 +130,14 @@ from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
 from agentwatch.session_export import SessionExport, export_session, to_ndjson, write_ndjson
 from agentwatch.session_state import session_states
-from agentwatch.signing import KEY_FILENAME, SigningError, load_or_create_key
+from agentwatch.signing import (
+    KEY_FILENAME,
+    SigningError,
+    load_or_create_key,
+    record_key_rotation,
+    rotate_key,
+    signing_status,
+)
 from agentwatch.store import RecordStore, repair_store
 from agentwatch.store_access import DestinationKind, record_store_access
 from agentwatch.tail import Tail, TailLine, follow, render_record
@@ -323,6 +330,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--public-key", required=True, help="path to the raw ed25519 public key"
     )
     checkpoint_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+    checkpoint_rotate = checkpoint_sub.add_parser(
+        "rotate", help="rotate this installation's signing key (recorded as a chain event)"
+    )
+    checkpoint_rotate.add_argument("--json", action="store_true", help="emit the result as JSON")
     sessions = sub.add_parser("sessions", help="list recorded sessions (M3)")
     sessions.add_argument("--project", default=None, help="only sessions in this project (cwd)")
     sessions.add_argument(
@@ -433,9 +444,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     tree_cmd.add_argument("--json", action="store_true", help="emit the tree as JSON")
 
-    trace_cmd = sub.add_parser(
-        "trace", help="reconstruct a cross-host causal trace (M26 TRACE-2)"
-    )
+    trace_cmd = sub.add_parser("trace", help="reconstruct a cross-host causal trace (M26 TRACE-2)")
     trace_cmd.add_argument("trace_id", help="W3C trace id to reconstruct")
     trace_cmd.add_argument("--json", action="store_true", help="emit the trace as JSON")
 
@@ -636,9 +645,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
 
-    compliance_cmd = sub.add_parser(
-        "compliance", help="offline compliance reports (M26 CMP-1)"
-    )
+    compliance_cmd = sub.add_parser("compliance", help="offline compliance reports (M26 CMP-1)")
     compliance_sub = compliance_cmd.add_subparsers(dest="compliance_command", required=True)
     compliance_report = compliance_sub.add_parser(
         "report", help="render control -> evidence -> verdict rows for a framework"
@@ -1186,6 +1193,8 @@ def _run_verify_store(args: argparse.Namespace) -> int:
     status = store.verify()
     if status.ok:
         print(f"agentwatch: chain ok ({status.checked} entries)")
+        posture = signing_status(store, store_path.parent)
+        print(f"  signing: {posture.summary}")
         broken_archive = False
         for verdict in verify_archives(store, store_path.parent):
             if verdict.ok:
@@ -1589,7 +1598,11 @@ def _run_export_session(args: argparse.Namespace) -> int:
         return _EXIT_INSTALL_ERROR
     destination = DestinationKind.FILE if args.output else DestinationKind.STDOUT
     if args.format == "aat":
-        bundle = export_aat(export, privacy_mode=cfg.privacy.mode)
+        bundle = export_aat(
+            export,
+            privacy_mode=cfg.privacy.mode,
+            signing=signing_status(store, Path(cfg.store.path).expanduser()).to_dict(),
+        )
         text = to_aat_json(bundle)
         if args.output:
             path = Path(args.output).expanduser()
@@ -1896,6 +1909,37 @@ def _run_union(args: argparse.Namespace) -> int:
 
 
 def _run_checkpoint(args: argparse.Namespace) -> int:
+    if args.action == "rotate":
+        try:
+            cfg = _load(args)
+        except ConfigError as exc:
+            print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        store_dir = Path(cfg.store.path).expanduser()
+        store = RecordStore(store_dir / "records.jsonl")
+        try:
+            result = rotate_key(store_dir / KEY_FILENAME)
+        except SigningError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        seq = record_key_rotation(store, result.previous_key_id, result.key.key_id)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "previous_key_id": result.previous_key_id,
+                        "key_id": result.key.key_id,
+                        "seq": seq,
+                    }
+                )
+            )
+        else:
+            previous = result.previous_key_id or "(none)"
+            print(
+                f"agentwatch: rotated signing key {previous} -> {result.key.key_id} "
+                f"(recorded at seq {seq})"
+            )
+        return 0
     if args.action == "verify":
         try:
             data = json.loads(Path(args.file).read_text(encoding="utf-8"))

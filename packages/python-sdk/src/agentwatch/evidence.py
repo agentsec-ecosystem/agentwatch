@@ -33,6 +33,7 @@ from agentwatch.forensic import statement
 from agentwatch.inventory import build_inventory, inventory_to_json
 from agentwatch.records import effective_producer, validate_record
 from agentwatch.session_export import export_session
+from agentwatch.signing import signing_status
 from agentwatch.store import RecordStore
 from agentwatch.verify_privacy import verify_privacy
 
@@ -266,6 +267,7 @@ def build_bundle(
         ),
         "verify.json": _json_bytes(verify_json),
         "verify.txt": (verify_txt + "\n").encode("utf-8"),
+        "signing.json": _json_bytes(signing_status(store, Path(store_path).parent).to_dict()),
         "privacy.json": _json_bytes(
             {
                 "leak_free": privacy.passed,

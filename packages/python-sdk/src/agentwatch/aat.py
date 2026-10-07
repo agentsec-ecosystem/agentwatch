@@ -155,7 +155,9 @@ def aat_record(record: AgentRecord, *, seq: int, prev_hash: str, hash: str) -> d
     }
 
 
-def export_aat(export: Any, *, privacy_mode: str) -> dict[str, Any]:
+def export_aat(
+    export: Any, *, privacy_mode: str, signing: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Build the AAT bundle for a session export (records + chain + coverage block)."""
     entries: list[dict[str, Any]] = []
     for row in export.rows:
@@ -168,18 +170,21 @@ def export_aat(export: Any, *, privacy_mode: str) -> dict[str, Any]:
                 hash=str(row["hash"]),
             )
         )
+    coverage: dict[str, Any] = {
+        "records": len(entries),
+        "chain": "included",
+        "privacy_mode": privacy_mode,
+        "unmapped_fields": sorted(_UNMAPPED_FIELDS),
+    }
+    if signing is not None:
+        coverage["signing"] = signing
     return {
         "schema": AAT_EXPORT_SCHEMA,
         "aat_version": AAT_DRAFT,
         "session_id": export.session_id,
         "privacy_mode": privacy_mode,
         "records": entries,
-        "coverage": {
-            "records": len(entries),
-            "chain": "included",
-            "privacy_mode": privacy_mode,
-            "unmapped_fields": sorted(_UNMAPPED_FIELDS),
-        },
+        "coverage": coverage,
     }
 
 

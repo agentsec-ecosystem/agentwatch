@@ -417,6 +417,18 @@
         "file:.github/workflows/windows.yml"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C40",
+      "claim": "Checkpoint signing is a supported posture: keys rotate as a recorded chain event and a key we no longer hold reports 'signed by key id X, key unavailable'.",
+      "source": "docs/design/forensic-soundness.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_rotation_is_a_recorded_metadata_only_chain_event",
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_missing_key_reports_signed_but_unavailable",
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_tampered_signature_fails_end_to_end",
+        "doc:docs/design/forensic-soundness.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

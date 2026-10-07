@@ -64,6 +64,7 @@ _NON_TOOL_NAMES = frozenset(
         "session-purge",
         "operator-note",
         "store-access",
+        "key-rotation",
         "harness-drift",
         "recorder-installed",
         "recorder-uninstalled",

@@ -27,6 +27,7 @@ _INTERNAL_TOOLS = frozenset(
         "session-purge",
         "operator-note",
         "store-access",
+        "key-rotation",
         "harness-drift",
         "session-usage",
         "external-event",

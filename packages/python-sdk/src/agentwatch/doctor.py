@@ -30,6 +30,7 @@ from agentwatch.install import (
 )
 from agentwatch.redact import redaction_config_from_mode
 from agentwatch.selftest import run_redaction_self_test
+from agentwatch.signing import signing_status
 from agentwatch.store import RecordStore
 
 PASS = "PASS"
@@ -47,6 +48,7 @@ CHECKS: tuple[tuple[str, str], ...] = (
     ("store-disk", "store path writable and free disk >= max_size_mb"),
     ("retention", "retention window is sane (>= 1 day)"),
     ("harness-drift", "no unrecognized harness fields observed"),
+    ("signing", "signing key posture and availability"),
     ("distribution", "agentwatch provided by the expected distribution"),
     ("version", "version self-report"),
 )
@@ -243,6 +245,25 @@ def _check_harness_drift(store_path: Path) -> CheckResult:
     )
 
 
+def _check_signing(store_path: Path) -> CheckResult:
+    store = RecordStore(store_path) if store_path.exists() else None
+    status = signing_status(store, store_path.parent)
+    if status.key_id is None:
+        return CheckResult(
+            "signing",
+            PASS,
+            "not configured (optional; `checkpoint export --sign`)",
+        )
+    if status.key_present:
+        return CheckResult("signing", PASS, f"{status.key_id} (epoch {status.epoch})")
+    return CheckResult(
+        "signing",
+        WARN,
+        status.summary,
+        "restore the key or start a new epoch with `checkpoint rotate`",
+    )
+
+
 def run_checks(
     cfg: AgentwatchConfig | None = None,
     *,
@@ -288,6 +309,7 @@ def run_checks(
         _check_store_disk(cfg, resolved_store),
         _check_retention(cfg),
         _check_harness_drift(resolved_store),
+        _check_signing(resolved_store),
         _check_distribution(),
         CheckResult("version", PASS, _version()),
     ]

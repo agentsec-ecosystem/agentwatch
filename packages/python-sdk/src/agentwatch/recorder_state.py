@@ -27,6 +27,7 @@ from agentwatch.records import (
     ToolCall,
 )
 from agentwatch.secrets import redact_secrets
+from agentwatch.signing import KEY_ROTATION_TOOL
 from agentwatch.store import MARKER_PRODUCER, ChainEntry, RecordStore
 
 RECORDER_INSTALLED_TOOL = "recorder-installed"
@@ -48,6 +49,7 @@ MARKER_TOOLS = frozenset(
         EXPORT_CONFIGURED_TOOL,
         COVERAGE_WINDOW_OPEN_TOOL,
         COVERAGE_WINDOW_CLOSE_TOOL,
+        KEY_ROTATION_TOOL,
     }
 )
 

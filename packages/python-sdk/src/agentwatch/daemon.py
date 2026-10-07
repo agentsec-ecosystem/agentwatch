@@ -25,7 +25,8 @@ from pathlib import Path
 from typing import Any
 
 from agentwatch import posture
-from agentwatch.adapters import claude_code, mcp_proxy
+from agentwatch.adapters import a2a_proxy, claude_code, mcp_proxy
+from agentwatch.adapters.a2a_proxy import A2aProxyAdapterError
 from agentwatch.adapters.claude_code import ClaudeCodeAdapterError
 from agentwatch.adapters.mcp_proxy import McpProxyAdapterError
 from agentwatch.guard import Limits, guard_record
@@ -329,6 +330,9 @@ class Daemon:
         if phase == "mcp":
             return self._handle_mcp(message, harness)
 
+        if phase == "a2a":
+            return self._handle_a2a(message, harness)
+
         if phase not in (
             "pre",
             "post",
@@ -557,6 +561,30 @@ class Daemon:
         except (McpProxyAdapterError, ValueError, TypeError, KeyError):
             with contextlib.suppress(TypeError, ValueError):
                 self.quarantine.add(json.dumps(message, default=str), reason="mcp-normalize-error")
+            return []
+        written: list[AgentRecord] = []
+        for record in records:
+            key = self._key(record)
+            if key in self._seen:
+                continue
+            appended = self._append(record)
+            if appended is not None:
+                self._seen.add(key)
+                written.append(appended)
+        return written
+
+    def _handle_a2a(self, message: Mapping[str, Any], harness: str) -> list[AgentRecord]:
+        """Normalize and persist one A2A proxy frame (M29 A2A-1).
+
+        A frame that fails to normalize is quarantined with the raw payload,
+        never dropped silently (F8). Dedup and the hash chain are reused.
+        """
+        self.health.note_hook_fire(harness)
+        try:
+            records = a2a_proxy.normalize(message, redaction=self.redaction)
+        except (A2aProxyAdapterError, ValueError, TypeError, KeyError):
+            with contextlib.suppress(TypeError, ValueError):
+                self.quarantine.add(json.dumps(message, default=str), reason="a2a-normalize-error")
             return []
         written: list[AgentRecord] = []
         for record in records:

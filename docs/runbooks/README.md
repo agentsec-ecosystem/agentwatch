@@ -12,3 +12,4 @@
 | [codex-ingest-and-verify.md](codex-ingest-and-verify.md) | Codex rollout ingest + verify (COD-1 — reader pending) |
 | [ocsf-siem-export.md](ocsf-siem-export.md) | OCSF 1.5.0 / SIEM export + sinks (SIEM) |
 | [mcp-full-surface.md](mcp-full-surface.md) | MCP 2026-07-28 full-surface capture (MCP) |
+| [windows-install-and-verify.md](windows-install-and-verify.md) | Windows install + Task Scheduler service (WIN-1) |

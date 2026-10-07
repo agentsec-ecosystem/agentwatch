@@ -406,6 +406,17 @@
         "test:packages/python-sdk/tests/test_compliance_api.py::test_discrepancies_are_classified_not_merged"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C39",
+      "claim": "Windows service supervision renders a Task Scheduler XML and a windows-latest CI leg exercises the platform-independent SDK subset.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_windows.py::test_windows_task_runs_the_daemon",
+        "test:packages/python-sdk/tests/test_windows.py::test_windows_unit_installs_and_uninstalls",
+        "file:.github/workflows/windows.yml"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

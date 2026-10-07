@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - WIN-1 (partial): Windows service supervision — `render_unit("win32")` generates a **Task Scheduler XML**
+    (logon trigger, least privilege, restart-on-failure) and a `windows-latest` **CI leg**
+    (`.github/workflows/windows.yml`) exercises the platform-independent SDK subset; runbook added. Named-pipe
+    transport + an end-to-end CUJ-1 Windows timing run are declared unverified here (#350).
   - CCA-1: `ingest --format claude-compliance` reads an Anthropic Compliance API export **consent-first**
     (refuses without `--consent`), maps the actor email to a hashed principal (IDN-1), records the pull as a
     metadata-only `store-access` record, and classifies feed-vs-hook mismatches as `compliance-discrepancy`

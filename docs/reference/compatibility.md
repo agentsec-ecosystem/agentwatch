@@ -21,6 +21,11 @@
 > sessions removed) and records the full surface (`resources/read` + links, `prompts/get`, elicitation,
 > `tasks/*`); the legacy HTTP/SSE relay is kept (`--transport http-sse`) and marked deprecated-in-spec.
 > The generated row carries a **Protocol** column; the proxy's tested range tracks the newest revision.
+>
+> **Windows (M27 WIN-1):** agentwatch supervises the daemon at logon via a **Task Scheduler** task
+> (`agentwatch init --service` → `%APPDATA%\agentwatch\agentwatch-task.xml`); a `windows-latest` CI leg
+> (`.github/workflows/windows.yml`) exercises the platform-independent SDK subset. Named-pipe transport and an
+> end-to-end CUJ-1 timing run on Windows are tracked on WIN-1.
 
 > **B1:** v0.1.0 is Claude Code only (meta-MVP); the ecosystem ≥2-Tier-1 threshold is met by v0.3.0.
 >

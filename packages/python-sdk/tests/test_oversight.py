@@ -173,6 +173,38 @@ def test_group_by_day_and_mode(tmp_path: Path) -> None:
     assert {group.key for group in by_day.groups} == {"2026-01-02"}
 
 
+def test_group_by_tool_class_and_user(tmp_path: Path) -> None:
+    by_tool = build_oversight(_store(tmp_path), by="tool-class")
+    keys = {group.key for group in by_tool.groups}
+    assert "command:destructive" in keys
+    assert "unclassified" in keys
+
+    by_user = build_oversight(_store(tmp_path), by="user")
+    assert {group.key for group in by_user.groups} == {"worker"}
+
+
+def test_rejected_prompt_is_counted(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_prompt("s2", BASE, "denied-1"))
+    store.append(
+        _call("s2", BASE + timedelta(seconds=2), source=AuthorizationSource.HUMAN_ONCE,
+              span="denied-1", outcome=Outcome.DENIED)
+    )
+    report = build_oversight(store)
+    assert report.human is not None
+    assert report.human.rejected == 1
+    assert report.human.reject_rate == 1.0
+
+
+def test_empty_report_renders_with_denominators(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.jsonl")
+    report = build_oversight(store)
+    assert report.total_calls == 0
+    text = render_oversight(report)
+    assert "none" in text
+    assert "n/a (0 calls)" in text
+
+
 def test_render_and_json(tmp_path: Path) -> None:
     report = build_oversight(_store(tmp_path))
     payload = report.to_dict()

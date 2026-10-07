@@ -89,7 +89,7 @@ class SystemIngestError(ValueError):
     """Raised when a foreign system event cannot be mapped."""
 
 
-class SystemIngestNotOptedIn(SystemIngestError):
+class SystemIngestNotOptedInError(SystemIngestError):
     """Raised when the Linux-only layer is ingested without explicit opt-in."""
 
 
@@ -491,7 +491,7 @@ def transcode_system_ingest(
     ``unjoined:system-ingest`` (never silently attributed).
     """
     if not opted_in:
-        raise SystemIngestNotOptedIn(
+        raise SystemIngestNotOptedInError(
             "system-effects ingest is Linux-only and opt-in; pass opted_in=True"
         )
     events, problems = parse_system_events(payload, source=source)
@@ -531,7 +531,7 @@ def run_system_ingest(
     Idempotent on ``span_id`` so re-ingesting the same stream does not inflate.
     """
     if not opted_in:
-        raise SystemIngestNotOptedIn(
+        raise SystemIngestNotOptedInError(
             "system-effects ingest is Linux-only and opt-in; pass opted_in=True"
         )
     files = 0
@@ -587,7 +587,7 @@ __all__ = [
     "SessionIndex",
     "SystemEvent",
     "SystemIngestError",
-    "SystemIngestNotOptedIn",
+    "SystemIngestNotOptedInError",
     "is_system_ingest_record",
     "join_precision",
     "parse_system_events",

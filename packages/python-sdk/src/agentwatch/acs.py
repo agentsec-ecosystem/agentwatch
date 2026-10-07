@@ -318,7 +318,7 @@ def _security_event(
 
 def _decision_record(
     request: Mapping[str, Any],
-    response: Mapping[str, Any],
+    result: Mapping[str, Any],
     *,
     redaction: RedactionConfig | None,
 ) -> AgentRecord:
@@ -332,8 +332,7 @@ def _decision_record(
     if revision != ACS_VERSION:
         raise AcsError(f"unsupported ACS revision: {revision!r}")
 
-    result = response.get("result")
-    result_revision = _revision(result.get("acs_version") if isinstance(result, Mapping) else None)
+    result_revision = _revision(result.get("acs_version"))
     if result_revision != ACS_VERSION:
         raise AcsError(f"unsupported ACS revision: {result_revision!r}")
 
@@ -361,12 +360,13 @@ def _decision_record(
 
     at = _timestamp(params.get("timestamp"))
     masked, kinds = redact_mapping({"params": params, "result": result})
-    masked_result = masked.get("result") if isinstance(masked, Mapping) else {}
+    masked_result = masked.get("result") if isinstance(masked, Mapping) else None
+    evidence_result = masked_result if isinstance(masked_result, Mapping) else result
     security_event = _security_event(
         decision,
         tool=str(tool),
         at=at,
-        result=masked_result if isinstance(masked_result, Mapping) else result,
+        result=evidence_result,
         kinds=list(kinds),
     )
 
@@ -447,7 +447,7 @@ def transcode_acs(
             )
             continue
         try:
-            records.append(_decision_record(request, message, redaction=redaction))
+            records.append(_decision_record(request, result, redaction=redaction))
         except (AcsError, KeyError, TypeError, ValueError) as exc:
             problems.append(IngestProblem(here, f"unmappable ACS frame: {exc}"))
     return records, problems

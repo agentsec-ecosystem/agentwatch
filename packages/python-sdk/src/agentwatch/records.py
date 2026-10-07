@@ -107,6 +107,55 @@ class Approval(str, Enum):
     UNKNOWN = "unknown"
 
 
+class AuthorizationSource(str, Enum):
+    """Who or what authorized a tool call (M29 APV-1, taxonomy v2).
+
+    ``unknown`` is the honest default and is **never** inferred from
+    ``outcome=ok``: an allow-list rule, a model classifier, a bypassed mode and a
+    human approval are distinct facts (PRD 49).
+    """
+
+    HUMAN_ONCE = "human-once"
+    HUMAN_REMEMBERED = "human-remembered"
+    RULE = "rule"
+    CLASSIFIER = "classifier"
+    HOOK = "hook"
+    BYPASS = "bypass"
+    NOT_REQUIRED = "not-required"
+    DENIED = "denied"
+    UNKNOWN = "unknown"
+
+
+class AuthorizationDeny(str, Enum):
+    """Who or what refused a call, when ``source=denied`` (M29 APV-1)."""
+
+    HUMAN = "human"
+    RULE = "rule"
+    CLASSIFIER = "classifier"
+    HOOK = "hook"
+    UNKNOWN = "unknown"
+
+
+class AuthorizationEvidence(str, Enum):
+    """How the authorization source was established (M29 APV-1)."""
+
+    HARNESS_NATIVE = "harness-native"
+    INFERRED = "inferred"
+    SESSION_MODE = "session-mode"
+
+
+class PermissionMode(str, Enum):
+    """The permission mode in force at the call (M29 APV-2)."""
+
+    DEFAULT = "default"
+    ACCEPT_EDITS = "acceptEdits"
+    PLAN = "plan"
+    AUTO = "auto"
+    DONT_ASK = "dontAsk"
+    BYPASS_PERMISSIONS = "bypassPermissions"
+    UNKNOWN = "unknown"
+
+
 class SecurityEventType(str, Enum):
     """The named, versioned agent-security event vocabulary."""
 
@@ -275,6 +324,39 @@ class ToolCall:
 
 
 @dataclass(frozen=True)
+class Authorization:
+    """The versioned authorization decision attached to a record (M29 APV-1).
+
+    ``source`` names who/what allowed the call; ``deny`` is populated only when
+    ``source`` is ``denied``; ``evidence`` records how confidently the source was
+    established. Metadata only — never a judgement of correctness.
+    """
+
+    source: AuthorizationSource
+    deny: AuthorizationDeny | None = None
+    evidence: AuthorizationEvidence | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return _drop_none(
+            {
+                "source": self.source.value,
+                "deny": self.deny.value if self.deny is not None else None,
+                "evidence": self.evidence.value if self.evidence is not None else None,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Authorization:
+        deny = data.get("deny")
+        evidence = data.get("evidence")
+        return cls(
+            source=AuthorizationSource(data["source"]),
+            deny=AuthorizationDeny(deny) if deny is not None else None,
+            evidence=AuthorizationEvidence(evidence) if evidence is not None else None,
+        )
+
+
+@dataclass(frozen=True)
 class SecurityEvent:
     """A named security event, attached to the record it concerns."""
 
@@ -346,6 +428,7 @@ class AgentRecord:
     step_type: StepType | None = None
     record_phase: RecordPhase | None = None
     approval: Approval | None = None
+    authorization: Authorization | None = None
     environment: dict[str, Any] | None = None
     truncated: dict[str, Any] | None = None
     security_event: SecurityEvent | None = None
@@ -392,6 +475,8 @@ class AgentRecord:
             data["record_phase"] = self.record_phase.value
         if self.approval is not None:
             data["approval"] = self.approval.value
+        if self.authorization is not None:
+            data["authorization"] = self.authorization.to_dict()
         if self.environment is not None:
             data["environment"] = self.environment
         if self.truncated is not None:
@@ -406,6 +491,7 @@ class AgentRecord:
         step = data.get("step_type")
         phase = data.get("record_phase")
         approval = data.get("approval")
+        authorization = data.get("authorization")
         event = data.get("security_event")
         producer = data.get("producer")
         return cls(
@@ -431,6 +517,9 @@ class AgentRecord:
             step_type=StepType(step) if step is not None else None,
             record_phase=RecordPhase(phase) if phase is not None else None,
             approval=Approval(approval) if approval is not None else None,
+            authorization=(
+                Authorization.from_dict(authorization) if authorization is not None else None
+            ),
             environment=data.get("environment"),
             truncated=data.get("truncated"),
             security_event=SecurityEvent.from_dict(event) if event is not None else None,
@@ -470,6 +559,7 @@ _RECORD_FIELDS = frozenset(
         "step_type",
         "record_phase",
         "approval",
+        "authorization",
         "environment",
         "truncated",
         "security_event",
@@ -492,6 +582,7 @@ _AGENT_FIELDS = frozenset(
 )
 _TOOL_FIELDS = frozenset({"name", "server", "arguments", "response", "privacy_mode"})
 _PRODUCER_FIELDS = frozenset({"kind", "name", "version"})
+_AUTHORIZATION_FIELDS = frozenset({"source", "deny", "evidence"})
 _EVENT_FIELDS = frozenset(
     {
         "event_version",
@@ -626,6 +717,18 @@ def _validate_producer_dict(data: Any) -> None:
             _check_str(data[key], where, key, nullable=True)
 
 
+def _validate_authorization_dict(data: Any) -> None:
+    where = "authorization"
+    _require_table(data, where)
+    _reject_unknown(data, _AUTHORIZATION_FIELDS, where)
+    _require(data, "source", where)
+    _check_enum(data["source"], where, "source", AuthorizationSource)
+    if "deny" in data:
+        _check_enum(data["deny"], where, "deny", AuthorizationDeny, nullable=True)
+    if "evidence" in data:
+        _check_enum(data["evidence"], where, "evidence", AuthorizationEvidence, nullable=True)
+
+
 def _validate_event_dict(data: Any) -> None:
     where = "security event"
     _require_table(data, where)
@@ -692,6 +795,8 @@ def _validate_record_dict(data: Any) -> None:
         _check_enum(data["record_phase"], where, "record_phase", RecordPhase, nullable=True)
     if "approval" in data:
         _check_enum(data["approval"], where, "approval", Approval, nullable=True)
+    if data.get("authorization") is not None:
+        _validate_authorization_dict(data["authorization"])
     if "environment" in data:
         _check_table(data["environment"], where, "environment", nullable=True)
     if "truncated" in data:
@@ -748,6 +853,37 @@ def effective_approval(record: AgentRecord) -> Approval:
     The value is never written back silently.
     """
     return record.approval if record.approval is not None else Approval.UNKNOWN
+
+
+# Read-time mapping from the legacy S14 ``approval`` five-value field to the
+# authorization v2 taxonomy (M29 APV-1). The stored legacy value is never
+# rewritten; only the effective view maps it.
+_LEGACY_APPROVAL_SOURCE = {
+    Approval.USER: AuthorizationSource.HUMAN_ONCE,
+    Approval.AUTO: AuthorizationSource.RULE,
+    Approval.NOT_REQUIRED: AuthorizationSource.NOT_REQUIRED,
+    Approval.DENIED: AuthorizationSource.DENIED,
+    Approval.UNKNOWN: AuthorizationSource.UNKNOWN,
+}
+
+
+def effective_authorization(record: AgentRecord) -> Authorization:
+    """The record's authorization decision, mapping legacy S14 at read time.
+
+    When the v2 ``authorization`` object is absent the legacy ``approval`` value
+    is translated (``user``→``human-once``, ``auto``→``rule``, ``denied``→
+    ``denied``, ``not-required``→``not-required``, else ``unknown``) and stamped
+    ``evidence=inferred``. Legacy values are **never written back silently**
+    (M29 APV-1, F8 reject-never-coerce).
+    """
+    if record.authorization is not None:
+        return record.authorization
+    source = _LEGACY_APPROVAL_SOURCE[effective_approval(record)]
+    return Authorization(
+        source=source,
+        deny=AuthorizationDeny.UNKNOWN if source is AuthorizationSource.DENIED else None,
+        evidence=AuthorizationEvidence.INFERRED,
+    )
 
 
 def effective_record_phase(record: AgentRecord) -> RecordPhase:

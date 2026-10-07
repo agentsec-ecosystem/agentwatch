@@ -5,7 +5,7 @@ world where the default is a model classifier (auto mode) and bypass is common. 
 `approval` field with a versioned **authorization source** taxonomy plus a per-call **permission mode**, and defines the
 `oversight` report. Observation only — agentwatch records the decision, never makes one.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M26–M27 · Sources:
+**Status:** implemented (APV-1 2026-10-06; APV-2/APV-3 pending) · **Milestone:** M29 · Sources:
 [PRD 49](../prd/49-authorization-and-oversight.md), [PRD 51](../prd/51-harness-native-telemetry-and-framework-reach.md),
 [approval-provenance.md](approval-provenance.md) (legacy), [agent-identity.md](agent-identity.md).
 

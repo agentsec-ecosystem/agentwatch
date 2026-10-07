@@ -496,8 +496,22 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument(
         "--approval",
         default=None,
-        choices=("user", "auto", "not-required", "denied", "unknown"),
-        help="only records with this authorization decision (M19 S14)",
+        choices=(
+            # legacy S14 values
+            "user",
+            "auto",
+            "not-required",
+            "denied",
+            "unknown",
+            # authorization v2 sources (M29 APV-1)
+            "human-once",
+            "human-remembered",
+            "rule",
+            "classifier",
+            "hook",
+            "bypass",
+        ),
+        help="only records with this authorization decision/source (M19 S14, M29 APV-1)",
     )
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
     search.add_argument(

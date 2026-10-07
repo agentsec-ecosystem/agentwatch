@@ -13,8 +13,23 @@ from datetime import datetime, timedelta, timezone, tzinfo
 
 from agentwatch.identity import identity_handles
 from agentwatch.memory import is_memory_record
-from agentwatch.records import AgentRecord, effective_approval, effective_producer
+from agentwatch.records import (
+    AgentRecord,
+    effective_approval,
+    effective_authorization,
+    effective_producer,
+)
 from agentwatch.store import RecordStore
+
+# `search --approval` accepts both the legacy S14 values and the v2 sources
+# (M29 APV-1). The legacy `user` also matches the human-* sources.
+_APPROVAL_ALIASES: dict[str, frozenset[str]] = {
+    "user": frozenset({"human-once", "human-remembered"}),
+    "auto": frozenset({"rule"}),
+    "denied": frozenset({"denied"}),
+    "not-required": frozenset({"not-required"}),
+    "unknown": frozenset({"unknown"}),
+}
 
 _RELATIVE = re.compile(r"^(\d+)([smhd])$")
 _UNIT = {"s": 1, "m": 60, "h": 3600, "d": 86400}
@@ -100,8 +115,12 @@ def search(
             continue
         if producer is not None and effective_producer(record).kind.value != producer:
             continue
-        if approval is not None and effective_approval(record).value != approval:
-            continue
+        if approval is not None:
+            legacy = effective_approval(record).value
+            source = effective_authorization(record).source.value
+            accepted = _APPROVAL_ALIASES.get(approval, frozenset({approval}))
+            if legacy != approval and source not in accepted:
+                continue
         if identity is not None:
             needle = identity.strip().lower()
             if not needle or not any(

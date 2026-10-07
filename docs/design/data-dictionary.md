@@ -46,6 +46,9 @@ v0.2.0 additive fields. All are optional; absent means an honest default, never 
 | `agent.credential_class` | enum `api-key` \| `oauth` \| `svid` \| `ambient/shared` | Credential classification (IDN-1) | — |
 | `agent.principal` | string | On-behalf-of principal; hashed by default in metadata-only (IDN-1) | — |
 | `agent.delegation_chain` | string[] | On-behalf-of chain; principals hashed by default (IDN-1) | — |
+| `authorization.source` | enum `human-once` \| `human-remembered` \| `rule` \| `classifier` \| `hook` \| `bypass` \| `not-required` \| `denied` \| `unknown` | Who/what authorized the call (M29 APV-1, `authz-v2`) | `unknown` (`effective_authorization`) |
+| `authorization.deny` | enum `human` \| `rule` \| `classifier` \| `hook` \| `unknown` | Who/what refused when `source=denied` (M29 APV-1) | — |
+| `authorization.evidence` | enum `harness-native` \| `inferred` \| `session-mode` | How the source was established (M29 APV-1) | — |
 | `security_event.type` | enum | Adds `agent-delegation` (A2A-2): delegation observed, never an authorization verdict | — |
 
 Versioning: `schema_version` / `event_version` accept the supported range `0.1.0`–`0.2.0`; the current

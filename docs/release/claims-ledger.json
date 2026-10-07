@@ -565,6 +565,18 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A classifier-approved Claude Code call is recorded as authorization.source=classifier, never user/rule; a bypass-mode call is bypass.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_authorization.py::test_classifier_is_never_user_or_rule",
+        "test:packages/python-sdk/tests/test_authorization.py::test_adapter_records_bypass_without_prompt",
+        "test:packages/python-sdk/tests/test_authorization.py::test_ok_pre_event_has_no_authorization_field",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

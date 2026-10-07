@@ -109,12 +109,16 @@ def test_project_principal_and_time_scopes_match() -> None:
     window = parse_scope("time:2026-01-01T00:00:00+00:00..2026-12-31T00:00:00+00:00")
 
     assert window.label().startswith("time:")
-    assert record_matches_hold(record, Hold("H1", parse_scope("project:/work/x"), "r", None, NOW, 1))
-    assert record_matches_hold(principal, Hold("H2", parse_scope("principal:hmac:alice"), "r", None, NOW, 2))
-    assert record_matches_hold(record, Hold("H3", window, "r", None, NOW, 3))
-    assert not record_matches_hold(record, Hold("H4", parse_scope("project:/other"), "r", None, NOW, 4))
+    project_hold = Hold("H1", parse_scope("project:/work/x"), "r", None, NOW, 1)
+    principal_hold = Hold("H2", parse_scope("principal:hmac:alice"), "r", None, NOW, 2)
+    time_hold = Hold("H3", window, "r", None, NOW, 3)
+    other_hold = Hold("H4", parse_scope("project:/other"), "r", None, NOW, 4)
+    assert record_matches_hold(record, project_hold)
+    assert record_matches_hold(principal, principal_hold)
+    assert record_matches_hold(record, time_hold)
+    assert not record_matches_hold(record, other_hold)
     outside = replace(record, started_at=datetime(2025, 1, 1, tzinfo=timezone.utc))
-    assert not record_matches_hold(outside, Hold("H5", window, "r", None, NOW, 5))
+    assert not record_matches_hold(outside, time_hold)
 
 
 def test_hold_records_serialize_for_reports(tmp_path: Path) -> None:
@@ -171,9 +175,8 @@ def test_retention_skips_held_records(tmp_path: Path) -> None:
     assert "s2" not in survivors
     assert reloaded.verify().ok
     # the hold protects the record across a rebuild from the chain
-    assert held_hold_ids(next(r for r in reloaded.records() if r.session_id == "s1"), active_holds(reloaded)) == (
-        hold.hold_id,
-    )
+    s1 = next(r for r in reloaded.records() if r.session_id == "s1")
+    assert held_hold_ids(s1, active_holds(reloaded)) == (hold.hold_id,)
 
 
 # --------------------------------------------------------------------------- purge
@@ -191,7 +194,9 @@ def test_purge_fails_closed_on_a_held_session_and_records_the_refusal(tmp_path: 
     assert report.purged == 0
     assert report.blocked_by_hold == hold.hold_id
     assert report.override_required is True
-    assert any(record.session_id == "s1" and record.tool.name == "Bash" for record in store.records())
+    assert any(
+        record.session_id == "s1" and record.tool.name == "Bash" for record in store.records()
+    )
     assert store.verify().ok
     blocked = [marker for marker in hold_records(store) if marker.action == "purge-blocked"]
     assert blocked and blocked[0].hold_id == hold.hold_id
@@ -229,7 +234,9 @@ def test_a_session_without_a_hold_purges_normally(tmp_path: Path) -> None:
 
     assert report.purged == 1
     assert report.blocked_by_hold is None
-    assert not any(record.session_id == "s2" and record.tool.name == "Bash" for record in store.records())
+    assert not any(
+        record.session_id == "s2" and record.tool.name == "Bash" for record in store.records()
+    )
 
 
 # --------------------------------------------------------------------------- report

@@ -77,7 +77,9 @@ def test_notice_states_who_can_see_records_from_the_access_model() -> None:
 def test_egress_claim_is_refused_when_export_is_enabled() -> None:
     cfg = replace(
         _default(),
-        export=ExportSection(enabled=True, otlp_endpoint="https://sink.example", format="otel-genai"),
+        export=ExportSection(
+            enabled=True, otlp_endpoint="https://sink.example", format="otel-genai"
+        ),
     )
     notice = build_notice(cfg)
     rendered = render_notice(notice)

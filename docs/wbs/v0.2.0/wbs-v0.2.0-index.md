@@ -69,6 +69,8 @@ Exit criteria · Design docs).
 > green (SDK 1627 passed/95.15%, API 46/96.80%, analytics 724/95.15%, repo guard 34), `ruff` clean,
 > `mypy --strict` clean. **Re-pointed (blocked, declared):** UI-1 → M30 (console), XHT-2 → M31 (field tests).
 > Milestone closed 2026-10-06.
+
+> **Progress:** M29 (Expanded I: Trust, Identity & Governance) complete (2026-10-06) - 17 feature tickets (APV-1..3, DEP-1..3, CCO-1/2, FWK-1/2, ACC-1/2, HLD-1, ASI-1, STD-1, EXT-3, EXT-7) plus the four M28 tickets re-pointed into M29 (A2A-1/2, SYS-1, ACS-1), and 29.T/29.D/29.R. All merged into feat-v0.2.0; gate green (ruff zero, mypy --strict clean, SDK 95%+, API 95.75%, analytics 96.22%, repo guard 47). Declared blocks: DEP-1/DEP-3 Windows leg (WIN-1 to M31), EXT-3 capability-changed (M30 CAP-2), ASI rows needing M30 CAP-1 marked not-evidenced, live pinned framework runs.
 >
 > **Progress:** ✅ **M27 (Surfaces) complete** (2026-10-06) — 26 feature/support tickets done (MCP-1..6, GEM-2,
 > DET-4, DET-5, COR-2, SIEM-1/2, LG-1, LG-2, EXA-1, COD-1, XHT-3, LOG-1, CCA-1, UI-2, A11Y-1, RUN-1, TUT-1,

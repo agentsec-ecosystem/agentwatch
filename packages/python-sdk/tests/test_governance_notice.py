@@ -17,8 +17,19 @@ import pytest
 
 from agentwatch.cli.main import main
 from agentwatch.config_explain import explain_config
-from agentwatch.configuration import AgentwatchConfig, ExportSection
-from agentwatch.governance import NOT_LEGAL_ADVICE, build_notice, render_notice
+from agentwatch.configuration import (
+    AgentwatchConfig,
+    ExportSection,
+    PrivacySection,
+    SinksSection,
+)
+from agentwatch.governance import (
+    NOT_LEGAL_ADVICE,
+    Notice,
+    NoticeStatement,
+    build_notice,
+    render_notice,
+)
 
 REPO = Path(__file__).resolve().parents[3]
 
@@ -92,6 +103,38 @@ def test_notice_always_refuses_a_legal_determination() -> None:
     notice = build_notice(_default())
 
     assert any("complian" in refused.claim.lower() for refused in notice.refused)
+
+
+def test_non_metadata_mode_discloses_content_and_refuses_no_content() -> None:
+    cfg = replace(_default(), privacy=PrivacySection(mode="full"))
+    notice = build_notice(cfg)
+
+    assert any("full" in statement.text for statement in notice.statements)
+    assert any("no content is ever recorded" in refused.claim.lower() for refused in notice.refused)
+
+
+def test_sinks_enabled_refuses_the_egress_claim() -> None:
+    cfg = replace(_default(), sinks=SinksSection(enabled=True, targets=("https://siem.example",)))
+    notice = build_notice(cfg)
+
+    statement = next(s for s in notice.statements if s.backing == "sinks.enabled")
+    assert "forwarded" in statement.text.lower()
+    assert any("never leaves" in refused.claim.lower() for refused in notice.refused)
+    assert any("sinks" in refused.reason.lower() for refused in notice.refused)
+
+
+def test_render_notice_skips_empty_sections() -> None:
+    notice = Notice(
+        statements=(NoticeStatement("retention", "kept for 1 day", "store.retention_days"),),
+        refused=(),
+    )
+
+    text = render_notice(notice)
+
+    assert "RETENTION" in text
+    assert "RECORDED" not in text
+    assert "REFUSED TO CLAIM" not in text
+    assert "not legal advice" in text.lower()
 
 
 def test_cli_governance_notice_renders(

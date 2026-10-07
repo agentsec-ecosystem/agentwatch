@@ -9,6 +9,7 @@ and overrides are hash-chain records; D-K tombstone semantics are preserved.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -27,6 +28,7 @@ from agentwatch.configuration import (
 )
 from agentwatch.evidence import build_bundle
 from agentwatch.holds import (
+    Hold,
     HoldKind,
     active_holds,
     held_hold_ids,
@@ -34,6 +36,7 @@ from agentwatch.holds import (
     parse_scope,
     record_hold_add,
     record_hold_release,
+    record_matches_hold,
 )
 from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
 from agentwatch.store import RecordStore
@@ -87,6 +90,42 @@ def test_parse_scope_supports_every_documented_scope() -> None:
 
 
 # --------------------------------------------------------------------------- chain
+
+
+def test_parse_scope_rejects_malformed_time_and_unknown_kind() -> None:
+    for bad in (
+        "time:2026-01-01",
+        "time:not-a-date..2026-01-01T00:00:00+00:00",
+        "time:2026-02-01T00:00:00+00:00..2026-01-01T00:00:00+00:00",
+        "team:blue",
+    ):
+        with pytest.raises(ValueError, match="hold scope"):
+            parse_scope(bad)
+
+
+def test_project_principal_and_time_scopes_match() -> None:
+    record = _record("s1", days_ago=1, project="/work/x")
+    principal = replace(record, agent=AgentIdentity(identity="agent", principal="hmac:alice"))
+    window = parse_scope("time:2026-01-01T00:00:00+00:00..2026-12-31T00:00:00+00:00")
+
+    assert window.label().startswith("time:")
+    assert record_matches_hold(record, Hold("H1", parse_scope("project:/work/x"), "r", None, NOW, 1))
+    assert record_matches_hold(principal, Hold("H2", parse_scope("principal:hmac:alice"), "r", None, NOW, 2))
+    assert record_matches_hold(record, Hold("H3", window, "r", None, NOW, 3))
+    assert not record_matches_hold(record, Hold("H4", parse_scope("project:/other"), "r", None, NOW, 4))
+    outside = replace(record, started_at=datetime(2025, 1, 1, tzinfo=timezone.utc))
+    assert not record_matches_hold(outside, Hold("H5", window, "r", None, NOW, 5))
+
+
+def test_hold_records_serialize_for_reports(tmp_path: Path) -> None:
+    store = _seed(tmp_path)
+    record_hold_add(store, parse_scope("session:s1"), reason="litigation", ref="CASE-1")
+
+    payload = hold_records(store)[0].to_dict()
+
+    assert payload["action"] == "add"
+    assert payload["scope"] == "session:s1"
+    assert payload["ref"] == "CASE-1"
 
 
 def test_hold_add_and_release_are_chain_records(tmp_path: Path) -> None:
@@ -245,6 +284,39 @@ def test_cli_hold_add_list_release(tmp_path: Path, capsys: pytest.CaptureFixture
     rc = main(["--set", f"store.path={store_dir}", "hold", "release", hold_id, "--json"])
     assert rc == 0
     assert json.loads(capsys.readouterr().out)["released"] == hold_id
+
+
+def test_cli_hold_list_renders_text(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store_dir = tmp_path / "store"
+    store_dir.mkdir()
+    _seed(store_dir)
+    main(
+        [
+            "--set",
+            f"store.path={store_dir}",
+            "hold",
+            "add",
+            "--scope",
+            "session:s1",
+            "--reason",
+            "litigation",
+        ]
+    )
+    capsys.readouterr()
+
+    rc = main(["--set", f"store.path={store_dir}", "hold", "list"])
+
+    assert rc == 0
+    assert "active hold" in capsys.readouterr().out
+
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+    rc = main(["--set", f"store.path={empty_dir}", "hold", "list"])
+
+    assert rc == 0
+    assert "0 active hold" in capsys.readouterr().out
 
 
 def test_cli_purge_fails_closed_then_allows_a_recorded_override(

@@ -11,22 +11,29 @@ profile stores no content and hashes identity.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from agentwatch.access import (
+    ACCESS_COMMANDS,
     ACCESS_MATRIX,
     DEFAULT_FLEET_PROFILE,
     DataClass,
     Role,
     access_log,
     evaluate_access,
+    fleet_profile_from_config,
+    matrix_to_json,
     read_fields,
+    render_access_log,
+    render_matrix,
     resolve_identity,
 )
 from agentwatch.cli.main import main
+from agentwatch.configuration import AgentwatchConfig, PrivacySection
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
@@ -281,6 +288,130 @@ def test_access_log_is_scoped_to_the_owner(tmp_path: Path) -> None:
 
 
 # --------------------------------------------------------------------------- cli
+
+
+def test_fleet_profile_from_config_tracks_privacy_mode() -> None:
+    default = fleet_profile_from_config(AgentwatchConfig())
+    assert default == DEFAULT_FLEET_PROFILE
+    assert default.to_dict()["stores_content"] is False
+
+    full = fleet_profile_from_config(
+        replace(AgentwatchConfig(), privacy=PrivacySection(mode="full"))
+    )
+    assert full.name == "extended"
+    assert full.stores_content is True
+    assert full.hashes_identity is False
+    assert full.identity == "plaintext"
+
+
+def test_self_role_has_no_cross_user_grant() -> None:
+    decision = evaluate_access(Role.SELF, DataClass.METADATA, owner="alice", reader="bob")
+
+    assert decision.allowed is False
+    assert decision.to_dict()["cross_user"] is True
+
+
+def test_team_reviewer_content_and_evidence_are_team_scoped() -> None:
+    content = evaluate_access(
+        Role.TEAM_REVIEWER,
+        DataClass.CONTENT,
+        owner="alice",
+        reader="bob",
+        content_available=True,
+    )
+    evidence = evaluate_access(Role.TEAM_REVIEWER, DataClass.EVIDENCE, owner="alice", reader="bob")
+    same_team = evaluate_access(
+        Role.TEAM_REVIEWER,
+        DataClass.CONTENT,
+        owner="alice",
+        reader="bob",
+        content_available=True,
+        same_team=True,
+    )
+
+    assert content.allowed is False
+    assert evidence.allowed is False
+    assert same_team.allowed is True
+
+
+def test_identity_hashed_projection_and_owner_content_gate(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+
+    hashed = read_fields(
+        store,
+        store.records()[0],
+        role=Role.SECURITY_AUDITOR,
+        data_class=DataClass.IDENTITY_HASHED,
+        owner="alice",
+        reader="bob",
+    )
+    own_content = evaluate_access(
+        Role.SELF, DataClass.CONTENT, owner="alice", reader="alice", content_available=False
+    )
+
+    assert hashed.fields["principal"] == "hmac-sha256:abc"
+    assert own_content.allowed is False
+
+
+def test_unknown_access_action_is_rejected() -> None:
+    with pytest.raises(ValueError, match="unknown access action"):
+        evaluate_access(Role.ADMIN, DataClass.METADATA, owner="a", reader="b", action="bogus")
+
+
+def test_resolve_action_only_applies_to_identity_resolved() -> None:
+    decision = evaluate_access(
+        Role.ADMIN, DataClass.METADATA, owner="alice", reader="bob", action="resolve-identity"
+    )
+
+    assert decision.allowed is False
+
+
+def test_render_helpers_are_publishable(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    read_fields(
+        store,
+        store.records()[0],
+        role=Role.SECURITY_AUDITOR,
+        data_class=DataClass.METADATA,
+        owner="alice",
+        reader="bob",
+        now=START,
+    )
+
+    assert "READER" in render_access_log("alice", access_log(store, owner="alice"))
+    assert "0 access(es)" in render_access_log("nobody", [])
+    assert "security-auditor" in render_matrix()
+    assert matrix_to_json()["admin"]["content"] is True
+    assert set(ACCESS_COMMANDS) == {"access-read", "access-resolve"}
+
+
+def test_cli_access_matrix_and_text_log(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store_dir = tmp_path / "store"
+    store_dir.mkdir()
+    store = _store(store_dir)
+    read_fields(
+        store,
+        store.records()[0],
+        role=Role.SECURITY_AUDITOR,
+        data_class=DataClass.METADATA,
+        owner="alice",
+        reader="bob",
+        now=START,
+    )
+
+    rc = main(["--set", f"store.path={store_dir}", "access", "matrix"])
+    assert rc == 0
+    assert "team-reviewer" in capsys.readouterr().out
+
+    rc = main(["--set", f"store.path={store_dir}", "access", "matrix", "--json"])
+    assert rc == 0
+    assert json.loads(capsys.readouterr().out)["self"]["metadata"] is False
+
+    rc = main(["--set", f"store.path={store_dir}", "access", "log", "--owner", "alice"])
+    assert rc == 0
+    assert "READER" in capsys.readouterr().out
 
 
 def test_cli_access_log_json_lists_who_accessed_my_records(

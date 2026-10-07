@@ -6,6 +6,15 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 Expanded I — Trust, Identity & Governance (M29):
+  - ACC-1: a documented, enforceable fleet **role × data-class** read-access model
+    (`agentwatch.access`) — roles `self` / `team-reviewer` / `security-auditor` / `admin`
+    against `metadata` / `identity-hashed` / `identity-resolved` / `content` / `evidence`.
+    A cross-role read returns nothing and is appended as a `store-access` record; the owner
+    sees who read their records via `agentwatch access log --owner ID`; identity resolution
+    is an explicit, recorded action; the default fleet profile is least-privileged
+    (metadata-only, hashed identity). `agentwatch access check`/`matrix` publish the model.
+    ADR-0040 (#448).
 - v0.2.0 Depth (M28):
   - CMP-4: ed25519 checkpoint signing graduates to a supported posture — `checkpoint rotate` replaces the key
     and records the rotation as a metadata-only `key-rotation` chain event; the posture is folded into

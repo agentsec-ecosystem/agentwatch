@@ -13,7 +13,10 @@ the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0.2.0-pa
 
 ## Milestone M29 — Expanded I: Trust, Identity & Governance (PRD 49–51, 56, 59)
 
-**Status:** ⏳ not started
+**Status:** ⏳ in progress — **29.ACC-1 (#448) implemented** on `m29/governance` (WS-C); ACC-2/HLD-1 in flight.
+
+**Progress:** ACC-1 — role × data-class read model + self-visible access log (`agentwatch.access`,
+`agentwatch access log/check/matrix`), ADR-0040; tests `packages/python-sdk/tests/test_access.py`.
 
 **Goal:** Make the record truthful about authorization and oversight, provable as "on" in managed-policy fleets,
 authoritative for cost/decisions via harness-native telemetry, lawfully governable at fleet scale, and citable against

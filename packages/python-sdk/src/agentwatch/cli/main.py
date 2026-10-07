@@ -21,6 +21,17 @@ from typing import Any
 
 from agentwatch import errors, hook, naming
 from agentwatch.aat import aat_version_line, export_aat, to_aat_json, write_aat
+from agentwatch.access import (
+    DataClass,
+    Role,
+    access_log,
+    access_log_to_json,
+    evaluate_access,
+    matrix_to_json,
+    record_access_decision,
+    render_access_log,
+    render_matrix,
+)
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.blame import blame_sessions, build_blame, render_blame
@@ -298,6 +309,37 @@ def _build_parser() -> argparse.ArgumentParser:
         "--diff", action="store_true", help="only keys that differ from defaults"
     )
     config_explain.add_argument("--json", action="store_true", help="emit the explanation as JSON")
+
+    access_cmd = sub.add_parser(
+        "access", help="fleet role x data-class read-access model (M29 ACC-1)"
+    )
+    access_sub = access_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    access_log_p = access_sub.add_parser(
+        "log", help="self-visible access log: who read my records, and when"
+    )
+    access_log_p.add_argument("--owner", required=True, help="whose records to report on")
+    access_log_p.add_argument("--json", action="store_true", help="emit the log as JSON")
+    access_check_p = access_sub.add_parser(
+        "check", help="evaluate a role x data-class read; record it; deny -> nonzero"
+    )
+    access_check_p.add_argument("--role", choices=[role.value for role in Role], required=True)
+    access_check_p.add_argument(
+        "--data-class",
+        dest="data_class",
+        choices=[data.value for data in DataClass],
+        required=True,
+    )
+    access_check_p.add_argument("--owner", required=True, help="whose record is read")
+    access_check_p.add_argument("--reader", default=None, help="the reader (default: the owner)")
+    access_check_p.add_argument(
+        "--same-team", dest="same_team", action="store_true", help="reader is on the owner's team"
+    )
+    access_check_p.add_argument(
+        "--content", dest="content_available", action="store_true", help="content is stored"
+    )
+    access_check_p.add_argument("--json", action="store_true", help="emit the decision as JSON")
+    access_matrix_p = access_sub.add_parser("matrix", help="print the role x data-class matrix")
+    access_matrix_p.add_argument("--json", action="store_true", help="emit the matrix as JSON")
 
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
@@ -1918,6 +1960,44 @@ def _run_config(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_access(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    if args.action == "matrix":
+        print(json.dumps(matrix_to_json()) if args.json else render_matrix())
+        return 0
+
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.action == "log":
+        entries = access_log(store, owner=args.owner)
+        if args.json:
+            print(json.dumps(access_log_to_json(args.owner, entries)))
+        else:
+            print(render_access_log(args.owner, entries))
+        return 0
+
+    reader = args.reader or args.owner
+    decision = evaluate_access(
+        Role(args.role),
+        DataClass(args.data_class),
+        owner=args.owner,
+        reader=reader,
+        same_team=args.same_team,
+        content_available=args.content_available,
+    )
+    record_access_decision(store, decision)
+    if args.json:
+        print(json.dumps(decision.to_dict()))
+    else:
+        verdict = "allowed" if decision.allowed else "DENIED"
+        print(f"agentwatch: access {verdict}: {decision.reason}")
+    return 0 if decision.allowed else _EXIT_INSTALL_ERROR
+
+
 def _run_union(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2685,6 +2765,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_status(args)
     if args.command == "config":
         return _run_config(args)
+    if args.command == "access":
+        return _run_access(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":

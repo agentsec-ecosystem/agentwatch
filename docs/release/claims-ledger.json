@@ -565,6 +565,18 @@
         "doc:docs/reference/detector-fixtures.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A fleet/multi-user reader sees only the data classes their role is granted; a disallowed cross-user read returns nothing and is recorded, so the subject can see who read their records and when.",
+      "source": "docs/design/access-and-governance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_access.py::test_cross_role_read_returns_nothing_and_is_recorded",
+        "test:packages/python-sdk/tests/test_access.py::test_identity_resolution_is_an_explicit_recorded_action",
+        "test:packages/python-sdk/tests/test_access.py::test_access_log_is_scoped_to_the_owner",
+        "doc:docs/adr/0040-fleet-role-model.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

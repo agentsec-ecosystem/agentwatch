@@ -48,6 +48,7 @@ from analytics.detectors.cross_run import (
     RunFrequencyAnomalyDetector,
 )
 from analytics.detectors.identity import CredentialHygieneDetector
+from analytics.detectors.injection import InjectionShapeDetector
 from analytics.detectors.interaction import (
     ApprovalLatencyDetector,
     EscalationRateDetector,
@@ -154,6 +155,8 @@ def create_all_detectors() -> list[BaseDetector]:
         NetworkToolDetector(),
         # Identity / credential hygiene (1, M28 IDN-4)
         CredentialHygieneDetector(),
+        # Injection-shaped content (1, M28 DET-6)
+        InjectionShapeDetector(),
     ]
 
 
@@ -215,6 +218,7 @@ __all__ = [
     "DeniedClusterDetector",
     "NetworkToolDetector",
     "CredentialHygieneDetector",
+    "InjectionShapeDetector",
     "create_all_detectors",
     "create_llm_detectors",
 ]

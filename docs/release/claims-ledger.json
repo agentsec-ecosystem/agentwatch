@@ -504,6 +504,18 @@
         "file:packages/python-sdk/tests/fixtures/otel/skills-commands.json"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C47",
+      "claim": "Deterministic injection-shape heuristics flag instruction-override and hidden-instruction content in exposed spans; the high-false-positive imperative-density rule is off by default.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_injection_detector.py::test_fires_on_instruction_override",
+        "test:services/analytics/tests/test_injection_detector.py::test_fires_on_hidden_instruction_marker",
+        "test:services/analytics/tests/test_injection_detector.py::test_imperative_density_is_off_by_default",
+        "doc:docs/reference/detector-catalog.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

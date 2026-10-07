@@ -160,6 +160,12 @@ class Settings(BaseSettings):
     # specific detectors.  Detectors not in this set are enabled by default.
     detector_disabled: set[str] = set()
 
+    # --- Injection-shape heuristics (DET-6) ---
+    # The imperative-density rule is high-false-positive and OFF by default; opt
+    # in per deployment. Instruction-override/hidden-marker rules always run.
+    detector_injection_imperative_enabled: bool = False
+    detector_injection_imperative_threshold: float = 0.5
+
     # Pydantic model config: reads ANALYTICS_* env vars, supports .env file,
     # ignores extra env vars to avoid crashes from unrelated variables.
     model_config = {"env_prefix": "ANALYTICS_", "env_file": ".env", "extra": "ignore"}

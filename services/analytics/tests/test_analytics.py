@@ -773,7 +773,7 @@ class TestDetectorFactory:
 
     def test_creates_all_detectors(self) -> None:
         detectors = create_all_detectors()
-        assert len(detectors) == 39
+        assert len(detectors) == 40
 
     def test_all_have_unique_anomaly_types(self) -> None:
         detectors = create_all_detectors()
@@ -1683,7 +1683,7 @@ class TestAnomalyTypeEnum:
         from analytics.models import AnomalyType
 
         values = list(AnomalyType)
-        assert len(values) == 44
+        assert len(values) == 45
 
     def test_all_values_unique(self) -> None:
         from analytics.models import AnomalyType

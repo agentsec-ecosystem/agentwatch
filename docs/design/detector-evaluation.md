@@ -68,10 +68,14 @@ coverage, governance (no secrets/PII), verdicts, and drift. Every published numb
 
 ## Injection & memory observations (DET-6..7)
 
-- Deterministic heuristics over the MCP-recorded surfaces (resources/prompts/elicitation) and tool responses/args;
-  emitted as anomaly events linking the source record; content-flow edges (S22) link source→sink without
-  re-embedding content.
-- High-false-positive rules ship **disabled by default**, with published precision/recall and an explicit opt-in.
+- **DET-6 implemented:** `analytics.detectors.injection.InjectionShapeDetector` (`injection-shape`) scans the
+  content-bearing attributes a harness exposes (`gen_ai.tool.result`/`arguments`, `gen_ai.response.content`,
+  `gen_ai.memory.content`) for **instruction-override** phrasing and **hidden-instruction** markers (invisible
+  Unicode tag/bidi/zero-width characters), always; an **imperative-density** rule is high-false-positive and
+  **off by default** (`ANALYTICS_DETECTOR_INJECTION_IMPERATIVE_ENABLED`). The anomaly links the source span and
+  names the rule; it never encodes content or blocks. Precision/recall is published via the DET harness
+  (`docs/reference/detector-catalog.md`).
+- Content-flow edges (S22) link source→sink without re-embedding content.
 - Memory read/write/delete recorded as observable surfaces + `search --memory` (closes the inherited G9 gap).
 
 ## Incident-registry interop (COR-2..4)

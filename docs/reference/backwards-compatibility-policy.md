@@ -16,6 +16,16 @@ anchor.
 - New privacy modes / detectors / views — minor version.
 - Breaking changes — major version + deprecation cycle.
 
+## Plugin API (adapter contract) — semver guarantee
+
+The adapter plugin contract ([adapter API](adapter-api.md)) is a **public extension surface**. The names a
+community adapter builds against — `HARNESS_ID`, `CAPABILITIES`, `DOCUMENTED_GAPS`, `normalize`, the adapter
+error class, `conformance.AdapterSpec`, `conformance.register`, and the conformance runner — are stable and
+versioned with `agentwatch.protocol.PROTOCOL_VERSION` under the same rules as above: **additive within a
+minor, breaking only in a major with a deprecation cycle**. A registered adapter that does not ship a populated
+conformance pack fails CI (O1), so the surface cannot drift silently. Contribute an adapter with the
+[contribution guide](../../CONTRIBUTING.md).
+
 ## Deprecation cycle
 
 1. Mark the API deprecated in a minor (runtime warning + docs).

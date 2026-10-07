@@ -30,3 +30,9 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0024](0024-foreign-data-threat-posture.md) | Foreign-data threat posture | accepted |
 | [0025](0025-a2a-interposition.md) | A2A interposition | proposed |
 | [0026](0026-naming-decision.md) | Naming decision (`agentwatch`) | **decision required pre-launch** |
+| [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |
+| [0047](0047-credential-hygiene-observation.md) | Credential-hygiene observation | accepted |
+| [0048](0048-plugin-api-versioning.md) | Plugin API versioning promise | accepted |
+
+> ADR numbers **0027–0045** are reserved for the v0.2.0-expanded program (PRD 49–59, milestones M29+); their
+> design docs reference the numbers, and the files land with those milestones.

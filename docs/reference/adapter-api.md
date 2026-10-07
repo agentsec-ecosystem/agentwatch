@@ -4,7 +4,9 @@
 passes the shared conformance runner. This is the **published plugin contract** community harnesses build
 against (M10 #79/#203); it is versioned with `agentwatch.protocol.PROTOCOL_VERSION`.
 
-Status: **experimental** (v0.1.0). Compatibility: additive minor, breaking major + deprecation.
+Status: **public** (v0.2.0 M28 GOV-1). The plugin contract is a semver-guaranteed extension surface
+(see the [backwards-compatibility policy](backwards-compatibility-policy.md#plugin-api-adapter-contract--semver-guarantee)).
+Compatibility: additive minor, breaking major + deprecation.
 
 ## What an adapter declares
 

@@ -455,6 +455,19 @@
         "doc:docs/design/storage-design.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C43",
+      "claim": "The harness adapter plugin contract is a public semver-guaranteed extension surface, and a codemod migrates the legacy agent_exec_trace import name to agentwatch.",
+      "source": "docs/reference/backwards-compatibility-policy.md",
+      "evidence": [
+        "test:tests/test_codemod_agent_exec_trace.py::test_from_import_is_rewritten",
+        "test:tests/test_codemod_agent_exec_trace.py::test_submodule_and_attribute_references_are_rewritten",
+        "test:tests/test_no_legacy_namespace.py::test_no_stray_legacy_namespace_references",
+        "doc:docs/reference/adapter-api.md",
+        "doc:CONTRIBUTING.md"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

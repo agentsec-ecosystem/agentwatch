@@ -53,4 +53,6 @@ the new surface.
 ## Conformance
 
 An SDK conformance pack registers in the O1 runner like every adapter; the sampler has a property test
-(determinism across replays).
+(determinism across replays). Implemented in M27 LG-1: `conformance.SdkSpec` replays instrumentation input →
+records and passes the same bar (fixture replay, record validation, replay idempotency); the LangGraph pack
+(`tests/sdk_conformance_registry.py`) drives the real `_NodeCallbackHandler`, exports spans, and transcodes them.

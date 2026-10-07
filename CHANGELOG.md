@@ -7,6 +7,9 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - LG-1: the LangGraph SDK path registers an **O1 SDK conformance pack** (`conformance.SdkSpec`) — the pack
+    drives the real `_NodeCallbackHandler`, exports spans, and transcodes them to records; the runner holds it to
+    fixture replay + record validation + replay idempotency, with a negative control (#348).
   - LOG-1: an OpenCode transcript **reader** (`agentwatch ingest --agent opencode`) for the MIT SDK-documented
     storage tree (`session/part/**`: `ToolPart` with `callID`/`tool`/`state.status`/`input`/`output`/`error`),
     paired ACT/OBSERVE records, dangling `running`/`pending` parts flagged, read-only with `producer: import`

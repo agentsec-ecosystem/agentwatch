@@ -607,6 +607,7 @@ def build_coverage(
         since=since,
         totals=totals,
         otel_join=otel_join_summary(records),
+        attestation=attestation_status(store),
     )
 
 

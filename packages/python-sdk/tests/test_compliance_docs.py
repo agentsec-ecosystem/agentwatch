@@ -21,6 +21,7 @@ DOCS = [
     COMPLIANCE / "standard-artifacts.md",
     COMPLIANCE / "openssf-badge.md",
     COMPLIANCE / "advisory-process.md",
+    COMPLIANCE / "owasp-asi-2026.md",
     SOUNDNESS,
 ]
 

@@ -96,6 +96,7 @@ def test_allow_list_is_the_data_movement_commands() -> None:
         "evidence",
         "bom",
         "quarantine-inspect",
+        "claude-compliance",
     }
 
 

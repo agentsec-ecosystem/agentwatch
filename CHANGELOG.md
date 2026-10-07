@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 Surfaces (M27):
+  - CCA-1: `ingest --format claude-compliance` reads an Anthropic Compliance API export **consent-first**
+    (refuses without `--consent`), maps the actor email to a hashed principal (IDN-1), records the pull as a
+    metadata-only `store-access` record, and classifies feed-vs-hook mismatches as `compliance-discrepancy`
+    observations (never silently merged) (#341).
   - LG-1: the LangGraph SDK path registers an **O1 SDK conformance pack** (`conformance.SdkSpec`) — the pack
     drives the real `_NodeCallbackHandler`, exports spans, and transcodes them to records; the runner holds it to
     fixture replay + record validation + replay idempotency, with a negative control (#348).

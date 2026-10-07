@@ -521,10 +521,15 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "otlp-grpc", "ndjson", "aat"),
+        choices=("otel", "otlp-grpc", "ndjson", "aat", "claude-compliance"),
         default="otel",
-        help="foreign trace format (default: otel; protobuf auto-detected; "
-        "otlp-grpc streams gRPC-framed OTLP; aat is IETF Agent Audit Trail)",
+        help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
+        "claude-compliance is an Anthropic Compliance API export, requires --consent)",
+    )
+    ingest.add_argument(
+        "--consent",
+        action="store_true",
+        help="explicit opt-in for the egress-adjacent claude-compliance pull (M27 CCA-1)",
     )
     ingest.add_argument(
         "--agent",
@@ -2408,6 +2413,8 @@ def _run_ingest(args: argparse.Namespace) -> int:
                 f"{rollout_stats.dangling} dangling session(s)"
             )
         return 0
+    if args.format == "claude-compliance":
+        return _run_ingest_claude_compliance(args, store, paths, redaction)
     stats = run_ingest(
         paths,
         store,
@@ -2433,6 +2440,67 @@ def _run_ingest(args: argparse.Namespace) -> int:
             f"{stats.skipped} skipped; {stats.duplicates} already present; "
             f"{len(stats.problems)} problem(s)"
         )
+    return 0
+
+
+def _run_ingest_claude_compliance(
+    args: argparse.Namespace,
+    store: RecordStore,
+    paths: list[Path],
+    redaction: Any,
+) -> int:
+    """Consent-first Claude Compliance API ingest (M27 CCA-1)."""
+    from agentwatch.compliance_api import classify_discrepancies, read_compliance_export
+    from agentwatch.store_access import DestinationKind, record_store_access
+
+    if not args.consent:
+        print(
+            "agentwatch: --format claude-compliance requires explicit --consent",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    record_store_access(
+        store, command="claude-compliance", destination_kind=DestinationKind.COMPLIANCE_API
+    )
+    feed: list[Any] = []
+    skipped = 0
+    problems: list[dict[str, str]] = []
+    for path in paths:
+        try:
+            read = read_compliance_export(path, redaction=redaction)
+        except (OSError, ValueError) as exc:
+            problems.append({"source": path.name, "reason": str(exc)})
+            skipped += 1
+            continue
+        feed.extend(read.records)
+        skipped += read.skipped
+    observations, notes = classify_discrepancies(feed, store)
+    appended = 0
+    for record in [*feed, *observations]:
+        try:
+            store.append(record)
+        except ValueError:
+            skipped += 1
+        else:
+            appended += 1
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "records": appended,
+                    "skipped": skipped,
+                    "discrepancies": notes,
+                    "problems": problems,
+                }
+            )
+        )
+    else:
+        print(
+            f"ingested {appended} compliance record(s); {skipped} skipped; "
+            f"{len(notes)} discrepancy(ies)"
+        )
+        for note in notes:
+            print(f"  discrepancy: {note}")
     return 0
 
 

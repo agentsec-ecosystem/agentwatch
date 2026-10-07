@@ -37,6 +37,7 @@ ACCESS_COMMANDS: tuple[str, ...] = (
     "evidence",
     "bom",
     "quarantine-inspect",
+    "claude-compliance",
 )
 
 
@@ -47,6 +48,7 @@ class DestinationKind(str, Enum):
     STDOUT = "stdout"
     BUNDLE = "bundle"
     OTLP = "otlp"
+    COMPLIANCE_API = "compliance-api"
 
 
 @dataclass(frozen=True)

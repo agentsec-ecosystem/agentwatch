@@ -395,6 +395,17 @@
         "file:docs/reference/detector-llm-numbers.json"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C38",
+      "claim": "Claude Compliance API ingest is consent-gated, records the pull as store-access, and classifies feed-vs-hook discrepancies without merging.",
+      "source": "docs/prd/45-new-capture-surfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_cli_requires_consent",
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_cli_consent_records_store_access_and_ingests",
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_discrepancies_are_classified_not_merged"
+      ],
+      "last_verified": "2026-10-06"
     }
   ]
 }

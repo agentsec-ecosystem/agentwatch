@@ -441,7 +441,8 @@ def _classify_system(record: Any) -> list[Fact]:
     arguments = record.tool.arguments or {}
     if name == "system:network-connect":
         target = record.tool.server or arguments.get("target")
-        return [Fact(NETWORK, EXACT, "syscall network connect", target if isinstance(target, str) else None)]
+        detail = target if isinstance(target, str) else None
+        return [Fact(NETWORK, EXACT, "syscall network connect", detail)]
     if name == "system:process-exec":
         exe = arguments.get("exe")
         if isinstance(exe, str) and exe:

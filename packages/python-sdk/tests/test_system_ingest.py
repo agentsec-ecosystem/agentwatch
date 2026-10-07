@@ -39,7 +39,7 @@ def _tracee(*events: dict[str, Any]) -> dict[str, Any]:
 
 
 def test_ingest_requires_explicit_optin() -> None:
-    with pytest.raises(system_ingest.SystemIngestNotOptedIn):
+    with pytest.raises(system_ingest.SystemIngestNotOptedInError):
         system_ingest.transcode_system_ingest(_agentsight(), opted_in=False)
 
 
@@ -320,12 +320,154 @@ def test_run_system_ingest_appends_and_reports(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     stats = system_ingest.run_system_ingest(
-        [source], store, opted_in=True, sessions=system_ingest.SessionIndex.from_records(store.records())
+        [source],
+        store,
+        opted_in=True,
+        sessions=system_ingest.SessionIndex.from_records(store.records()),
     )
     assert stats.records == 1
     assert [r.tool.name for r in store.records() if r.harness == "system-ingest"] == [
         "system:network-connect"
     ]
+
+
+# --- branch coverage ---------------------------------------------------------
+
+
+def test_join_precision_counts_false_joins_and_misses() -> None:
+    precision = system_ingest.join_precision(["s1", None, "s2"], ["s2", "s1", "s2"])
+    assert precision.false_joins == 1
+    assert precision.missed == 1
+    assert precision.precision == 0.5
+    assert precision.recall == 0.5
+
+
+def test_join_without_a_recorded_window_uses_lineage_only() -> None:
+    sessions = system_ingest.SessionIndex(pid_owner={100: "s1"})
+    records, _ = system_ingest.transcode_system_ingest(
+        _agentsight(
+            {
+                "type": "process_exec",
+                "pid": 100,
+                "ppid": 1,
+                "comm": "node",
+                "timestamp": "2026-01-02T03:04:05Z",
+            }
+        ),
+        opted_in=True,
+        sessions=sessions,
+    )
+    assert records[0].session_id == "s1"
+
+
+def test_event_without_a_timestamp_uses_now() -> None:
+    records, problems = system_ingest.transcode_system_ingest(
+        _agentsight({"type": "process_exec", "pid": 1, "ppid": 1, "comm": "x"}),
+        opted_in=True,
+    )
+    assert problems == []
+    assert records[0].started_at.tzinfo is not None
+
+
+def test_numeric_naive_and_invalid_timestamps() -> None:
+    def _event(timestamp: Any) -> dict[str, Any]:
+        return {"type": "process_exec", "pid": 1, "ppid": 1, "comm": "x", "timestamp": timestamp}
+
+    epoch, problems = system_ingest.transcode_system_ingest(
+        _agentsight(_event(1767323045)), opted_in=True
+    )
+    assert problems == []
+    assert epoch[0].started_at.year == 2026
+    nanos, problems = system_ingest.transcode_system_ingest(
+        _agentsight(_event(1767323045000000000)), opted_in=True
+    )
+    assert problems == []
+    naive, problems = system_ingest.transcode_system_ingest(
+        _agentsight(_event("2026-01-02T03:04:05")), opted_in=True
+    )
+    assert problems == []
+    assert naive[0].started_at.tzinfo is not None
+    _records, problems = system_ingest.transcode_system_ingest(
+        _agentsight(_event("not-a-date")), opted_in=True
+    )
+    assert problems and "invalid timestamp" in problems[0].reason
+
+
+def test_tracee_cmdline_list_becomes_exe() -> None:
+    records, problems = system_ingest.transcode_system_ingest(
+        _agentsight(
+            {
+                "eventName": "process_execve",
+                "processId": "100",
+                "parentProcessId": "1",
+                "processName": "sh",
+                "cmdline": ["/bin/sh", "-c", "echo hi"],
+                "timestamp": "2026-01-02T03:04:05Z",
+            }
+        ),
+        opted_in=True,
+    )
+    assert problems == []
+    assert records[0].agent.identity == "sh"
+
+
+def test_malformed_events_are_problems_never_crashes() -> None:
+    payload = [
+        1,
+        {"type": "process_exec"},
+        {"type": "process_exec", "pid": True},
+        {"type": "process_exec", "pid": "abc"},
+    ]
+    records, problems = system_ingest.transcode_system_ingest(payload, opted_in=True)
+    assert records == []
+    assert len(problems) == 4
+    _records, problems = system_ingest.transcode_system_ingest(123, opted_in=True)
+    assert "not events/list/object" in problems[0].reason
+
+
+def test_run_system_ingest_requires_optin_and_handles_unreadable(
+    tmp_path: Path,
+) -> None:
+    from agentwatch.quarantine import QuarantineLog
+
+    store = RecordStore(tmp_path / "records.jsonl")
+    with pytest.raises(system_ingest.SystemIngestNotOptedInError):
+        system_ingest.run_system_ingest(
+            [], store, opted_in=False, sessions=system_ingest.SessionIndex()
+        )
+    source = tmp_path / "events.json"
+    source.write_text(
+        json.dumps(
+            [
+                {"type": "mystery"},
+                {
+                    "type": "process_exec",
+                    "pid": 7,
+                    "ppid": 1,
+                    "comm": "x",
+                    "timestamp": "2026-01-02T03:04:05Z",
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    stats = system_ingest.run_system_ingest(
+        [source],
+        store,
+        opted_in=True,
+        sessions=system_ingest.SessionIndex(),
+        quarantine=QuarantineLog(tmp_path / "q.jsonl"),
+    )
+    assert stats.records == 1
+    assert stats.problems
+    second = system_ingest.run_system_ingest(
+        [source, tmp_path / "missing.json"],
+        store,
+        opted_in=True,
+        sessions=system_ingest.SessionIndex(),
+    )
+    assert second.duplicates == 1
+    assert second.problems
 
 
 def _pid_record(session: str, pid: int, *, at: datetime) -> Any:

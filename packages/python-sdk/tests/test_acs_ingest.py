@@ -248,7 +248,12 @@ def test_secrets_are_masked_before_storage() -> None:
     cfg = RedactionConfig(mode=PrivacyMode.FULL, capture_tool_args=True)
     records, _ = acs.transcode_acs(
         _trail(
-            _request(payload={"tool": {"name": "http.fetch"}, "arguments": {"token": "sk-abcdefghij"}}),
+            _request(
+                payload={
+                    "tool": {"name": "http.fetch"},
+                    "arguments": {"token": "sk-abcdefghij"},
+                }
+            ),
             _response(decision="deny", reasoning="leaked sk-abcdefghij"),
         ),
         redaction=cfg,
@@ -311,3 +316,142 @@ def test_cli_ingests_an_acs_trail(tmp_path: Path, capsys: pytest.CaptureFixture[
     assert rc == 0
     out = json.loads(capsys.readouterr().out.strip())
     assert out["records"] == 1
+
+
+# --- branch coverage ---------------------------------------------------------
+
+
+def test_version_line() -> None:
+    assert acs.acs_version_line() == f"ACS {acs.ACS_VERSION}"
+
+
+def test_drift_report_to_dict() -> None:
+    report = acs.check_acs_drift({"revision": "0.1.0", "fields": list(acs.ACS_SPEC_FIELDS)})
+    assert report.to_dict() == {
+        "pinned_revision": acs.ACS_VERSION,
+        "upstream_revision": "0.1.0",
+        "missing": [],
+        "extra": [],
+        "drifted": False,
+    }
+
+
+def test_frame_without_any_id_is_quarantined() -> None:
+    request = {
+        "jsonrpc": "2.0",
+        "method": "steps/toolCallRequest",
+        "params": {"acs_version": acs.ACS_VERSION},
+    }
+    response = {
+        "jsonrpc": "2.0",
+        "result": {"acs_version": acs.ACS_VERSION, "decision": "deny"},
+    }
+    records, problems = acs.transcode_acs([request, response])
+    assert records == []
+    assert problems
+
+
+def test_single_frame_and_non_message_payload() -> None:
+    records, problems = acs.transcode_acs(_request())
+    assert records == []
+    assert problems == []
+    _records, problems = acs.transcode_acs(123)
+    assert "not a message" in problems[0].reason
+
+
+def test_pairs_by_request_id_without_top_level_id() -> None:
+    request = _request()
+    request.pop("id")
+    response = _response(decision="deny")
+    response.pop("id")
+
+    records, problems = acs.transcode_acs([request, response])
+
+    assert problems == []
+    assert records[0].security_event is not None
+
+
+def test_timestamp_fallbacks() -> None:
+    request = _request()
+    request["params"]["timestamp"] = 1767323045
+    records, _ = acs.transcode_acs(_trail(request, _response(decision="allow")))
+    assert records[0].started_at.year == 2026
+
+    broken = _request()
+    broken["params"]["timestamp"] = "not-a-date"
+    records, problems = acs.transcode_acs(_trail(broken, _response(decision="allow")))
+    assert problems == []
+    assert records
+
+
+def test_capability_and_reason_codes_are_captured() -> None:
+    request = _request(payload={"tool": {"name": "x"}, "capability": "network.egress"})
+    response = _response(decision="deny", reasoning=None)
+    response["result"]["reason_codes"] = ["fides_p_t_failed"]
+
+    records, _ = acs.transcode_acs(_trail(request, response))
+
+    (record,) = records
+    assert record.environment is not None
+    assert record.environment["capability"] == "network.egress"
+    assert record.security_event is not None
+    assert record.security_event.evidence["reason_codes"] == ["fides_p_t_failed"]
+
+
+def test_unknown_namespace_method_is_quarantined() -> None:
+    records, problems = acs.transcode_acs(
+        _trail(_request(method="handshake/hello"), _response(decision="allow"))
+    )
+    assert records == []
+    assert "unmappable ACS method" in problems[0].reason
+
+
+def test_request_without_params_is_quarantined() -> None:
+    request = {"jsonrpc": "2.0", "method": "steps/toolCallRequest", "id": "r1"}
+    response = {
+        "jsonrpc": "2.0",
+        "id": "r1",
+        "result": {"acs_version": acs.ACS_VERSION, "decision": "deny"},
+    }
+
+    records, problems = acs.transcode_acs([request, response])
+
+    assert records == []
+    assert "no params" in problems[0].reason
+
+
+def test_response_revision_mismatch_is_quarantined() -> None:
+    records, problems = acs.transcode_acs(
+        _trail(_request(), _response(decision="allow", acs_version="9.9.9"))
+    )
+    assert records == []
+    assert "unsupported ACS revision" in problems[0].reason
+
+
+def test_metadata_only_capture_omits_arguments() -> None:
+    records, _ = acs.transcode_acs(
+        _trail(
+            _request(payload={"tool": {"name": "x"}, "arguments": {"a": "b"}}),
+            _response(decision="allow"),
+        )
+    )
+    (record,) = records
+    assert record.tool.arguments is None
+
+
+def test_list_arguments_are_redacted() -> None:
+    cfg = RedactionConfig(mode=PrivacyMode.FULL, capture_tool_args=True)
+    records, _ = acs.transcode_acs(
+        _trail(
+            _request(
+                payload={
+                    "tool": {"name": "x"},
+                    "arguments": {"n": 5, "vals": ["sk-abcdefghij"]},
+                }
+            ),
+            _response(decision="allow"),
+        ),
+        redaction=cfg,
+    )
+    (record,) = records
+    assert "sk-abcdefghij" not in str(record.to_dict())

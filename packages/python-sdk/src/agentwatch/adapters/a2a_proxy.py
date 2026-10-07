@@ -27,13 +27,13 @@ content is captured (metadata-only). A detected secret always emits a
 
 from __future__ import annotations
 
-import hashlib
-import json
 from collections.abc import Mapping
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any, cast
 from urllib.parse import urlsplit
 
+from agentwatch import agent_card
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
@@ -188,12 +188,6 @@ def _artifacts(result: Any) -> list[Mapping[str, Any]]:
     return [item for item in raw if isinstance(item, Mapping)]
 
 
-def _card_digest(card: Mapping[str, Any]) -> str:
-    """A stable sha256 digest of the agent card (provenance, never content)."""
-    payload = json.dumps(card, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()
-
-
 def _card_host(card: Mapping[str, Any]) -> str | None:
     url = card.get("url")
     if isinstance(url, str) and url:
@@ -202,15 +196,112 @@ def _card_host(card: Mapping[str, Any]) -> str | None:
 
 
 def _card_provenance(agent: str, card: Mapping[str, Any]) -> dict[str, Any]:
-    """Structural card provenance recorded with the exchange (A2A-1)."""
-    name = card.get("name")
-    provider = card.get("provider")
-    org = provider.get("organization") if isinstance(provider, Mapping) else None
-    return {
-        "card_digest": _card_digest(card),
-        "agent": name if isinstance(name, str) and name else agent,
-        "org": org if isinstance(org, str) and org else None,
+    """Deterministic signed-card provenance recorded with the exchange (A2A-2).
+
+    The verification outcome is evidence, never an authorization; a card whose
+    key we do not hold is recorded ``unverified`` with a reason.
+    """
+    provenance = agent_card.verify_agent_card(card).to_dict()
+    if not provenance.get("agent"):
+        provenance["agent"] = agent
+    return provenance
+
+
+def _delegation_record(
+    agent: str,
+    event: Mapping[str, Any],
+    *,
+    request_metadata: dict[str, Any],
+    event_time: datetime,
+    session_id: str,
+    project: str | None,
+    trace_id: str,
+    parent_span: str | None,
+) -> AgentRecord | None:
+    """Build the cross-agent delegation observation, or ``None`` if not cross-org."""
+    raw_card = event.get("card")
+    card = raw_card if isinstance(raw_card, Mapping) else None
+    provenance = _card_provenance(agent, card) if card is not None else None
+
+    remote_org = event.get("remote_org")
+    if not isinstance(remote_org, str) or not remote_org:
+        remote_org = provenance.get("org") if provenance is not None else None
+    remote_host = event.get("remote_host")
+    if not isinstance(remote_host, str) or not remote_host:
+        remote_host = _card_host(card) if card is not None else None
+    if remote_org is None and card is None:
+        return None
+
+    remote_agent = agent
+    if provenance is not None and isinstance(provenance.get("agent"), str):
+        remote_agent = str(provenance["agent"])
+    evidence: dict[str, Any] = {
+        "remote_agent": remote_agent,
+        "remote_org": remote_org,
+        "remote_host": remote_host,
+        **request_metadata,
     }
+    if provenance is not None:
+        evidence["card_digest"] = provenance["card_digest"]
+        evidence["card_outcome"] = provenance["outcome"]
+    masked_evidence, kinds = redact_mapping({k: v for k, v in evidence.items() if v is not None})
+    arguments: dict[str, Any] = {
+        key: value
+        for key, value in (
+            ("remote_agent", remote_agent),
+            ("remote_org", remote_org),
+            ("remote_host", remote_host),
+        )
+        if value is not None
+    }
+    masked_arguments, arg_kinds = redact_mapping(arguments)
+    kinds = (*kinds, *arg_kinds)
+
+    local_agent = event.get("local_agent")
+    chain: tuple[str, ...] | None = None
+    if isinstance(local_agent, str) and local_agent:
+        chain = (local_agent, remote_agent)
+    elif remote_agent:
+        chain = (remote_agent,)
+    workload_identity = None
+    if card is not None and isinstance(card.get("url"), str):
+        workload_identity = str(card["url"])
+
+    span_id = f"{parent_span}:delegation" if parent_span else f"a2a:{agent}:delegation"
+    return AgentRecord(
+        session_id=session_id,
+        agent=AgentIdentity(
+            identity=remote_agent,
+            name=provenance.get("agent") if provenance is not None else None,
+            delegation_chain=chain,
+            workload_identity=workload_identity,
+        ),
+        tool=ToolCall(
+            name="agent-delegation",
+            server=remote_agent,
+            arguments=masked_arguments,
+            privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+        ),
+        outcome=Outcome.OK,
+        started_at=event_time,
+        harness=HARNESS_ID,
+        producer=PROXY_PRODUCER,
+        trace_id=trace_id,
+        span_id=span_id,
+        parent_span_id=parent_span,
+        project=project,
+        host=remote_host,
+        ended_at=event_time,
+        step_type=StepType.OBSERVE,
+        security_event=SecurityEvent(
+            type=SecurityEventType.AGENT_DELEGATION,
+            emitted_at=event_time,
+            emitter="agentwatch",
+            reason="cross-agent delegation observed",
+            tool="agent-delegation",
+            evidence={**masked_evidence, **({"kinds": list(kinds)} if kinds else {})},
+        ),
+    )
 
 
 def normalize(
@@ -339,6 +430,25 @@ def normalize(
         security_event=security_event,
     )
     records = [record]
+    if direction == "request" and tool_name in _MESSAGE_METHODS:
+        delegation = _delegation_record(
+            agent,
+            event,
+            request_metadata=masked_metadata or {},
+            event_time=event_time,
+            session_id=session_id,
+            project=project,
+            trace_id=trace_id,
+            parent_span=span,
+        )
+        if delegation is not None:
+            # The outbound call itself is on-behalf-of the local agent; carry the
+            # same chain on the intent record so tree/trace render the cross-org hop.
+            chain = delegation.agent.delegation_chain
+            if chain:
+                record = replace(record, agent=replace(record.agent, delegation_chain=chain))
+                records = [record]
+            records.append(delegation)
     if direction == "response":
         records.extend(
             _artifact_records(

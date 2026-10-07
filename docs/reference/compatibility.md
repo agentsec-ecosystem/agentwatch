@@ -22,6 +22,13 @@
 > `tasks/*`); the legacy HTTP/SSE relay is kept (`--transport http-sse`) and marked deprecated-in-spec.
 > The generated row carries a **Protocol** column; the proxy's tested range tracks the newest revision.
 >
+> **A2A proxy (M29 A2A-1/2):** `agentwatch a2a-proxy` records agent↔agent traffic (A2A v1.0): `message/send`,
+> `message/stream`, `tasks/get`, `tasks/cancel` (intent → outcome), task artifacts, and agent-card exchanges over
+> stdio and HTTP. Signed agent cards are verified deterministically (`verified`/`unverified`, never assumed, never an
+> authorization) and a cross-org hand-off is recorded as an `agent-delegation` observation extending `tree`/`trace`.
+> Consent-first `a2aAgents` install restores the file byte-identically. `tasks/resubscribe` and the
+> push-notification-config family are declared gaps.
+>
 > **Windows (M27 WIN-1):** agentwatch supervises the daemon at logon via a **Task Scheduler** task
 > (`agentwatch init --service` → `%APPDATA%\agentwatch\agentwatch-task.xml`); a `windows-latest` CI leg
 > (`.github/workflows/windows.yml`) exercises the platform-independent SDK subset. Named-pipe transport and an

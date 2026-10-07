@@ -102,3 +102,7 @@ def test_server_exit_without_response_records_an_error(
 def test_resolve_session_id_prefers_the_env() -> None:
     assert a2a_proxy.resolve_session_id({"AGENTWATCH_SESSION_ID": "s-9"}) == "s-9"
     assert a2a_proxy.resolve_session_id({}).startswith("a2a-")
+
+
+def test_a2a_spec_version_is_pinned() -> None:
+    assert a2a_proxy.A2A_SPEC_VERSION == "1.0"

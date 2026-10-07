@@ -9,3 +9,7 @@
   authorization; emit an `agent-delegation` observation; extend `tree`/`trace` across org boundaries.
 - **Consequences:** The record layer covers agent↔tools (MCP) and agent↔agent (A2A); card verification is
   evidence-only; consent-first install + byte-identical restore hold; spec is young → version-pin + drift.
+- **Implemented (M29 A2A-1/2, 2026-10-06):** `agentwatch a2a-proxy` (stdio + HTTP relay; tasks/messages/artifacts
+  + agent-card exchanges), consent-first `a2aAgents` install with byte-identical restore, `agentwatch.agent_card`
+  deterministic JWS verification recording `verified`/`unverified`, and an `agent-delegation` observation extending
+  `tree`/`trace` across orgs. Tests: `packages/python-sdk/tests/test_a2a_*.py`.

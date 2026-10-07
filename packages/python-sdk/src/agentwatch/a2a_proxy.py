@@ -38,6 +38,11 @@ _SERVER_EXIT_CODE = -32000
 A2A_PHASE = "a2a"
 A2A_HARNESS = "a2a-proxy"
 
+# The A2A wire spec this proxy was built and tested against (agent↔agent
+# standard v1.0). The spec is young; the proxy pins its tested range and any
+# drift is a declared gap, not a silent assumption.
+A2A_SPEC_VERSION = "1.0"
+
 # The A2A surfaces this proxy frames. ``tasks/resubscribe`` and the
 # push-notification-config family are documented gaps (explicitly rejected by
 # the adapter, never silently dropped).

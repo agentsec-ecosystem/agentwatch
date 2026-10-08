@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/first_run_timing.py", line 22, in <module>
+    from agentwatch.adapters import claude_code  # noqa: E402
+  File "/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/packages/python-sdk/src/agentwatch/__init__.py", line 122, in <module>
+    from agentwatch import instrument as instrument  # noqa: E402
+  File "/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/packages/python-sdk/src/agentwatch/instrument.py", line 57, in <module>
+    from opentelemetry import trace
+ModuleNotFoundError: No module named 'opentelemetry'

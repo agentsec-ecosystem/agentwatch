@@ -1,0 +1,69 @@
+=== v0.2.0 full run 20261007-223154 (per-case down -v) ===
+--- Layer-0 (v0.1.0 cases) -> results/layer0 ---
+
+################ FT-01 ################
+== case FT-01 ==
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS emit
+  PASS verify-store
+  PASS session-present
+  PASS store-has-records
+== case FT-01: pass ==
+==> Tearing down the stack (and volumes)
+
+################ FT-01b ################
+== case FT-01b ==
+  FAIL first-run-timing
+== case FT-01b: fail ==
+==> Tearing down the stack (and volumes)
+
+################ FT-02 ################
+== case FT-02 ==
+==> Tearing down the stack (and volumes)

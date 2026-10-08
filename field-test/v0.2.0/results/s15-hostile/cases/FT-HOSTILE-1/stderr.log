@@ -1,0 +1,37 @@
+ Image agentwatch-web Building 
+ Image agentwatch-fieldtest-recorder:local Building 
+ Image agentwatch-api Building 
+ Image agentwatch-analytics Building 
+ Image agentwatch-analytics Built 
+ Image agentwatch-fieldtest-recorder:local Built 
+ Image agentwatch-api Built 
+ Image agentwatch-web Built 
+ Container agentwatch-web-1 Running 
+ Container agentwatch-litellm-1 Running 
+ Container agentwatch-runner-1 Running 
+ Container agentwatch-a2a-proxy-1 Running 
+ Container agentwatch-analytics-1 Running 
+ Container agentwatch-api-1 Running 
+ Container agentwatch-postgres-1 Running 
+ Container agentwatch-fleet-h2-1 Running 
+ Container agentwatch-verifier-1 Running 
+ Container agentwatch-managed-hooks-1 Running 
+ Container agentwatch-recorder-1 Running 
+ Container agentwatch-fleet-h1-1 Running 
+ Container agentwatch-jaeger-1 Running 
+ Container agentwatch-otel-collector-1 Running 
+ Container agentwatch-fleet-h3-1 Running 
+ Container agentwatch-otel-grpc-1 Running 
+ Container agentwatch-postgres-1 Waiting 
+ Container agentwatch-postgres-1 Waiting 
+ Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-postgres-1 Healthy 
+usage: agentwatch ingest [-h]
+                         [--format {otel,otlp-grpc,ndjson,aat,claude-compliance,claude-otel,system-ingest,acs}]
+                         [--consent] [--agent {codex,opencode}]
+                         [--capture {metadata-only,truncated,hashed,full}]
+                         [--json]
+                         path
+agentwatch ingest: error: argument --format: invalid choice: 'hostile' (choose from otel, otlp-grpc, ndjson, aat, claude-compliance, claude-otel, system-ingest, acs)
+{"error": {"code": "E_USAGE", "message": "error: argument --format: invalid choice: 'hostile' (choose from otel, otlp-grpc, ndjson, aat, claude-compliance, claude-otel, system-ingest, acs)", "hint": "Run `agentwatch <command> --help` and re-run.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-usage"}}
+driver: command failed (2): ['agentwatch', 'ingest', '--format', 'hostile', '/ft/fixtures/hostile']

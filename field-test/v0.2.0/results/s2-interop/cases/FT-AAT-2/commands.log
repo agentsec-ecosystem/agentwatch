@@ -1,0 +1,3 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder bash -lc agentwatch ingest --format aat /ft/fixtures/aat/foreign.aat.json
++ compose exec recorder bash -lc test -s /data/agentwatch/quarantine.jsonl

@@ -1,0 +1,9 @@
+{
+  "id": "FT-01b",
+  "status": "fail",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "layer0",
+  "assertions": [{"name":"first-run-timing","ok":false}
+]
+}

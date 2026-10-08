@@ -1,0 +1,9 @@
+{
+  "id": "FT-CMP-1",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s5-identity",
+  "assertions": [{"name":"stack-up-v020","ok":true},{"name":"svc-postgres","ok":true},{"name":"svc-jaeger","ok":true},{"name":"svc-otel-collector","ok":true},{"name":"svc-api","ok":true},{"name":"svc-analytics","ok":true},{"name":"svc-web","ok":true},{"name":"svc-recorder","ok":true},{"name":"svc-verifier","ok":true},{"name":"ep-postgres","ok":true},{"name":"ep-api-health","ok":true},{"name":"ep-jaeger","ok":true},{"name":"ep-collector","ok":true},{"name":"ep-web","ok":true},{"name":"ep-recorder","ok":true},{"name":"ep-omlx","ok":true},{"name":"svc-otel-grpc","ok":true},{"name":"svc-fleet-h1","ok":true},{"name":"svc-fleet-h2","ok":true},{"name":"svc-fleet-h3","ok":true},{"name":"svc-a2a-proxy","ok":true},{"name":"svc-litellm","ok":true},{"name":"svc-runner","ok":true},{"name":"svc-managed-hooks","ok":true},{"name":"compliance-report","ok":true}
+]
+}

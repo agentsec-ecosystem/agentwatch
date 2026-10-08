@@ -1,0 +1,2 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder bash -lc python3 /ft/scripts/ingest-fixture.py --kind acs --corpus /ft/fixtures/acs && agentwatch verify-store

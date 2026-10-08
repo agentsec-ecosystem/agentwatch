@@ -1,0 +1,571 @@
+{
+  "cases": [
+    {
+      "assertions": [
+        {
+          "name": "stack-up-v020",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "a2a-roundtrip",
+          "ok": true
+        }
+      ],
+      "class": "P/F",
+      "declared": false,
+      "id": "FT-A2A-1",
+      "run_id": "s6-surfaces",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up-v020",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "acs-ingest",
+          "ok": true
+        }
+      ],
+      "class": "P/F|D",
+      "declared": false,
+      "id": "FT-ACS-1",
+      "run_id": "s6-surfaces",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up-v020",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "cca-consent",
+          "ok": true
+        }
+      ],
+      "class": "P/F",
+      "declared": false,
+      "id": "FT-CCA-1",
+      "run_id": "s6-surfaces",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up-v020",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "gateway-ingest",
+          "ok": true
+        },
+        {
+          "name": "cost-exact-vs-estimated",
+          "ok": true
+        }
+      ],
+      "class": "P/F",
+      "declared": false,
+      "id": "FT-GWY-1",
+      "run_id": "s6-surfaces",
+      "status": "pass"
+    },
+    {
+      "assertions": [
+        {
+          "name": "stack-up-v020",
+          "ok": true
+        },
+        {
+          "name": "svc-postgres",
+          "ok": true
+        },
+        {
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "system-ingest",
+          "ok": true
+        }
+      ],
+      "class": "P/F|D",
+      "declared": false,
+      "id": "FT-SYS-1",
+      "run_id": "s6-surfaces",
+      "status": "pass"
+    }
+  ],
+  "env": {
+    "arch": "arm64",
+    "compose": "5.5.1",
+    "docker": "Docker version 29.5.2, build 79eb04c7d8",
+    "omlx_base_url": "http://host.docker.internal:8000/v1",
+    "omlx_model": "Qwen3-4B-Instruct-2507-4bit",
+    "os": "Darwin",
+    "run_id": "s6-surfaces",
+    "version": "v0.2.0"
+  },
+  "generated_at": "2026-10-08T05:15:59.337360+00:00",
+  "green": true,
+  "run_id": "s6-surfaces",
+  "totals": {
+    "declared": 0,
+    "fail": 0,
+    "pass": 5
+  }
+}

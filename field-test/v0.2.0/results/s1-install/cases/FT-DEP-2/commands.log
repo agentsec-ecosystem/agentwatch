@@ -1,0 +1,1 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)

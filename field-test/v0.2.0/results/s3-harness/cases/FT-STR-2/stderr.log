@@ -1,0 +1,45 @@
+ Image agentwatch-web Building 
+ Image agentwatch-fieldtest-recorder:local Building 
+ Image agentwatch-analytics Building 
+ Image agentwatch-api Building 
+ Image agentwatch-analytics Built 
+ Image agentwatch-api Built 
+ Image agentwatch-fieldtest-recorder:local Built 
+ Image agentwatch-web Built 
+ Container agentwatch-otel-grpc-1 Running 
+ Container agentwatch-litellm-1 Running 
+ Container agentwatch-api-1 Running 
+ Container agentwatch-postgres-1 Running 
+ Container agentwatch-fleet-h2-1 Running 
+ Container agentwatch-runner-1 Running 
+ Container agentwatch-a2a-proxy-1 Running 
+ Container agentwatch-analytics-1 Running 
+ Container agentwatch-managed-hooks-1 Running 
+ Container agentwatch-fleet-h3-1 Running 
+ Container agentwatch-otel-collector-1 Running 
+ Container agentwatch-fleet-h1-1 Running 
+ Container agentwatch-web-1 Running 
+ Container agentwatch-recorder-1 Running 
+ Container agentwatch-jaeger-1 Running 
+ Container agentwatch-verifier-1 Running 
+ Container agentwatch-postgres-1 Waiting 
+ Container agentwatch-postgres-1 Waiting 
+ Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-postgres-1 Healthy 
+Traceback (most recent call last):
+  File "/ft/scripts/stream-probe.py", line 21, in <module>
+    raise SystemExit(main(sys.argv[1:]))
+                     ^^^^^^^^^^^^^^^^^^
+  File "/ft/scripts/stream-probe.py", line 15, in main
+    run_streaming_soak([])
+  File "/work/packages/python-sdk/src/agentwatch/streaming_soak.py", line 79, in run_streaming_soak
+    store = RecordStore(path, durability="none", checkpoint_every=1000)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/packages/python-sdk/src/agentwatch/store.py", line 146, in __init__
+    self.path = Path(path)
+                ^^^^^^^^^^
+  File "/usr/local/lib/python3.12/pathlib.py", line 1162, in __init__
+    super().__init__(*args)
+  File "/usr/local/lib/python3.12/pathlib.py", line 373, in __init__
+    raise TypeError(
+TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'list'

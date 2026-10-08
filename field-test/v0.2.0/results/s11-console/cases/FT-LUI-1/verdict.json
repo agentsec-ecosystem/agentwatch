@@ -1,0 +1,9 @@
+{
+  "id": "FT-LUI-1",
+  "status": "fail",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s11-console",
+  "assertions": [{"name":"ui-console-check","ok":false},{"name":"ui-module","ok":true},{"name":"console-playwright","ok":false}
+]
+}

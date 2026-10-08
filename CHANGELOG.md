@@ -25,6 +25,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     deterministic, evidence-only report of sessions overlapping in time on the same path and shared-file edits from a
     two-session fixture; `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently
     picking one (#474).
+  - OUT-1: deterministic outcome facts + `cost --per retained-change` (`agentwatch.outcomes`, derivation `out1`) —
+    `agentwatch outcomes --since 30d --by project|model|harness` reports test/build/lint pass ratios and
+    retained/reverted/interrupted/rejected counts with numerator/denominator and a derivation version (unknown stays
+    unknown); `cost --per retained-change` is source-stamped and joins PRV-1; no LLM, no network, runs offline (#477).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

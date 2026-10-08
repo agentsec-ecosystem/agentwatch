@@ -121,6 +121,12 @@ Status: living.
   shared-file edits from classified file-modification targets; it enforces nothing and the PRD asks to validate demand
   in the field before building beyond the report (proving test:
   `packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file`).
+- **Outcome facts (M30 OUT-1) — declared gap.** Outcome facts are **deterministic and non-scoring** (test/build/lint
+  pass ratios, retained/reverted/interrupted/rejected counts, retries-to-success) with a derivation version
+  (`out1`); there is no LLM-judged quality and no "score". Retained change requires a **local git repository** —
+  without one the denominator is preserved as **unknown**, never guessed — and a session that never sets `ended_at`
+  yields a point span (proving test:
+  `packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none`).
 
 ## Policy
 

@@ -21,6 +21,16 @@ denominators and a derivation version, never a quality score. No LLM in the path
 Reported as ratios with numerators/denominators and the derivation version. `cost --per retained-change` joins PRV-1.
 Unknown stays unknown. Deterministic: runs with network disabled and no model configured.
 
+Implementation (`agentwatch.outcomes`, `OUTCOME_DERIVATION_VERSION = "out1"`): `build_outcomes` (CLI
+`agentwatch outcomes --since 30d --by project|model|harness`) groups by session/project/model/harness and reports
+test/build/lint pass **ratios** (`Ratio(numerator, denominator)`; `value` is `None` at 0/0 — unknown stays unknown),
+retained / reverted / interrupted / rejected counts, and retries-to-success. Commands are classed by a published,
+deterministic table (`OUTCOME_RULES_VERSION = "cls2-out1"`, the cls1 extension); the outcome class is the record
+outcome. Retained change (`retained_changes`) joins PRV-1: a session is retained when one of its recorded paths
+reaches a later commit (`git log`), and is **unknown** when no repository is supplied — never guessed.
+`cost --per retained-change` stamps numerator (total cost), denominator (retained changes), value (or unknown), the
+source string, and the derivation version. No LLM and no network anywhere in the path.
+
 ## Recurring signatures (OUT-2)
 
 Groups anomalies/failed calls by signature (tool, error class, cls1 class, `bd1` behavior fingerprint) into ranked,

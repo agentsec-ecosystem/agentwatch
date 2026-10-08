@@ -134,6 +134,7 @@ from agentwatch.notarize import (
     verify_checkpoint,
 )
 from agentwatch.ocsf import session_cloudevents, session_ocsf
+from agentwatch.outcomes import build_outcomes, render_outcomes
 from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
 from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
@@ -878,7 +879,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="rollup dimension (default: session)",
     )
     cost_cmd.add_argument("--since", default=None, help="relative (30d/12h/30m) or ISO timestamp")
+    cost_cmd.add_argument(
+        "--per",
+        choices=("retained-change",),
+        default=None,
+        help="report a per-unit ratio (--per retained-change; OUT-1)",
+    )
+    cost_cmd.add_argument(
+        "--repo", default=None, help="git repository root for --per retained-change"
+    )
     cost_cmd.add_argument("--json", action="store_true", help="emit the rollup as JSON")
+
+    outcomes_cmd = sub.add_parser(
+        "outcomes",
+        help="deterministic outcome facts: test/build/lint, retained, retries (M30 OUT-1)",
+    )
+    outcomes_cmd.add_argument(
+        "--by",
+        choices=("session", "project", "model", "harness"),
+        default="project",
+        help="rollup dimension (default: project)",
+    )
+    outcomes_cmd.add_argument(
+        "--since", default=None, help="relative (30d/12h/30m) or ISO timestamp"
+    )
+    outcomes_cmd.add_argument(
+        "--repo", default=None, help="git repository root to compute retained changes"
+    )
+    outcomes_cmd.add_argument("--json", action="store_true", help="emit the facts as JSON")
 
     bom = sub.add_parser("bom", help="Agent Bill of Materials, CycloneDX (M15 S9)")
     bom_scope = bom.add_mutually_exclusive_group()
@@ -2781,7 +2809,7 @@ def _run_cost(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     try:
-        report = build_cost(store, by=args.by, since=args.since)
+        report = build_cost(store, by=args.by, since=args.since, per=args.per, repo=args.repo)
     except ValueError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_USAGE_ERROR
@@ -2789,6 +2817,27 @@ def _run_cost(args: argparse.Namespace) -> int:
         print(json.dumps(report.to_dict(), indent=2))
     else:
         print(render_cost(report))
+    return 0
+
+
+def _run_outcomes(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_outcomes(
+            store, by=args.by, since=args.since, repo=args.repo
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_outcomes(report))
     return 0
 
 
@@ -3300,6 +3349,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_inventory(args)
     if args.command == "cost":
         return _run_cost(args)
+    if args.command == "outcomes":
+        return _run_outcomes(args)
     if args.command == "coverage":
         return _run_coverage(args)
     if args.command == "compliance":

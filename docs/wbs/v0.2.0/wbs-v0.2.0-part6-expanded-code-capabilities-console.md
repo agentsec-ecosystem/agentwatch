@@ -14,7 +14,7 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** 🔄 in progress — PRV-3 (#464), PRV-1 (#462), PRV-2 (#463), CNC-1 (#474) landed on `m30-ws2`
+**Status:** 🔄 in progress — PRV-3 (#464), PRV-1 (#462), PRV-2 (#463), CNC-1 (#474), OUT-1 (#477) landed on `m30-ws2`
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -52,7 +52,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.CNC-1 DONE | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |
 | 30.VFY-1 | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
 | 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
-| 30.OUT-1 | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
+| 30.OUT-1 DONE | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
 | 30.OUT-2 | Recurring failure signatures in `digest`/console | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
 | 30.RUN-1 | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |
 | 30.DEMO-1 | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM | #480 |

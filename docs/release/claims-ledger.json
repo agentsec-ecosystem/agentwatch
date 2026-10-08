@@ -929,6 +929,20 @@
         "file:docs/design/code-provenance.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C93",
+      "claim": "`agentwatch outcomes --since 30d --by project|model|harness` reports deterministic outcome facts (test/build/lint pass ratios, retained/reverted/interrupted/rejected, retries-to-success) with a numerator, denominator, and derivation version; unknown stays unknown; and `cost --per retained-change` is source-stamped and runs offline with no model configured.",
+      "source": "docs/design/outcomes-signals.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_ratios_carry_numerator_denominator_and_version",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_unknown_stays_unknown_when_no_commands",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_are_deterministic_without_a_model",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_retained_change_is_source_stamped",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none",
+        "file:docs/design/outcomes-signals.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

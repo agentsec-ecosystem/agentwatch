@@ -9,10 +9,11 @@ stamped in output. No enforcement, no budget blocking.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 
 from agentwatch.fingerprint import _INTERNAL_TOOLS  # shared internal-tool set
+from agentwatch.outcomes import OUTCOME_DERIVATION_VERSION, retained_changes
 from agentwatch.pricing import (
     CURRENCY,
     PRICING_AS_OF,
@@ -26,6 +27,7 @@ from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
 
 BY_OPTIONS = ("session", "project", "model", "tool", "day")
+PER_OPTIONS = (None, "retained-change")
 NO_KEY = "(none)"
 UNKNOWN_MODEL = "(unknown)"
 
@@ -58,6 +60,13 @@ class CostReport:
     unknown_models: tuple[str, ...] = ()
     note: str | None = None
     total_cost_source: str = "estimated"
+    per: str | None = None
+    per_numerator: float | None = None
+    per_denominator: int = 0
+    per_value: float | None = None
+    per_known: bool = True
+    per_source: str | None = None
+    derivation_version: str = OUTCOME_DERIVATION_VERSION
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -71,6 +80,13 @@ class CostReport:
             "total_cost_source": self.total_cost_source,
             "unknown_models": list(self.unknown_models),
             "note": self.note,
+            "per": self.per,
+            "per_numerator": self.per_numerator,
+            "per_denominator": self.per_denominator,
+            "per_value": self.per_value,
+            "per_known": self.per_known,
+            "per_source": self.per_source,
+            "derivation_version": self.derivation_version,
             "rows": [
                 {
                     "key": row.key,
@@ -145,10 +161,17 @@ def build_cost(
     by: str = "session",
     since: str | None = None,
     now: datetime | None = None,
+    per: str | None = None,
+    repo: str | None = None,
 ) -> CostReport:
     """Roll up ``session-usage`` records against the versioned price table."""
     if by not in BY_OPTIONS:
         raise ValueError(f"unknown --by value {by!r}; expected one of {', '.join(BY_OPTIONS)}")
+    if per not in PER_OPTIONS:
+        raise ValueError(
+            f"unknown --per value {per!r}; expected one of "
+            f"{', '.join(str(option) for option in PER_OPTIONS if option)}"
+        )
     cutoff = since_cutoff(since, now=now) if since is not None else None
     all_records = store.records()
     usage = [
@@ -158,7 +181,8 @@ def build_cost(
         and (cutoff is None or record.started_at >= cutoff)
     ]
     if not usage:
-        return CostReport(by=by, since=since, note="no session-usage records in the window")
+        report = CostReport(by=by, since=since, note="no session-usage records in the window")
+        return _apply_per(report, store, per=per, repo=repo, since=since, now=now)
 
     mix = _tool_mix(all_records)
     accumulators: dict[str, _Acc] = {}
@@ -231,7 +255,7 @@ def build_cost(
         note_parts.append("tokens only, price unknown for: " + ", ".join(sorted(unknown)))
     if any(row.cost_usd is None for row in rows):
         note_parts.append("some rows include tokens-only usage")
-    return CostReport(
+    report = CostReport(
         by=by,
         since=since,
         rows=tuple(rows),
@@ -240,6 +264,39 @@ def build_cost(
         unknown_models=tuple(sorted(unknown)),
         note="; ".join(note_parts) if note_parts else None,
         total_cost_source=total_source,
+    )
+    return _apply_per(report, store, per=per, repo=repo, since=since, now=now)
+
+
+def _apply_per(
+    report: CostReport,
+    store: RecordStore,
+    *,
+    per: str | None,
+    repo: str | None,
+    since: str | None,
+    now: datetime | None,
+) -> CostReport:
+    """Attach a per-unit denominator (e.g. ``--per retained-change``)."""
+    if per is None:
+        return report
+    retained = retained_changes(store, repo=repo, since=since, now=now)
+    denominator = retained.count
+    numerator = report.total_cost_usd
+    value = (numerator / denominator) if numerator is not None and denominator else None
+    source = (
+        "recorded session cost / retained changes (git), "
+        f"derivation {OUTCOME_DERIVATION_VERSION}"
+    )
+    return replace(
+        report,
+        per=per,
+        per_numerator=numerator,
+        per_denominator=denominator,
+        per_value=round(value, 6) if value is not None else None,
+        per_known=retained.known,
+        per_source=source,
+        derivation_version=OUTCOME_DERIVATION_VERSION,
     )
 
 
@@ -251,6 +308,9 @@ def render_cost(report: CostReport) -> str:
     ]
     if not report.rows:
         lines.append("  no session-usage records in the window")
+        per_line = _per_line(report)
+        if per_line:
+            lines.append(per_line)
         return "\n".join(lines)
     lines.append("KEY\tTOKENS\tCOST\tSOURCE")
     for row in report.rows:
@@ -260,7 +320,28 @@ def render_cost(report: CostReport) -> str:
     lines.append(f"TOTAL\t{report.total_tokens}\t{total}\t{report.total_cost_source}")
     if report.note:
         lines.append(f"  note: {report.note}")
+    per_line = _per_line(report)
+    if per_line:
+        lines.append(per_line)
     return "\n".join(lines)
 
 
-__all__ = ["BY_OPTIONS", "CostReport", "CostRow", "build_cost", "render_cost"]
+def _per_line(report: CostReport) -> str | None:
+    if report.per is None:
+        return None
+    value = "unknown" if report.per_value is None else f"${report.per_value:.4f}"
+    return (
+        f"  per {report.per}: {value} "
+        f"(numerator={report.per_numerator}, denominator={report.per_denominator}, "
+        f"source={report.per_source})"
+    )
+
+
+__all__ = [
+    "BY_OPTIONS",
+    "PER_OPTIONS",
+    "CostReport",
+    "CostRow",
+    "build_cost",
+    "render_cost",
+]

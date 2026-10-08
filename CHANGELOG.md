@@ -6,6 +6,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - LUI-2: embedded, rebuildable query index — `agentwatch.query_index` projects the hash-chained store into a
+    stdlib `sqlite3` index (no heavyweight runtime dependency; ADR-0035); deleting it loses nothing and it
+    rebuilds **bit-for-bit** from the chain; indexed lookup on a 1M-record store is ~2 ms (target < 250 ms);
+    `agentwatch index rebuild|status|drop|export-parquet` (parquet is a lazy optional extra) (#466).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

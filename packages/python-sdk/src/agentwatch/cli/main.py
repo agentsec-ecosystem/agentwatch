@@ -135,6 +135,11 @@ from agentwatch.quarantine import (
     requeue_entries,
 )
 from agentwatch.query import search, since_cutoff
+from agentwatch.query_index import (
+    ParquetUnavailableError,
+    QueryIndex,
+    index_path_for_store,
+)
 from agentwatch.receipts import record_receipt, redact_preview
 from agentwatch.recorder_state import (
     close_coverage_window,
@@ -631,6 +636,25 @@ def _build_parser() -> argparse.ArgumentParser:
         help="only agent memory read/write/delete records (DET-7)",
     )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
+
+    index_cmd = sub.add_parser(
+        "index", help="embedded rebuildable query index (M30 LUI-2, ADR-0035)"
+    )
+    index_sub = index_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    index_rebuild = index_sub.add_parser(
+        "rebuild", help="rebuild the derived index from the chain store (bit-for-bit)"
+    )
+    index_status = index_sub.add_parser("status", help="show index presence and freshness")
+    index_drop = index_sub.add_parser("drop", help="delete the derived index (chain untouched)")
+    index_export = index_sub.add_parser(
+        "export-parquet", help="columnar export for notebooks (optional parquet extra)"
+    )
+    index_export.add_argument("output", help="destination .parquet path")
+    index_export.add_argument(
+        "--session", dest="session_id", default=None, help="only this session"
+    )
+    for _index_parser in (index_rebuild, index_status, index_drop, index_export):
+        _index_parser.add_argument("--json", action="store_true", help="emit the result as JSON")
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
     diff.add_argument("a", help="first session id")
@@ -2361,6 +2385,51 @@ def _run_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_index(args: argparse.Namespace) -> int:
+    """Manage the embedded, rebuildable query index (M30 LUI-2, ADR-0035)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    index = QueryIndex(index_path_for_store(store.path))
+    if args.action == "drop":
+        index.drop()
+        if args.json:
+            print(json.dumps({"dropped": True, "path": str(index.path)}))
+        else:
+            print(f"agentwatch: dropped index {index.path} (chain untouched)")
+        return 0
+    if args.action == "export-parquet":
+        index.ensure(store)
+        try:
+            count = index.export_parquet(args.output, session_id=args.session_id)
+        except ParquetUnavailableError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        if args.json:
+            print(json.dumps({"exported": count, "path": str(Path(args.output).expanduser())}))
+        else:
+            print(f"agentwatch: exported {count} record(s) to {args.output}")
+        return 0
+    status = index.rebuild(store) if args.action == "rebuild" else index.status()
+    fresh = index.is_fresh(store)
+    payload = {
+        "path": str(status.path),
+        "present": status.present,
+        "fresh": fresh,
+        "records": status.records,
+        "format_version": status.format_version,
+    }
+    if args.json:
+        print(json.dumps(payload))
+    else:
+        state = "fresh" if fresh else ("stale" if status.present else "absent")
+        print(f"agentwatch: index {state} ({status.records} record(s)) at {status.path}")
+    return 0
+
+
 def _run_purge(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -3160,6 +3229,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_demo(args)
     if args.command == "search":
         return _run_search(args)
+    if args.command == "index":
+        return _run_index(args)
     if args.command == "diff":
         return _run_diff(args)
     if args.command == "import":

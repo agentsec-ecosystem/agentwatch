@@ -100,6 +100,13 @@ Status: living.
   override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
   index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
   exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+- The embedded query index (M30 LUI-2) is a **derived** convenience over the chain store: it is stdlib
+  `sqlite3` with no service and no heavyweight dependency, deletable at any time. Columnar export is the one
+  optional path — `export-parquet` needs the `agentwatch[parquet]` extra (`pyarrow`) and otherwise fails
+  closed rather than silently degrading. Postgres is **not** the general-case tier; it remains the
+  fleet/multi-tenant tier (PRD 41 PG-2, re-sequenced behind the embedded index in ADR-0035/EXT-8) and is not
+  built here (proving tests: `test_query_index.py::test_import_does_not_pull_pyarrow`,
+  `test_query_index.py::test_rebuild_is_bit_for_bit`).
 
 ## Policy
 

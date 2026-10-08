@@ -33,6 +33,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0028](0028-managed-policy-install.md) | Managed-policy install posture + honest `doctor` | accepted |
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
+| [0035](0035-embedded-query-index.md) | Embedded query index tier (+ PG re-sequence) | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |
@@ -42,4 +43,6 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0049](0049-typescript-sdk-decision.md) | TypeScript SDK decision (spike; ship deferred) | accepted |
 
 > ADR numbers **0027–0045** are reserved for the v0.2.0-expanded program (PRD 49–59, milestones M29+); their
-> design docs reference the numbers, and the files land with those milestones.
+> design docs reference the numbers, and the files land with those milestones. **0035** (embedded query index,
+> M30 LUI-2/EXT-8) and **0036** (console security model, M30 LUI-1) have landed; other numbers in the range
+> remain reserved.

@@ -29,3 +29,19 @@ on WIN-1. Regenerate with `python scripts/hook_perf_gate.py --update-baseline --
 | windows | blocked | blocked | blocked | 250 | blocked (WIN-1) |
 <!-- END GENERATED HOOK E2E -->
 
+## Embedded query index (M30 LUI-2)
+
+**BLUF:** The derived index makes long-window search interactive on a clean install with **no database service**
+([ADR-0035](../adr/0035-embedded-query-index.md)). The published target is an indexed session lookup on a
+**1,000,000-record** store in **< 250 ms**; measured on the reference class it is ~2 ms. Unindexed commands fall
+back to the chain (slower) and never fail.
+
+| Scenario | scale | measured | published target |
+|---|---|---|---|
+| Indexed session lookup (`index.candidates(session_id=…)`) | 1,000,000 records | ~2 ms | < 250 ms |
+| Full index rebuild from the chain | 1,000,000 records | ~3.3 s | background/on-demand |
+
+> The index is a stdlib `sqlite3` artifact; `test_query_index.py::test_interactive_search_on_one_million_records`
+> guards the target, and `test_rebuild_is_bit_for_bit` guards determinism.
+
+

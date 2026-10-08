@@ -872,6 +872,18 @@
         "file:docs/design/acs-interop.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C99",
+      "claim": "The embedded query index is derived from the hash-chained store: it deletes and rebuilds bit-for-bit, serves an indexed lookup on a 1,000,000-record store in under 250 ms, and adds no heavyweight runtime dependency (stdlib sqlite3 only; parquet is a lazy optional extra).",
+      "source": "docs/adr/0035-embedded-query-index.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_query_index.py::test_rebuild_is_bit_for_bit",
+        "test:packages/python-sdk/tests/test_query_index.py::test_interactive_search_on_one_million_records",
+        "test:packages/python-sdk/tests/test_query_index.py::test_import_does_not_pull_pyarrow",
+        "file:docs/adr/0035-embedded-query-index.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

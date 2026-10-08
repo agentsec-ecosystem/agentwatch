@@ -11,6 +11,7 @@ import re
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone, tzinfo
 
+from agentwatch.capabilities import CAPABILITY_LOADED_TOOL
 from agentwatch.identity import identity_handles
 from agentwatch.memory import is_memory_record
 from agentwatch.permission_mode import effective_modes
@@ -96,6 +97,7 @@ def search(
     mcp_resource: str | None = None,
     memory_only: bool = False,
     permission_mode: str | None = None,
+    capability: str | None = None,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
@@ -107,6 +109,9 @@ def search(
     cutoff = since_cutoff(since) if since is not None else None
     candidates = list(records) if records is not None else list(store.records())
     modes = effective_modes(candidates) if permission_mode is not None else None
+    load_after = (
+        _capability_load_times(candidates, capability) if capability is not None else {}
+    )
     result: list[AgentRecord] = []
     for record in candidates:
         if memory_only and not is_memory_record(record):
@@ -142,7 +147,49 @@ def search(
             mode = modes.get(id(record), PermissionMode.UNKNOWN)
             if mode.value != permission_mode:
                 continue
+        if capability is not None and not _matches_capability(
+            record, capability, load_after
+        ):
+            continue
         if cutoff is not None and record.started_at < cutoff:
             continue
         result.append(record)
     return result
+
+
+def _load_name(record: AgentRecord) -> str | None:
+    if record.tool.name != CAPABILITY_LOADED_TOOL:
+        return None
+    arguments = record.tool.arguments
+    if not isinstance(arguments, Mapping):
+        return None
+    name = arguments.get("name")
+    return name if isinstance(name, str) else None
+
+
+def _capability_load_times(
+    records: Iterable[AgentRecord], capability: str
+) -> dict[str, datetime]:
+    """Earliest load instant of a named capability, per session."""
+    needle = capability.strip().lower()
+    times: dict[str, datetime] = {}
+    for record in records:
+        name = _load_name(record)
+        if name is None or needle not in name.lower():
+            continue
+        current = times.get(record.session_id)
+        if current is None or record.started_at < current:
+            times[record.session_id] = record.started_at
+    return times
+
+
+def _matches_capability(
+    record: AgentRecord, capability: str, load_after: dict[str, datetime]
+) -> bool:
+    """A load of the capability, or a call in that session after the load."""
+    needle = capability.strip().lower()
+    name = _load_name(record)
+    if name is not None and needle in name.lower():
+        return True
+    loaded_at = load_after.get(record.session_id)
+    return loaded_at is not None and record.started_at >= loaded_at

@@ -18,6 +18,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     `content changed, version unchanged` — the Plugin4Shell shape / `content changed, version changed`);
     `inventory --capabilities --snapshot` records and `inventory --capabilities --diff --since 7d` lists the drift,
     never a verdict (#459).
+  - CAP-3: `capability-loaded` attribution — a metadata-only load step (name/kind/scope/digest) is shown inline by
+    `replay` ("followed the load of …"), listed by `impact`, and selectable with `search --capability <name>`
+    (the load plus calls recorded after it, never other sessions); a per-harness load-exposure matrix is published
+    and CI-checked. Context wording only — never "caused by" (#460).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

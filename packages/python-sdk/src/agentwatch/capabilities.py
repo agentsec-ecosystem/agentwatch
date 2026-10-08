@@ -71,6 +71,7 @@ SCOPES: tuple[str, ...] = (SCOPE_MANAGED, SCOPE_USER, SCOPE_PROJECT, SCOPE_PLUGI
 
 CAPABILITY_SNAPSHOT_TOOL = "capability-snapshot"
 CAPABILITY_EVENT_TOOL = "capability-changed"
+CAPABILITY_LOADED_TOOL = "capability-loaded"
 
 CHANGE_ADDED = "added"
 CHANGE_REMOVED = "removed"
@@ -641,6 +642,168 @@ def render_capability_changes(changes: Sequence[CapabilityChange]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Load attribution (M30 CAP-3)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CapabilityLoad:
+    """One metadata-only capability load, as shown to replay/impact/search."""
+
+    name: str
+    kind: str
+    scope: str
+    digest: str | None
+    at: datetime
+    session_id: str
+
+    def context_line(self) -> str:
+        """Factual wording: context, never a causal claim."""
+        return f"followed the load of {self.kind} {self.name} ({self.scope})"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "kind": self.kind,
+            "scope": self.scope,
+            "digest": self.digest,
+            "at": self.at.isoformat(),
+            "session_id": self.session_id,
+        }
+
+
+def capability_loaded_record(
+    session_id: str,
+    name: str,
+    *,
+    kind: str = CAP_KIND_SKILL,
+    scope: str = SCOPE_USER,
+    digest: str | None = None,
+    declared_version: str | None = None,
+    at: datetime | None = None,
+) -> AgentRecord:
+    """A metadata-only ``capability-loaded`` step (name/kind/scope/digest)."""
+    arguments: dict[str, Any] = {"kind": kind, "name": name, "scope": scope}
+    if digest is not None:
+        arguments["digest"] = digest
+    if declared_version is not None:
+        arguments["declared_version"] = declared_version
+    return AgentRecord(
+        session_id=session_id,
+        agent=AgentIdentity(identity="agentwatch"),
+        tool=ToolCall(
+            name=CAPABILITY_LOADED_TOOL,
+            arguments=arguments,
+            privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+        ),
+        outcome=Outcome.OK,
+        started_at=at or datetime.now(timezone.utc),
+        producer=MARKER_PRODUCER,
+        step_type=StepType.OBSERVE,
+    )
+
+
+def record_capability_load(
+    store: RecordStore,
+    session_id: str,
+    name: str,
+    *,
+    kind: str = CAP_KIND_SKILL,
+    scope: str = SCOPE_USER,
+    digest: str | None = None,
+    declared_version: str | None = None,
+    at: datetime | None = None,
+) -> CapabilityLoad:
+    """Append a metadata-only load step and return the load fact."""
+    moment = at or datetime.now(timezone.utc)
+    record = capability_loaded_record(
+        session_id,
+        name,
+        kind=kind,
+        scope=scope,
+        digest=digest,
+        declared_version=declared_version,
+        at=moment,
+    )
+    store.append(record)
+    return CapabilityLoad(
+        name=name, kind=kind, scope=scope, digest=digest, at=moment, session_id=session_id
+    )
+
+
+def _load_from_record(record: AgentRecord) -> CapabilityLoad | None:
+    if record.tool.name != CAPABILITY_LOADED_TOOL:
+        return None
+    arguments = record.tool.arguments
+    if not isinstance(arguments, dict):
+        return None
+    name = arguments.get("name")
+    if not isinstance(name, str) or not name:
+        return None
+    digest = arguments.get("digest")
+    return CapabilityLoad(
+        name=name,
+        kind=str(arguments.get("kind", "")),
+        scope=str(arguments.get("scope", "")),
+        digest=digest if isinstance(digest, str) else None,
+        at=record.started_at,
+        session_id=record.session_id,
+    )
+
+
+def capability_loads(
+    records: Sequence[AgentRecord], *, session_id: str | None = None
+) -> list[CapabilityLoad]:
+    """Every recorded capability load, in store order (optionally one session)."""
+    loads: list[CapabilityLoad] = []
+    for record in records:
+        if session_id is not None and record.session_id != session_id:
+            continue
+        load = _load_from_record(record)
+        if load is not None:
+            loads.append(load)
+    return loads
+
+
+def render_capability_loads(loads: Sequence[CapabilityLoad]) -> str:
+    if not loads:
+        return "no capability loads"
+    lines = ["AT\tKIND\tNAME\tSCOPE\tWAS"]
+    for load in loads:
+        lines.append(
+            f"{load.at.isoformat()}\t{load.kind}\t{load.name}\t{load.scope}\t"
+            f"{load.context_line()}"
+        )
+    return "\n".join(lines)
+
+
+@dataclass(frozen=True)
+class LoadExposure:
+    """Per-harness capability-load exposure, declared honestly."""
+
+    harness: str
+    status: str
+    note: str
+
+
+LOAD_EXPOSURE: tuple[LoadExposure, ...] = (
+    LoadExposure(
+        "claude-code",
+        COVERAGE_PARTIAL,
+        "recorded via the capability-loaded API; not auto-emitted from the hook payload yet",
+    ),
+    LoadExposure("cursor", COVERAGE_NONE, "no load signal exposed"),
+    LoadExposure("codex-cli", COVERAGE_NONE, "no load signal exposed"),
+    LoadExposure("gemini-cli", COVERAGE_NONE, "no load signal exposed"),
+)
+
+
+def load_exposure_matrix() -> tuple[LoadExposure, ...]:
+    """The published, CI-checked load-exposure matrix (one row per harness)."""
+    return LOAD_EXPOSURE
+
+
+# ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
 
@@ -669,6 +832,7 @@ def render_capabilities(inventory: CapabilityInventory) -> str:
 
 __all__ = [
     "CAPABILITY_EVENT_TOOL",
+    "CAPABILITY_LOADED_TOOL",
     "CAPABILITY_SNAPSHOT_TOOL",
     "CAP_KINDS",
     "CAP_KIND_COMMAND",
@@ -690,9 +854,12 @@ __all__ = [
     "Capability",
     "CapabilityChange",
     "CapabilityInventory",
+    "CapabilityLoad",
     "CapabilityState",
     "CoverageRow",
     "HARNESSES",
+    "LOAD_EXPOSURE",
+    "LoadExposure",
     "SCOPES",
     "SCOPE_MANAGED",
     "SCOPE_PLUGIN",
@@ -700,11 +867,16 @@ __all__ = [
     "SCOPE_USER",
     "capabilities_to_json",
     "capability_event",
+    "capability_loaded_record",
+    "capability_loads",
     "detect_capability_changes",
     "discover_capabilities",
+    "load_exposure_matrix",
+    "record_capability_load",
     "record_capability_snapshot",
     "render_capabilities",
     "render_capability_changes",
+    "render_capability_loads",
     "snapshot_records",
     "survey_capabilities",
 ]

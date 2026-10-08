@@ -39,6 +39,7 @@ from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.capabilities import (
     capabilities_to_json,
+    capability_loads,
     detect_capability_changes,
     discover_capabilities,
     record_capability_snapshot,
@@ -637,6 +638,11 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="memory",
         action="store_true",
         help="only agent memory read/write/delete records (DET-7)",
+    )
+    search.add_argument(
+        "--capability",
+        default=None,
+        help="loads of this capability plus calls after the load (M30 CAP-3)",
     )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
@@ -1736,6 +1742,9 @@ def _run_replay(args: argparse.Namespace) -> int:
         return 0
     for record in records:
         print(render_record(record))
+        loads = capability_loads([record])
+        if loads:
+            print(f"    {loads[0].context_line()}")
         if args.receipts:
             receipt = record_receipt(record, seq=seq_by_id.get(id(record), 0))
             rules = ",".join(receipt.rules) if receipt.rules else "none"
@@ -2372,6 +2381,7 @@ def _run_search(args: argparse.Namespace) -> int:
         mcp_resource=args.mcp_resource,
         memory_only=args.memory,
         permission_mode=args.permission_mode,
+        capability=args.capability,
         records=combined.records,
     )
     for record in records:

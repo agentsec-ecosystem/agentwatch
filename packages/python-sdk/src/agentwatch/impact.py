@@ -14,6 +14,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from agentwatch.capabilities import (
+    CAPABILITY_LOADED_TOOL,
+    CapabilityLoad,
+    capability_loads,
+)
 from agentwatch.classify import (
     CLASSIFIER_VERSION,
     CMD_DESTRUCTIVE,
@@ -101,6 +106,7 @@ class ImpactReport:
     denials: tuple[DenialSequence, ...] = ()
     attribution: Attribution | None = None
     bypass_intervals: tuple[ModeInterval, ...] = ()
+    capabilities: tuple[CapabilityLoad, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -130,6 +136,7 @@ class ImpactReport:
             "credentials": [self._entry(e) for e in self.credentials],
             "unclassified": [self._entry(e) for e in self.unclassified],
             "bypass_intervals": [interval.to_dict() for interval in self.bypass_intervals],
+            "capabilities": [load.to_dict() for load in self.capabilities],
             "denials": [
                 {
                     "session_id": sequence.session_id,
@@ -202,6 +209,9 @@ def build_impact(
     arguments_captured = False
 
     for record in records:
+        if record.tool.name == CAPABILITY_LOADED_TOOL:
+            # A load is context, not a change fact; listed separately below.
+            continue
         if record.tool.arguments is not None:
             arguments_captured = True
         for fact in classify_record(record):
@@ -271,6 +281,7 @@ def build_impact(
         denials=denial_sequences(records),
         attribution=attribution_for(records[-1]) if records else None,
         bypass_intervals=bypass_intervals(records),
+        capabilities=tuple(capability_loads(records)),
     )
 
 
@@ -360,6 +371,10 @@ def render_impact(report: ImpactReport) -> str:
             f"  bypass interval: {interval.start.isoformat()} -> {interval.end.isoformat()} "
             f"({interval.calls} call(s))"
         )
+    if report.capabilities:
+        lines.append("  capabilities loaded:")
+        for load in report.capabilities:
+            lines.append(f"    {load.context_line()}")
     if report.files:
         lines.append("  files:")
         for footprint in report.files:
@@ -381,8 +396,12 @@ def render_impact(report: ImpactReport) -> str:
         for entry in entries:
             target = f" {entry.target}" if entry.target else ""
             lines.append(f"    {entry.category}{target} ({entry.confidence})")
-    if not report.files and not any(
-        (report.commands, report.network, report.vcs, report.credentials, report.unclassified)
+    if (
+        not report.files
+        and not report.capabilities
+        and not any(
+            (report.commands, report.network, report.vcs, report.credentials, report.unclassified)
+        )
     ):
         lines.append("  no classifiable activity in the captured records")
     if report.denials:

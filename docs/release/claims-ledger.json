@@ -900,6 +900,20 @@
         "doc:docs/adr/0032-capability-inventory.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C79",
+      "claim": "Capability-load attribution records a metadata-only `capability-loaded` step (name/kind/scope/digest) that `replay` shows inline as \"followed the load of\", `impact` lists for the session, and `search --capability <name>` selects (the load plus calls after it, never other sessions); a per-harness load-exposure matrix is published and CI-checked, and wording is context, never causation.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_load_record_is_metadata_only",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_impact_lists_capabilities_loaded_in_the_session",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_search_capability_returns_calls_after_a_load",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_replay_shows_loads_inline",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest",
+        "doc:docs/design/capability-supply-chain.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

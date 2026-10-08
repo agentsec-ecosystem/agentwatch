@@ -49,6 +49,12 @@ Status: living.
   from an integrator). No session-start hook records one yet, so drift is only visible between snapshots that were
   actually taken. (proving test:
   `packages/python-sdk/tests/test_capability_drift.py::test_cli_capabilities_snapshot_then_diff`).
+- **Capability-load attribution (`CAP-3`, M30) has no automatic load signal yet.** No harness emits a
+  "what was loaded" event in its hook payload here: Claude Code is `partial` (loads are recorded through the
+  `capability-loaded` API by an integrator) and Cursor/Codex CLI/Gemini CLI are `none` in the published
+  load-exposure matrix. `replay`/`impact`/`search --capability` therefore show the loads that were recorded, not
+  every load a harness performed. (proving test:
+  `packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

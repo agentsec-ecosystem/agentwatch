@@ -14,8 +14,11 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ✅ all M30 feature tickets landed (WS-1..WS-6); remaining: 30.T (#485), 30.D (#486), 30.R (#487)
-close-out, the milestone gate, and the 30.OUT-2 console-rendering follow-up (#478).
+**Status:** ✅ **complete** (2026-10-08) — all 27 M30 feature tickets (#458–#484) implemented across six partitioned
+workstreams, each merged into `feat-v0.2.0` one at a time and re-verified on the merged HEAD, plus UI-1 (#428).
+Gate green on the merged HEAD: `make test` (SDK 95.25% / 2472 passed, API 95.75%, analytics 96.28%, repo guard 47),
+`ruff` clean, `mypy --strict` clean, web vitest green, claims ledger green (105 claims). PG-1..3 (#353–#355)
+re-pointed to v0.2.x per ADR-0035/EXT-8.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -54,7 +57,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.VFY-1 ✅ | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
 | 30.SBX-1 ✅ | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
 | 30.OUT-1 ✅ | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
-| 30.OUT-2 | Recurring failure signatures in `digest` (console rendering follow-up) | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
+| 30.OUT-2 ✅ | Recurring failure signatures in `digest`/console | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
 | 30.RUN-1 ✅ | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |
 | 30.DEMO-1 ✅ | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM (VFY-1 page deferred) | #480 |
 | 30.NTF-1 ✅ | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
@@ -77,11 +80,11 @@ demo/recipe executable docs. Plus fuzz/property/mutation extensions for the new 
 
 **Exit criteria**
 
-- [ ] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · **all relevant documents updated** · pushed
-- [ ] Plugin4Shell-shape drift detected; commit→session resolves; Agent Trace validates; console ≤60 s with no Docker and
+- [x] All tests pass · coverage ≥ 95% · lint strict clean · WBS + issues updated · **all relevant documents updated** · pushed
+- [x] Plugin4Shell-shape drift detected; commit→session resolves; Agent Trace validates; console ≤60 s with no Docker and
       UI=CLI parity; MCP server read-only + fuzz-safe; `suggest-policy`/`what-if` write nothing outside `--out`; redaction
       numbers reproducible; case bundle verifies offline; runner segment tamper fails; index rebuild bit-for-bit
-- [ ] Design docs updated: [capability-supply-chain](../../design/capability-supply-chain.md),
+- [x] Design docs updated: [capability-supply-chain](../../design/capability-supply-chain.md),
       [code-provenance](../../design/code-provenance.md), [local-console](../../design/local-console.md),
       [agent-interfaces](../../design/agent-interfaces.md), [policy-from-history](../../design/policy-from-history.md),
       [environment-fingerprint](../../design/environment-fingerprint.md),

@@ -47,7 +47,8 @@ versioning: [Semantic Versioning](https://semver.org/).
   - OUT-2: recurring failure signatures in `digest` — failed calls/anomalies are grouped by a versioned signature
     (`sg1`: tool, error class, `cls1` class, `bd1` behavior fingerprint) into ranked top-N patterns with counts,
     first/last seen, trend vs the prior equal-length window, and `replay`/`diff` evidence links; same store → same
-    output, unknowns preserved, no score. Console rendering is deferred to 30.LUI-1 (#478).
+    output, unknowns preserved, no score; the `agentwatch ui` console renders the ranked top-N at
+    `/api/signatures` (#478).
   - EXT-4: `cls2` — a published, versioned table of test/build/lint outcome classes (`outcome:test`/`build`/`lint`
     × `pass`/`fail`/`unknown`) added alongside the frozen `cls1` impact classifier; `classify_outcome` /
     `classify_record_outcome` read an explicit exit code else the record outcome, unknown stays unknown, and

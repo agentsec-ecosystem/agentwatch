@@ -96,6 +96,13 @@ AIR_BY_EVENT: dict[str, dict[str, str] | None] = {
         "agency": "external",
         "outcome": "observed",
     },
+    SecurityEventType.SANDBOX_BOUNDARY.value: {
+        "architecture": "agent-runtime",
+        "mechanism": "sandbox-boundary",
+        "control": "sandbox",
+        "agency": "system",
+        "outcome": "observed",
+    },
 }
 
 # GMF taxonomy category per event type. ``None`` is explicit: our alignment is
@@ -113,6 +120,7 @@ GMF_BY_EVENT: dict[str, str | None] = {
     SecurityEventType.RECORDER_CONFIG_CHANGED.value: None,
     SecurityEventType.MODE_TRANSITION.value: "Access control",
     SecurityEventType.CAPABILITY_CHANGED.value: None,
+    SecurityEventType.SANDBOX_BOUNDARY.value: "Access control",
 }
 
 

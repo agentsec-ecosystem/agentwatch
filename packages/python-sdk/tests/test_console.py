@@ -257,6 +257,41 @@ def test_live_shows_degraded_when_backpressured(tmp_path: Path) -> None:
         assert json.loads(body)["degraded"] is True
 
 
+def test_console_signatures_match_the_digest(tmp_path: Path) -> None:
+    from agentwatch.digest import build_digest
+
+    now = datetime.now(timezone.utc)
+    directory = tmp_path / "window"
+    directory.mkdir()
+    store = RecordStore(directory / "records.jsonl")
+    for minute in (0, 1):
+        store.append(
+            AgentRecord(
+                session_id="s1",
+                agent=_agent(),
+                tool=ToolCall(name="Bash"),
+                outcome=Outcome.ERROR,
+                started_at=now - timedelta(minutes=minute),
+                project="/repo",
+                step_type=StepType.ACT,
+            )
+        )
+
+    report = build_digest(store, now=now)
+    with ConsoleServer(store) as server:
+        status, body = _request(server.url + "/api/signatures", token=server.token)
+        assert status == 200
+        payload = json.loads(body)
+
+    assert payload["signatures_version"] == report.signatures_version == "sg1"
+    assert payload["signatures"], "expected at least one recurring failure signature"
+    assert len(payload["signatures"]) == len(report.signatures)
+    top = payload["signatures"][0]
+    assert top["tool"] == "Bash"
+    assert top["count"] == 2
+    assert any(link.startswith("replay ") for link in top["evidence"])
+
+
 def test_live_stream_is_sse(tmp_path: Path) -> None:
     store = _store(tmp_path)
     with ConsoleServer(store, poll_interval=0.05) as server:

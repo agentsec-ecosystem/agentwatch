@@ -35,6 +35,7 @@ from agentwatch.coverage import (
     default_transcript_base,
     discover_transcripts,
 )
+from agentwatch.digest import build_digest
 from agentwatch.impact import build_impact
 from agentwatch.install import hooks_installed, resolve_scope
 from agentwatch.live import LiveTail
@@ -70,6 +71,7 @@ _INDEX_HTML = """<!doctype html>
 <p class="read-only">read-only &middot; loopback only &middot; hash-chained store</p>
 <div id="health" role="status"></div>
 <div id="sessions"></div>
+<div id="signatures"></div>
 <script>
 const params = new URLSearchParams(location.search);
 const token = params.get("token") || "";
@@ -88,6 +90,15 @@ api("/api/sessions").then(s => {
     s.sessions.map(x => "<div>" + x.session_id + " \\u2014 " + x.state +
       " (" + x.records + " records)</div>").join("");
 });
+api("/api/signatures").then(s => {
+  const el = document.getElementById("signatures");
+  const head = "<h2>recurring failures (" + s.signatures_version + ")</h2>";
+  if (!s.signatures.length) { el.innerHTML = head + "<div>none</div>"; return; }
+  el.innerHTML = head + s.signatures.map(p =>
+    "<div>" + p.tool + "/" + p.error_class + "/" + p.cls1_class +
+      " \\u2014 trend " + p.trend + ", n=" + p.count +
+      (p.evidence.length ? " (" + p.evidence.join(", ") + ")" : "") + "</div>").join("");
+}).catch(e => { document.getElementById("signatures").textContent = String(e); });
 </script>
 </body>
 </html>
@@ -195,6 +206,8 @@ class _ConsoleHandler(BaseHTTPRequestHandler):
                 self._send_json(self._coverage())
             elif path == "/api/oversight":
                 self._send_json(self._oversight())
+            elif path == "/api/signatures":
+                self._send_json(self._signatures())
             elif path.startswith("/api/session/"):
                 self._send_json(self._session(unquote(path.removeprefix("/api/session/"))))
             elif path.startswith("/api/impact/"):
@@ -302,6 +315,29 @@ class _ConsoleHandler(BaseHTTPRequestHandler):
         from agentwatch.oversight import build_oversight
 
         return build_oversight(self._console.store, by="source").to_dict()
+
+    def _signatures(self) -> dict[str, Any]:
+        """Recurring failure signatures (M30 OUT-2) — versioned grouping, evidence-linked."""
+        report = build_digest(self._console.store)
+        return {
+            "signatures_version": report.signatures_version,
+            "signatures": [
+                {
+                    "tool": pattern.tool,
+                    "error_class": pattern.error_class,
+                    "cls1_class": pattern.cls1_class,
+                    "fingerprint": pattern.fingerprint,
+                    "count": pattern.count,
+                    "previous_count": pattern.previous_count,
+                    "trend": pattern.trend,
+                    "first_seen": pattern.first_seen.isoformat(),
+                    "last_seen": pattern.last_seen.isoformat(),
+                    "sessions": list(pattern.sessions),
+                    "evidence": list(pattern.evidence()),
+                }
+                for pattern in report.signatures
+            ],
+        }
 
     def _export(self, session_id: str) -> None:
         export = export_session(self._console.store, session_id)

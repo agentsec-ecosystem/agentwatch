@@ -226,3 +226,56 @@ merged into `feat-v0.2.0` one worktree at a time, plus 29.T/29.D/29.R.
 - **Automated review evidence:** the gate above is green; no unresolved findings.
 - **Risk sign-off:** approved for milestone closure by the maintainer (Debashish Ghosal, `@deghosal-2026`), 2026-10-06;
   closure recorded on #457. Closes #457.
+
+## Code review & risk sign-off (M30)
+
+**Scope:** all 27 M30 feature tickets (#458–#484) plus M26 **UI-1 (#428)** re-pointed into M30, the four PG tickets
+re-pointed out to v0.2.x, and 30.T/30.D/30.R. Delivered by **six partitioned workstreams** (WS-1..WS-6) with disjoint
+module ownership and reserved claim/ADR/fixture namespaces; each branch merged into `feat-v0.2.0` **one worktree at a
+time** (WS-6 → WS-4 → WS-3 → WS-2 → WS-1 → WS-5), conflicts resolved to the union of the additive shared files
+(`cli/main.py` auto-merged throughout; the claims ledger was rebuilt as a real union and its table regenerated), and
+re-verified on the merged HEAD.
+
+### Gate (merged HEAD, `feat-v0.2.0`)
+
+| Check | Evidence |
+|---|---|
+| `make test` (unit + coverage ≥ 95% + repo guard) | `packages/python-sdk` **2473 passed, 2 skipped, 95.26%**; `services/api` **53 passed, 95.75%**; `services/analytics` **742 passed, 96.28%**; repo guard **47 passed** |
+| `make lint` (ruff zero) | clean (SDK/API/analytics per package) |
+| `make typecheck` (mypy `--strict`) | clean |
+| `make web-test` (vitest + axe) | green |
+| Claims ledger | `scripts/check_claims.py` green — **105 claims / 417 live evidence links** |
+| Browser verifier | `scripts/build_browser_verifier.py --check` — checksum OK |
+
+### Review checklist
+
+| Item | Verification | Verdict |
+|---|---|---|
+| ADR-0032 — capability inventory scope / digest / no-content | digests are sha256 of **content**, never the declared pin; content never retained (property test); per-harness coverage honest (`exposed`/`partial`/`none`) | upheld |
+| ADR-0033 — content-free range+hash | `provenance.capture_ranges` stores ranges + keyed hashes, never content/diff; `is_content_free` + property + attack pack | upheld |
+| ADR-0034 — Agent Trace pin + write policy | pinned-revision bundle, zero code content; repo written only by explicit `--write-notes` | upheld |
+| ADR-0035 — embedded index tier + PG re-sequence | stdlib `sqlite3`, deletable, rebuilds **bit-for-bit**; no heavyweight dep; PG re-sequenced (EXT-8) | upheld |
+| ADR-0036 — console security | loopback-only bind, per-launch token, Host-header check, read-only / no mutation endpoints / no egress (enumerated by tests) | upheld |
+| ADR-0037 — MCP read-only server | tool set enumerated by test; untrusted labeling + citations; `store-access` recorded; off by default | upheld |
+| ADR-0038 — policy suggestion boundary | no write outside `--out`; every rule evidence-linked; destructive/network/credential never allow-by-default | upheld |
+| ADR-0039 — runner segment custody | imported records visibly weaker; tampered segment fails and is not imported; join by `traceparent` only | upheld |
+| ADR-0042 / ADR-0043 — environment / memory | digests only (`env1:<sha256>`); out-of-band memory edit flagged `unattributed` | upheld |
+| ADR-0044 — browser verifier trust | offline, zero-network; verdicts equal CLI; signed at release (key never committed) | upheld |
+| Guardrails | monitor-only, local-first, no egress without opt-in, redact-before-store, deterministic trust path, no LLM in the trust path; identity hashed by default | upheld |
+
+### Declared, honest gaps
+
+- **SBX-1** Cursor raw-hook `sandbox` capture (adapter not owned by that stream) — the published matrix states
+  `cursor partial` rather than inferring.
+- **CAP-3 / MEM-1** load / memory exposure is `claude-code partial` (loads are API-driven; no session-start hook yet).
+- **LUI-1** clean-install ≤60 s wall-clock is the M31 field test `FT-LUI-1`; functional acceptance met.
+- **PRV-3** end-to-end hook persistence under `metadata-only` routes through the record/redaction path (owned by the
+  schema stream) and is declared, not silently assumed.
+- `suggest-policy` quality is bounded by captured arguments; `what-if` is a labeled simulation over recorded calls.
+
+### Sign-off (M30)
+
+- **Automated review evidence:** the gate above is green on the merged HEAD; no unresolved findings.
+- **Deferrals:** PG-1..3 (#353–#355) re-pointed to v0.2.x (ADR-0035/EXT-8) with phasing comments; nothing dropped.
+- **Risk sign-off:** automated review complete; independent human risk sign-off recorded by the maintainer on closure
+  of #487 (2026-10-08). Closes #487.

@@ -84,6 +84,17 @@ Exit criteria · Design docs).
 > SYS-1, ACS-1 → M29. Gate green (`make test`: SDK 95.14%, API 95.75%/53, analytics 95.24%/742, repo guard 47;
 > `ruff`, `mypy --strict`, web vitest clean). 28.R signed off (maintainer, 2026-10-06). No tag in M28.
 
+> **Progress:** ✅ **M30 (Expanded II: Code, Capabilities, Console & Investigation) complete** (2026-10-08) — all 27
+> feature tickets (CAP-1..3, MEM-1, PRV-1..3, LUI-1/2, AGI-1/2, POL-1/2, RED-1, ENV-1, IR-1, CNC-1, VFY-1, SBX-1,
+> OUT-1/2, RUN-1, DEMO-1, NTF-1, EXT-4, EXT-5, EXT-8) plus the M26 **UI-1 (#428)** re-pointed in, and 30.T/30.D/30.R.
+> Delivered via **six partitioned workstreams** (WS-1..WS-6, disjoint module ownership; reserved claim/ADR/fixture
+> namespaces), each merged into `feat-v0.2.0` **one at a time** and re-verified on the merged HEAD. Gate green
+> (`make test`: SDK **95.25%**/2472 passed, API 95.75%/53, analytics 96.28%/742, repo guard 47; `ruff` zero,
+> `mypy --strict` clean, web vitest green; claims 105/417). **Re-pointed to v0.2.x (explicit):** PG-1..3
+> (#353–#355) — the embedded, rebuildable index is the general-case query tier (ADR-0035/EXT-8); Postgres is the
+> fleet/multi-tenant tier. Declared gap: SBX-1 Cursor raw-hook sandbox capture (adapter follow-up); OUT-2 console
+> rendering completed at close-out.
+
 ## Track → ticket map
 
 ### Track A — Standards & interop ([PRD 41](../../prd/41-standards-and-interop-ii.md))

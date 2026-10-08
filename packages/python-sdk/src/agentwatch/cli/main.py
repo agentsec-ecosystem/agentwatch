@@ -162,6 +162,14 @@ from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
 from agentwatch.retention import profile_names, resolve_retention_profile
+from agentwatch.runner_segments import (
+    anchor_records,
+    custody_rows,
+    import_segment,
+    render_custody,
+    seal_segment,
+    verify_segment,
+)
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
@@ -427,6 +435,37 @@ def _build_parser() -> argparse.ArgumentParser:
     case_verify = case_sub.add_parser("verify", help="verify a case bundle offline")
     case_verify.add_argument("bundle", help="case bundle zip path")
     case_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+
+    segment_cmd = sub.add_parser(
+        "segment", help="sealed runner segments: export/verify/custody (M30 RUN-1)"
+    )
+    segment_sub = segment_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    segment_export = segment_sub.add_parser(
+        "export", help="seal a session's records into a self-verifying segment"
+    )
+    segment_export.add_argument("--session", dest="session", required=True, help="session id")
+    segment_export.add_argument("--runner", required=True, help="runner identity, e.g. ci-runner-7")
+    segment_export.add_argument("--run-id", dest="run_id", required=True, help="runner run id")
+    segment_export.add_argument(
+        "--traceparent", default=None, help="W3C traceparent for the originating session"
+    )
+    segment_export.add_argument(
+        "--out", default=None, help="write the segment here (default: <session>.segment.zip)"
+    )
+    segment_export.add_argument("--json", action="store_true", help="emit the result as JSON")
+    segment_verify = segment_sub.add_parser("verify", help="verify a sealed segment offline")
+    segment_verify.add_argument("bundle", help="segment zip path")
+    segment_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+    segment_custody = segment_sub.add_parser(
+        "custody", help="label records local-witnessed vs imported runner"
+    )
+    segment_custody.add_argument("--json", action="store_true", help="emit the rows as JSON")
+
+    import_segment_cmd = sub.add_parser(
+        "import-segment", help="verify and anchor a sealed runner segment (M30 RUN-1)"
+    )
+    import_segment_cmd.add_argument("bundle", help="segment zip path")
+    import_segment_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
@@ -1827,7 +1866,7 @@ _COMMANDS_FOR_COMPLETION = (
     "purge export-session mcp-proxy a2a-proxy annotate redact bom evidence coverage "
     "quarantine archive "
     "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance "
-    "case"
+    "case segment import-segment"
 )
 
 
@@ -2366,6 +2405,103 @@ def _run_case(args: argparse.Namespace) -> int:
         print(json.dumps(timeline.to_dict()))
     else:
         print(render_case_timeline(timeline))
+    return 0
+
+
+def _run_import_segment(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = import_segment(store, args.bundle)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict()))
+    else:
+        print(
+            f"agentwatch: imported segment from {report.runner} "
+            f"({report.records} record(s), {len(report.sessions)} session(s))"
+        )
+        print("  custody: source: runner; chain-protected locally but NOT locally witnessed")
+        if report.joined_sessions:
+            print(f"  joined to: {', '.join(report.joined_sessions)}")
+    return 0
+
+
+def _run_segment(args: argparse.Namespace) -> int:
+    if args.action == "verify":
+        verification = verify_segment(args.bundle)
+        if args.json:
+            print(json.dumps(verification.to_dict()))
+        else:
+            print(f"agentwatch: segment {verification.bundle_format or 'unknown'}")
+            print(f"  intact      : {verification.intact}")
+            print(f"  attestation : {verification.attestation}")
+            for problem in verification.problems:
+                print(f"  problem: {problem}", file=sys.stderr)
+        return 0 if verification.ok else _EXIT_INSTALL_ERROR
+
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "custody":
+        rows = custody_rows(store)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "anchors": [anchor.to_dict() for anchor in anchor_records(store)],
+                        "rows": [row.to_dict() for row in rows],
+                    }
+                )
+            )
+        else:
+            print(render_custody(store))
+        return 0
+
+    # export
+    records = [record for record in store.records() if record.session_id == args.session]
+    if not records:
+        print(f"agentwatch: no records for session {args.session}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    started = min(record.started_at for record in records)
+    ended = max(record.ended_at or record.started_at for record in records)
+    try:
+        segment = seal_segment(
+            records,
+            runner=args.runner,
+            run_id=args.run_id,
+            started_at=started,
+            ended_at=ended,
+            traceparent=args.traceparent,
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    out = (
+        Path(args.out).expanduser()
+        if args.out
+        else Path.cwd() / f"{args.session}.segment.zip"
+    )
+    segment.write(out)
+    if args.json:
+        print(
+            json.dumps(
+                {"runner": segment.runner, "run_id": segment.run_id, "path": str(out)}
+            )
+        )
+    else:
+        print(f"agentwatch: wrote sealed segment to {out}")
+        print("  handling: upload it yourself; agentwatch performs no egress.")
     return 0
 
 
@@ -3237,6 +3373,10 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_hold(args)
     if args.command == "case":
         return _run_case(args)
+    if args.command == "segment":
+        return _run_segment(args)
+    if args.command == "import-segment":
+        return _run_import_segment(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":

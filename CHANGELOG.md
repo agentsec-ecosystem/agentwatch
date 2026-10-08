@@ -19,6 +19,12 @@ versioning: [Semantic Versioning](https://semver.org/).
     attestation) with the CLI's verdict wording, naming the first broken link of a tampered bundle; a
     differential test asserts identical verdicts to `agentwatch evidence verify`, `scripts/build_browser_verifier.py`
     checksums (and can sign) the artifact, and ADR-0044 records the trust model (#475).
+  - RUN-1: sealed runner segments — `agentwatch segment export/verify/custody` and `agentwatch import-segment`
+    seal an ephemeral/CI run into a self-verifying segment (its **own** hash chain from genesis, runner identity,
+    start/end attestation), verify it offline, and anchor it locally as a `source: runner` chain-of-custody
+    record; imported records are chain-protected but **NOT locally witnessed** (S11 distinction, visible in
+    `segment custody`), sealing/import refuse unredacted records, a `traceparent` joins the originating session,
+    a tampered segment fails and is not imported, and agentwatch performs no egress; ADR-0039 (#479).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

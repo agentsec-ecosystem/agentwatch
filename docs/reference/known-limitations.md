@@ -113,6 +113,12 @@ Status: living.
   The differential test drives the inlined verifier core under a JS engine; a real-browser `file://` smoke run
   is part of release readiness (VFY-1), not of the unit gate. The page re-verifies the current evidence-bundle
   format only.
+- Runner segments (M30 RUN-1) carry **per-import** custody: the segment's own chain proves integrity from the
+  runner's genesis, but there is no continuous chain between the runner and the importing host, and redaction is
+  the runner's responsibility (import refuses `privacy_mode=full` records, but cannot re-derive what the runner
+  already dropped). A cross-host join is by W3C `traceparent` only; when the header is absent the runner session
+  is imported **unjoined**. Proving test:
+  `packages/python-sdk/tests/test_runner_segments.py::test_imported_records_are_visibly_weaker_than_local`.
 
 ## Policy
 

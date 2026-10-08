@@ -14,8 +14,8 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ⏳ in progress — **30.IR-1 (#473) and 30.VFY-1 (#475) implemented**; RUN-1/RED-1 and the remaining
-M30 items pending.
+**Status:** ⏳ in progress — **30.IR-1 (#473), 30.VFY-1 (#475) and 30.RUN-1 (#479) implemented**; RED-1 and the
+remaining M30 items pending.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -55,7 +55,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
 | 30.OUT-1 | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
 | 30.OUT-2 | Recurring failure signatures in `digest`/console | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
-| 30.RUN-1 | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |
+| 30.RUN-1 DONE | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |
 | 30.DEMO-1 | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM | #480 |
 | 30.NTF-1 | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
 | 30.EXT-4 | Publish `cls2` (test/build outcome classes); reproduce `cls1` | feature + docs | PRD 33 | `cls2` table published; `cls1` outputs reproducible | #482 |

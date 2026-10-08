@@ -6,6 +6,12 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - AGI-1: read-only MCP server over the record — `agentwatch mcp-serve --enable` (off by default) exposes a
+    fixed, test-enumerated read-only tool set (`sessions`, `search`, `replay`, `impact`, `blame`, `coverage`,
+    `cost`, `oversight`, `provenance`, `inventory`) over local stdio; responses are labeled `untrusted-data`
+    with record citations, results are bounded and rate-limited, injection-shaped record content cannot change
+    behavior, and every query is appended as a metadata-only `store-access` record (ADR-0037) (#467).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

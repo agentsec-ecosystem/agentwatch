@@ -4,9 +4,16 @@
 shipped investigation skill, and a versioned CLI JSON contract. Records are already redacted and (by default) contain no
 content; responses are labeled untrusted with record citations; every query is itself recorded as `store-access`.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M28 · Sources:
+**Status:** implemented (v0.2.0 M30 AGI-1, 2026-10-07) · **Milestone:** M28 · Sources:
 [PRD 55](../prd/55-agent-interfaces-and-policy-from-history.md), [threat-model.md](threat-model.md),
-[record-format-spec.md](../reference/record-format-spec.md), ADR-0024 (untrusted data).
+[record-format-spec.md](../reference/record-format-spec.md), ADR-0024 (untrusted data), ADR-0037 (MCP
+read-only server threat model).
+
+> **Implemented (M30 AGI-1).** `agentwatch.mcp_server` serves the read-only tool set over local stdio via
+> `agentwatch mcp-serve --enable` (off by default). The exposed set is fixed and test-enumerated, responses
+> are labeled `untrusted-data` with record citations, results are bounded and rate-limited, and every query
+> is appended as a metadata-only `store-access` record. Proving test:
+> `packages/python-sdk/tests/test_mcp_server.py`.
 
 ## Tools (read-only)
 

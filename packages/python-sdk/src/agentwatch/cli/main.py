@@ -108,6 +108,7 @@ from agentwatch.mcp_config import (
     resolve_mcp_scope,
     uninstall_mcp_proxy,
 )
+from agentwatch.mcp_server import RateLimiter, serve_stdio
 from agentwatch.mcp_surface import (
     detect_surface_changes,
     render_changes,
@@ -1045,6 +1046,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "agent_command", nargs=argparse.REMAINDER, help="-- <agent command> [args...]"
     )
 
+    mcp_serve = sub.add_parser(
+        "mcp-serve", help="read-only MCP server over the record (M30 AGI-1; off by default)"
+    )
+    mcp_serve.add_argument(
+        "--enable",
+        action="store_true",
+        help="consent-first opt-in; required because the server is off by default",
+    )
+    mcp_serve.add_argument(
+        "--rate-limit",
+        type=int,
+        default=240,
+        help="max tool calls per minute (default 240)",
+    )
+
     return parser
 
 
@@ -1356,6 +1372,24 @@ def _run_mcp_proxy(args: argparse.Namespace) -> int:
         )
         return _EXIT_USAGE_ERROR
     return run_stdio(args.server, command, socket_path=args.socket)
+
+
+def _run_mcp_serve(args: argparse.Namespace) -> int:
+    if not args.enable:
+        print(
+            "agentwatch: mcp-serve is off by default; pass --enable to opt in "
+            "(read-only server over the record)",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    limiter = RateLimiter(max_queries=max(1, args.rate_limit))
+    return serve_stdio(store, stdin=sys.stdin, stdout=sys.stdout, limiter=limiter)
 
 
 def _run_a2a_proxy(args: argparse.Namespace) -> int:
@@ -3108,6 +3142,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_uninstall(args)
     if args.command == "mcp-proxy":
         return _run_mcp_proxy(args)
+    if args.command == "mcp-serve":
+        return _run_mcp_serve(args)
     if args.command == "a2a-proxy":
         return _run_a2a_proxy(args)
     if args.command == "sessions":

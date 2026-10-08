@@ -14,7 +14,8 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ⏳ not started
+**Status:** 🔄 in progress — **30.AGI-1 (#467)** implemented on branch `m30-ws4` (read-only MCP server; see
+ADR-0037); remaining M30 tickets in progress across workstreams.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose

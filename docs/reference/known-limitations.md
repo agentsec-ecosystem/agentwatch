@@ -100,6 +100,12 @@ Status: living.
   override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
   index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
   exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+- The agent-facing MCP server (`agentwatch mcp-serve`, **30.AGI-1**) is **read-only and off by default**
+  (`--enable`); it exposes no mutating tool and cannot enforce or block. Its responses are labeled
+  `untrusted-data` with record citations and every query is recorded as a metadata-only `store-access`
+  record; a client that ignores the label still receives no instruction channel. Injection-shaped record
+  content cannot change behavior (proving test:
+  `packages/python-sdk/tests/test_mcp_server.py::test_injection_shaped_record_content_does_not_change_behavior`).
 
 ## Policy
 

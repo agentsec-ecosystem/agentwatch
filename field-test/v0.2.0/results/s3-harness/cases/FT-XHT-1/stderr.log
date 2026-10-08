@@ -1,36 +1,10 @@
- Image agentwatch-analytics Building 
- Image agentwatch-web Building 
- Image agentwatch-fieldtest-recorder:local Building 
- Image agentwatch-api Building 
- Image agentwatch-analytics Built 
- Image agentwatch-fieldtest-recorder:local Built 
- Image agentwatch-api Built 
- Image agentwatch-web Built 
- Container agentwatch-a2a-proxy-1 Running 
- Container agentwatch-recorder-1 Running 
- Container agentwatch-api-1 Running 
- Container agentwatch-analytics-1 Running 
- Container agentwatch-otel-grpc-1 Running 
- Container agentwatch-jaeger-1 Running 
- Container agentwatch-litellm-1 Running 
- Container agentwatch-fleet-h2-1 Running 
- Container agentwatch-web-1 Running 
- Container agentwatch-fleet-h1-1 Running 
- Container agentwatch-managed-hooks-1 Running 
- Container agentwatch-verifier-1 Running 
- Container agentwatch-otel-collector-1 Running 
- Container agentwatch-postgres-1 Running 
- Container agentwatch-fleet-h3-1 Running 
- Container agentwatch-runner-1 Running 
- Container agentwatch-postgres-1 Waiting 
- Container agentwatch-postgres-1 Waiting 
- Container agentwatch-postgres-1 Healthy 
- Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-recorder-1 Restarting 
+ Container agentwatch-recorder-1 Started 
 Traceback (most recent call last):
-  File "/ft/scripts/xht_replay.py", line 19, in <module>
+  File "/ft/scripts/xht_replay.py", line 55, in <module>
     raise SystemExit(main(sys.argv[1:]))
                      ^^^^^^^^^^^^^^^^^^
-  File "/ft/scripts/xht_replay.py", line 11, in main
-    assert names, "no adapters registered"
-           ^^^^^
-AssertionError: no adapters registered
+  File "/ft/scripts/xht_replay.py", line 47, in main
+    assert all(r.ok for r in results), [r.summary() for r in results]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ["codex: 1 conformance failure(s) across 7 check(s)\n  - fixture-replay: manifest.json must define 'message' and 'expected'", "cursor: 1 conformance failure(s) across 7 check(s)\n  - fixture-replay: manifest.json must define 'message' and 'expected'", "gemini: 1 conformance failure(s) across 7 check(s)\n  - fixture-replay: manifest.json must define 'message' and 'expected'"]

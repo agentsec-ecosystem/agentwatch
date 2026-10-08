@@ -1,6 +1,6 @@
 # Field Test Run s2-interop
 
-**Totals:** 8 pass · 4 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 9 pass · 3 fail · 0 declared  →  **NOT GREEN**
 
 | Case | Class | Status |
 |---|---|---|
@@ -13,6 +13,6 @@
 | FT-OTEL-4 | P/F|D | pass |
 | FT-PG-1 | P/F|D | pass |
 | FT-PG-2 | P/F|D | pass |
-| FT-PG-3 | P/F|D | fail |
+| FT-PG-3 | P/F|D | pass |
 | FT-TRACE-1 | P/F | fail |
 | FT-TRACE-2 | P/F | fail |

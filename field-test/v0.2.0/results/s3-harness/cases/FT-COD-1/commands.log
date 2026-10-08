@@ -1,2 +1,3 @@
-+ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ reset: restart recorder; wipe store+socket; truncate read-model
++ compose exec recorder bash -lc shopt -s dotglob; rm -rf /data/agentwatch/* /run/agentwatch/* 2>/dev/null; mkdir -p /data/agentwatch /run/agentwatch; true
 + compose exec recorder bash -lc python3 /ft/scripts/ingest-fixture.py --kind codex --corpus /ft/fixtures/codex && agentwatch verify-store

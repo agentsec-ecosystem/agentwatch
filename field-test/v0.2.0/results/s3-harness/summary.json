@@ -3,99 +3,15 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -112,99 +28,15 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -225,208 +57,40 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "cursor-blocking",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-CUR-2",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -443,208 +107,40 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "langgraph-instrument",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-LG-1",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -661,208 +157,40 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "mcp-surface",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-MCP-1",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -879,99 +207,15 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -988,208 +232,40 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "stream-drop-reconcile",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-STR-2",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -1206,317 +282,65 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "xht-opencode",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F|D",
       "declared": false,
       "id": "FT-XHT-2",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
           "name": "xht-cross-parser",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-XHT-3",
       "run_id": "s3-harness",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -1541,12 +365,12 @@
     "run_id": "s3-harness",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T05:13:06.523003+00:00",
+  "generated_at": "2026-10-08T06:36:12.599377+00:00",
   "green": false,
   "run_id": "s3-harness",
   "totals": {
     "declared": 0,
-    "fail": 9,
-    "pass": 5
+    "fail": 3,
+    "pass": 11
   }
 }

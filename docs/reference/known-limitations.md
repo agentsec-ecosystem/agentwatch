@@ -106,6 +106,13 @@ Status: living.
   it is reported as a store-level `tombstone` gap and never guessed into a session. Case export is manual and
   local — there is no registry submission path (proving test:
   `packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps`).
+- The offline browser verifier (M30 VFY-1, `docs/release/verifier/agentwatch-verify.html`) is **checksummed
+  in-repo but signed at release time**: a private key is never committed, so the ed25519 signature over
+  `SHA256SUMS` is produced by `scripts/build_browser_verifier.py --sign` in the release pipeline (proving
+  test: `packages/python-sdk/tests/test_browser_verifier.py::test_checksum_matches_the_artifact_and_is_listed_in_release_evidence`).
+  The differential test drives the inlined verifier core under a JS engine; a real-browser `file://` smoke run
+  is part of release readiness (VFY-1), not of the unit gate. The page re-verifies the current evidence-bundle
+  format only.
 
 ## Policy
 

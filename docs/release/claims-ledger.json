@@ -886,6 +886,19 @@
         "file:docs/design/incident-cases.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C120",
+      "claim": "An evidence bundle verifies offline in a self-contained browser page that opens from file:// with zero network requests, reports the same intact/complete/leak-free verdicts as the CLI, and names the first broken chain link of a tampered bundle.",
+      "source": "docs/design/browser-verifier.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_html_is_self_contained_and_has_no_network_surface",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_differential_verdicts_match_the_cli_on_every_fixture",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_tampered_bundle_names_the_first_broken_link",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_checksum_matches_the_artifact_and_is_listed_in_release_evidence",
+        "file:docs/release/verifier/agentwatch-verify.html"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

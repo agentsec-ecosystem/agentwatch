@@ -13,6 +13,12 @@ versioning: [Semantic Versioning](https://semver.org/).
     exports a self-contained case bundle (`case.json`, `records.ndjson`, COR-3-shaped
     `incident-report.json`) that re-verifies offline (member hashes **and** the chain segment) with no
     registry egress (#473).
+  - VFY-1: offline browser evidence verifier — a single, self-contained
+    `docs/release/verifier/agentwatch-verify.html` opens from `file://` with **zero network requests** and
+    re-verifies an evidence bundle (member hashes, the hash-chain segment, completeness, leak-scan, and
+    attestation) with the CLI's verdict wording, naming the first broken link of a tampered bundle; a
+    differential test asserts identical verdicts to `agentwatch evidence verify`, `scripts/build_browser_verifier.py`
+    checksums (and can sign) the artifact, and ADR-0044 records the trust model (#475).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

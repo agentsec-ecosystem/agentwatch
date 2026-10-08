@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>agentwatch evidence verifier (offline)</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.5 -apple-system, system-ui, sans-serif; margin: 2rem auto; max-width: 46rem; padding: 0 1rem; }
+  h1 { font-size: 1.3rem; }
+  .verdict { font-weight: 600; }
+  .ok { color: #147a3b; }
+  .bad { color: #b3261e; }
+  pre { background: rgba(127,127,127,.14); padding: .75rem; overflow: auto; border-radius: 6px; }
+  .note { opacity: .8; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>agentwatch evidence verifier</h1>
+<p class="note">Self-contained and offline. The bundle is read in your browser and never
+leaves this page: there is no server, no upload, and no telemetry. Ported from the same
+spec as <code>agentwatch evidence verify</code>.</p>
+<p><input type="file" id="bundle" accept=".zip"></p>
+<div id="result"></div>
+
+<script id="agentwatch-verify-core">
+"use strict";
+const BUNDLE_FORMAT = "agentwatch-evidence/1";
+
+function text(bytes) { return new TextDecoder("utf-8").decode(bytes); }
+
+async function sha256Hex(bytes) {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const view = new Uint8Array(digest);
+  let out = "";
+  for (let i = 0; i < view.length; i++) out += view[i].toString(16).padStart(2, "0");
+  return out;
+}
+
+function canonical(value) {
+  if (value === null || value === undefined) return "null";
+  const t = typeof value;
+  if (t === "boolean") return value ? "true" : "false";
+  if (t === "number") return String(value);
+  if (t === "string") return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    let out = "[";
+    for (let i = 0; i < value.length; i++) { if (i) out += ","; out += canonical(value[i]); }
+    return out + "]";
+  }
+  if (t === "object") {
+    const keys = Object.keys(value).sort();
+    let out = "{";
+    for (let i = 0; i < keys.length; i++) {
+      if (i) out += ",";
+      out += JSON.stringify(keys[i]) + ":" + canonical(value[keys[i]]);
+    }
+    return out + "}";
+  }
+  return "null";
+}
+
+async function inflateRaw(bytes) {
+  if (typeof DecompressionStream === "undefined") throw new Error("DecompressionStream unavailable");
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+function parseZip(bytes) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const len = bytes.byteLength;
+  let eocd = -1;
+  for (let i = len - 22; i >= 0; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("not a zip (no end-of-central-directory)");
+  const count = view.getUint16(eocd + 10, true);
+  let offset = view.getUint32(eocd + 16, true);
+  const entries = new Map();
+  for (let i = 0; i < count; i++) {
+    if (view.getUint32(offset, true) !== 0x02014b50) throw new Error("bad central directory");
+    const method = view.getUint16(offset + 10, true);
+    const compressed = view.getUint32(offset + 20, true);
+    const nameLen = view.getUint16(offset + 28, true);
+    const extraLen = view.getUint16(offset + 30, true);
+    const commentLen = view.getUint16(offset + 32, true);
+    const localOffset = view.getUint32(offset + 42, true);
+    const name = text(bytes.subarray(offset + 46, offset + 46 + nameLen));
+    const lnameLen = view.getUint16(localOffset + 26, true);
+    const lextraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + lnameLen + lextraLen;
+    entries.set(name, { method: method, data: bytes.subarray(dataStart, dataStart + compressed) });
+    offset += 46 + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+
+async function memberBytes(entries, name) {
+  const entry = entries.get(name);
+  if (!entry) return null;
+  if (entry.method === 0) return entry.data;
+  if (entry.method === 8) return await inflateRaw(entry.data);
+  throw new Error("unsupported compression method " + entry.method);
+}
+
+async function verifySegment(entries) {
+  const raw = await memberBytes(entries, "records.ndjson");
+  if (raw === null) return { ok: false, firstBroken: null };
+  const lines = text(raw).split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const row = JSON.parse(lines[i]);
+    const record = row.record;
+    if (record === null || typeof record !== "object") return { ok: false, firstBroken: row.seq };
+    const payload = String(row.prev_hash) + canonical(record);
+    const expected = await sha256Hex(new TextEncoder().encode(payload));
+    if (expected !== row.hash) return { ok: false, firstBroken: row.seq };
+  }
+  return { ok: true, firstBroken: null };
+}
+
+async function readBool(entries, name, key, problems) {
+  const raw = await memberBytes(entries, name);
+  if (raw === null) { problems.push(name + " unreadable"); return false; }
+  try {
+    const payload = JSON.parse(text(raw));
+    return payload[key] === true;
+  } catch (err) {
+    problems.push(name + " unreadable");
+    return false;
+  }
+}
+
+async function readAttestation(entries) {
+  const raw = await memberBytes(entries, "coverage.json");
+  if (raw === null) return "absent";
+  try {
+    const payload = JSON.parse(text(raw));
+    return payload.attestation === "present" ? "present" : "absent";
+  } catch (err) {
+    return "absent";
+  }
+}
+
+async function verifyBundle(input) {
+  const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
+  const problems = [];
+  const result = {
+    bundle_format: "", intact: false, complete: false, leak_free: false,
+    attestation: "absent", first_broken: null, problems: problems
+  };
+  try {
+    const entries = parseZip(bytes);
+    if (!entries.has("manifest.json")) { problems.push("manifest.json missing"); return result; }
+    const manifest = JSON.parse(text(await memberBytes(entries, "manifest.json")));
+    result.bundle_format = String(manifest.bundle_format || "");
+    if (result.bundle_format !== BUNDLE_FORMAT) {
+      problems.push("unknown bundle format version '" + result.bundle_format + "'");
+      return result;
+    }
+    const recorded = manifest.members || {};
+    const names = Object.keys(recorded);
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      if (!entries.has(name)) { problems.push("member missing: " + name); continue; }
+      const digest = await sha256Hex(await memberBytes(entries, name));
+      if (digest !== recorded[name]) problems.push("member tampered: " + name);
+    }
+    const segment = await verifySegment(entries);
+    if (!segment.ok) {
+      problems.push("chain segment failed verification");
+      result.first_broken = segment.firstBroken;
+    }
+    result.complete = await readBool(entries, "coverage.json", "complete", problems);
+    result.leak_free = await readBool(entries, "privacy.json", "leak_free", problems);
+    result.attestation = await readAttestation(entries);
+    result.intact = segment.ok && !problems.some(function (p) {
+      return p.indexOf("tampered") >= 0 || p.indexOf("missing") >= 0;
+    });
+  } catch (err) {
+    problems.length = 0;
+    problems.push("unreadable bundle: " + err.message);
+    result.bundle_format = "";
+  }
+  return result;
+}
+
+globalThis.AgentwatchVerify = { BUNDLE_FORMAT: BUNDLE_FORMAT, verifyBundle: verifyBundle };
+</script>
+
+<script>
+"use strict";
+(function () {
+  const input = document.getElementById("bundle");
+  const result = document.getElementById("result");
+  if (!input || !result) return;
+  function render(verdict) {
+    const mark = verdict.intact ? "ok" : "bad";
+    let html = "";
+    html += '<p class="verdict ' + mark + '">intact    : ' + verdict.intact + '</p>';
+    html += '<p class="verdict">complete  : ' + verdict.complete + '</p>';
+    html += '<p class="verdict">leak-free : ' + verdict.leak_free + '</p>';
+    html += '<p class="note">recording attested: ' + verdict.attestation + '</p>';
+    if (verdict.problems.length) {
+      html += "<pre>" + verdict.problems.map(function (p) {
+        return p.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      }).join("\n") + "</pre>";
+    }
+    result.innerHTML = html;
+  }
+  input.addEventListener("change", function () {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function () {
+      globalThis.AgentwatchVerify.verifyBundle(new Uint8Array(reader.result))
+        .then(render)
+        .catch(function (err) { result.textContent = "unreadable bundle: " + err.message; });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+})();
+</script>
+</body>
+</html>

@@ -4,9 +4,19 @@
 that works from `file://`, makes **zero network requests**, and re-verifies chain, completeness, leak-scan and (where
 present) recorder attestation — showing the same verdicts as the CLI verifier.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** M28 · Sources:
+**Status:** implemented (2026-10-07, v0.2.0 M30) · **Milestone:** M30 · Sources:
 [PRD 57](../prd/57-investigation-depth-and-verification.md), [evidence-verifier.md](../reference/evidence-verifier.md),
 [recorder-attestation.md](recorder-attestation.md).
+
+## Implementation
+
+The artifact is `docs/release/verifier/agentwatch-verify.html` (single, self-contained page; verifier logic in an
+inline `<script id="agentwatch-verify-core">`). The bundle is read with the File API and parsed in-page: a minimal
+ZIP reader (central directory + stored/deflate) over `DecompressionStream`, and WebCrypto `SHA-256`. It re-checks
+member hashes, the `sha256(prev_hash + canonical_json(payload))` chain link, `coverage.json.complete`,
+`privacy.json.leak_free`, and `coverage.json.attestation`, with the CLI's verdict wording. `first_broken` names the
+member or chain `seq` of the first failure. `scripts/build_browser_verifier.py` writes `SHA256SUMS` (`--check`)
+and can sign the checksum (`--sign`); release evidence lives in `docs/release/verifier/README.md`.
 
 ## Why
 

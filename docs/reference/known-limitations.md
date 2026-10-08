@@ -89,6 +89,10 @@ Status: living.
   **BLOCKED**. The Claude Agent SDK additionally routes through the shared Claude Code OTel ingest owned by
   **29.CCO-1 (WS-A)**; until that lands its `tool_use_id` attribute is reported in the explicit `unmapped`
   bucket rather than silently dropped.
+- Recurring failure signatures (M30 OUT-2) are computed deterministically in `digest` (`SIGNATURES_VERSION = sg1`);
+  the console/LUI rendering of the same patterns is **deferred to 30.LUI-1** (WS-3) and is not in this branch, so the
+  browser view does not yet show them (proving test:
+  `packages/python-sdk/tests/test_outcome_signatures.py::test_signature_grouping_is_deterministic_and_versioned`).
 - Hash chain is detect-only (no signing key) at v0.1.0.
 - Security-event schema v1 is draft; naming may move upstream to OTel (DD-14).
 - Fleet access roles are **enforced but not provisioned**: the M29 ACC-1 model (`agentwatch.access`)

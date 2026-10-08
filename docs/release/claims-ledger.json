@@ -872,6 +872,17 @@
         "file:docs/design/acs-interop.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C129",
+      "claim": "The digest ranks recurring failure signatures deterministically with a versioned grouping rule (sg1) and links each pattern to replay/diff evidence.",
+      "source": "docs/design/outcomes-signals.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_outcome_signatures.py::test_recurring_signature_groups_counts_and_evidence",
+        "test:packages/python-sdk/tests/test_outcome_signatures.py::test_signature_grouping_is_deterministic_and_versioned",
+        "doc:docs/design/outcomes-signals.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

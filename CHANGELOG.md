@@ -6,6 +6,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - OUT-2: recurring failure signatures in `digest` — failed calls/anomalies are grouped by a versioned signature
+    (`sg1`: tool, error class, `cls1` class, `bd1` behavior fingerprint) into ranked top-N patterns with counts,
+    first/last seen, trend vs the prior equal-length window, and `replay`/`diff` evidence links; same store → same
+    output, unknowns preserved, no score. Console rendering is deferred to 30.LUI-1 (#478).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

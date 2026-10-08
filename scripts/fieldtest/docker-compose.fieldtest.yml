@@ -59,6 +59,136 @@ services:
       ANALYTICS_LLM_API_KEY: ${OMLX_API_KEY:-omlx-test}
       ANALYTICS_LLM_TIMEOUT_SECONDS: ${OMLX_TIMEOUT_SECONDS:-120}
 
+  # --- v0.2.0 environment (M31 31.1) ---------------------------------------
+  # Extra services the v0.2.0 cases need. Agent-side services reuse the recorder
+  # image (already built) so no extra image is pulled. All are behind compose
+  # profiles so v0.1.0 runs are unaffected:
+  #   --profile v020     otel-grpc, fleet-h1..3, a2a-proxy, litellm, runner
+  #   --profile managed  managed-hooks (managed-policy fixture, DEP-1/2)
+  #   --profile tempo    the base second OTLP backend (FT-BACKEND-2)
+  # run-suite.sh / stack-v020.sh enable these automatically.
+
+  # OTLP/gRPC + protobuf streaming receive path (OTEL-3).
+  otel-grpc:
+    profiles: ["v020"]
+    image: otel/opentelemetry-collector-contrib:0.107.0
+    command: ["--config=/etc/otelcol-contrib/grpc.yaml"]
+    volumes:
+      - ./deploy/otel-collector-grpc-config.yml:/etc/otelcol-contrib/grpc.yaml:ro
+    ports:
+      - "4327:4317"
+    depends_on:
+      - jaeger
+
+  # Three hosts x three harnesses for cross-host trace correlation
+  # (TRACE-1/2, IDN-1). Each host is its own container + network namespace,
+  # with a distinct store so attribution is genuinely cross-host.
+  fleet-h1:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment: &fleet_env
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      AGENTWATCH_SOCKET: /run/agentwatch/agentwatch.sock
+      OMLX_BASE_URL: ${OMLX_BASE_URL:-http://host.docker.internal:8000/v1}
+      OMLX_MODEL: ${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - fleetdata1:/data/agentwatch
+      - fleetsock1:/run/agentwatch
+    command: ["sleep", "infinity"]
+  fleet-h2:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      <<: *fleet_env
+      HOST_ROLE: "h2"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - fleetdata2:/data/agentwatch
+      - fleetsock2:/run/agentwatch
+    command: ["sleep", "infinity"]
+  fleet-h3:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      <<: *fleet_env
+      HOST_ROLE: "h3"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - fleetdata3:/data/agentwatch
+      - fleetsock3:/run/agentwatch
+    command: ["sleep", "infinity"]
+
+  # A2A interposition (A2A-1/2): cases run `agentwatch a2a-proxy ...` here to
+  # record both directions and the card-verification outcome.
+  a2a-proxy:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      AGENTWATCH_SOCKET: /run/agentwatch/agentwatch.sock
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - a2adata:/data/agentwatch
+    command: ["sleep", "infinity"]
+
+  # LLM-gateway OTel fixture (GWY-1/2). A lightweight shim (not the real LiteLLM
+  # image) that emits gateway OTLP so exact-vs-estimated cost is provable with no
+  # hosted dependency.
+  litellm:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      GATEWAY_FIXTURE_PORT: "4000"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - litellmdata:/data/agentwatch
+    command: ["sleep", "infinity"]
+
+  # Ephemeral CI/cloud capture (RUN-1): no daemon home; sealed segment in/out.
+  runner:
+    profiles: ["v020"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      RUNNER_MODE: "ephemeral"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - runnerdata:/data/agentwatch
+    command: ["sleep", "infinity"]
+
+  # Managed-policy fixture (DEP-1/2): allowManagedHooksOnly /
+  # strictPluginOnlyCustomization. Real MDM config is used where available;
+  # otherwise the case declares against this fixture.
+  managed-hooks:
+    profiles: ["managed"]
+    image: agentwatch-fieldtest-recorder:${FT_TAG:-local}
+    environment:
+      AGENTWATCH_STORE__PATH: /data/agentwatch
+      AGENTWATCH_SOCKET: /run/agentwatch/agentwatch.sock
+      FT_MANAGED_POLICY: "allowManagedHooksOnly,strictPluginOnlyCustomization"
+    volumes:
+      - ./scripts/fieldtest:/ft/scripts:ro
+      - manageddata:/data/agentwatch
+    command: ["sleep", "infinity"]
+
 volumes:
   awdata:
   awsock:
+  fleetdata1:
+  fleetdata2:
+  fleetdata3:
+  fleetsock1:
+  fleetsock2:
+  fleetsock3:
+  a2adata:
+  litellmdata:
+  runnerdata:
+  manageddata:

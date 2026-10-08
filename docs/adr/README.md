@@ -33,6 +33,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0028](0028-managed-policy-install.md) | Managed-policy install posture + honest `doctor` | accepted |
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
+| [0032](0032-capability-inventory.md) | Capability inventory: content digests, origin scope, no content | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |

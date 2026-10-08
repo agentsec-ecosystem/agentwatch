@@ -38,6 +38,12 @@ Status: living.
   `denied`/`policy-fired` with `record_phase: pre_execution`; enforcement stays in the Guardian and agentwatch
   never executes a decision. The spec is young (watch item): signature and SessionContext-chain verification
   (the ACS Crypto/Audit profiles) are **not** done, and the emit-side spike (PRD 45 §ACS-1b) is not built.
+- **Capability inventory (`CAP-1`, M30) covers Claude Code today.** `agentwatch inventory --capabilities` reads
+  skills, plugins, hooks, subagents, commands, rules files and MCP servers under `~/.claude` / `<project>/.claude`
+  (plus best-effort managed paths) by **content digest**; Cursor, Codex CLI and Gemini CLI are declared `none` in the
+  per-harness coverage matrix, and memory is `none` for every harness pending `MEM-1`. `bom --format cyclonedx`
+  includes the discovered capabilities. (proving test:
+  `packages/python-sdk/tests/test_capabilities.py::test_coverage_declares_per_harness_gaps`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

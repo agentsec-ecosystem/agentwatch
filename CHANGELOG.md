@@ -6,6 +6,13 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - CAP-1: capability inventory (`agentwatch.capabilities`) — Claude Code skills, plugins, hooks, subagents,
+    slash commands, rules files and MCP servers are inventoried by **`sha256` content digest** (never the
+    declared pin), with origin scope (`managed`/`user`/`project`/`plugin`), size and optional declared version;
+    content is never retained (property-tested); `inventory --capabilities [--json]` lists them and
+    `bom --format cyclonedx` includes them as components; per-harness coverage (`exposed`/`partial`/`none`) is
+    declared honestly — Claude Code exposed, Cursor/Codex CLI/Gemini CLI (and memory, MEM-1) `none` gaps (#458).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

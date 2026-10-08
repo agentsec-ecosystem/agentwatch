@@ -37,6 +37,11 @@ from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
+from agentwatch.capabilities import (
+    capabilities_to_json,
+    discover_capabilities,
+    render_capabilities,
+)
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
@@ -757,6 +762,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="MCP tool-surface changes over time (M20 S4)",
     )
     inventory.add_argument("--server", default=None, help="only this MCP server (with --diff)")
+    inventory.add_argument(
+        "--capabilities",
+        action="store_true",
+        help="list loadable capabilities with content digests (M30 CAP-1)",
+    )
 
     coverage_cmd = sub.add_parser(
         "coverage", help="reconcile the store against transcript ground truth (M16 S2)"
@@ -2677,6 +2687,14 @@ def _run_inventory(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.capabilities:
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        capabilities = discover_capabilities(project=project, home=Path.home())
+        if args.json:
+            print(json.dumps(capabilities_to_json(capabilities), indent=2))
+        else:
+            print(render_capabilities(capabilities))
+        return 0
     if args.snapshot or args.diff:
         records = store.records()
         if args.snapshot:
@@ -2711,7 +2729,10 @@ def _run_bom(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
-    bom = build_bom(store, session_id=args.session_id, project=args.project)
+    capabilities = discover_capabilities(project=Path.cwd(), home=Path.home()).capabilities
+    bom = build_bom(
+        store, session_id=args.session_id, project=args.project, capabilities=capabilities
+    )
     document = to_cyclonedx(bom) if args.format == "cyclonedx" else to_agentwatch_json(bom)
     print(json.dumps(document, indent=2, sort_keys=True))
     record_store_access(

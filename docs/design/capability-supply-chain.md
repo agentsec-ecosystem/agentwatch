@@ -58,6 +58,16 @@ Digests/names/sizes/origin only; no content. Foreign/unmappable capability confi
 - Property: no capability content in the store.
 - Per-harness exposure matrix green against fixtures.
 
+## Implementation status (M30)
+
+- **CAP-1 landed (`agentwatch.capabilities`, #458).** `discover_capabilities(project=, home=)` inventories Claude
+  Code skills, plugins, hooks, subagents, commands, rules files and MCP servers under `~/.claude` / `<project>/.claude`
+  (plus best-effort managed paths) by `sha256` content digest, with origin scope, size and declared version;
+  `inventory --capabilities` renders it and `bom --format cyclonedx` adds the entries as components. Content is
+  never retained. Per-harness coverage (`exposed`/`partial`/`none`) is a first-class tuple on the inventory:
+  Claude Code is `exposed`; Cursor, Codex CLI, Gemini CLI — and memory for every harness (MEM-1) — are declared
+  `none` gaps.
+
 ## Decision
 
 ADR-0032 (inventory scope, digest semantics, no-content rule), ADR-0043 (memory scope).

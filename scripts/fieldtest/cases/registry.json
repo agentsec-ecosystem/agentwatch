@@ -1290,7 +1290,7 @@
     "prd": "AGI-2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"skill-answers\" \"python3 /ft/scripts/investigation_skill.py\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"skill-answers\" \"python3 /ft/scripts/investigation_skill.py\"\n",
     "recycle": false
   },
   {

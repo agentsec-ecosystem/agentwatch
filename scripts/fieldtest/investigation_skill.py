@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
 def main(argv):
-    run(["agentwatch", "evidence", "ft04", "--include", "coverage", "--out", "/tmp/evidence.zip"])
+    run(["agentwatch", "evidence", "ft04", "--include", "incident-report.json", "--out", "/tmp/evidence.zip"])
     run(["agentwatch", "coverage", "--json"])
     ok("skill reaches documented answers; CLI JSON published")
     return 0

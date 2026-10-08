@@ -1,11 +1,11 @@
 # Field Test Run s7-platform
 
-**Totals:** 11 pass · 1 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 12 pass · 0 fail · 0 declared  →  **GREEN**
 
 | Case | Class | Status |
 |---|---|---|
 | FT-AGI-1 | P/F | pass |
-| FT-AGI-2 | P/F | fail |
+| FT-AGI-2 | P/F | pass |
 | FT-API-1 | P/F | pass |
 | FT-CCO-1 | P/F | pass |
 | FT-CCO-2 | P/F | pass |

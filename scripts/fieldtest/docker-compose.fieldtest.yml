@@ -39,6 +39,9 @@ services:
       - awsock:/run/agentwatch
       - ./scripts/fieldtest:/ft/scripts:ro
       - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
+      # Canonical alert-routing recipes (NTF-1): the field driver exercises the
+      # shipped deploy/recipes modules, never a copy.
+      - ./deploy/recipes:/ft/recipes:ro
     command: ["sleep", "infinity"]
 
   # Clean, no-install auditor (FT-08/CUJ-08): verifies bundles offline.

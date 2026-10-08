@@ -653,7 +653,7 @@
     "prd": "OTEL-2",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"privacy-default\" \"grep -q '\"privacy_mode\": \"metadata-only\"' /data/agentwatch/records.jsonl\"\nft_assert_recorder \"privacy-property\" \"python3 /ft/scripts/privacy_property.py\"\n",
+    "steps": "ft_assert_recorder \"privacy-default\" \"grep -q 'privacy_mode.*metadata-only' /data/agentwatch/records.jsonl\"\nft_assert_recorder \"privacy-property\" \"python3 /ft/scripts/privacy_property.py\"\n",
     "recycle": false
   },
   {

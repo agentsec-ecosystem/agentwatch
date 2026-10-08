@@ -1,5 +1,5 @@
  Container agentwatch-recorder-1 Restarting 
  Container agentwatch-recorder-1 Started 
-agentwatch: unknown include 'coverage'
-{"error": {"code": "E_FAILED", "message": "unknown include 'coverage'", "hint": "Re-run with more context or check the message.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-failed"}}
+agentwatch: no records for session ft04
+{"error": {"code": "E_SESSION_NOT_FOUND", "message": "no records for session ft04", "hint": "Run `agentwatch sessions` to list recorded sessions.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-session-not-found"}}
 driver: command failed (1): ['agentwatch', 'evidence', 'ft04', '--include', 'coverage', '--out', '/tmp/evidence.zip']

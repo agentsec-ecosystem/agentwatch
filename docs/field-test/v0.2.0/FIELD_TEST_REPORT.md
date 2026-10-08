@@ -1,8 +1,8 @@
 # agentwatch v0.2.0 — Field Test Report
 
 > **Generated:** 2026-10-07 from `field-test/v0.2.0/results/` — **re-run after the F-1 driver fixes** (commit `8e50b51`).
-> **Overall:** 80 PASS · 14 FAIL · 0 not run (94 v0.2.0 cases). Of the first-pass 39 FAILs, **25 are now verified fixed
-> (re-run green)** and **14 remain** (13 harness/step + 1 platform).
+> **Overall:** 82 PASS · 12 FAIL · 0 not run (94 v0.2.0 cases). Of the first-pass 39 FAILs, **27 are now verified fixed
+> (re-run green)** and **12 remain** (11 harness/step + 1 platform).
 > **Structure:** mirrors the [v0.1.0 report](../v0.1.0/FIELD_TEST_REPORT.md) and the plan's §13 template,
 > extended for the v0.2.0 suites and the `P/F|D` declare class.
 
@@ -10,9 +10,10 @@
 
 ## BLUF + Release Gate Verdict
 
-**80 PASS · 14 FAIL · 0 not run** (94 v0.2.0 cases), after re-running every still-failing case with the F-1 driver
-fixes committed in `8e50b51`. **25 of the first-pass 39 FAILs are now green — the fix worked.** The remaining 14
-FAILs are **13 harness/step defects + 1 platform** (`FT-WIN-1`, no Windows host); **no product defect is confirmed**.
+**82 PASS · 12 FAIL · 0 not run** (94 v0.2.0 cases), after re-running every still-failing case with the F-1 driver
+fixes committed in `8e50b51` plus the FT-OTEL-3 and FT-NTF-1 harness fixes. **27 of the first-pass 39 FAILs are now
+green — the fix worked.** The remaining 12 FAILs are **11 harness/step defects + 1 platform** (`FT-WIN-1`, no Windows
+host); **no product defect is confirmed**.
 The v0.1.0 lesson held again: the first pass was dominated by *harness bugs masquerading as product failures* (F-1),
 and correcting the driver invocations resolved the large majority of them.
 
@@ -20,13 +21,13 @@ and correcting the driver invocations resolved the large majority of them.
 
 | | First pass | After F-1 fixes (this run) |
 |---|---|---|
-| PASS | 55 | **80** |
-| FAIL | 39 | **14** |
+| PASS | 55 | **82** |
+| FAIL | 39 | **12** |
 | not run | 0 | 0 |
 
-**25 first-pass FAILs now verified PASS:** `FT-PRV-1, FT-PRV-3, FT-HLD-1, FT-CNC-1, FT-ENV-1, FT-IR-1, FT-SBX-1,
+**27 first-pass FAILs now verified PASS:** `FT-PRV-1, FT-PRV-3, FT-HLD-1, FT-CNC-1, FT-ENV-1, FT-IR-1, FT-SBX-1,
 FT-HOSTILE-1, FT-PG-3, FT-CUR-2, FT-LG-1, FT-MCP-1, FT-STR-2, FT-XHT-2, FT-XHT-3, FT-DET-2, FT-DET-3, FT-DET-5,
-FT-CMP-2, FT-IDN-3, FT-AGI-1, FT-EXA-1, FT-FWK-1, FT-FWK-2, FT-POL-1`.
+FT-CMP-2, FT-IDN-3, FT-AGI-1, FT-EXA-1, FT-FWK-1, FT-FWK-2, FT-POL-1, FT-OTEL-3, FT-NTF-1`.
 
 ### Release gate verdict
 
@@ -65,7 +66,7 @@ FT-CMP-2, FT-IDN-3, FT-AGI-1, FT-EXA-1, FT-FWK-1, FT-FWK-2, FT-POL-1`.
 
 ## What Was Tested
 
-**Result:** 94/94 v0.2.0 cases executed — **80 PASS · 14 FAIL · 0 not run** (after re-running the first-pass failures
+**Result:** 94/94 v0.2.0 cases executed — **82 PASS · 12 FAIL · 0 not run** (after re-running the first-pass failures
 with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 - Layer-0 (frozen v0.1.0 cases, run into `field-test/v0.2.0/results/layer0`): re-run this pass; `field-test/v0.1.0`
@@ -140,10 +141,10 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-MCP-1 | s3-harness | P/F | PASS | fixed F-1b: MCP ingest dispatch |
 | FT-MCP-2 | s3-harness | P/F | FAIL | **open F-4b**: `mcp_proxy` adapter normalizes 0 malformed records |
 | FT-MEM-1 | s9-capability | P/F | PASS | — |
-| FT-NTF-1 | s14-outcomes | P/F|D | FAIL | **open F-4h**: `syslog://host:port` not split |
+| FT-NTF-1 | s14-outcomes | P/F|D | PASS | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
 | FT-OTEL-1 | s2-interop | P/F | PASS | fixed H-6: jaeger wait / default |
 | FT-OTEL-2 | s2-interop | P/F | PASS | fixed H-4: `--spans` (not `--mb`) |
-| FT-OTEL-3 | s2-interop | P/F | FAIL | **open F-4f**: `ft_assert_recorder` loses inner quotes |
+| FT-OTEL-3 | s2-interop | P/F | PASS | ✅ fixed (F-4f): generator step now greps `privacy_mode.*metadata-only`; the old text's nested `"` were stripped by the shell chain |
 | FT-OTEL-4 | s2-interop | P/F|D | PASS | — |
 | FT-OUT-1 | s14-outcomes | P/F|D | PASS | — |
 | FT-OUT-2 | s14-outcomes | P/F|D | PASS | — |
@@ -172,7 +173,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-XHT-3 | s3-harness | P/F | PASS | fixed F-3: register shipped adapters |
 | FT-XHT-4 | s3-harness | P/F | PASS | — |
 
-**Totals:** 80 PASS · 14 FAIL · 0 not run  (of 94 v0.2.0 cases).
+**Totals:** 82 PASS · 12 FAIL · 0 not run  (of 94 v0.2.0 cases).
 
 ## Per-Suite Results
 
@@ -182,7 +183,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s2-interop
 
-12 case(s): 9 PASS · 3 FAIL · 0 not run
+12 case(s): 10 PASS · 2 FAIL · 0 not run
 
 ### s3-harness
 
@@ -230,7 +231,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s14-outcomes
 
-5 case(s): 3 PASS · 2 FAIL · 0 not run
+5 case(s): 4 PASS · 1 FAIL · 0 not run
 
 ### s15-hostile
 
@@ -293,7 +294,7 @@ recaptured for the console.
 
 Two classes of finding: **harness defects** (the test wiring) and **product defects** (the shipped code). The
 v0.1.0 lesson "harness bugs masquerade as product failures" dominated the first pass; correcting the driver
-invocations (F-1) resolved **25 of 39** first-pass FAILs.
+invocations (F-1) resolved **25 of 39** first-pass FAILs (with the FT-OTEL-3 and FT-NTF-1 harness fixes, **27**).
 
 ### Pre-run harness defects (H-1…H-7)
 
@@ -310,8 +311,8 @@ invocations (F-1) resolved **25 of 39** first-pass FAILs.
 ### Post-run failure analysis (F-1) — re-run resolved 25/39
 
 **F-1 — the drivers invoked the CLI with wrong arguments (required positionals / missing flags / bad enums).**
-Fixing the drivers flipped **25 first-pass FAILs to PASS** (listed in the BLUF). The 14 still FAILing after the
-re-run are itemised below with fresh evidence.
+Fixing the drivers flipped **25 first-pass FAILs to PASS** (listed in the BLUF); the FT-OTEL-3 and FT-NTF-1 harness
+fixes flipped two more (**27 total**). The 12 still FAILing after the re-run are itemised below with fresh evidence.
 
 | Case | Failed assertion | Evidence (this re-run) | Class |
 |---|---|---|---|
@@ -323,15 +324,29 @@ re-run are itemised below with fresh evidence.
 | FT-RUN-1 | `runner-segment` | `E_SESSION_NOT_FOUND: no records for session ft04` | harness (order/state) |
 | FT-SIEM-1 | `siem-conformance` | `E_SESSION_NOT_FOUND: no records for session ft04` | harness (order/state) |
 | FT-LUI-1 | `console-playwright` | `FileNotFoundError: 'agentwatch'` (host PATH) | harness (host PATH) |
-| FT-NTF-1 | `alert-recipes` | `socket.gaierror: Name or service not known` (sink target) | harness |
 | FT-LOG-1 | `log-readers` | driver step (ingest-fixture logreaders) — no records produced | harness |
 | FT-MCP-2 | `mcp-malformed-quarantine` | driver step — quarantine signal not emitted | harness |
-| FT-OTEL-3 | `privacy-default` | `ft_assert_recorder` drops the inner double-quotes — it ran `grep -q 'privacy_mode: metadata-only'` instead of `"privacy_mode": "metadata-only"`. The store actually holds 6 `metadata-only` records, so the capture default is correct | harness (quoting) |
 | FT-XHT-1 | `xht-replay-self-test` | `manifest.json must define 'message' and 'expected'` (fixture contract) | product/fixture |
 | FT-WIN-1 | `windows-host` | Windows-only assertion on macOS | environment |
 
-**Fixed:** 25 of 39 F-1 rows are now verified green. The 14 remaining are the residual driver/step defects above —
-each is a wiring fix, not a product change (except FT-XHT-1's fixture contract, which needs a fixture/registry review).
+**Fixed this pass (harness/step):**
+
+- **FT-OTEL-3 (F-4f):** the generator emitted `grep -q '"privacy_mode": "metadata-only"'`; the nested `"` were
+  stripped by the shell chain (`ft_assert` → `ft_recorder` → `bash -lc`), so it actually ran
+  `grep -q 'privacy_mode: metadata-only'` and never matched. The step is now `grep -q 'privacy_mode.*metadata-only'`,
+  which matches the 6 `metadata-only` records the store holds. Edit in `scripts/fieldtest/gen_cases.py`
+  (regenerated with `python3 scripts/fieldtest/gen_cases.py`).
+- **FT-NTF-1 (F-4h):** the driver built sinks with a wrong `syslog://localhost:514` target for the Alertmanager
+  recipe (Alertmanager v2 is an HTTP endpoint), which raised `socket.gaierror`. Rewrote
+  `scripts/fieldtest/alert_recipes.py` to exercise the **three shipped recipes** (`deploy/recipes/*.py`, mounted at
+  `/ft/recipes`) exactly as the CI test does — each reuses the shipped `agentwatch.sinks.WebhookSink` and forwards
+  every event with an injected transport (zero network, no rules). Added the `/ft/recipes` mount on the recorder.
+
+Both verified green by an inline re-run of **only** that case.
+
+**Fixed (F-1, prior pass):** 25 of 39 F-1 rows verified green in the `8e50b51` re-run. The 12 remaining are the
+residual driver/step defects above — each is a wiring fix, not a product change (except FT-XHT-1's fixture contract,
+which needs a fixture/registry review).
 
 ### F-1 per-case findings (what the driver did → what the CLI requires → now)
 
@@ -364,7 +379,7 @@ and the targeted re-run. `✅ fixed` = re-run now PASS; `❌ open` = still in th
 | FT-AGI-1 | `mcp_surface.survey()` | requires `records` | harness | ✅ fixed |
 | FT-FWK-2 | `sorted(frameworks.detect_installed())` | returns a non-iterable | harness | ✅ fixed |
 | FT-FWK-1 | `frameworks.recipe_line_count(x)` on a dict | signature | harness | ✅ fixed |
-| FT-NTF-1 | `sinks.build_sink({dict})` | expects a target string | harness | ⚠️ arg fixed; residual `host:port` |
+| FT-NTF-1 | `sinks.build_sink({dict})` | expects a target string | harness | ✅ fixed (driver now exercises the shipped recipes via `WebhookSink`) |
 | FT-DET-2 | `check-detector-results.py <path>` | artifact path not mounted | harness | ✅ fixed |
 | FT-LUI-1 | host `agentwatch` not on PATH | host case needs the SDK path | harness | ⚠️ partial; residual console |
 | FT-WIN-1 | Windows-only assertion on macOS | platform unavailable | environment | ❌ platform |
@@ -386,7 +401,7 @@ and the targeted re-run. `✅ fixed` = re-run now PASS; `❌ open` = still in th
 | H-6 | harness | DEP-1/OTEL-1/OTEL-3 | medium | ✅ fixed | regex/default/jaeger wait |
 | H-7 | harness | WIN-1/SYS-1/TSS-1 | medium | ✅ fixed | declare → real PASS/FAIL |
 
-**Post-run (F-1) — driver invocations with wrong arguments; 25/39 verified fixed, 14 remain.**
+**Post-run (F-1) — driver invocations with wrong arguments; 25/39 verified fixed in the F-1 re-run + FT-OTEL-3 and FT-NTF-1 fixed this pass (27/39), 12 remain.**
 
 | ID | Class | Case(s) | Severity | Status |
 |---|---|---|---|---|
@@ -396,17 +411,17 @@ and the targeted re-run. `✅ fixed` = re-run now PASS; `❌ open` = still in th
 | F-1d | harness | LUI-1 (host PATH) | medium | ◑ `ui --check` fixed; console-playwright open |
 | F-2 | environment | WIN-1 (no Windows host) | — | platform |
 | F-3 | product/fixture | XHT-1 (fixture manifest contract) | medium | open (XHT-2/3 fixed) |
-| F-4 | harness | IDN-1, TRACE-1, TRACE-2 (`trace` missing `trace_id`), AGI-2 (`--include coverage`), RED-1 (corpus path), RUN-1/SIEM-1 (session `ft04` state), NTF-1 (sink DNS), OTEL-3 (privacy step) | medium | open |
+| F-4 | harness | IDN-1, TRACE-1, TRACE-2 (`trace` missing `trace_id`), AGI-2 (`--include coverage`), RED-1 (corpus path), RUN-1/SIEM-1 (session `ft04` state) | medium | open (OTEL-3, NTF-1 ✅ fixed this pass) |
 
 
 ## Issues Found & Fixed During Validation
 
 - **H-1…H-7** — harness defects found by the pre-run deep in-container probe and fixed (see RCA).
-- **F-1** — 36 driver-argument defects found by the first run; **25 verified fixed** by the re-run (green).
+- **F-1** — 36 driver-argument defects found by the first run; **25 verified fixed** by the re-run, plus **FT-OTEL-3** (F-4f) and **FT-NTF-1** (F-4h) fixed this pass — **27 green**.
 - **F-2** — FT-WIN-1 requires a Windows host (not available); platform, not a defect.
 - **F-3** — FT-XHT-1: the shipped fixtures' `manifest.json` lacks `message`/`expected` keys required by the
   conformance contract; XHT-2/XHT-3 (which use real adapter fixtures) pass.
-- **F-4** — residual F-1-style driver/step defects across 11 cases (see table) — wiring, not product.
+- **F-4** — residual F-1-style driver/step defects across 11 cases; **FT-OTEL-3 + FT-NTF-1 fixed this pass**, leaving 10 (see table) — wiring, not product.
 
 **No product defect was confirmed.**
 
@@ -415,25 +430,26 @@ and the targeted re-run. `✅ fixed` = re-run now PASS; `❌ open` = still in th
 
 ### What worked
 
-- **The F-1 fix worked.** Re-running the still-failing cases flipped **25 of 39** first-pass FAILs to PASS with no
+- **The F-1 fix worked.** Re-running the still-failing cases flipped **27 of 39** first-pass FAILs to PASS (25 via
+  F-1 driver args + FT-OTEL-3 and FT-NTF-1 harness fixes) with no
   product change — corroborating that the first pass tested the *harness*, not the product.
 - **Full-stack boot per case + `down -v` teardown** (v0.1.0 methodology): every case booted all 16 v0.2.0 services and
   tore them down, so no state leaked between cases.
 - **Real surfaces reused:** `export-session --format aat`, `compliance report --framework …`, `oversight`, `access
   matrix/log`, `segment`, `index rebuild`, `checkpoint rotate`, `ui --check`, the analytics detector matrix.
-- **80 cases genuinely passed**, including the flagship standards/identity/compliance/approval cases
+- **82 cases genuinely passed**, including the flagship standards/identity/compliance/approval cases
   (FT-AAT-1/2/3, FT-OTEL-1/2/4, FT-CMP-1/2/3, FT-ASI-1, FT-APV-1/2/3, FT-CCO-1/2, FT-CAP-1/2, FT-IDN-2/3, FT-A2A-1).
 
 ### What didn't work
 
-- **Residual driver/step defects (F-4 + F-1b/d):** 13 cases still fail on wiring (`trace` missing `trace_id`,
-  `--include coverage`, corpus path, session `ft04` state, host PATH, sink DNS, privacy step expectation).
+- **Residual driver/step defects (F-4 + F-1b/d):** 11 cases still fail on wiring (`trace` missing `trace_id`,
+  `--include coverage`, corpus path, session `ft04` state, host PATH).
 - **`check_cli_usage.py` was too shallow** — it proved commands/options *exist* but not that required positional
   arguments and enum values are supplied; extend it to validate required arguments.
 
 ### Harness vs product
 
-25 of the 39 first-pass FAILs are now green (pure harness fix). Of the 14 remaining, 13 are harness/step and 1 is
+27 of the 39 first-pass FAILs are now green (pure harness fix). Of the 12 remaining, 11 are harness/step and 1 is
 platform (`FT-WIN-1`); 1 fixture-contract item (`FT-XHT-1`) needs a fixture/registry review. The product-defect
 count is **0 confirmed**.
 
@@ -455,8 +471,8 @@ count is **0 confirmed**.
 ## Takeaways
 
 - The v0.2.0 **harness** is verified end-to-end (16 services, per-case teardown, real surfaces, 94 wired cases,
-  freeze guard). The post-fix **run** is **80 PASS / 14 FAIL**, concentrated in residual driver/step defects.
-- The fastest path to a fully green field test is the 14 remaining wiring rows (F-4 + F-1b/d + F-3) — no product
+  freeze guard). The post-fix **run** is **82 PASS / 12 FAIL**, concentrated in residual driver/step defects.
+- The fastest path to a fully green field test is the 12 remaining wiring rows (F-4 + F-1b/d + F-3) — no product
   change is implicated by the evidence.
 
 
@@ -464,7 +480,7 @@ count is **0 confirmed**.
 
 | Item | Why deferred |
 |---|---|
-| F-4 + F-1b/d residual driver/step fixes (13 cases) | wiring; needed before a fully green v0.2.0 run |
+| F-4 + F-1b/d residual driver/step fixes (11 cases; FT-OTEL-3 + FT-NTF-1 ✅ fixed this pass) | wiring; needed before a fully green v0.2.0 run |
 | F-3 FT-XHT-1 fixture manifest contract | needs fixture/registry review |
 | FT-WIN-1 (Windows) | no Windows host on this machine (platform) |
 
@@ -473,7 +489,7 @@ count is **0 confirmed**.
 
 Status vocabulary: **not run | PASS | FAIL** — this run: **0 not run** (every case executed).
 
-- **Coverage:** 94/94 v0.2.0 cases executed; 80 PASS, 14 FAIL.
+- **Coverage:** 94/94 v0.2.0 cases executed; 82 PASS, 12 FAIL.
 - **Layer-0 (v0.1.0 cases) into `field-test/v0.2.0/results/layer0`:** re-run this pass; frozen `field-test/v0.1.0`
   results left untouched.
 - **Gaps:** F-4/F-1b/F-1d residual driver steps, F-3 fixture contract, F-2 (Windows host).
@@ -483,7 +499,7 @@ Status vocabulary: **not run | PASS | FAIL** — this run: **0 not run** (every 
 
 FT-CLAIM-1 **PASS** (claims-ledger JSON parses; known-limitations present). FT-MATRIX-1 **PASS** (no "modeled"
 Tier-1 rows). The known-limitations shrink (G1/G2/G4/G7/G8 removed with proving tests) is evidenced by the passing
-detector/stream/trace/compliance cases among the 80.
+detector/stream/trace/compliance cases among the 82.
 
 
 ## Certification / Standards Conformance
@@ -511,19 +527,19 @@ the case artifacts).
 | | v0.1.0 (frozen) | v0.2.0 (this pass) |
 |---|---|---|
 | Cases | 50 field + 226 detector + 49 Playwright | 94 cases |
-| Result | 50/50 · 226/226 · 49/49 | **80 PASS / 14 FAIL / 0 not run** |
-| Fail class | 4 product defects, fixed | 13 harness/step + 1 platform (+1 fixture review) |
+| Result | 50/50 · 226/226 · 49/49 | **82 PASS / 12 FAIL / 0 not run** |
+| Fail class | 4 product defects, fixed | 11 harness/step + 1 platform (+1 fixture review) |
 
 v0.2.0's remaining FAILs are all harness wiring; no product defect was confirmed.
 
 
 ## Action Items
 
-1. Fix the 14 residual driver/step defects (F-4 + F-1b/d; add `trace_id`, drop `--include coverage`, mount the
+1. Fix the 12 residual driver/step defects (F-4 + F-1b/d; add `trace_id`, drop `--include coverage`, mount the
    redaction corpus, seed session `ft04`, export the host SDK path for console-playwright, fix the sink target).
 2. Extend `check_cli_usage.py` to validate **required arguments**, not just option existence.
 3. Review F-3 (FT-XHT-1 fixture `manifest.json` contract).
-4. Re-run the 14 remaining cases and re-populate this report.
+4. Re-run the 12 remaining cases and re-populate this report.
 
 
 ## Reproducibility / Evidence Paths

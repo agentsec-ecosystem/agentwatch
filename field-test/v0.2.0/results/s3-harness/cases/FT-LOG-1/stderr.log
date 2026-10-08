@@ -1,3 +1,2 @@
  Container agentwatch-recorder-1 Restarting 
- Container agentwatch-recorder-1 Started 
-fail: adapter agentwatch.adapters.claude_code normalized 0 records from /ft/fixtures/logreaders
+

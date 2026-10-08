@@ -345,7 +345,7 @@
         },
         {
           "name": "privacy-default",
-          "ok": false
+          "ok": true
         },
         {
           "name": "privacy-property",
@@ -360,7 +360,7 @@
       "declared": false,
       "id": "FT-OTEL-3",
       "run_id": "s2-interop",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -699,12 +699,12 @@
     "run_id": "s2-interop",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T06:40:25.081382+00:00",
+  "generated_at": "2026-10-08T06:57:37.589581+00:00",
   "green": false,
   "run_id": "s2-interop",
   "totals": {
     "declared": 0,
-    "fail": 3,
-    "pass": 9
+    "fail": 2,
+    "pass": 10
   }
 }

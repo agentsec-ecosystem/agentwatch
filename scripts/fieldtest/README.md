@@ -68,3 +68,37 @@ make fieldtest-clean
 **No skips.** Every case runs and is `pass`/`fail`; a case that cannot run (e.g. Docker absent for a
 Docker case) is recorded as a failure and the suite exits non-zero. There is no `blocked`/`skipped`
 status.
+
+## v0.2.0 (M31 31.1–31.4)
+
+The v0.2.0 field tests extend the same harness; they do **not** fork it. Results land under
+**`field-test/v0.2.0/results/<suite>/`** (version-scoped), and the plan/report live under
+`docs/field-test/v0.2.0/`.
+
+| Piece | What |
+|---|---|
+| `run-suite.sh SUITE` | run one suite (`s1-install … s15-hostile`) → `field-test/v0.2.0/results/<suite>/` |
+| `stack-v020.sh up\|down\|ps\|verify\|reset` | the v0.2.0 compose environment (profile services) |
+| `seed-v020.sh [SERVICE]` | seed the fixture store in a service |
+| `gen_cases.py` (+ `cases/registry.json`) | source of truth: 50 v0.1.0 + 94 v0.2.0 cases |
+| `_ftutil.py` + `*.py` drivers | the M31 31.2 drivers the v0.2.0 steps call (at `/ft/scripts/`) |
+| `fixtures/` | version-tagged, secret-scanned fixtures for the drivers |
+| `docker-compose.fieldtest.yml` | adds `otel-grpc`, `fleet-h1..3`, `a2a-proxy`, `litellm`, `runner`, `managed-hooks` |
+
+```bash
+# v0.2.0 environment (profiles v020/managed/tempo)
+scripts/fieldtest/stack-v020.sh up
+scripts/fieldtest/seed-v020.sh
+
+# one suite, or all (results under field-test/v0.2.0/results/)
+FT_VERSION=v0.2.0 bash scripts/fieldtest/run-suite.sh s1-install
+make fieldtest-v020          # runs every case (v0.1.0 regression + v0.2.0)
+make fieldtest-suite SUITE=s7-platform
+```
+
+**Declare class.** The 19 `P/F|D` cases may resolve to `declared` via `ft_declare "<limitation>" "<gate>"`
+only where the release gate says "or declared"; a `declared` case is recorded distinctly in the
+verdict, `summary.json`, and the report — never as a pass. A hard-gate case can never declare.
+
+**Versioning.** `FT_VERSION` selects the results root (`field-test/<FT_VERSION>/results`); `FT_RESULTS_ROOT`
+overrides it outright. `run-suite.sh` sets `FT_VERSION=v0.2.0` by default.

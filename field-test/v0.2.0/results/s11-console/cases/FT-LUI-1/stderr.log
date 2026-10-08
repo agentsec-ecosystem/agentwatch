@@ -1,4 +1,3 @@
-bash: agentwatch: command not found
 Traceback (most recent call last):
   File "/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/console_playwright.py", line 64, in <module>
     raise SystemExit(main())

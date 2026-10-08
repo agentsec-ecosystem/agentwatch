@@ -1,0 +1,2 @@
+agentwatch: console http://127.0.0.1:62370/?token=Cupxr5XnyYa2nNMOqJPrMXrSvMjsY_5jT9-6IaVtnjQ (read-only, loopback only)
+agentwatch: readiness ok (chain_ok=True)

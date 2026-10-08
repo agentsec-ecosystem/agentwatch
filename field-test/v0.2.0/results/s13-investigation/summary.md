@@ -1,11 +1,11 @@
 # Field Test Run s13-investigation
 
-**Totals:** 1 pass · 4 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 5 pass · 0 fail · 0 declared  →  **GREEN**
 
 | Case | Class | Status |
 |---|---|---|
-| FT-CNC-1 | P/F|D | fail |
-| FT-ENV-1 | P/F | fail |
-| FT-IR-1 | P/F | fail |
-| FT-SBX-1 | P/F|D | fail |
+| FT-CNC-1 | P/F|D | pass |
+| FT-ENV-1 | P/F | pass |
+| FT-IR-1 | P/F | pass |
+| FT-SBX-1 | P/F|D | pass |
 | FT-VFY-1 | P/F | pass |

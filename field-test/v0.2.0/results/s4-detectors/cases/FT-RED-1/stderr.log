@@ -1,34 +1,4 @@
- Image agentwatch-fieldtest-recorder:local Building 
- Image agentwatch-analytics Building 
- Image agentwatch-web Building 
- Image agentwatch-api Building 
- Image agentwatch-api Built 
- Image agentwatch-analytics Built 
- Image agentwatch-web Built 
- Image agentwatch-fieldtest-recorder:local Built 
- Container agentwatch-fleet-h1-1 Running 
- Container agentwatch-postgres-1 Running 
- Container agentwatch-otel-grpc-1 Running 
- Container agentwatch-fleet-h3-1 Running 
- Container agentwatch-jaeger-1 Running 
- Container agentwatch-analytics-1 Running 
- Container agentwatch-managed-hooks-1 Running 
- Container agentwatch-runner-1 Running 
- Container agentwatch-api-1 Running 
- Container agentwatch-fleet-h2-1 Running 
- Container agentwatch-otel-collector-1 Running 
- Container agentwatch-verifier-1 Running 
- Container agentwatch-litellm-1 Running 
- Container agentwatch-web-1 Running 
- Container agentwatch-a2a-proxy-1 Running 
- Container agentwatch-recorder-1 Running 
- Container agentwatch-postgres-1 Waiting 
- Container agentwatch-postgres-1 Waiting 
- Container agentwatch-postgres-1 Healthy 
- Container agentwatch-postgres-1 Healthy 
-usage: agentwatch redact [-h] [--preview SAMPLE]
-                         [--mode {metadata-only,truncated,hashed,full}]
-                         [--json] [--corpus VERSION]
-                         [target]
-agentwatch redact: error: argument --preview: expected one argument
-{"error": {"code": "E_USAGE", "message": "error: argument --preview: expected one argument", "hint": "Run `agentwatch <command> --help` and re-run.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-usage"}}
+ Container agentwatch-recorder-1 Restarting 
+ Container agentwatch-recorder-1 Started 
+agentwatch: redaction corpus directory not found (schema/vectors/redaction)
+{"error": {"code": "E_USAGE", "message": "redaction corpus directory not found (schema/vectors/redaction)", "hint": "Run `agentwatch <command> --help` and re-run.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-usage"}}

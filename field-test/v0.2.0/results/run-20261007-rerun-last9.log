@@ -1,0 +1,151 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+
+############ s11-console: FT-LUI-1 ############
+==> suite s11-console: 1 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s11-console
+
+################ FT-LUI-1 ################
+== case FT-LUI-1 ==
+  PASS ui-console-check
+  PASS ui-module
+  FAIL console-playwright
+== case FT-LUI-1: fail ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s11-console
+collect-results: 1 pass / 1 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s11-console/summary.{json,md}
+
+############ s12-governance: FT-HLD-1 ############
+==> suite s12-governance: 1 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s12-governance
+
+################ FT-HLD-1 ################
+== case FT-HLD-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS hold-survives
+== case FT-HLD-1: pass ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s12-governance
+collect-results: 3 pass / 0 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s12-governance/summary.{json,md}
+
+############ s13-investigation: FT-CNC-1 FT-ENV-1 FT-IR-1 FT-SBX-1 ############
+==> suite s13-investigation: 4 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s13-investigation
+
+################ FT-CNC-1 ################
+== case FT-CNC-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS concurrency-report
+== case FT-CNC-1: pass ==
+
+################ FT-ENV-1 ################
+== case FT-ENV-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS env-delta
+== case FT-ENV-1: pass ==
+
+################ FT-IR-1 ################
+== case FT-IR-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS incident-case
+== case FT-IR-1: pass ==
+
+################ FT-SBX-1 ################
+== case FT-SBX-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS sandbox-events
+== case FT-SBX-1: pass ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s13-investigation
+collect-results: 5 pass / 0 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s13-investigation/summary.{json,md}
+
+############ s14-outcomes: FT-NTF-1 FT-RUN-1 ############
+==> suite s14-outcomes: 2 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s14-outcomes
+
+################ FT-NTF-1 ################
+== case FT-NTF-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  FAIL alert-recipes
+== case FT-NTF-1: fail ==
+
+################ FT-RUN-1 ################
+== case FT-RUN-1 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  FAIL runner-segment
+== case FT-RUN-1: fail ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s14-outcomes
+collect-results: 3 pass / 2 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s14-outcomes/summary.{json,md}
+
+############ s15-hostile: FT-HOSTILE-1 ############
+==> suite s15-hostile: 1 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s15-hostile
+
+################ FT-HOSTILE-1 ################
+== case FT-HOSTILE-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS hostile-contained
+  PASS quarantined
+== case FT-HOSTILE-1: pass ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s15-hostile
+collect-results: 4 pass / 0 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s15-hostile/summary.{json,md}
+==> Tearing down the stack (and volumes)
+==> done rc=1

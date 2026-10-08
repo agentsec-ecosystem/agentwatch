@@ -434,15 +434,19 @@
           "ok": true
         },
         {
+          "name": "detector-matrix",
+          "ok": true
+        },
+        {
           "name": "detector-nonsilent-80",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-DET-2",
       "run_id": "s4-detectors",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -544,14 +548,14 @@
         },
         {
           "name": "detector-matrix-llm",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-DET-3",
       "run_id": "s4-detectors",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -669,99 +673,15 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -770,14 +690,14 @@
         },
         {
           "name": "telemetry-module",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-DET-5",
       "run_id": "s4-detectors",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -1008,99 +928,15 @@
     {
       "assertions": [
         {
-          "name": "stack-up-v020",
+          "name": "reset-recorder-restart",
           "ok": true
         },
         {
-          "name": "svc-postgres",
+          "name": "state-reset",
           "ok": true
         },
         {
-          "name": "svc-jaeger",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-collector",
-          "ok": true
-        },
-        {
-          "name": "svc-api",
-          "ok": true
-        },
-        {
-          "name": "svc-analytics",
-          "ok": true
-        },
-        {
-          "name": "svc-web",
-          "ok": true
-        },
-        {
-          "name": "svc-recorder",
-          "ok": true
-        },
-        {
-          "name": "svc-verifier",
-          "ok": true
-        },
-        {
-          "name": "ep-postgres",
-          "ok": true
-        },
-        {
-          "name": "ep-api-health",
-          "ok": true
-        },
-        {
-          "name": "ep-jaeger",
-          "ok": true
-        },
-        {
-          "name": "ep-collector",
-          "ok": true
-        },
-        {
-          "name": "ep-web",
-          "ok": true
-        },
-        {
-          "name": "ep-recorder",
-          "ok": true
-        },
-        {
-          "name": "ep-omlx",
-          "ok": true
-        },
-        {
-          "name": "svc-otel-grpc",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h1",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h2",
-          "ok": true
-        },
-        {
-          "name": "svc-fleet-h3",
-          "ok": true
-        },
-        {
-          "name": "svc-a2a-proxy",
-          "ok": true
-        },
-        {
-          "name": "svc-litellm",
-          "ok": true
-        },
-        {
-          "name": "svc-runner",
-          "ok": true
-        },
-        {
-          "name": "svc-managed-hooks",
+          "name": "stack-reused",
           "ok": true
         },
         {
@@ -1125,12 +961,12 @@
     "run_id": "s4-detectors",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T05:14:48.886305+00:00",
+  "generated_at": "2026-10-08T06:40:45.924500+00:00",
   "green": false,
   "run_id": "s4-detectors",
   "totals": {
     "declared": 0,
-    "fail": 4,
-    "pass": 6
+    "fail": 1,
+    "pass": 9
   }
 }

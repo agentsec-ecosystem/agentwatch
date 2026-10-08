@@ -1,18 +1,18 @@
 # Field Test Run s7-platform
 
-**Totals:** 6 pass · 6 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 11 pass · 1 fail · 0 declared  →  **NOT GREEN**
 
 | Case | Class | Status |
 |---|---|---|
-| FT-AGI-1 | P/F | fail |
+| FT-AGI-1 | P/F | pass |
 | FT-AGI-2 | P/F | fail |
 | FT-API-1 | P/F | pass |
 | FT-CCO-1 | P/F | pass |
 | FT-CCO-2 | P/F | pass |
-| FT-EXA-1 | P/F | fail |
-| FT-FWK-1 | P/F|D | fail |
-| FT-FWK-2 | P/F | fail |
+| FT-EXA-1 | P/F | pass |
+| FT-FWK-1 | P/F|D | pass |
+| FT-FWK-2 | P/F | pass |
 | FT-GOV-1 | P/F | pass |
-| FT-POL-1 | P/F | fail |
+| FT-POL-1 | P/F | pass |
 | FT-SDK-1 | P/F | pass |
 | FT-TSS-1 | P/F|D | pass |

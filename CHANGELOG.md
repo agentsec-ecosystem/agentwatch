@@ -18,6 +18,10 @@ versioning: [Semantic Versioning](https://semver.org/).
   - DEMO-1: a static, synthetic `examples/demo-bundle/` (replay/impact/oversight/provenance) linked from the README
     and GTM — opens offline with zero network requests, is synthetic (`producer.kind: demo`) and clean under two
     independent secret scanners. The VFY-1 browser rendering is deferred (#480).
+  - NTF-1: three CI-tested alert-routing recipes (`deploy/recipes/`: Slack incoming webhook, PagerDuty Events API
+    v2, Alertmanager v2) that map agentwatch security events to each stack's payload and post them through the
+    shipped `agentwatch.sinks.WebhookSink`. agentwatch defines no rules or thresholds — routing stays in the
+    user's stack, and every event is forwarded (#481).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

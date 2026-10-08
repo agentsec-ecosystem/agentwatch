@@ -29,6 +29,13 @@ Mapping of agentwatch fields to OTel attributes: [design/otel-mapping.md](otel-m
   `degraded` visible on backpressure.
 - **Detector telemetry** (PRD 43 DET-5): opt-in, local-only, content-free fired/suppressed/false-positive markers
   (`agentwatch.detector_telemetry`, off by default, bounded NDJSON), feedable to SIEM consumers.
+- **Alert-routing recipes** (PRD 58 NTF-1): agentwatch forwards security events **rule-free** (no thresholds,
+  suppression, or severity) and alerting stays in the user's stack. Three CI-tested, copy-and-adapt recipes —
+  Slack incoming webhook, PagerDuty Events API v2, Prometheus Alertmanager v2 — map each event to the target's
+  payload and post it through the shipped `agentwatch.sinks.WebhookSink` (`deploy/recipes/`,
+  test: `packages/python-sdk/tests/test_alert_recipes.py`). The event→urgency/severity defaults are the user's
+  presentation choice, not an agentwatch judgement; oversight thresholds (APV-3) and capability changes (CAP-2)
+  are routed by evaluating those outputs in the user's own job and emitting into the same stream.
 - **v0.2.0-expanded** (PRD 49–59): authorization/oversight provenance
   ([authorization-provenance-v2](authorization-provenance-v2.md)), recorder attestation
   ([recorder-attestation](recorder-attestation.md)), harness-native telemetry join

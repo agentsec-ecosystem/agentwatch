@@ -908,6 +908,30 @@
         "doc:examples/demo-bundle/README.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C132",
+      "claim": "Three CI-tested alert-routing recipes (Slack/PagerDuty/Alertmanager) map agentwatch security events to each stack's payload and post them through the shipped WebhookSink.",
+      "source": "deploy/recipes/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_all_three_recipes_exist_and_reuse_the_shared_sink",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_slack_recipe_maps_events_to_incoming_webhook_payloads",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_pagerduty_recipe_maps_events_to_events_api_v2",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_alertmanager_recipe_maps_events_to_the_v2_alerts_api",
+        "doc:deploy/recipes/README.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C133",
+      "claim": "agentwatch defines no alert rules, thresholds, or suppression: the recipes forward every security event and routing lives in the user's stack.",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_recipes_forward_every_event_without_builtin_rules",
+        "doc:deploy/recipes/README.md",
+        "doc:docs/design/observability.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

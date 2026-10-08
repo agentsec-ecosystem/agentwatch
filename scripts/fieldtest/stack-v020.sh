@@ -6,36 +6,31 @@
 #   stack-v020.sh down     # tear down (and drop volumes)
 #   stack-v020.sh ps       # show status
 #   stack-v020.sh verify   # list running services (exit 1 if any is missing)
+#   stack-v020.sh reset    # down -v + up
 #
-# Results are written by the runners to field-test/v0.2.0/results/; this script
-# only manages the containers.
+# Single source of truth: this reuses lib.sh's STACK_COMPOSE, V020_PROFILES and
+# V020_SERVICES (never re-declares the compose files or the service list).
+# Results are written by the runners to field-test/v0.2.0/results/.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$HERE/../.." && pwd)"
-
-COMPOSE=(docker compose \
-  -f "$REPO_ROOT/docker-compose.yml" \
-  -f "$HERE/docker-compose.fieldtest.yml" \
-  --profile v020 --profile managed --profile tempo)
-
-SERVICES=(postgres jaeger otel-collector api analytics web recorder verifier
-  otel-grpc fleet-h1 fleet-h2 fleet-h3 a2a-proxy litellm runner managed-hooks)
+# shellcheck source=lib.sh
+source "$HERE/lib.sh"
 
 case "${1:-}" in
   up)
-    "${COMPOSE[@]}" up -d --build "${SERVICES[@]}"
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" up -d --build "${V020_SERVICES[@]}"
     ;;
   down)
-    "${COMPOSE[@]}" down -v
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" down -v
     ;;
   ps)
-    "${COMPOSE[@]}" ps
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" ps
     ;;
   verify)
-    running="$("${COMPOSE[@]}" ps --services --filter status=running | sort)"
+    running="$("${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" ps --services --filter status=running | sort)"
     rc=0
-    for svc in "${SERVICES[@]}"; do
+    for svc in "${V020_SERVICES[@]}"; do
       if grep -qx "$svc" <<<"$running"; then
         printf '%-16s %s\n' "$svc" up
       else
@@ -46,8 +41,8 @@ case "${1:-}" in
     exit "$rc"
     ;;
   reset)
-    "${COMPOSE[@]}" down -v
-    "${COMPOSE[@]}" up -d --build "${SERVICES[@]}"
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" down -v
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" up -d --build "${V020_SERVICES[@]}"
     ;;
   *)
     echo "usage: stack-v020.sh up|down|ps|verify|reset" >&2

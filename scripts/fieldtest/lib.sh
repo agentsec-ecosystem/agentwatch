@@ -244,10 +244,13 @@ ft_up_recorder() {
 V020_PROFILE_SERVICES=(otel-grpc fleet-h1 fleet-h2 fleet-h3 a2a-proxy litellm runner)
 V020_SERVICES=(postgres jaeger otel-collector api analytics web recorder verifier
   "${V020_PROFILE_SERVICES[@]}" managed-hooks)
+# The profile flags that make the v0.2.0 services present. Single source of truth
+# for both the harness (ft_up_v020) and the standalone stack-v020.sh/seed-v020.sh.
+V020_PROFILES=(--profile v020 --profile managed --profile tempo)
 
 ft_up_v020() {
   ft_record "compose --profile v020 --profile tempo up -d --build (v0.2.0 services)"
-  if "${STACK_COMPOSE[@]}" --profile v020 --profile tempo up -d --build "${V020_SERVICES[@]}" \
+  if "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" up -d --build "${V020_SERVICES[@]}" \
       >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"; then
     ft_pass "stack-up-v020"
   else

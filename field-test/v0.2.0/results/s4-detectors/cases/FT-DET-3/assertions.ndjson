@@ -22,4 +22,3 @@
 {"name":"svc-litellm","ok":true}
 {"name":"svc-runner","ok":true}
 {"name":"svc-managed-hooks","ok":true}
-{"name":"detector-matrix-llm","ok":false}

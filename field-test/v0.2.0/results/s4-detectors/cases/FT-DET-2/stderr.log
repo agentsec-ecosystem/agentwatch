@@ -46,3 +46,21 @@
  Container agentwatch-postgres-1 Waiting 
  Container agentwatch-otel-collector-1 Started 
  Container agentwatch-verifier-1 Started 
+ Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-analytics-1 Starting 
+ Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-api-1 Starting 
+ Container agentwatch-analytics-1 Started 
+ Container agentwatch-api-1 Started 
+ Container agentwatch-web-1 Starting 
+ Container agentwatch-web-1 Started 
+ Container agentwatch-jaeger-1 Running 
+ Container agentwatch-postgres-1 Running 
+ Container agentwatch-postgres-1 Waiting 
+ Container agentwatch-postgres-1 Healthy 
+ Container agentwatch-analytics-run-26c26ff64b2c Creating 
+ Container agentwatch-analytics-run-26c26ff64b2c Created 
+LLM embed call failed: Error code: 404 - {'error': {'message': "Model 'all-MiniLM-L6-v2' not found. Available models: Llama-3.2-3B-Instruct-4bit, Qwen3-4B-Instruct-2507-4bit, Qwen3-8B-4bit, Qwen3.5-4B-4bit, Qwen3.5-9B-MLX-4bit, mlx-community--Qwen3.5-4B-4bit", 'type': 'not_found_error', 'param': None, 'code': None}}
+LLM embed call failed: Error code: 404 - {'error': {'message': "Model 'all-MiniLM-L6-v2' not found. Available models: Llama-3.2-3B-Instruct-4bit, Qwen3-4B-Instruct-2507-4bit, Qwen3-8B-4bit, Qwen3.5-4B-4bit, Qwen3.5-9B-MLX-4bit, mlx-community--Qwen3.5-4B-4bit", 'type': 'not_found_error', 'param': None, 'code': None}}
+LLM embed call failed: Error code: 404 - {'error': {'message': "Model 'all-MiniLM-L6-v2' not found. Available models: Llama-3.2-3B-Instruct-4bit, Qwen3-4B-Instruct-2507-4bit, Qwen3-8B-4bit, Qwen3.5-4B-4bit, Qwen3.5-9B-MLX-4bit, mlx-community--Qwen3.5-4B-4bit", 'type': 'not_found_error', 'param': None, 'code': None}}
+LLM embed call failed: Error code: 404 - {'error': {'message': "Model 'all-MiniLM-L6-v2' not found. Available models: Llama-3.2-3B-Instruct-4bit, Qwen3-4B-Instruct-2507-4bit, Qwen3-8B-4bit, Qwen3.5-4B-4bit, Qwen3.5-9B-MLX-4bit, mlx-community--Qwen3.5-4B-4bit", 'type': 'not_found_error', 'param': None, 'code': None}}

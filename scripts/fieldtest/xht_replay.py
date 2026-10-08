@@ -1,40 +1,33 @@
 #!/usr/bin/env python3
 """M31 31.2 — cross-harness test-kit replay / self-test / cross-parser (XHT).
 
-F-3 fix: nothing registers adapters in-process, so register the shipped
-harness adapters (with their real capability/gap declarations and fixture
-corpora) and run the contract against them.
+F-3 fix: nothing registers adapters in-process, so register the **shipped**
+adapters through the SDK's own conformance registry — the single source of
+truth for each adapter's capabilities, documented gaps and conformance fixture
+corpus — then run the contract against them.
+
+Modes (argv):
+  --self-test            every registered adapter conforms (all checks ok)
+  --cross-parser         >=2 independent parsers are registered
+  --opencode --bounded   (LUI-2/AGI-2 tail) bounded long-tail reader
 """
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agentwatch import conformance  # real API
-from agentwatch.adapters import codex_cli, cursor, gemini_cli
-from _ftutil import ok
 
-FIXTURES = Path("/ft/fixtures")
-
-# (name, module, error class, fixtures dir)
-SHIPPED = [
-    ("cursor", cursor, cursor.CursorAdapterError, FIXTURES / "cursor"),
-    ("codex", codex_cli, codex_cli.CodexCliAdapterError, FIXTURES / "codex"),
-    ("gemini", gemini_cli, gemini_cli.GeminiCliAdapterError, FIXTURES / "gemini"),
-]
+import agentwatch  # noqa: E402
+from agentwatch import conformance  # noqa: E402
+from _ftutil import ok  # noqa: E402
 
 
 def _register() -> None:
-    for name, mod, error_cls, fixtures_dir in SHIPPED:
-        conformance.register(
-            conformance.AdapterSpec(
-                name=name,
-                normalize=mod.normalize,
-                capabilities=mod.CAPABILITIES,
-                documented_gaps=mod.DOCUMENTED_GAPS,
-                error_cls=error_cls,
-                fixtures_dir=fixtures_dir,
-            ),
-            replace=True,
-        )
+    """Register the shipped adapters via the SDK's canonical registry."""
+    sdk_root = Path(agentwatch.__file__).resolve().parents[2]  # packages/python-sdk
+    tests = sdk_root / "tests"
+    if str(tests) not in sys.path:
+        sys.path.insert(0, str(tests))
+    import conformance_registry  # noqa: F401  (registers every shipped adapter)
 
 
 def main(argv):

@@ -1,6 +1,6 @@
 # Field Test Run s3-harness
 
-**Totals:** 13 pass · 1 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 14 pass · 0 fail · 0 declared  →  **GREEN**
 
 | Case | Class | Status |
 |---|---|---|
@@ -14,7 +14,7 @@
 | FT-MCP-2 | P/F | pass |
 | FT-STR-1 | P/F | pass |
 | FT-STR-2 | P/F | pass |
-| FT-XHT-1 | P/F | fail |
+| FT-XHT-1 | P/F | pass |
 | FT-XHT-2 | P/F|D | pass |
 | FT-XHT-3 | P/F | pass |
 | FT-XHT-4 | P/F | pass |

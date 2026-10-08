@@ -1,0 +1,59 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+==> suite s3-harness: 1 case(s) -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s3-harness
+
+################ FT-XHT-2 ################
+== case FT-XHT-2 ==
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS xht-opencode
+== case FT-XHT-2: pass ==
+
+==> Aggregating results into /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s3-harness
+collect-results: 14 pass / 0 fail / 0 declared -> /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/field-test/v0.2.0/results/s3-harness/summary.{json,md}
+==> Tearing down the stack (and volumes)

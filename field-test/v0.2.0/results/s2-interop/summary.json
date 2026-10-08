@@ -679,14 +679,14 @@
         },
         {
           "name": "fleet-skew",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-TRACE-2",
       "run_id": "s2-interop",
-      "status": "fail"
+      "status": "pass"
     }
   ],
   "env": {
@@ -699,12 +699,12 @@
     "run_id": "s2-interop",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T07:13:27.581291+00:00",
-  "green": false,
+  "generated_at": "2026-10-08T07:15:13.459982+00:00",
+  "green": true,
   "run_id": "s2-interop",
   "totals": {
     "declared": 0,
-    "fail": 1,
-    "pass": 11
+    "fail": 0,
+    "pass": 12
   }
 }

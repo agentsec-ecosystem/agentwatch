@@ -22,4 +22,4 @@
 {"name":"svc-litellm","ok":true}
 {"name":"svc-runner","ok":true}
 {"name":"svc-managed-hooks","ok":true}
-{"name":"fleet-skew","ok":false}
+{"name":"fleet-skew","ok":true}

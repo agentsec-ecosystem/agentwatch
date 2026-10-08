@@ -12,14 +12,14 @@
         },
         {
           "name": "console-playwright",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-LUI-1",
       "run_id": "s11-console",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -141,12 +141,12 @@
     "run_id": "s11-console",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T06:52:59.758744+00:00",
-  "green": false,
+  "generated_at": "2026-10-08T07:43:54.435516+00:00",
+  "green": true,
   "run_id": "s11-console",
   "totals": {
     "declared": 0,
-    "fail": 1,
-    "pass": 1
+    "fail": 0,
+    "pass": 2
   }
 }

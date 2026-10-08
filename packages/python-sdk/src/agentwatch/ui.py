@@ -67,11 +67,13 @@ _INDEX_HTML = """<!doctype html>
 <title>agentwatch console</title>
 </head>
 <body>
+<main>
 <h1>agentwatch console</h1>
 <p class="read-only">read-only &middot; loopback only &middot; hash-chained store</p>
 <div id="health" role="status"></div>
 <div id="sessions"></div>
 <div id="signatures"></div>
+</main>
 <script>
 const params = new URLSearchParams(location.search);
 const token = params.get("token") || "";

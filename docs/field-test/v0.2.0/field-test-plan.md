@@ -12,7 +12,7 @@ provenance, a zero-Docker console, agent interfaces, policy-from-history, govern
 and ephemeral capture — **CUJ-15 through CUJ-34 plus a CUJ-8 extension** (PRD 04).
 
 This plan **extends** the v0.1.0 plan; it does not replace it. The v0.1.0 suite runs unchanged as the **regression
-gate** (the record layer must not regress), and **84 new cases** are added so that **every P0 v0.2.0 feature and every
+gate** (the record layer must not regress), and **94 new cases** are added so that **every P0 v0.2.0 feature and every
 new CUJ appears in ≥1 end-to-end field case** — the field-test case is the seventh item of the v0.2.0 definition of
 done (PRD 48 §5). The case roster is frozen here now so M31 execution is a matter of running, not deciding.
 
@@ -67,7 +67,7 @@ ticket for every case, so a case whose feature has not landed is visibly "blocke
 | Harness overlay + `lib.sh` + runners + `collect-results.py` | ✅ available |
 | New environment topologies (fleet 3-host, A2A, gateway, runner, Windows, managed-policy) | ☐ to add (M31.1/31.4) |
 | New fixtures (golden corpora, hostile set, AAT vectors, capability/memory, provenance repo) | ☐ to add (M31.2/31.3) |
-| New case specs + registry entries (84 cases) | ☐ to add (M31.3) |
+| New case specs + registry entries (94 cases) | ☐ to add (M31.3) |
 | New runners (per-suite) | ☐ to add (M31.4) |
 
 **Overall status: READY TO BUILD THE HARNESS.** The roster is frozen; execution is M31.
@@ -162,9 +162,57 @@ v0.2.0 must not regress the record layer. The **entire v0.1.0 suite runs first**
 **Pass condition:** 50/50 · 226/226 · 49/49, zero skips, before any v0.2.0 case is evaluated. A v0.1.0 regression is a
 **release blocker**, and any defect it exposes is fixed with its own regression test (M31 31.7).
 
+### 5a. v0.1.0 case parity & disposition matrix
+
+Nothing from v0.1.0 disappears silently. **Unchanged features keep their original case as-is**; changed features keep
+it **plus** a v0.2.0 companion; superseded cases name their replacement.
+
+**Group A — unchanged, original case retained as-is (19):** FT-05, FT-06, FT-06b, FT-09, FT-10, FT-11, FT-12,
+FT-13, FT-14, FT-15b, FT-15c, FT-16, FT-18, FT-20b, FT-23, FT-26, FT-28, FT-30, FT-32.
+
+**Group B — extended, original case kept + a v0.2.0 companion:**
+
+| v0.1.0 case | v0.2.0 companion |
+|---|---|
+| FT-01 | FT-ENV-0, FT-DEP-1, FT-WIN-1 |
+| FT-02 | FT-APV-3, FT-CAP-2, FT-ENV-1 |
+| FT-03 | FT-OTEL-1/2/4, FT-BACKEND-2 |
+| FT-04 | FT-RED-1, FT-OTEL-3, FT-PRV-3, FT-GEM-1, FT-CCO-1 |
+| FT-07 | FT-DEMO-1 |
+| FT-08 | FT-CMP-2, FT-CMP-3 |
+| FT-11b | FT-DET-4, FT-DET-6 |
+| FT-11c | FT-XHT-2, FT-FWK-1, FT-LG-1 |
+| FT-11d | FT-COR-1 |
+| FT-15 | FT-DET-6, FT-DET-7 |
+| FT-17 | FT-AAT-2, FT-OTEL-2, FT-COD-1, FT-MCP-2 |
+| FT-19 | FT-SIEM-1 |
+| FT-20 | FT-SIEM-1, FT-DET-5 |
+| FT-22 | FT-TRACE-2 |
+| FT-24 | FT-CMP-3, FT-DEP-2, FT-STR-2 |
+| FT-27 | FT-WIN-1 |
+| FT-29 | FT-XHT-1..4, FT-MATRIX-1 |
+| FT-31 | FT-ACC-1, FT-WIN-1 |
+| FT-33 | FT-DET-5, FT-SIEM-1, FT-STR-2 |
+| FT-34 | FT-GWY-1, FT-CCO-1, FT-OUT-1 |
+| FT-35 | FT-PRV-3, FT-OTEL-4 |
+| FT-36 | report / console screenshots |
+| CUJ-08 | FT-VFY-1, FT-IR-1, FT-COR-2 |
+| CUJ-09 | FT-DEP-2, FT-CLAIM-1 |
+| CUJ-10 | FT-GWY-1, FT-CCO-1, FT-OUT-1 |
+| CUJ-11 | FT-SDK-1, FT-LG-1, FT-FWK-1/2, FT-TSS-1, FT-PG-3 |
+| CUJ-12 | FT-HLD-1 |
+| CUJ-13 | FT-MCP-1/2, FT-CAP-1 |
+| CUJ-14 | FT-APV-1/2/3, FT-CCO-1, FT-GEM-1, FT-CCA-1 |
+
+**Group C — superseded, never dropped:** FT-01b → FT-ENV-0 (same proof, now on 3 OSes, closes R2); FT-25 →
+in-process latency stays under the perf gate, user-visible wall-clock moves to FT-DEP-3.
+
+**v0.1.0 deferred → closed here:** R2 → FT-ENV-0; R4 → FT-OTEL-1 + FT-BACKEND-2; live OCSF/Syslog reference
+consumers → FT-SIEM-1; real authenticated captures → FT-STR-1, FT-APV-1, FT-CCO-1, FT-SBX-1, FT-CUR-1 (Cursor).
+
 ---
 
-## 6. Master scenario matrix — 84 new cases
+## 6. Master scenario matrix — 94 new cases
 
 `Class`: **P/F** = must pass or fail (no declaration). **P/F|D** = pass, or declared with a named limitation (only
 where the release gate says "or declared"). `Env` keys: mac=local-macos, lin=local-linux, ci=ci-hermetic, cm=clean
@@ -190,6 +238,7 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 | FT-OTEL-1 | Canonical OTel **agent-span** conformance in ≥2 backends | OTEL-1 | 3 ext | ci | Jaeger + Tempo | Agent-span trees render in both; semconv pin + operation alignment carried | P/F |
 | FT-OTEL-2 | OTLP/gRPC + protobuf, streaming | OTEL-3 | 3 ext | ci | gRPC fixture | 100 MB ingest within memory bound; no whole-document load; records validate | P/F |
 | FT-OTEL-3 | Privacy-mode ↔ content-capture mapping | OTEL-2 | 3 ext | ci | property test | metadata-only by default; no content leaks on export across modes | P/F |
+| FT-OTEL-4 | Skill / command-execution agent-span mapping | OTEL-4 | 3 ext | ci | SDK corpus + property test | Spans mapped where a harness exposes them; a non-exposing harness carries a **declared gap**, never invented spans | P/F\|D |
 | FT-TRACE-1 | One causal chain across 3 hosts × 3 harnesses | TRACE-1/2 | 16 | fleet | 3-host scenario | One ordered chain; broker gap classified (never absorbed); `trace <tid>` correct | P/F |
 | FT-TRACE-2 | Cross-host clock skew ordering | TRACE-2, F9 | 16 | fleet | skewed clocks | Documented ordering rules; skew bounded/flagged; propagation break classified | P/F |
 | FT-PG-1 | Drop-Postgres mode + bit-for-bit rebuild | PG-1 (phased) | 11 | ci | rebuild | All commands work with PG down; `--rebuild` reproduces index bit-for-bit | P/F\|D |
@@ -223,6 +272,9 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 | FT-DET-2 | ≥80% of rule detectors non-silent; catalog CI-guard | DET-3 | 19 | ci | catalog | ≥80% non-silent on the public corpus; a detector without a catalog entry fails CI | P/F |
 | FT-DET-3 | LLM detectors in the same harness | DET-4 | 19 | mac | OMLX | LLM detectors run under the harness; `llm_called_ok` on every scenario | P/F |
 | FT-DET-4 | Injection + memory-surface observations | DET-6/7 | 8 ext | ci | injection corpus | Observations fire with published precision/recall; signals only, never verdicts; high-FP rules off by default | P/F |
+| FT-DET-5 | Detector telemetry (SIEM-feedable, content-free) | DET-5 | 19 | ci | `detector status` | Off by default; fired/suppressed/false-positive markers are content-free, bounded, NDJSON, feedable to a SIEM | P/F |
+| FT-DET-6 | New-class scenario depth (injection/memory/credentials/sandbox) | DET-6 | 19 | ci | scenario matrix | Positive/negative/boundary scenarios per class per harness; per-harness numbers published in the catalog | P/F |
+| FT-DET-7 | Real-harness trace replay (not fixtures alone) | DET-7 | 19 | ci | real testkit traces | Detectors fire measurably on real Claude Code / Cursor / Codex traces; the non-silent claim rests on measured firing | P/F |
 | FT-COR-1 | Public corpus + **second-corpus** reproduction | COR-1 (31.10) | 19 | ci | corpus v1 | Local numbers match published within stated bounds; corpus/method/CIs cited | P/F |
 | FT-COR-2 | Incident-registry export (COR-2/3) | COR-2/3 | 8 ext | ci | AIR-shaped export | Export validates against schema fixture; **no auto-submission path exists** (test) | P/F |
 | FT-RED-1 | Redaction quality benchmark | RED-1 | — | ci | redaction corpus | Per-class recall/FP reproduced deterministically; misses listed in known-limitations | P/F |
@@ -233,8 +285,10 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 |---|---|---|---|---|---|---|---|
 | FT-IDN-1 | Attribution end-to-end in one command | IDN-1..4 | 16 | fleet | multi-agent fixture | `impact`/`blame`/`tree`/`trace` answer identity+delegation or honest `unknown`, never inferred | P/F |
 | FT-IDN-2 | Identity fields never contain secret material | IDN-1, DD-06 | — | ci | property test | Hashed by default in metadata-only; secret-material property test passes | P/F |
+| FT-IDN-3 | Ambient / shared credential hygiene observation | IDN-3, DD-07 | 16 ext | ci | credential fixture corpus | `credential_class: ambient/shared` fires with published precision/recall; an observation, never a verdict; AIMS/WIMSE mapping cited | P/F |
 | FT-CMP-1 | One-command **offline** compliance report | CMP-1/2 | 18 | ci | `compliance report` | Every row regenerable from its cited command; zero unverifiable claims; offline/air-gapped | P/F |
 | FT-CMP-2 | Retention profiles + signed default posture | CMP-3/4 | 18 | ci | retention+sign | Signed default verify succeeds; unverifiable is never "ok"; missing key names key id + epoch | P/F |
+| FT-CMP-3 | All five compliance templates + key rotation | CMP-3/4 | 18 | ci | rotate + verify | All templates run offline; rotation appends a metadata-only `key-rotation` chain event; missing-epoch verdict is exactly "signed by key id X, key unavailable" | P/F |
 | FT-SIEM-1 | OCSF 1.5.0 + Syslog event stream | SIEM-1/2 | 18,16 | ci | reference consumers | Conformance-tested (Splunk/Sentinel/Exabeam-shaped); redaction gate blocks an unconfigured sink; `degraded` on failure | P/F |
 | FT-ASI-1 | OWASP ASI-2026 + AST10 report | ASI-1 | 18 ext | ci | `compliance report` | All ten ASI rows + AST10 present; **every row's command runs**; nothing claims prevention | P/F |
 
@@ -263,6 +317,7 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 | FT-FWK-2 | `instrument()` auto-detect | FWK-2 | 28 | ci | local frameworks | Prints detected frameworks + gaps (no silent partial); no-op safe; flush-on-exit; idempotent | P/F |
 | FT-CCO-1 | Claude Code native-OTel ingest + `tool_use_id` join | CCO-1 | 21 | mac | captured OTel | ≥95% join; hook-only/otel-only/discrepancies classified; exact vs estimated cost source-stamped; redaction on ingest | P/F |
 | FT-CCO-2 | Claude Agent SDK / headless via same path | CCO-2 | 28 | ci | SDK run | Telemetry lands as `source: sdk-native` with identity from resource attributes; gallery example runs | P/F |
+| FT-TSS-1 | TS-SDK span-taxonomy spike | TSS-1 (PRD 46) | — | spike | spike report | Taxonomy derived from observed spans, not taxonomy-first; findings land as new M31 tickets; nothing in production depends on the spike | P/F\|D |
 
 ### S8 — Authorization & oversight provenance (M29; PRD 49; CUJ-21)
 
@@ -286,6 +341,7 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 |---|---|---|---|---|---|---|---|
 | FT-PRV-1 | Commit → session | PRV-1 (31.12) | 22 | mac | git repo | Commit resolves to its session in <2 s; no-activity says so (not "human"); hand-edited ranges `mixed`; gaps flagged | P/F |
 | FT-PRV-2 | Agent Trace export + content-free ranges | PRV-2/3 | 22 | ci | git repo | Export validates vs pinned schema revision; **contains no code content**; redaction attack pack passes; write-to-repo only by explicit command | P/F |
+| FT-PRV-3 | Range + content-hash capture under every privacy mode | PRV-2 | 22 | ci | property test + attack pack | Ranges + hashes exist under `metadata-only` too; **no content/diff text anywhere**; unsupported edit tools declare the file-level `heuristic` fallback; cost inside the DEP-3 budget | P/F |
 
 ### S11 — Local console & embedded query tier (M30; PRD 54; CUJ-24)
 
@@ -331,9 +387,9 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 | FT-MATRIX-1 | Compatibility matrix honest tiers | XHT-4, PRD 40 §5.3 | — | ci | matrix | No "modeled" Tier-1 row; every row carries `live-verified\|fixture-verified` with corpus citation | P/F |
 | FT-BACKEND-2 | Second live OTLP backend (closes R4) | EXT-10, OTEL-1 | 3 | ci | Tempo + Jaeger | Export loads unmodified in both backends; second live backend proven | P/F |
 
-**Totals: 84 new cases** (S1 4 · S2 11 · S3 14 · S4 7 · S5 6 · S6 5 · S7 10 · S8 3 · S9 3 · S10 2 · S11 2 ·
+**Totals: 94 new cases** (S1 5 · S2 12 · S3 14 · S4 10 · S5 8 · S6 5 · S7 12 · S8 3 · S9 3 · S10 3 · S11 2 ·
 S12 3 · S13 5 · S14 5 · S15 4). Of these, 19 carry the `P/F|D` declare class (only where the release gate says
-"or declared"). Combined with the v0.1.0 regression block: **50 + 226 + 49 + 84 = 409 checks.**
+"or declared"). Combined with the v0.1.0 regression block: **50 + 226 + 49 + 94 = 419 checks.**
 
 ---
 
@@ -366,8 +422,10 @@ same template and are frozen in the roster and the registry.
   attestation carries digest+booleans only (property test: no config values/secrets); `coverage`/`evidence` include
   the attestation; a session without one is `attestation:absent`. Artifacts: attestation records + gap report.
 - **FT-DEP-3 — Hook cost.** Steps: run the perf gate for a 500-call session on each OS. Assertions:
-  `reference/performance.md` gains an end-to-end table; p50/p99 within the stated budget; a missed budget yields a
-  tracked ADR (not a silent miss). Artifacts: perf-gate output. Class P/F|D (Windows leg).
+  `reference/performance.md` gains an end-to-end table; p50/p99 within the user-visible budget (**< 500 ms per tool
+  call at p99, 250 ms per hook**) against the committed baseline; a missed budget yields a
+  tracked ADR (not a silent miss); a blocked OS leg is reported blocked, never measured. Artifacts: perf-gate
+  output. Class P/F|D (Windows leg).
 
 ### 7.2 S2 — Standards & interop
 
@@ -387,6 +445,9 @@ same template and are frozen in the roster and the registry.
   memory bound; no whole-document load (RSS sampled); records validate.
 - **FT-OTEL-3 — Privacy mapping.** Steps: property-test the privacy-mode ↔ content-capture mapping per mode.
   Assertions: metadata-only default; no content on export for metadata-only/truncated/hashed.
+- **FT-OTEL-4 — Skill spans.** Steps: run the SDK corpus; property-test the skill / command-execution agent-span
+  mapping per harness. Assertions: spans mapped where a harness exposes them; a harness that exposes nothing carries
+  a **declared gap** — spans are never invented. Artifacts: property-test output. Class P/F|D.
 - **FT-TRACE-1 — Cross-host chain (flagship).** Steps: 3 hosts × 3 harnesses; `traceparent` propagated; one broker
   interruption injected. Assertions: `trace <tid>` reconstructs one ordered chain; the broker gap is **classified**
   (not absorbed); each hop shows identity/delegation/approval or `unknown`. Artifacts: trace tree JSON.
@@ -416,6 +477,8 @@ same template and are frozen in the roster and the registry.
   Assertions: p99 ≤ 1 s; anomalies in the live inbox. Artifacts: latency histogram.
 - **FT-STR-2 — Reconciliation + soak.** Steps: 24 h streaming soak; kill the consumer mid-run. Assertions: **no
   store loss on consumer crash**; back-fill reconciles; derived views never diverge from the chain; gaps classified.
+  The 24 h target runs on the dedicated soak runner; the hosted-CI 6 h cap runs a bounded nightly and is a declared
+  environment limit, never a green claim.
 - **FT-LG-1 — Tier-2.** Steps: instrument a LangGraph app + a raw-Python path. Assertions: one command; spans
   chain-protected; `source: sdk`; conformance pack green.
 - **FT-XHT-1 — Corpus replay self-test.** Steps: run the replay runner; inject a deliberately broken adapter.
@@ -435,6 +498,16 @@ same template and are frozen in the roster and the registry.
   detector without a catalog entry fails CI; `llm_called_ok` on every LLM scenario.
 - **FT-DET-4 — Injection/memory signals.** Steps: replay the injection corpus + memory edit fixtures. Assertions:
   observations fire with published precision/recall; signals only (no enforcement); high-FP rules off by default.
+- **FT-DET-5 — Detector telemetry.** Steps: enable opt-in detector telemetry; emit markers; feed them to a
+  SIEM-shaped consumer. Assertions: off by default; fired/suppressed/false-positive markers carry no content (no
+  trace/argument/prompt), are bounded, and are feedable.
+- **FT-DET-6 — New-class scenario depth.** Steps: run the scenario matrix over the v0.2.0 classes (injection
+  heuristics, memory-surface, credential hygiene, sandbox denials) plus EXT-12 fixtures (bypass-heavy sessions,
+  capability drift, mode transitions). Assertions: positive/negative/boundary scenarios per class; per-harness
+  numbers published in the catalog.
+- **FT-DET-7 — Real-harness trace replay.** Steps: replay detectors over the real testkit traces (Claude Code
+  transcripts, Cursor session-tracer output, Codex rollouts). Assertions: the "non-silent on real harnesses" claim
+  rests on measured firing on real traces, not on the fixture list alone.
 - **FT-COR-1 — Second corpus (flagship).** Steps: run the eval harness on a **second, independent** corpus.
   Assertions: numbers match the published ones within the stated bounds; corpus version + method + CIs cited;
   "your corpus may differ" statement present.
@@ -448,6 +521,9 @@ same template and are frozen in the roster and the registry.
 - **FT-IDN-1 — Attribution (flagship).** Steps: multi-agent fixture across the fleet; run
   `impact`/`blame`/`tree`/`trace`. Assertions: "which agent, on which machine, under whose approval, on whose
   behalf" complete or honest `unknown`; identity fields pass the secret property test.
+- **FT-IDN-3 — Credential hygiene.** Steps: run the credential fixture corpus (ambient / shared secrets).
+  Assertions: `credential_class: ambient/shared` fires with published precision/recall; it is an observation, never
+  a verdict; the AIMS / WIMSE mapping is cited. Artifacts: corpus output.
 - **FT-CMP-1 — Offline compliance report (flagship).** Steps:
   `compliance report --framework iso-42001 --period Q3-2026 --out audit/`; then re-run one row's cited command from
   scratch. Assertions: every row has verdict + regenerating command + bundle refs + retention/signature status;
@@ -455,6 +531,11 @@ same template and are frozen in the roster and the registry.
 - **FT-CMP-2 — Retention + signing.** Steps: apply a retention profile; verify a signed checkpoint; then tamper.
   Assertions: signed default verifies; tampered signature fails; missing key → "signed by key id X, key unavailable";
   a missed retention run degrades visibly.
+- **FT-CMP-3 — Templates + rotation.** Steps: run all five templates (eu-ai-act-art12, iso-42001, iso-27001,
+  soc2, nist-800-92); `checkpoint rotate`; verify with the old key absent. Assertions: all five run offline;
+  rotation appends a metadata-only `key-rotation` chain event (previous → new key id); the missing-epoch verdict is
+  exactly "signed by key id X, key unavailable"; signing posture surfaces via `verify-store`, `evidence`, AAT
+  export, `doctor`, and `/healthz`.
 - **FT-SIEM-1 — OCSF/Syslog.** Steps: run the reference consumers per flavor; unconfigure a sink's redaction.
   Assertions: conformance green; redaction gate blocks the unconfigured sink; unreachable sink → bounded queue +
   `degraded`; over-limit event → truncated marker.
@@ -507,6 +588,9 @@ same template and are frozen in the roster and the registry.
   on ingest; no prompt text unless the harness *and* privacy mode permit.
 - **FT-CCO-2.** Steps: Agent-SDK program via the same path. Assertions: `source: sdk-native`; identity from resource
   attributes; gallery example runs.
+- **FT-TSS-1 — Span-taxonomy spike.** Steps: drive the SDK corpus; derive the tool taxonomy from observed spans.
+  Assertions: the taxonomy is span-driven (not taxonomy-first); every finding lands as a new M31 ticket in the WBS;
+  no production code depends on the spike. Class P/F|D.
 
 ### 7.8 S8 — Authorization & oversight
 
@@ -544,6 +628,10 @@ same template and are frozen in the roster and the registry.
   cross-validate against git-ai notes where present. Assertions: validates vs pinned revision; **no code content**
   (ranges/hashes/ids only); classifications agree/disagree/agentwatch-only/notes-only; write-to-repo only by
   explicit consented command ("as of revision X" wording).
+- **FT-PRV-3 — Range + hash capture.** Steps: make file-modifying calls under each privacy mode; run the
+  redaction attack pack. Assertions: line ranges + content hashes exist under every mode including `metadata-only`;
+  **no content or diff text anywhere** (property + attack pack); edit tools without range support declare the
+  file-level `heuristic` fallback; capture cost stays inside the FT-DEP-3 hook budget.
 
 ### 7.11 S11 — Local console & query tier
 
@@ -597,8 +685,10 @@ same template and are frozen in the roster and the registry.
   `import-segment`; tamper the segment; re-verify. Assertions: segment verifies + anchors; tampered fails; imported
   records **visibly distinguished** from locally-chained; zero egress; attack pack passes; `traceparent` joins the
   runner to the originating local session.
-- **FT-DEMO-1 / FT-NTF-1.** Assertions: demo bundle opens offline, zero network, secret-scanned; three routing
-  recipes CI-tested with claims-ledger entries and the "routing lives in your stack" statement.
+- **FT-DEMO-1 / FT-NTF-1.** Assertions: demo bundle opens offline, zero network, secret-scanned; the three shipped
+  recipes — Slack incoming webhook, PagerDuty Events API v2, Prometheus Alertmanager v2 — are CI-tested via the
+  webhook sink, with claims-ledger entries and the "routing lives in your stack; agentwatch forwards events
+  rule-free" statement.
 
 ### 7.15 S15 — Hostile data, claims ledger, closed gates
 
@@ -620,13 +710,13 @@ Every new CUJ is proven end-to-end by ≥1 case; flagship journeys map to severa
 | CUJ | Journey | Proving cases |
 |---|---|---|
 | CUJ-15 | Auditor accepts agent logs (AAT) | FT-AAT-1, FT-AAT-2, FT-EXA-1 |
-| CUJ-16 | One action across agents/hosts | FT-TRACE-1/2, FT-IDN-1, FT-SIEM-1 |
+| CUJ-16 | One action across agents/hosts | FT-TRACE-1/2, FT-IDN-1, FT-IDN-3, FT-SIEM-1 |
 | CUJ-17 | Watch a live agent | FT-STR-1, FT-STR-2, FT-XHT-2 |
-| CUJ-18 | Prove compliance continuously | FT-CMP-1, FT-CMP-2, FT-SIEM-1, FT-ASI-1 |
-| CUJ-19 | Does the detector fire for us? | FT-DET-1/2/3, FT-COR-1, FT-XHT-1 |
+| CUJ-18 | Prove compliance continuously | FT-CMP-1, FT-CMP-2, FT-CMP-3, FT-SIEM-1, FT-ASI-1 |
+| CUJ-19 | Does the detector fire for us? | FT-DET-1/2/3/5/6/7, FT-COR-1, FT-XHT-1 |
 | CUJ-20 | Who did my agent delegate to? | FT-A2A-1 |
 | CUJ-21 | Was a human in the loop? | FT-APV-1/2/3, FT-CCO-1, FT-SBX-1 |
-| CUJ-22 | Which commit did the agent write? | FT-PRV-1, FT-PRV-2 |
+| CUJ-22 | Which commit did the agent write? | FT-PRV-1, FT-PRV-2, FT-PRV-3 |
 | CUJ-23 | Did a skill/plugin/rules change? | FT-CAP-1, FT-CAP-2, FT-MEM-1 |
 | CUJ-24 | Browser view in 60 s, no Docker | FT-LUI-1, FT-LUI-2 |
 | CUJ-25 | Roll out under managed settings | FT-DEP-1/2/3, FT-WIN-1, FT-ENV-0 |
@@ -641,9 +731,9 @@ Every new CUJ is proven end-to-end by ≥1 case; flagship journeys map to severa
 | CUJ-34 | Package this incident | FT-IR-1, FT-CNC-1 |
 | CUJ-8 ext | Verify with nothing installed | FT-VFY-1, FT-DEMO-1 |
 | CUJ-1 | Install & record (closed on 3 OSes) | FT-ENV-0, FT-WIN-1 |
-| CUJ-3 | Export to a backend you own | FT-OTEL-1, FT-BACKEND-2, FT-OTEL-2, FT-OTEL-3 |
+| CUJ-3 | Export to a backend you own | FT-OTEL-1, FT-BACKEND-2, FT-OTEL-2, FT-OTEL-3, FT-OTEL-4 |
 | CUJ-10 | What did our agents cost? | FT-GWY-1, FT-CCO-1 |
-| CUJ-11 | Instrument my own agent | FT-SDK-1, FT-LG-1, FT-PG-3 |
+| CUJ-11 | Instrument my own agent | FT-SDK-1, FT-LG-1, FT-PG-3, FT-TSS-1 |
 | CUJ-13 | MCP server changed under me | FT-MCP-1, FT-MCP-2 |
 | CUJ-14 | Did a human approve? | FT-GEM-1, FT-CCA-1 |
 
@@ -664,7 +754,7 @@ Extend `scripts/fieldtest/` — do **not** fork it.
    consumer), `fleet-run.py` (3-host trace), `native-otel-join.py` (CCO), `capability-drift.py` (CAP/MEM),
    `provenance-repo.py` (PRV), `verifier-page.py` (VFY zero-network capture), `segment-runner.py` (RUN),
    `oversight-corpus.py` (APV), `hostile-ingest.py` (R5). Each reuses an existing primitive where possible.
-3. **Cases (31.3, #410).** Add 84 registry entries + generated specs/steps to `cases/registry.json` via `gen_cases.py`
+3. **Cases (31.3, #410).** Add 94 registry entries + generated specs/steps to `cases/registry.json` via `gen_cases.py`
    (the generator already prunes stale files). Hand-write the flagship specs where the generated template is too thin.
 4. **Harness port (31.4, #389).** Extend `lib.sh` assertions for the new services, add per-case environment
    fingerprints (`env.json` records OS/arch/model/fixture revisions), and extend `collect-results.py` to carry the
@@ -748,8 +838,8 @@ Mirrors the v0.1.0 report and the WBS required sections:
 
 1. BLUF + release-gate verdict (the 16 §5 / §5-expanded items).
 2. Environment (per-OS, per-suite fingerprints; models; backend versions).
-3. What was tested (v0.1.0 regression + 84 v0.2.0 cases + suites).
-4. **Scenario Results (master table)** — all 84 rows with `pass|fail|declared` + evidence path.
+3. What was tested (v0.1.0 regression + 94 v0.2.0 cases + suites).
+4. **Scenario Results (master table)** — all 94 rows with `pass|fail|declared` + evidence path.
 5. Per-suite results (install/AAT/harness/MCP/stream/trace/comply/detector/hostile/apv/dep/cap/lui/prv/agi-pol/gov).
 6. Detector & redactor published-numbers reproduction (FT-DET/COR/RED).
 7. **CUJ-15–34 + CUJ-8 extension verification table.**
@@ -775,9 +865,37 @@ milestone.
 ## 15. Rollout
 
 1. Build the environment + scripts + fixtures (M31.1–31.2): §3 services up, hostile pack reports clean.
-2. Land the 84 case specs + registry (M31.3) and the harness extensions (M31.4).
+2. Land the 94 case specs + registry (M31.3) and the harness extensions (M31.4).
 3. Run **Layer 0** (v0.1.0 regression) to green — no v0.2.0 case is evaluated before this.
 4. Run S1–S4 (install/interop/harness/detectors), then S5–S8 (identity/surfaces/platform/APV), then S9–S15
    (capability/provenance/console/governance/investigation/outcomes/hostile).
 5. Fix defects with regressions (31.7); wire the nightly `fieldtest.yml` (31.8, #393).
 6. Publish the report (31.6, #391); close #389–#395, #408–#410, #488–#491, FLD-1 #370.
+
+---
+
+## 16. Appendix — PRD 41–59 feature coverage index
+
+Every v0.2.0 / v0.2.0-expanded PRD names its proving cases; nothing is covered "in spirit".
+
+| PRD | Theme | Proving cases |
+|---|---|---|
+| 41 | Standards & interop II (AAT, OTel agent spans, W3C trace) | FT-AAT-1..3, FT-OTEL-1..4, FT-TRACE-1/2, FT-BACKEND-2 (PG-1..3 phased, §14) |
+| 42 | Harness fidelity & real-time (Cursor/Gemini/Codex/MCP/streaming) | FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1/2, FT-STR-1/2, FT-LG-1 |
+| 43 | Detector credibility & evaluation | FT-DET-1..7, FT-COR-1/2, FT-RED-1 |
+| 44 | Agent identity, enterprise & compliance | FT-IDN-1..3, FT-CMP-1..3, FT-SIEM-1 |
+| 45 | New capture surfaces (A2A/gateway/system/CCA/ACS) | FT-A2A-1, FT-GWY-1, FT-SYS-1, FT-CCA-1, FT-ACS-1 |
+| 46 | Platform, SDK & growth (Windows/TS spike/OpenAPI/gallery) | FT-SDK-1, FT-API-1, FT-EXA-1, FT-GOV-1, FT-WIN-1, FT-TSS-1 |
+| 47 | Cross-harness test kit (corpus/replay/fidelity tiers) | FT-XHT-1..4, FT-MATRIX-1 |
+| 48 | v0.2.0 risks, testing & decisions | FT-CLAIM-1 + the §12 release-gate mapping |
+| 49 | Authorization & oversight provenance | FT-APV-1..3 |
+| 50 | Deployability & recorder attestation | FT-ENV-0, FT-DEP-1..3 |
+| 51 | Harness-native telemetry & framework reach | FT-CCO-1/2, FT-FWK-1/2 |
+| 52 | Capability supply chain & memory | FT-CAP-1/2, FT-MEM-1 |
+| 53 | Code provenance & attribution | FT-PRV-1..3 |
+| 54 | Local console & embedded query tier | FT-LUI-1/2 |
+| 55 | Agent interfaces & policy-from-history | FT-AGI-1/2, FT-POL-1 |
+| 56 | Governance, retention integrity & redaction quality | FT-ACC-1/2, FT-HLD-1, FT-RED-1 |
+| 57 | Investigation depth & evidence verification | FT-ENV-1, FT-IR-1, FT-CNC-1, FT-VFY-1, FT-SBX-1 |
+| 58 | Outcomes, ephemeral capture & growth | FT-OUT-1/2, FT-RUN-1, FT-DEMO-1, FT-NTF-1 |
+| 59 | OWASP Agentic & standards coverage | FT-ASI-1 |

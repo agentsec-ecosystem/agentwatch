@@ -22,4 +22,5 @@
 {"name":"svc-litellm","ok":true}
 {"name":"svc-runner","ok":true}
 {"name":"svc-managed-hooks","ok":true}
-{"name":"runner-segment","ok":false}
+{"name":"emit","ok":true}
+{"name":"runner-segment","ok":true}

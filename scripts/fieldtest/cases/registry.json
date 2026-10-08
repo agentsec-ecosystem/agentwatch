@@ -1654,7 +1654,7 @@
     "prd": "RUN-1",
     "class": "P/F",
     "suite": "s14-outcomes",
-    "steps": "ft_assert_recorder \"runner-segment\" \"python3 /ft/scripts/segment-runner.py\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"runner-segment\" \"python3 /ft/scripts/segment-runner.py\"\n",
     "recycle": true
   },
   {

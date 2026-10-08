@@ -439,15 +439,19 @@
           "ok": true
         },
         {
+          "name": "emit",
+          "ok": true
+        },
+        {
           "name": "runner-segment",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-RUN-1",
       "run_id": "s14-outcomes",
-      "status": "fail"
+      "status": "pass"
     }
   ],
   "env": {
@@ -460,12 +464,12 @@
     "run_id": "s14-outcomes",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T07:07:36.446826+00:00",
-  "green": false,
+  "generated_at": "2026-10-08T07:22:59.907016+00:00",
+  "green": true,
   "run_id": "s14-outcomes",
   "totals": {
     "declared": 0,
-    "fail": 1,
-    "pass": 4
+    "fail": 0,
+    "pass": 5
   }
 }

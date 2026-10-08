@@ -1,0 +1,48 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "explore",
+        "name": "explore"
+      },
+      "duration_ms": 45000.0,
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe",
+      "tool": {
+        "name": "subagent",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "agent_transcript_path": "/tmp/sub.txt",
+      "conversation_id": "sess-c",
+      "description": "Exploring auth flow",
+      "duration_ms": 45000,
+      "loop_count": 0,
+      "message_count": 12,
+      "modified_files": [
+        "src/auth.ts"
+      ],
+      "status": "completed",
+      "subagent_type": "explore",
+      "summary": "Auth uses OAuth device flow",
+      "task": "Explore the authentication flow",
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "tool_call_count": 8
+    },
+    "harness": "cursor",
+    "phase": "subagentStop"
+  }
+}

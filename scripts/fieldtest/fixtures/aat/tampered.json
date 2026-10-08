@@ -1,0 +1,125 @@
+{
+  "aat_version": "draft-sharif-agent-audit-trail-06",
+  "coverage": {
+    "chain": "included",
+    "privacy_mode": "metadata-only",
+    "records": 3,
+    "unmapped_fields": [
+      "response_hash",
+      "response_size"
+    ]
+  },
+  "privacy_mode": "metadata-only",
+  "records": [
+    {
+      "aat_version": "draft-sharif-agent-audit-trail-06",
+      "action_type": "tool_call",
+      "agent": {
+        "name": "agent-1"
+      },
+      "agentwatch": {
+        "agent": {
+          "identity": "agent-1"
+        },
+        "outcome": "ok",
+        "schema_version": "0.1.0",
+        "session_id": "sess-1",
+        "span_id": "sp-1",
+        "started_at": "2026-01-02T03:04:05+00:00",
+        "tool": {
+          "name": "A"
+        }
+      },
+      "chain": {
+        "hash": "a375ac80648c95d6729b0f43f2acba103cb5507ff4bf7f35067fc83c98e3c50e",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "seq": 0
+      },
+      "outcome": "ok",
+      "record_phase": "unknown",
+      "timestamp": "2026-01-01T19:04:05-08:00",
+      "trust_level": {
+        "chain": "linked",
+        "source": "hook"
+      },
+      "unmapped": {
+        "response_hash": "no pre-redaction response fingerprint captured on the record",
+        "response_size": "pre-redaction response byte size not captured on the record"
+      }
+    },
+    {
+      "aat_version": "draft-sharif-agent-audit-trail-06",
+      "action_type": "tool_call",
+      "agent": {
+        "name": "agent-1"
+      },
+      "agentwatch": {
+        "agent": {
+          "identity": "agent-1"
+        },
+        "outcome": "ok",
+        "schema_version": "0.1.0",
+        "session_id": "sess-1",
+        "span_id": "sp-2",
+        "started_at": "2026-01-02T03:04:05+00:00",
+        "tool": {
+          "name": "Tampered"
+        }
+      },
+      "chain": {
+        "hash": "0de026c2fd2c1a3428ecbb81a3e7cd611e1c96e366f6325c24914f3571507739",
+        "prev_hash": "a375ac80648c95d6729b0f43f2acba103cb5507ff4bf7f35067fc83c98e3c50e",
+        "seq": 1
+      },
+      "outcome": "ok",
+      "record_phase": "unknown",
+      "timestamp": "2026-01-01T19:04:05-08:00",
+      "trust_level": {
+        "chain": "linked",
+        "source": "hook"
+      },
+      "unmapped": {
+        "response_hash": "no pre-redaction response fingerprint captured on the record",
+        "response_size": "pre-redaction response byte size not captured on the record"
+      }
+    },
+    {
+      "aat_version": "draft-sharif-agent-audit-trail-06",
+      "action_type": "tool_call",
+      "agent": {
+        "name": "agent-1"
+      },
+      "agentwatch": {
+        "agent": {
+          "identity": "agent-1"
+        },
+        "outcome": "ok",
+        "schema_version": "0.1.0",
+        "session_id": "sess-1",
+        "span_id": "sp-3",
+        "started_at": "2026-01-02T03:04:05+00:00",
+        "tool": {
+          "name": "C"
+        }
+      },
+      "chain": {
+        "hash": "3a4fc9368de44dc442b0eec458c98165296cba2ce94e73038bef805a0e732baf",
+        "prev_hash": "0de026c2fd2c1a3428ecbb81a3e7cd611e1c96e366f6325c24914f3571507739",
+        "seq": 2
+      },
+      "outcome": "ok",
+      "record_phase": "unknown",
+      "timestamp": "2026-01-01T19:04:05-08:00",
+      "trust_level": {
+        "chain": "linked",
+        "source": "hook"
+      },
+      "unmapped": {
+        "response_hash": "no pre-redaction response fingerprint captured on the record",
+        "response_size": "pre-redaction response byte size not captured on the record"
+      }
+    }
+  ],
+  "schema": "agentwatch-aat-export/1",
+  "session_id": "sess-1"
+}

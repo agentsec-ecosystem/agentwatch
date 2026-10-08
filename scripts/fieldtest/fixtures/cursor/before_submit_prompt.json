@@ -1,0 +1,34 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "step_type": "reason",
+      "tool": {
+        "name": "user-prompt",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "attachments": [],
+      "conversation_id": "sess-c",
+      "prompt": "add a test",
+      "timestamp": "2026-01-02T03:04:05+00:00"
+    },
+    "harness": "cursor",
+    "phase": "beforeSubmitPrompt"
+  }
+}

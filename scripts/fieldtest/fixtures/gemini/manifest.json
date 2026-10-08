@@ -1,0 +1,12 @@
+{
+  "kind": "gemini",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/gemini-cli",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "session_start.json",
+    "tool_call.json",
+    "tool_result.json"
+  ]
+}

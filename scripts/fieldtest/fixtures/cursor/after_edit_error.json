@@ -1,0 +1,40 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe",
+      "tool": {
+        "name": "Edit",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "conversation_id": "sess-c",
+      "edits": [
+        {
+          "new_string": "b",
+          "old_string": "a"
+        }
+      ],
+      "file_path": "/repo/a.py",
+      "timestamp": "2026-01-02T03:04:06+00:00"
+    },
+    "harness": "cursor",
+    "phase": "afterFileEdit"
+  }
+}

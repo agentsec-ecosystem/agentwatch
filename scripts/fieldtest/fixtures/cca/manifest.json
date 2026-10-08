@@ -1,0 +1,10 @@
+{
+  "kind": "cca",
+  "version": "v0.2.0",
+  "source": "synthesized from test_compliance_api.py export shape",
+  "synthesized": true,
+  "secret_scanned": true,
+  "files": [
+    "compliance.json"
+  ]
+}

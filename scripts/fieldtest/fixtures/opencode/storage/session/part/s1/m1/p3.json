@@ -1,0 +1,17 @@
+{
+  "id": "p3",
+  "sessionID": "s1",
+  "messageID": "m1",
+  "type": "tool",
+  "callID": "call_3",
+  "tool": "grep",
+  "state": {
+    "status": "running",
+    "input": {
+      "pattern": "x"
+    },
+    "time": {
+      "start": 1766000000000
+    }
+  }
+}

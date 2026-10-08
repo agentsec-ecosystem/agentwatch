@@ -1,5 +1,13 @@
 # v0.2.0 field-test fixtures (M31 31.2/31.3)
 
+These are **assembled**, not hand-maintained: `python3 scripts/fieldtest/build_fixtures.py`
+(`make fieldtest-fixtures`) copies the parser-valid fixtures the SDK test suite
+already ships into `fixtures/<kind>/` and synthesizes the few kinds with no
+source (CCA, OpenCode, hostile). Re-running is safe — each directory is cleared
+and rebuilt from its source, so it cannot drift. Every kind carries a
+`manifest.json` (version, source, synthesised flag, file list) and is
+secret-scanned (`build_fixtures.py` reports any real-secret-looking markers).
+
 Version-tagged, secret-scanned fixtures the v0.2.0 drivers read from
 `/ft/fixtures/<kind>/` inside the recorder container. Each fixture cites its
 public source and ships shape-synthesized only (never real secrets), per

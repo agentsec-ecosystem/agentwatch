@@ -1,0 +1,13 @@
+{
+  "kind": "logreaders",
+  "version": "v0.2.0",
+  "source": "tests/fixtures (long-tail readers)",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "claude-code.jsonl",
+    "codex.jsonl",
+    "cursor_session_start.json",
+    "gemini_tool_call.json"
+  ]
+}

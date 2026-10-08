@@ -1,0 +1,47 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "step_type": "observe",
+      "tool": {
+        "arguments": {
+          "context_tokens": 120000,
+          "context_usage_percent": 85,
+          "context_window_size": 128000,
+          "message_count": 45,
+          "messages_to_compact": 30,
+          "trigger": "auto"
+        },
+        "name": "context-compacted",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "context_tokens": 120000,
+      "context_usage_percent": 85,
+      "context_window_size": 128000,
+      "conversation_id": "sess-c",
+      "is_first_compaction": true,
+      "message_count": 45,
+      "messages_to_compact": 30,
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "trigger": "auto"
+    },
+    "harness": "cursor",
+    "phase": "preCompact"
+  }
+}

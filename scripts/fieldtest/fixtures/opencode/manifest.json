@@ -1,0 +1,13 @@
+{
+  "kind": "opencode",
+  "version": "v0.2.0",
+  "source": "synthesized from test_opencode_reader.py storage shape",
+  "synthesized": true,
+  "secret_scanned": true,
+  "files": [
+    "storage/session/info/s1.json",
+    "storage/session/part/s1/m1/p1.json",
+    "storage/session/part/s1/m1/p2.json",
+    "storage/session/part/s1/m1/p3.json"
+  ]
+}

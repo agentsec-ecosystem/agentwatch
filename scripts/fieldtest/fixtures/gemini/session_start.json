@@ -1,0 +1,31 @@
+{
+  "message": {
+    "phase": "session_start",
+    "harness": "gemini-cli",
+    "event": {
+      "session_id": "sess-g",
+      "timestamp": "2026-01-02T03:04:00+00:00",
+      "source": "startup"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-g",
+      "agent": {
+        "identity": "gemini-cli"
+      },
+      "tool": {
+        "name": "session_start"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:00+00:00",
+      "trace_id": "sess-g",
+      "harness": "gemini-cli",
+      "producer": {
+        "kind": "sdk",
+        "name": "gemini-cli"
+      }
+    }
+  ]
+}

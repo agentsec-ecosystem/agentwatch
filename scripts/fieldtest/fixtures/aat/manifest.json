@@ -1,0 +1,14 @@
+{
+  "kind": "aat",
+  "version": "v0.2.0",
+  "source": "schema/vectors/aat",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "expected-verdicts.json",
+    "tampered.json",
+    "unmapped.json",
+    "unsupported-revision.json",
+    "valid.json"
+  ]
+}

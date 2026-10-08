@@ -1,0 +1,25 @@
+{
+  "kind": "codex",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/codex-cli + tests/testkit/codex",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "exec_begin.json",
+    "exec_end_error.json",
+    "golden/rollout-codex-0.65.jsonl",
+    "patch_apply.json",
+    "testkit/ouija/LICENSE",
+    "testkit/ouija/manifest.json",
+    "testkit/ouija/rollouts/agent-message-citation.jsonl",
+    "testkit/ouija/rollouts/agent-message-final.jsonl",
+    "testkit/ouija/rollouts/agent-message-same-cwd.jsonl",
+    "testkit/ouija/rollouts/auto-reviewed-approval.jsonl",
+    "testkit/ouija/rollouts/error-after-final.jsonl",
+    "testkit/ouija/rollouts/interrupted-after-final.jsonl",
+    "testkit/ouija/rollouts/malformed-cwd-auto-review.jsonl",
+    "testkit/ouija/rollouts/manual-approval.jsonl",
+    "testkit/ouija/rollouts/no-assistant.jsonl",
+    "testkit/ouija/rollouts/response-item-final.jsonl"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "hostile",
+  "version": "v0.2.0",
+  "source": "synthesized (ADR-0024, Codex #36937 shape)",
+  "synthesized": true,
+  "secret_scanned": true,
+  "files": [
+    "README.md",
+    "a2a_fuzz.json",
+    "aat_fuzz.json",
+    "codex_backtick.jsonl",
+    "codex_backtick.jsonl_manifest",
+    "cursor_fuzz.json",
+    "gateway_fuzz.json",
+    "otel_fuzz.json"
+  ]
+}

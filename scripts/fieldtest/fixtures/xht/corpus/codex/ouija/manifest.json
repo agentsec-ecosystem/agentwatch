@@ -1,0 +1,22 @@
+{
+  "captured_from_real_harness": true,
+  "files": [
+    "rollouts/agent-message-citation.jsonl",
+    "rollouts/agent-message-final.jsonl",
+    "rollouts/agent-message-same-cwd.jsonl",
+    "rollouts/auto-reviewed-approval.jsonl",
+    "rollouts/error-after-final.jsonl",
+    "rollouts/interrupted-after-final.jsonl",
+    "rollouts/malformed-cwd-auto-review.jsonl",
+    "rollouts/manual-approval.jsonl",
+    "rollouts/no-assistant.jsonl",
+    "rollouts/response-item-final.jsonl"
+  ],
+  "harness": "codex",
+  "kind": "rollout",
+  "license": "MIT",
+  "source": "https://github.com/kylesnowschwartz/agent-ouija",
+  "source_commit": "c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc",
+  "upstream_path": "codex/rollout/testdata",
+  "version": "ouija-c4be5b1"
+}

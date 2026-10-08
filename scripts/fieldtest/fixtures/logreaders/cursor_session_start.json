@@ -1,0 +1,37 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "environment": {
+        "ide": "cursor-ide"
+      },
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "tool": {
+        "name": "session-start",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "composer_mode": "agent",
+      "ide": "cursor-ide",
+      "is_background_agent": false,
+      "session_id": "sess-c",
+      "timestamp": "2026-01-02T03:04:05+00:00"
+    },
+    "harness": "cursor",
+    "phase": "sessionStart"
+  }
+}

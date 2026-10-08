@@ -1,0 +1,5 @@
+{"type":"assistant","sessionId":"sess-t","timestamp":"2026-01-02T03:00:00+00:00","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu-1","name":"Bash","input":{"command":"ls -la"}}]}}
+{"type":"user","sessionId":"sess-t","timestamp":"2026-01-02T03:00:01+00:00","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"tu-1","content":"total 0","is_error":false}]}}
+{"type":"assistant","sessionId":"sess-t","timestamp":"2026-01-02T03:00:02+00:00","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu-2","name":"Read","input":{"path":"/x"}}]}}
+{"type":"user","sessionId":"sess-t","timestamp":"2026-01-02T03:00:03+00:00","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"tu-2","content":"ENOENT","is_error":true}]}}
+{"type":"assistant","sessionId":"sess-t","timestamp":"2026-01-02T03:00:04+00:00","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu-3","name":"Write","input":{"path":"/y","content":"sk-abcdefgh"}}]}}

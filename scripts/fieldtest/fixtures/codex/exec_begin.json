@@ -1,0 +1,34 @@
+{
+  "message": {
+    "phase": "exec_begin",
+    "harness": "codex-cli",
+    "event": {
+      "session_id": "sess-x",
+      "call_id": "call-1",
+      "command": "pytest",
+      "timestamp": "2026-01-02T03:04:05+00:00"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "sess-x",
+      "agent": {
+        "identity": "codex-cli"
+      },
+      "tool": {
+        "name": "shell"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "trace_id": "sess-x",
+      "span_id": "call-1",
+      "harness": "codex-cli",
+      "producer": {
+        "kind": "sdk",
+        "name": "codex-cli"
+      },
+      "step_type": "act"
+    }
+  ]
+}

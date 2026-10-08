@@ -1,0 +1,23 @@
+{
+  "kind": "mcp",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/mcp-proxy + tests/fixtures/mcp",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "elicitation-request.json",
+    "elicitation-response.json",
+    "prompts-get-request.json",
+    "prompts-get-response.json",
+    "resources-read-request.json",
+    "resources-read-response.json",
+    "revisions/2025-06-18/tools-call-request.json",
+    "revisions/2025-11-25/tasks-get-request.json",
+    "revisions/2026-07-28/resources-read-request.json",
+    "server/echo_server.py",
+    "tasks-get-request.json",
+    "tasks-get-response.json",
+    "tools-call-request.json",
+    "tools-call-response.json"
+  ]
+}

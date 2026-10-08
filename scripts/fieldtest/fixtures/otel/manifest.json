@@ -1,0 +1,12 @@
+{
+  "kind": "otel",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/ingest + docs/release/v0.2.0 + examples/fixtures",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "agent-span-tree.json",
+    "claude_agent_sdk_otel.json",
+    "otel_trace.json"
+  ]
+}

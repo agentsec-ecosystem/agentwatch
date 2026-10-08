@@ -1,0 +1,40 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "duration_ms": 1234.0,
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe",
+      "tool": {
+        "name": "issue_get",
+        "privacy_mode": "metadata-only",
+        "server": "github"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "conversation_id": "sess-c",
+      "duration": 1234,
+      "mcp_server_name": "github",
+      "result_json": "{\"ok\":true}",
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "tool_input": "{}",
+      "tool_name": "issue_get"
+    },
+    "harness": "cursor",
+    "phase": "afterMCPExecution"
+  }
+}

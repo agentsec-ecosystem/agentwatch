@@ -1,0 +1,9 @@
+{
+  "id": "broken",
+  "harness": "nonexistent",
+  "records": [
+    {
+      "not": "a record"
+    }
+  ]
+}

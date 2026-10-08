@@ -1,4 +1,4 @@
-.PHONY: help setup format lint typecheck test security-scan release-dry-run stack-up stack-down clean migrate api seed-e2e migrate-db web-install web-typecheck web-test e2e stack-smoke fieldtest fieldtest-gen fieldtest-case fieldtest-v020 fieldtest-suite fieldtest-clean
+.PHONY: help setup format lint typecheck test security-scan release-dry-run stack-up stack-down clean migrate api seed-e2e migrate-db web-install web-typecheck web-test e2e stack-smoke fieldtest fieldtest-gen fieldtest-fixtures fieldtest-case fieldtest-v020 fieldtest-suite fieldtest-clean
 
 PYTHON ?= python3
 PACKAGES := packages/python-sdk services/api services/analytics
@@ -79,6 +79,9 @@ stack-smoke: ## Boot the stack and check that the API and web app answer.
 
 fieldtest-gen: ## Regenerate field-test case specs + steps from the registry.
 	python3 scripts/fieldtest/gen_cases.py
+
+fieldtest-fixtures: ## Rebuild the v0.2.0 field-test fixtures from repo sources.
+	python3 scripts/fieldtest/build_fixtures.py
 
 fieldtest: ## Run the Docker-backed field-test suite (results under field-test/v0.1.0/results/).
 	bash scripts/fieldtest/run-all.sh

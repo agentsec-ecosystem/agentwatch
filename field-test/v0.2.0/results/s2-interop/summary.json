@@ -570,14 +570,14 @@
         },
         {
           "name": "fleet-chain",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-TRACE-1",
       "run_id": "s2-interop",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -699,12 +699,12 @@
     "run_id": "s2-interop",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T06:57:37.589581+00:00",
+  "generated_at": "2026-10-08T07:13:27.581291+00:00",
   "green": false,
   "run_id": "s2-interop",
   "totals": {
     "declared": 0,
-    "fail": 2,
-    "pass": 10
+    "fail": 1,
+    "pass": 11
   }
 }

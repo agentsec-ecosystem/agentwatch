@@ -874,6 +874,77 @@
       "last_verified": "2026-10-06"
     },
     {
+      "id": "C89",
+      "claim": "Per file-modifying call, agentwatch captures a content-free attribution fact: the affected line range(s) and a keyed content hash, never content or a diff; it holds under metadata-only and falls back to file-level heuristic when a harness exposes no range.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_capture_is_content_free_under_metadata_only",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_attack_pack_never_leaks_content",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_property_capture_never_contains_the_content",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_capture_falls_back_to_file_level_heuristic",
+        "file:docs/design/code-provenance.md",
+        "file:docs/adr/0033-range-hash-capture.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C90",
+      "claim": "`agentwatch provenance <commit|range|PR|file>` returns the contributing sessions with per-range confidence (exact|heuristic|mixed|ambiguous|unknown); a commit with no recorded session says \"no recorded agent activity\" (never \"human\"), hand-edited-after-agent ranges are mixed, and PR resolution is offline and read-only on the repo.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_to_contributing_session_exact",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_with_no_session_says_no_recorded_agent_activity",
+        "test:packages/python-sdk/tests/test_provenance.py::test_mixed_range_when_part_of_the_commit_is_unattributed",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_under_two_seconds_with_real_git",
+        "test:packages/python-sdk/tests/test_provenance.py::test_pr_target_resolves_through_commit_message",
+        "file:docs/design/code-provenance.md",
+        "file:docs/adr/0033-range-hash-capture.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C91",
+      "claim": "Agent Trace export is pinned to a specific RFC revision (agent-trace-rfc-0.1), contains zero code content (ranges/hashes/ids only), surfaces unmapped fields explicitly, cross-validates existing Agent Trace / git-ai notes as agree/disagree/agentwatch-only/notes-only, and writes into a repository only by an explicit command.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_export_agent_trace_is_pinned_and_content_free",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_export_marks_unmapped_without_a_range",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_drift_reports_a_revision_move",
+        "test:packages/python-sdk/tests/test_provenance.py::test_cross_validate_classifies_agree_disagree_and_only",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo",
+        "workflow:.github/workflows/agent-trace-drift.yml",
+        "file:docs/adr/0034-agent-trace-pin-and-write-policy.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C92",
+      "claim": "`agentwatch concurrency --project . --since 7d` deterministically reports sessions overlapping in time on the same path and shared-file edits, and `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently picking one.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_disjoint_sessions_do_not_overlap",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_multi_session_range_is_ambiguous",
+        "file:packages/python-sdk/tests/fixtures/provenance/two_sessions.jsonl",
+        "file:docs/design/code-provenance.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C93",
+      "claim": "`agentwatch outcomes --since 30d --by project|model|harness` reports deterministic outcome facts (test/build/lint pass ratios, retained/reverted/interrupted/rejected, retries-to-success) with a numerator, denominator, and derivation version; unknown stays unknown; and `cost --per retained-change` is source-stamped and runs offline with no model configured.",
+      "source": "docs/design/outcomes-signals.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_ratios_carry_numerator_denominator_and_version",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_unknown_stays_unknown_when_no_commands",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_are_deterministic_without_a_model",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_retained_change_is_source_stamped",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none",
+        "file:docs/design/outcomes-signals.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
       "id": "C99",
       "claim": "The embedded query index is derived from the hash-chained store: it deletes and rebuilds bit-for-bit, serves an indexed lookup on a 1,000,000-record store in under 250 ms, and adds no heavyweight runtime dependency (stdlib sqlite3 only; parquet is a lazy optional extra).",
       "source": "docs/adr/0035-embedded-query-index.md",

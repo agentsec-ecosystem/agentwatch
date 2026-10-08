@@ -143,6 +143,33 @@ Status: living.
   only. Matcher matching is best-effort (`Tool` / `Tool(program:*)`); unsupported syntax is reported and ignored,
   and unmatched calls default to `ask`. It cannot foresee calls the recorder never saw (proving test:
   `packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped`).
+- **Code provenance (M30 PRV) — declared gaps.** Range+hash capture (PRV-3) is implemented as a content-free
+  primitive (`agentwatch.provenance.capture_ranges`; ranges + keyed hashes, never content) that is legal under
+  `metadata-only`; persisting the reserved fact from the live hook **before** redaction belongs to the
+  record/redaction path (a different workstream), so end-to-end persistence under `metadata-only` is not in this
+  branch (proving test:
+  `packages/python-sdk/tests/test_code_provenance.py::test_capture_is_content_free_under_metadata_only`).
+  Harnesses that do not expose a line range fall back to file-level `heuristic` attribution, never a guessed
+  range. Line tracking across rebase/squash (git-ai's domain) is out of scope.
+- **Agent Trace (M30 PRV-2) — declared gaps.** The export pins `agent-trace-rfc-0.1` rather than claiming
+  conformance to a stable standard; the live upstream revision is not fetched in the build sandbox, so the pin is
+  checked against a committed snapshot (`schema/agent-trace/upstream-revision.json`). PR targets resolve **offline**
+  by matching a merge/squash subject `(#N)` — a repository with a nonstandard merge-message format may not resolve.
+  Cross-validation is diagnostic (agree/disagree/agentwatch-only/notes-only); agentwatch never rewrites existing
+  git-ai notes, and writing its own notes requires the explicit `export-session --format agent-trace --write-notes`
+  command (proving test:
+  `packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo`).
+- **Concurrency (M30 CNC-1) — declared gap.** `agentwatch concurrency` is a **report only**: overlaps are derived
+  from recorded `started_at`/`ended_at` intervals (a session that never sets `ended_at` collapses to a point) and
+  shared-file edits from classified file-modification targets; it enforces nothing and the PRD asks to validate demand
+  in the field before building beyond the report (proving test:
+  `packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file`).
+- **Outcome facts (M30 OUT-1) — declared gap.** Outcome facts are **deterministic and non-scoring** (test/build/lint
+  pass ratios, retained/reverted/interrupted/rejected counts, retries-to-success) with a derivation version
+  (`out1`); there is no LLM-judged quality and no "score". Retained change requires a **local git repository** —
+  without one the denominator is preserved as **unknown**, never guessed — and a session that never sets `ended_at`
+  yields a point span (proving test:
+  `packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none`).
 
 ## Policy
 

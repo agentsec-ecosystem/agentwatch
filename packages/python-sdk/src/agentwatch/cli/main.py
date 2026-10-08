@@ -33,12 +33,23 @@ from agentwatch.access import (
     render_access_log,
     render_matrix,
 )
+from agentwatch.agent_trace import (
+    agent_trace_record,
+    cross_validate,
+    export_agent_trace,
+    read_agent_trace,
+    read_agent_trace_notes,
+    to_agent_trace_json,
+    write_agent_trace,
+    write_agent_trace_notes,
+)
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
+from agentwatch.concurrency import build_concurrency, render_concurrency
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.cost import BY_OPTIONS, build_cost, render_cost
@@ -125,6 +136,7 @@ from agentwatch.notarize import (
     verify_checkpoint,
 )
 from agentwatch.ocsf import session_cloudevents, session_ocsf
+from agentwatch.outcomes import build_outcomes, render_outcomes
 from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
 from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.policy_suggest import (
@@ -139,6 +151,7 @@ from agentwatch.policy_suggest import (
     whatif_to_dict,
 )
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
+from agentwatch.provenance import build_provenance, render_provenance
 from agentwatch.quarantine import (
     QuarantineError,
     QuarantineLog,
@@ -514,12 +527,25 @@ def _build_parser() -> argparse.ArgumentParser:
     export_session_cmd.add_argument("session_id", help="session id to export")
     export_session_cmd.add_argument(
         "--format",
-        choices=("ndjson", "ocsf", "cloudevents", "aat"),
+        choices=("ndjson", "ocsf", "cloudevents", "aat", "agent-trace"),
         default="ndjson",
-        help="export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT)",
+        help=(
+            "export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT; "
+            "agent-trace is the pinned Agent Trace RFC)"
+        ),
     )
     export_session_cmd.add_argument(
         "--output", default=None, help="write to a file instead of stdout"
+    )
+    export_session_cmd.add_argument(
+        "--write-notes",
+        dest="write_notes",
+        default=None,
+        metavar="REPO",
+        help=(
+            "explicitly write Agent Trace notes into REPO (requires --format agent-trace); "
+            "the default export never writes to a repository"
+        ),
     )
 
     view = sub.add_parser("view", help="terminal timeline of a session (M7)")
@@ -543,6 +569,36 @@ def _build_parser() -> argparse.ArgumentParser:
         "--sessions", action="store_true", help="print only the distinct session ids"
     )
     blame.add_argument("--json", action="store_true", help="emit the hits as JSON")
+
+    provenance = sub.add_parser(
+        "provenance",
+        help="which sessions produced a commit/range/PR/file (M30 PRV-1)",
+    )
+    provenance.add_argument(
+        "target", help="<commit|range|PR|file[:lines]>, e.g. abc1234, a..b, PR42, src/app.py:3-5"
+    )
+    provenance.add_argument("--repo", default=None, help="git repository root (default: cwd)")
+    provenance.add_argument("--project", default=None, help="project root for relative paths")
+    provenance.add_argument(
+        "--window",
+        default="7d",
+        help="how far back to look for a session (default 7d)",
+    )
+    provenance.add_argument(
+        "--notes",
+        default=None,
+        metavar="REPO",
+        help="cross-validate against existing Agent Trace / git-ai notes in REPO",
+    )
+
+    concurrency = sub.add_parser(
+        "concurrency",
+        help="sessions overlapping in time on the same paths (M30 CNC-1)",
+    )
+    concurrency.add_argument("--project", default=None, help="project root to scope the report")
+    concurrency.add_argument("--since", default=None, help="relative (7d/12h) or ISO timestamp")
+    concurrency.add_argument("--json", action="store_true", help="emit the report as JSON")
+    provenance.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     tree_cmd = sub.add_parser("tree", help="the subagent fan-out of a session (M17 S17)")
     tree_cmd.add_argument("session_id", help="session id to render as a tree")
@@ -881,7 +937,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="rollup dimension (default: session)",
     )
     cost_cmd.add_argument("--since", default=None, help="relative (30d/12h/30m) or ISO timestamp")
+    cost_cmd.add_argument(
+        "--per",
+        choices=("retained-change",),
+        default=None,
+        help="report a per-unit ratio (--per retained-change; OUT-1)",
+    )
+    cost_cmd.add_argument(
+        "--repo", default=None, help="git repository root for --per retained-change"
+    )
     cost_cmd.add_argument("--json", action="store_true", help="emit the rollup as JSON")
+
+    outcomes_cmd = sub.add_parser(
+        "outcomes",
+        help="deterministic outcome facts: test/build/lint, retained, retries (M30 OUT-1)",
+    )
+    outcomes_cmd.add_argument(
+        "--by",
+        choices=("session", "project", "model", "harness"),
+        default="project",
+        help="rollup dimension (default: project)",
+    )
+    outcomes_cmd.add_argument(
+        "--since", default=None, help="relative (30d/12h/30m) or ISO timestamp"
+    )
+    outcomes_cmd.add_argument(
+        "--repo", default=None, help="git repository root to compute retained changes"
+    )
+    outcomes_cmd.add_argument("--json", action="store_true", help="emit the facts as JSON")
 
     bom = sub.add_parser("bom", help="Agent Bill of Materials, CycloneDX (M15 S9)")
     bom_scope = bom.add_mutually_exclusive_group()
@@ -2020,6 +2103,12 @@ def _run_export_session(args: argparse.Namespace) -> int:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     destination = DestinationKind.FILE if args.output else DestinationKind.STDOUT
+    if args.write_notes and args.format != "agent-trace":
+        print(
+            "agentwatch: --write-notes requires --format agent-trace",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
     if args.format == "aat":
         bundle = export_aat(
             export,
@@ -2033,6 +2122,22 @@ def _run_export_session(args: argparse.Namespace) -> int:
             print(f"agentwatch: exported {export.count} AAT record(s) to {path}")
         else:
             sys.stdout.write(text)
+    elif args.format == "agent-trace":
+        bundle = export_agent_trace(export, privacy_mode=cfg.privacy.mode)
+        if args.write_notes:
+            written = write_agent_trace_notes(
+                str(Path(args.write_notes).expanduser()), read_agent_trace(bundle)
+            )
+            print(
+                f"agentwatch: wrote Agent Trace notes for {written} revision(s) into "
+                f"{args.write_notes}"
+            )
+        elif args.output:
+            path = Path(args.output).expanduser()
+            write_agent_trace(bundle, path)
+            print(f"agentwatch: exported {export.count} Agent Trace record(s) to {path}")
+        else:
+            sys.stdout.write(to_agent_trace_json(bundle))
     elif args.format in ("ocsf", "cloudevents"):
         text = _render_standard_export(export, args.format)
         if args.output:
@@ -2055,7 +2160,7 @@ def _run_export_session(args: argparse.Namespace) -> int:
         command="export-session",
         sessions=[args.session_id],
         records=export.count,
-        destination_kind=destination,
+        destination_kind=DestinationKind.BUNDLE if args.write_notes else destination,
     )
     return 0
 
@@ -2149,6 +2254,51 @@ def _run_blame(args: argparse.Namespace) -> int:
         print(json.dumps(report.to_dict(), indent=2))
     else:
         print(render_blame(report))
+    return 0
+
+
+def _run_provenance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    repo = args.repo or os.getcwd()
+    report = build_provenance(
+        store,
+        args.target,
+        repo=repo,
+        project=args.project,
+        window=args.window,
+    )
+    if args.notes:
+        from dataclasses import replace as _replace
+
+        ours = tuple(agent_trace_record(record) for record in store.records())
+        theirs = read_agent_trace_notes(str(Path(args.notes).expanduser()))
+        report = _replace(
+            report, cross_validation=cross_validate(ours, theirs).to_dict()
+        )
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_provenance(report))
+    return 0
+
+
+def _run_concurrency(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = build_concurrency(store, project=args.project, since=args.since)
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_concurrency(report))
     return 0
 
 
@@ -2925,7 +3075,7 @@ def _run_cost(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     try:
-        report = build_cost(store, by=args.by, since=args.since)
+        report = build_cost(store, by=args.by, since=args.since, per=args.per, repo=args.repo)
     except ValueError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_USAGE_ERROR
@@ -2933,6 +3083,27 @@ def _run_cost(args: argparse.Namespace) -> int:
         print(json.dumps(report.to_dict(), indent=2))
     else:
         print(render_cost(report))
+    return 0
+
+
+def _run_outcomes(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_outcomes(
+            store, by=args.by, since=args.since, repo=args.repo
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_outcomes(report))
     return 0
 
 
@@ -3416,6 +3587,10 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_impact(args)
     if args.command == "blame":
         return _run_blame(args)
+    if args.command == "provenance":
+        return _run_provenance(args)
+    if args.command == "concurrency":
+        return _run_concurrency(args)
     if args.command == "tree":
         return _run_tree(args)
     if args.command == "trace":
@@ -3450,6 +3625,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_inventory(args)
     if args.command == "cost":
         return _run_cost(args)
+    if args.command == "outcomes":
+        return _run_outcomes(args)
     if args.command == "coverage":
         return _run_coverage(args)
     if args.command == "compliance":

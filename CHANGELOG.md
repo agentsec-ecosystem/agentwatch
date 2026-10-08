@@ -59,6 +59,28 @@ versioning: [Semantic Versioning](https://semver.org/).
     v2, Alertmanager v2) that map agentwatch security events to each stack's payload and post them through the
     shipped `agentwatch.sinks.WebhookSink`. agentwatch defines no rules or thresholds — routing stays in the
     user's stack, and every event is forwarded (#481).
+  - PRV-3: content-free range+hash capture (`agentwatch.provenance.capture_ranges`, ADR-0033) — per file-modifying
+    call, the affected line range(s) and a keyed content hash, **never content or a diff**; the fact is metadata so it
+    holds under `metadata-only`, and a harness that exposes no range falls back to file-level `heuristic`. Shape
+    versioned (`RANGE_CAPTURE_VERSION`); guarded by `is_content_free` and a property + attack pack (#464).
+  - PRV-1: `agentwatch provenance <commit|range|PR|file>` (`agentwatch.provenance.build_provenance`) — joins git
+    facts to the recorded sessions that produced them, per range confidence `exact|heuristic|mixed|ambiguous|unknown`,
+    contributing sessions with harness/model, authorization mix, cost, anomalies, coverage, and an evidence pointer; a
+    commit with no recorded session says "no recorded agent activity" (never "human"); PR resolution is offline; the
+    repo is read-only (#462).
+  - PRV-2: Agent Trace export + git-ai notes cross-validation (`agentwatch.agent_trace`, ADR-0034) —
+    `export-session --format agent-trace` emits a pinned-revision bundle (ranges/hashes/ids only, **zero code
+    content**); a read-only reader cross-validates existing notes as agree/disagree/agentwatch-only/notes-only
+    (`provenance --notes`); writing git notes requires the explicit `--write-notes` command; a pinned-revision drift
+    check + CI job (AAT-5 pattern) (#463).
+  - CNC-1: `agentwatch concurrency --project . --since 7d` (`agentwatch.concurrency.build_concurrency`) — a
+    deterministic, evidence-only report of sessions overlapping in time on the same path and shared-file edits from a
+    two-session fixture; `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently
+    picking one (#474).
+  - OUT-1: deterministic outcome facts + `cost --per retained-change` (`agentwatch.outcomes`, derivation `out1`) —
+    `agentwatch outcomes --since 30d --by project|model|harness` reports test/build/lint pass ratios and
+    retained/reverted/interrupted/rejected counts with numerator/denominator and a derivation version (unknown stays
+    unknown); `cost --per retained-change` is source-stamped and joins PRV-1; no LLM, no network, runs offline (#477).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

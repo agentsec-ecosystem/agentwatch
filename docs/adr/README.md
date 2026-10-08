@@ -33,6 +33,8 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0028](0028-managed-policy-install.md) | Managed-policy install posture + honest `doctor` | accepted |
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
+| [0033](0033-range-hash-capture.md) | Content-free range+hash capture | accepted |
+| [0034](0034-agent-trace-pin-and-write-policy.md) | Agent Trace export pin + write policy | accepted |
 | [0035](0035-embedded-query-index.md) | Embedded query index tier (+ PG re-sequence) | accepted |
 | [0036](0036-console-security-model.md) | Local console security model | accepted |
 | [0037](0037-mcp-read-only-server.md) | MCP read-only server threat model | accepted |

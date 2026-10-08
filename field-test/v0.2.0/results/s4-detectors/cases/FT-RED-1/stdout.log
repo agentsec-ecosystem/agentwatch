@@ -1,1 +1,78 @@
-DO
+{
+  "cases": {
+    "negative": 8,
+    "positive": 16
+  },
+  "classes": {
+    "api-key": {
+      "cases": 6,
+      "hits": 5,
+      "misses": [
+        "api-key-encoded-base64"
+      ],
+      "recall": 0.8333
+    },
+    "cloud-secret": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "connection-string": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "credit-card": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "email": {
+      "cases": 2,
+      "hits": 2,
+      "misses": [],
+      "recall": 1.0
+    },
+    "env-secret": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "jwt": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "oauth-bearer": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "phone": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    },
+    "ssn": {
+      "cases": 1,
+      "hits": 1,
+      "misses": [],
+      "recall": 1.0
+    }
+  },
+  "corpus": "v1",
+  "corpus_schema": "agentwatch.redaction-corpus/1",
+  "false_positive_rate": 0.0,
+  "misses": [
+    "api-key-encoded-base64"
+  ],
+  "overall_recall": 0.9375,
+  "schema": "agentwatch.redaction-corpus-numbers/1"
+}

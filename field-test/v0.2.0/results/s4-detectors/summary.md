@@ -1,6 +1,6 @@
 # Field Test Run s4-detectors
 
-**Totals:** 9 pass · 1 fail · 0 declared  →  **NOT GREEN**
+**Totals:** 10 pass · 0 fail · 0 declared  →  **GREEN**
 
 | Case | Class | Status |
 |---|---|---|
@@ -13,4 +13,4 @@
 | FT-DET-5 | P/F | pass |
 | FT-DET-6 | P/F | pass |
 | FT-DET-7 | P/F | pass |
-| FT-RED-1 | P/F | fail |
+| FT-RED-1 | P/F | pass |

@@ -42,6 +42,10 @@ services:
       # Canonical alert-routing recipes (NTF-1): the field driver exercises the
       # shipped deploy/recipes modules, never a copy.
       - ./deploy/recipes:/ft/recipes:ro
+      # Canonical redaction corpus (RED-1): `agentwatch redact eval` resolves
+      # schema/vectors/redaction by walking up from the installed SDK; mount it
+      # at the same relative path so the real corpus (not a copy) is used.
+      - ./schema/vectors/redaction:/work/schema/vectors/redaction:ro
     command: ["sleep", "infinity"]
 
   # Clean, no-install auditor (FT-08/CUJ-08): verifies bundles offline.

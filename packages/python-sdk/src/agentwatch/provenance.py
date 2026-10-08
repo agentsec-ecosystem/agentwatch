@@ -418,6 +418,7 @@ class ProvenanceReport:
     no_activity: bool = False
     read_only: bool = True
     notes: tuple[str, ...] = ()
+    cross_validation: Mapping[str, Any] | None = None
     version: str = PROVENANCE_VERSION
 
     def to_dict(self) -> dict[str, Any]:
@@ -435,6 +436,9 @@ class ProvenanceReport:
             "coverage_gaps": list(self.coverage_gaps),
             "sessions": [session.to_dict() for session in self.sessions],
             "ranges": [line_range.to_dict() for line_range in self.ranges],
+            "cross_validation": (
+                dict(self.cross_validation) if self.cross_validation is not None else None
+            ),
             "notes": list(self.notes),
         }
 

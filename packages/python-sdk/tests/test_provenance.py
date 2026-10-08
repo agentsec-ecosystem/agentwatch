@@ -36,6 +36,8 @@ from agentwatch.records import (
 from agentwatch.store import RecordStore
 
 BASE = datetime(2026, 2, 1, 12, 0, 0, tzinfo=timezone.utc)
+CONTENT = "def add(a, b):\n    return a + b\n"
+REPO = Path(__file__).resolve().parents[3]
 
 
 class FakeGit:
@@ -269,3 +271,266 @@ def test_cli_provenance_json(tmp_path: Path, capsys: pytest.CaptureFixture[str])
     payload = json.loads(capsys.readouterr().out)
     assert payload["kind"] == "file"
     assert payload["sessions"][0]["session_id"] == "s1"
+
+
+# ---------------------------------------------------------------------------
+# PRV-2 — Agent Trace export + git-ai notes cross-validation
+# ---------------------------------------------------------------------------
+
+
+def test_export_agent_trace_is_pinned_and_content_free(tmp_path: Path) -> None:
+    from agentwatch.agent_trace import (
+        AGENT_TRACE_SPEC_REVISION,
+        export_agent_trace,
+        to_agent_trace_json,
+        verify_agent_trace,
+    )
+    from agentwatch.provenance import is_content_free
+    from agentwatch.session_export import export_session
+
+    store = _store(tmp_path)
+    export = export_session(store, "s1")
+
+    bundle = export_agent_trace(export, privacy_mode="metadata-only")
+    text = to_agent_trace_json(bundle)
+
+    assert bundle["trace_version"] == AGENT_TRACE_SPEC_REVISION
+    assert "conformant" not in text.lower()
+    assert CONTENT not in text
+    assert is_content_free(bundle["records"])
+    assert verify_agent_trace(bundle) is True
+    record = bundle["records"][0]
+    assert record["contributor"]["model"] == "claude-x"
+    assert record["files"][0]["content_hash"].startswith("hmac-sha256:")
+
+
+def test_agent_trace_export_marks_unmapped_without_a_range(tmp_path: Path) -> None:
+    from agentwatch.agent_trace import export_agent_trace
+    from agentwatch.session_export import export_session
+
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(_record("s9", "Write", {"file_path": "/repo/x.py", "content": CONTENT}, minute=0))
+    export = export_session(store, "s9")
+
+    bundle = export_agent_trace(export, privacy_mode="metadata-only")
+    record = bundle["records"][0]
+
+    assert record["files"] == []
+    assert "ranges" in record["unmapped"]
+
+
+def test_agent_trace_drift_reports_a_revision_move() -> None:
+    from agentwatch.agent_trace import AGENT_TRACE_SPEC_FIELDS, check_agent_trace_drift
+
+    moved = check_agent_trace_drift(
+        {"revision": "agent-trace-rfc-0.2", "fields": list(AGENT_TRACE_SPEC_FIELDS)}
+    )
+    assert moved.drifted is True
+
+    dropped = check_agent_trace_drift(
+        {"revision": "agent-trace-rfc-0.1", "fields": ["contributor"]}
+    )
+    assert dropped.drifted is True and dropped.missing
+
+
+def test_agent_trace_pin_matches_the_committed_snapshot() -> None:
+    from agentwatch.agent_trace import check_agent_trace_drift
+
+    snapshot = json.loads(
+        (REPO / "schema" / "agent-trace" / "upstream-revision.json").read_text(encoding="utf-8")
+    )
+    assert check_agent_trace_drift(snapshot).drifted is False
+    assert (REPO / ".github" / "workflows" / "agent-trace-drift.yml").exists()
+
+
+def test_cross_validate_classifies_agree_disagree_and_only() -> None:
+    from agentwatch.agent_trace import AgentTraceRecord, cross_validate
+
+    ours = (
+        AgentTraceRecord(
+            revision="abc1234",
+            conversation_id="s1",
+            contributor_type="ai",
+            contributor_model="m",
+            contributor_harness="claude-code",
+            files=(),
+        ),
+    )
+    theirs = (
+        AgentTraceRecord(
+            revision="abc1234",
+            conversation_id="other",
+            contributor_type="ai",
+            contributor_model="m",
+            contributor_harness="git-ai",
+            files=(),
+        ),
+        AgentTraceRecord(
+            revision="def5678",
+            conversation_id="s2",
+            contributor_type="ai",
+            contributor_model="m",
+            contributor_harness="git-ai",
+            files=(),
+        ),
+    )
+
+    report = cross_validate(ours, theirs)
+
+    assert report.agree == 1
+    assert report.disagree == 0
+    assert report.agentwatch_only == 0
+    assert report.notes_only == 1
+
+
+def test_agent_trace_default_export_writes_nothing_to_the_repo(tmp_path: Path) -> None:
+    import subprocess
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "t@example.com"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Tester"], check=True, capture_output=True
+    )
+    (repo / "app.py").write_text("a\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "app.py"], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-q", "-m", "init"], check=True, capture_output=True
+    )
+    revision = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+    from agentwatch.agent_trace import (
+        export_agent_trace,
+        read_agent_trace,
+        write_agent_trace_notes,
+    )
+    from agentwatch.session_export import export_session
+
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(
+        _record(
+            "s1",
+            "Edit",
+            _range_args(str(repo / "app.py"), 1, 1),
+            minute=0,
+            project=str(repo),
+            environment={"vcs": {"vcs": "git", "commit": revision}},
+        )
+    )
+    bundle = export_agent_trace(export_session(store, "s1"), privacy_mode="metadata-only")
+    notes = subprocess.run(
+        ["git", "-C", str(repo), "notes", "--ref=agentwatch/agent-trace", "list"],
+        capture_output=True,
+        text=True,
+    )
+    assert notes.stdout.strip() == ""  # default export wrote nothing
+
+    written = write_agent_trace_notes(str(repo), read_agent_trace(bundle))
+    assert written == 1
+
+    written_notes = subprocess.run(
+        ["git", "-C", str(repo), "notes", "--ref=agentwatch/agent-trace", "list"],
+        capture_output=True,
+        text=True,
+    )
+    assert written_notes.stdout.strip() != ""
+
+
+def test_cli_export_session_agent_trace(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from agentwatch.agent_trace import AGENT_TRACE_SPEC_REVISION
+
+    store_dir = tmp_path / "store"
+    store_dir.mkdir()
+    store = _store(tmp_path)
+    import shutil
+
+    shutil.copy(store.path, store_dir / "records.jsonl")
+
+    rc = main(
+        ["--set", f"store.path={store_dir}", "export-session", "s1", "--format", "agent-trace"]
+    )
+
+    assert rc == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["trace_version"] == AGENT_TRACE_SPEC_REVISION
+    assert payload["records"][0]["files"][0]["ranges"] == [{"start": 3, "end": 5}]
+    assert CONTENT not in json.dumps(payload)
+
+
+def test_cli_provenance_cross_validates_git_notes(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import subprocess
+
+    from agentwatch.agent_trace import read_agent_trace, write_agent_trace_notes
+    from agentwatch.session_export import export_session
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "t@example.com"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Tester"], check=True, capture_output=True
+    )
+    (repo / "app.py").write_text("a\nb\nc\nd\ne\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "app.py"], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-q", "-m", "init"], check=True, capture_output=True
+    )
+    revision = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+    store_dir = tmp_path / "store"
+    store_dir.mkdir()
+    store = RecordStore(tmp_path / "records.jsonl")
+    store.append(
+        _record(
+            "s1",
+            "Edit",
+            _range_args(str(repo / "app.py"), 1, 3),
+            minute=0,
+            project=str(repo),
+            environment={"vcs": {"vcs": "git", "commit": revision}},
+        )
+    )
+    import shutil
+
+    shutil.copy(store.path, store_dir / "records.jsonl")
+
+    from agentwatch.agent_trace import export_agent_trace
+
+    bundle = export_agent_trace(export_session(store, "s1"), privacy_mode="metadata-only")
+    write_agent_trace_notes(str(repo), read_agent_trace(bundle))
+
+    rc = main(
+        [
+            "--set",
+            f"store.path={store_dir}",
+            "provenance",
+            "app.py",
+            "--project",
+            str(repo),
+            "--notes",
+            str(repo),
+            "--json",
+        ]
+    )
+
+    assert rc == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["cross_validation"]["agree"] == 1
+

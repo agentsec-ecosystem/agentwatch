@@ -56,6 +56,17 @@ primitive and its content-free property are proven here.
 - Writing into a repo is a separate, explicit, consented command; default is export-to-file. Claim language cites the
   spec revision, never "conformant".
 
+Implementation (`agentwatch.agent_trace`, ADR-0034): `export-session --format agent-trace` emits a pinned bundle
+(`AGENT_TRACE_SPEC_REVISION = "agent-trace-rfc-0.1"`, `AGENT_TRACE_EXPORT_SCHEMA`) whose records carry the
+conversation reference (session id), contributor type/model/harness, VCS revision, and per-file ranges + keyed
+`content_hash` from PRV-3 — **no code content** (`is_content_free` verified). Fields we cannot populate ride in the
+explicit `unmapped` bucket. A read-only reader (`read_agent_trace`) accepts existing Agent Trace / git-ai notes and
+`cross_validate` classifies each `(revision, path)` key `agree | disagree | agentwatch-only | notes-only`, surfaced in
+`provenance --notes REPO`; agentwatch never overwrites notes. Writing git notes requires the separate explicit
+`--write-notes REPO` flag (default export writes to a file/stdout only). The pin is checked by
+`scripts/agent_trace_drift_check.py` against `schema/agent-trace/upstream-revision.json`
+(`.github/workflows/agent-trace-drift.yml`), the AAT-5 pattern.
+
 ## Privacy
 
 Export contains ranges/hashes/ids only; passes the redaction attack pack. Read-only on the repo by default.

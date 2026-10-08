@@ -32,6 +32,16 @@ from agentwatch.access import (
     render_access_log,
     render_matrix,
 )
+from agentwatch.agent_trace import (
+    agent_trace_record,
+    cross_validate,
+    export_agent_trace,
+    read_agent_trace,
+    read_agent_trace_notes,
+    to_agent_trace_json,
+    write_agent_trace,
+    write_agent_trace_notes,
+)
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.attestation import attest_session
@@ -496,12 +506,25 @@ def _build_parser() -> argparse.ArgumentParser:
     export_session_cmd.add_argument("session_id", help="session id to export")
     export_session_cmd.add_argument(
         "--format",
-        choices=("ndjson", "ocsf", "cloudevents", "aat"),
+        choices=("ndjson", "ocsf", "cloudevents", "aat", "agent-trace"),
         default="ndjson",
-        help="export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT)",
+        help=(
+            "export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT; "
+            "agent-trace is the pinned Agent Trace RFC)"
+        ),
     )
     export_session_cmd.add_argument(
         "--output", default=None, help="write to a file instead of stdout"
+    )
+    export_session_cmd.add_argument(
+        "--write-notes",
+        dest="write_notes",
+        default=None,
+        metavar="REPO",
+        help=(
+            "explicitly write Agent Trace notes into REPO (requires --format agent-trace); "
+            "the default export never writes to a repository"
+        ),
     )
 
     view = sub.add_parser("view", help="terminal timeline of a session (M7)")
@@ -539,6 +562,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--window",
         default="7d",
         help="how far back to look for a session (default 7d)",
+    )
+    provenance.add_argument(
+        "--notes",
+        default=None,
+        metavar="REPO",
+        help="cross-validate against existing Agent Trace / git-ai notes in REPO",
     )
     provenance.add_argument("--json", action="store_true", help="emit the report as JSON")
 
@@ -1860,6 +1889,12 @@ def _run_export_session(args: argparse.Namespace) -> int:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     destination = DestinationKind.FILE if args.output else DestinationKind.STDOUT
+    if args.write_notes and args.format != "agent-trace":
+        print(
+            "agentwatch: --write-notes requires --format agent-trace",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
     if args.format == "aat":
         bundle = export_aat(
             export,
@@ -1873,6 +1908,22 @@ def _run_export_session(args: argparse.Namespace) -> int:
             print(f"agentwatch: exported {export.count} AAT record(s) to {path}")
         else:
             sys.stdout.write(text)
+    elif args.format == "agent-trace":
+        bundle = export_agent_trace(export, privacy_mode=cfg.privacy.mode)
+        if args.write_notes:
+            written = write_agent_trace_notes(
+                str(Path(args.write_notes).expanduser()), read_agent_trace(bundle)
+            )
+            print(
+                f"agentwatch: wrote Agent Trace notes for {written} revision(s) into "
+                f"{args.write_notes}"
+            )
+        elif args.output:
+            path = Path(args.output).expanduser()
+            write_agent_trace(bundle, path)
+            print(f"agentwatch: exported {export.count} Agent Trace record(s) to {path}")
+        else:
+            sys.stdout.write(to_agent_trace_json(bundle))
     elif args.format in ("ocsf", "cloudevents"):
         text = _render_standard_export(export, args.format)
         if args.output:
@@ -1895,7 +1946,7 @@ def _run_export_session(args: argparse.Namespace) -> int:
         command="export-session",
         sessions=[args.session_id],
         records=export.count,
-        destination_kind=destination,
+        destination_kind=DestinationKind.BUNDLE if args.write_notes else destination,
     )
     return 0
 
@@ -2007,6 +2058,14 @@ def _run_provenance(args: argparse.Namespace) -> int:
         project=args.project,
         window=args.window,
     )
+    if args.notes:
+        from dataclasses import replace as _replace
+
+        ours = tuple(agent_trace_record(record) for record in store.records())
+        theirs = read_agent_trace_notes(str(Path(args.notes).expanduser()))
+        report = _replace(
+            report, cross_validation=cross_validate(ours, theirs).to_dict()
+        )
     if args.json:
         print(json.dumps(report.to_dict(), indent=2))
     else:

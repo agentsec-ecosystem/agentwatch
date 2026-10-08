@@ -16,6 +16,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     contributing sessions with harness/model, authorization mix, cost, anomalies, coverage, and an evidence pointer; a
     commit with no recorded session says "no recorded agent activity" (never "human"); PR resolution is offline; the
     repo is read-only (#462).
+  - PRV-2: Agent Trace export + git-ai notes cross-validation (`agentwatch.agent_trace`, ADR-0034) —
+    `export-session --format agent-trace` emits a pinned-revision bundle (ranges/hashes/ids only, **zero code
+    content**); a read-only reader cross-validates existing notes as agree/disagree/agentwatch-only/notes-only
+    (`provenance --notes`); writing git notes requires the explicit `--write-notes` command; a pinned-revision drift
+    check + CI job (AAT-5 pattern) (#463).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

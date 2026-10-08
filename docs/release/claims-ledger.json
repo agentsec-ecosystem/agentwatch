@@ -901,6 +901,21 @@
         "file:docs/adr/0033-range-hash-capture.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C91",
+      "claim": "Agent Trace export is pinned to a specific RFC revision (agent-trace-rfc-0.1), contains zero code content (ranges/hashes/ids only), surfaces unmapped fields explicitly, cross-validates existing Agent Trace / git-ai notes as agree/disagree/agentwatch-only/notes-only, and writes into a repository only by an explicit command.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_export_agent_trace_is_pinned_and_content_free",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_export_marks_unmapped_without_a_range",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_drift_reports_a_revision_move",
+        "test:packages/python-sdk/tests/test_provenance.py::test_cross_validate_classifies_agree_disagree_and_only",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo",
+        "workflow:.github/workflows/agent-trace-drift.yml",
+        "file:docs/adr/0034-agent-trace-pin-and-write-policy.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

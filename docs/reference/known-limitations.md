@@ -108,6 +108,14 @@ Status: living.
   `packages/python-sdk/tests/test_code_provenance.py::test_capture_is_content_free_under_metadata_only`).
   Harnesses that do not expose a line range fall back to file-level `heuristic` attribution, never a guessed
   range. Line tracking across rebase/squash (git-ai's domain) is out of scope.
+- **Agent Trace (M30 PRV-2) — declared gaps.** The export pins `agent-trace-rfc-0.1` rather than claiming
+  conformance to a stable standard; the live upstream revision is not fetched in the build sandbox, so the pin is
+  checked against a committed snapshot (`schema/agent-trace/upstream-revision.json`). PR targets resolve **offline**
+  by matching a merge/squash subject `(#N)` — a repository with a nonstandard merge-message format may not resolve.
+  Cross-validation is diagnostic (agree/disagree/agentwatch-only/notes-only); agentwatch never rewrites existing
+  git-ai notes, and writing its own notes requires the explicit `export-session --format agent-trace --write-notes`
+  command (proving test:
+  `packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo`).
 
 ## Policy
 

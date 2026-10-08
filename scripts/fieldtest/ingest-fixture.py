@@ -36,8 +36,17 @@ ADAPTER = {
     "gemini": "agentwatch.adapters.gemini_cli",
     "mcp": "agentwatch.adapters.mcp_proxy",
     "mcp-malformed": "agentwatch.adapters.mcp_proxy",
-    "logreaders": "agentwatch.adapters.claude_code",
 }
+# The long-tail "logreaders" corpus mixes framed hook fixtures (cursor/gemini)
+# with native transcripts (claude-code .jsonl) and codex rollouts. Each file is
+# read by *its own* reader, dispatched per file — never one adapter for all.
+HARNESS_ADAPTER = {
+    "cursor": "agentwatch.adapters.cursor",
+    "gemini-cli": "agentwatch.adapters.gemini_cli",
+    "claude-code": "agentwatch.adapters.claude_code",
+    "codex": "agentwatch.adapters.codex_cli",
+}
+_ROLLOUT_TYPES = {"session_meta", "turn_context", "response_item"}
 
 
 def _adapter_ingest(module_name: str, path: Path) -> int:
@@ -66,6 +75,60 @@ def _adapter_ingest(module_name: str, path: Path) -> int:
     return n
 
 
+def _is_rollout(path: Path) -> bool:
+    """True if a .jsonl looks like a codex rollout (vs a claude-code transcript)."""
+    try:
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                entry = json.loads(line)
+                return isinstance(entry, dict) and entry.get("type") in _ROLLOUT_TYPES
+    except (OSError, json.JSONDecodeError):
+        return False
+    return False
+
+
+def _logreaders_ingest(path: Path) -> int:
+    """Ingest the long-tail reader corpus: one file → its real reader."""
+    from agentwatch.codex_rollout import ingest_rollouts
+    from agentwatch.importer import import_transcripts
+    from agentwatch.store import RecordStore
+
+    store = RecordStore(STORE)
+    n = 0
+    for f in sorted(path.iterdir()):
+        if f.name == "manifest.json":
+            continue
+        if f.suffix == ".jsonl":
+            if _is_rollout(f):
+                n += ingest_rollouts([f], store).records
+            else:
+                n += import_transcripts([f], store).records
+            continue
+        if f.suffix != ".json":
+            continue
+        try:
+            msg = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        message = msg.get("message") if isinstance(msg, dict) else None
+        if not isinstance(message, dict):
+            continue
+        module_name = HARNESS_ADAPTER.get(str(message.get("harness")))
+        if module_name is None:
+            continue
+        try:
+            records = importlib.import_module(module_name).normalize(message)
+        except Exception:  # noqa: BLE001 - not a framed message for this reader
+            continue
+        for rec in records:
+            store.append(rec)
+            n += 1
+    return n
+
+
 def main(argv: list[str]) -> int:
     kind = arg(argv, "--kind", "") or ""
     path = Path(arg(argv, "--corpus") or fixture(kind))
@@ -73,6 +136,10 @@ def main(argv: list[str]) -> int:
         run(["agentwatch", "ingest", *CLI_FORMAT[kind], str(path)])
     elif kind in CLI_AGENT:
         run(["agentwatch", "ingest", *CLI_AGENT[kind], str(path)])
+    elif kind == "logreaders":
+        n = _logreaders_ingest(path)
+        if n == 0:
+            fail(f"logreaders readers normalized 0 records from {path}")
     elif kind in ADAPTER:
         n = _adapter_ingest(ADAPTER[kind], path)
         if n == 0:

@@ -115,6 +115,10 @@ Status: living.
   cannot be command-scoped becomes an explicit coverage gap, never a guessed rule. The `acs` target is a thin
   consumer of the ACS audit shape (PRD 45); the emit-side ACS depth is not built (proving test:
   `packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file`).
+- `what-if` (**30.POL-2**) is a **labeled simulation**, not a predictor: it replays a policy over *recorded* calls
+  only. Matcher matching is best-effort (`Tool` / `Tool(program:*)`); unsupported syntax is reported and ignored,
+  and unmatched calls default to `ask`. It cannot foresee calls the recorder never saw (proving test:
+  `packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped`).
 
 ## Policy
 

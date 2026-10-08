@@ -35,6 +35,13 @@ Replays a candidate policy over history: allowed/asked/denied counts and the del
 would-be denials with sessions; calls whose actual authorization differs). Parse errors explicit; unsupported syntax
 reported; output stamped with the policy-format version and labeled a simulation.
 
+> **Implemented (M30 POL-2).** `agentwatch what-if <policy-file> --since 30d` (JSON: `--json`). A policy is a JSON
+> document (`format_version` + `rules` of `matcher`/`effect`) — a `suggest-policy` artifact is accepted directly, so
+> the two compose. Matcher grammar is `Tool` or `Tool(program:*)`; anything else is reported as **unsupported** and
+> ignored, never guessed. Unmatched calls default to **ask** (never silently allowed). The report is stamped with
+> `policy-whatif-v1` and the parsed policy format, labeled a simulation, and shows prompts avoided, would-be denials
+> with sessions, and authorization differences. Proving test: `packages/python-sdk/tests/test_policy_whatif.py`.
+
 ## Guardrail
 
 This is the shape that stays inside PRD 14: *"we generate suggestions; we do not apply them."* agentpolicy is the named

@@ -909,6 +909,18 @@
         "file:docs/adr/0038-policy-suggestion-boundary.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C112",
+      "claim": "`what-if` replays a policy over history as a labeled simulation, reporting prompts avoided, would-be denials with sessions, and actual-authorization differences; parse errors are explicit and unsupported syntax is reported.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_counts_and_would_be_denials_and_prompts_avoided",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_parse_errors_are_explicit",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_unsupported_syntax_is_reported_not_guessed"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

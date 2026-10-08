@@ -21,6 +21,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     and cls1 classes, links each rule to evidence (calls/sessions/approvals/last-seen), never suggests
     destructive/network/credential-adjacent calls as `allow` by default, lints broad interpreter/network
     rules, writes nothing outside `--out`, and is deterministic (ADR-0038) (#469).
+  - POL-2: `what-if` policy replay over history — `agentwatch what-if <policy-file> --since 30d` reports
+    allowed/asked/denied counts and the delta vs actual behavior (prompts avoided, would-be denials with
+    sessions, actual-authorization differences), with explicit parse errors, reported unsupported syntax, and
+    a simulation label stamped with the policy-format version (ADR-0038) (#470).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

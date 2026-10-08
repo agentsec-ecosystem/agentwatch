@@ -128,9 +128,14 @@ from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
 from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.policy_suggest import (
     TARGETS,
+    PolicyParseError,
+    load_policy,
     render_policy_suggestion,
+    render_whatif,
+    simulate_policy,
     suggest_policy,
     suggestion_to_dict,
+    whatif_to_dict,
 )
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
 from agentwatch.quarantine import (
@@ -1086,6 +1091,15 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     suggest_policy_p.add_argument("--json", action="store_true", help="emit the artifact as JSON")
 
+    what_if = sub.add_parser(
+        "what-if",
+        help="replay a candidate policy over history (M30 POL-2; simulation only)",
+    )
+    what_if.add_argument("policy_file", help="path to a policy JSON file")
+    what_if.add_argument("--since", default="30d", help="window (default 30d)")
+    what_if.add_argument("--project", default=None, help="only records for this project")
+    what_if.add_argument("--json", action="store_true", help="emit the simulation as JSON")
+
     return parser
 
 
@@ -1415,6 +1429,23 @@ def _run_mcp_serve(args: argparse.Namespace) -> int:
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     limiter = RateLimiter(max_queries=max(1, args.rate_limit))
     return serve_stdio(store, stdin=sys.stdin, stdout=sys.stdout, limiter=limiter)
+
+
+def _run_what_if(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        policy = load_policy(args.policy_file)
+    except PolicyParseError as exc:
+        print(f"agentwatch: policy error: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    report = simulate_policy(store, policy, since=args.since, project=args.project)
+    print(json.dumps(whatif_to_dict(report), indent=2) if args.json else render_whatif(report))
+    return 0
 
 
 def _run_suggest_policy(args: argparse.Namespace) -> int:
@@ -3212,6 +3243,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_mcp_serve(args)
     if args.command == "suggest-policy":
         return _run_suggest_policy(args)
+    if args.command == "what-if":
+        return _run_what_if(args)
     if args.command == "a2a-proxy":
         return _run_a2a_proxy(args)
     if args.command == "sessions":

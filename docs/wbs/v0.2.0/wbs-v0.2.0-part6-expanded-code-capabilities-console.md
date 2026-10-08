@@ -14,9 +14,10 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** 🔄 in progress — **30.AGI-1 (#467)**, **30.AGI-2 (#468)**, **30.POL-1 (#469)** implemented on
-branch `m30-ws4` (read-only MCP server, ADR-0037; investigation skill + versioned CLI JSON schemas; advisory
-`suggest-policy` + lint, ADR-0038); remaining M30 tickets in progress across workstreams.
+**Status:** 🔄 in progress — **30.AGI-1 (#467)**, **30.AGI-2 (#468)**, **30.POL-1 (#469)**, **30.POL-2
+(#470)** implemented on branch `m30-ws4` (read-only MCP server, ADR-0037; investigation skill + versioned CLI
+JSON schemas; advisory `suggest-policy` + lint and `what-if` simulation, ADR-0038); remaining M30 tickets in
+progress across workstreams.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose

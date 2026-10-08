@@ -897,6 +897,18 @@
         "file:docs/skills/investigation/SKILL.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C111",
+      "claim": "`suggest-policy` is advisory only: it writes nothing outside `--out`, never edits harness settings, links every rule to evidence, and never suggests destructive/network/credential-adjacent calls as allow by default.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_destructive_network_and_credential_are_ask_not_allow",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_lint_flags_broad_interpreter_and_network_rules",
+        "file:docs/adr/0038-policy-suggestion-boundary.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

@@ -34,6 +34,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
 | [0037](0037-mcp-read-only-server.md) | MCP read-only server threat model | accepted |
+| [0038](0038-policy-suggestion-boundary.md) | Policy suggestion boundary: advisory artifacts only | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |

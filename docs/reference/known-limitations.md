@@ -110,6 +110,11 @@ Status: living.
   commands (`schema/cli/v0.1.0/`, see `agentwatch.cli_schema.READ_COMMANDS`), not every command that emits
   `--json`; more join additively under the changelog guard. The HTTP contract is PRD 46 API-1 and is not
   built here (proving test: `packages/python-sdk/tests/test_agent_interfaces.py`).
+- `suggest-policy` (**30.POL-1**) is **advisory only**: it never edits harness settings, never enforces, and
+  writes nothing outside `--out`. Its quality is bounded by captured arguments — a metadata-only call that
+  cannot be command-scoped becomes an explicit coverage gap, never a guessed rule. The `acs` target is a thin
+  consumer of the ACS audit shape (PRD 45); the emit-side ACS depth is not built (proving test:
+  `packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file`).
 
 ## Policy
 

@@ -16,6 +16,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     search → replay → impact → evidence workflow, and the read/investigation commands' `--json` output is
     published as versioned schemas in `schema/cli/v0.1.0/` (own changelog, guarded by `agentwatch.cli_schema`);
     a scripted agent reaches documented answers on the demo store (#468).
+  - POL-1: advisory `suggest-policy` + dangerous-broad lint — `agentwatch suggest-policy --since 30d --target
+    claude-settings|mcp-allowlist|acs` derives least-privilege allow/ask/deny candidates from observed calls
+    and cls1 classes, links each rule to evidence (calls/sessions/approvals/last-seen), never suggests
+    destructive/network/credential-adjacent calls as `allow` by default, lints broad interpreter/network
+    rules, writes nothing outside `--out`, and is deterministic (ADR-0038) (#469).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

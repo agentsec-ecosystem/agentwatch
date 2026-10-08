@@ -13,6 +13,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     content is never retained (property-tested); `inventory --capabilities [--json]` lists them and
     `bom --format cyclonedx` includes them as components; per-harness coverage (`exposed`/`partial`/`none`) is
     declared honestly — Claude Code exposed, Cursor/Codex CLI/Gemini CLI (and memory, MEM-1) `none` gaps (#458).
+  - CAP-2: capability drift — a per-session metadata-only `capability-snapshot` carrier is diffed across sessions and
+    raises the reused `capability-changed` event (M29 EXT-3) with a factual class (`added` / `removed` /
+    `content changed, version unchanged` — the Plugin4Shell shape / `content changed, version changed`);
+    `inventory --capabilities --snapshot` records and `inventory --capabilities --diff --since 7d` lists the drift,
+    never a verdict (#459).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

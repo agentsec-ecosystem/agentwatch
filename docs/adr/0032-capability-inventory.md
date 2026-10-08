@@ -27,6 +27,13 @@
   5. The inventory is a **read-only derived view**; BOM includes capabilities as
      CycloneDX components (kind → component type; `agentwatch:capability-*`
      properties). It records and diffs; it never scans, scores, or blocks.
+  6. **Drift generalizes the S4 tool-surface snapshot to every kind.** Per session
+     a metadata-only `capability-snapshot` carrier records the whole set; a
+     consecutive-session diff emits the existing `capability-changed` event
+     (M29 EXT-3, reused — no new schema) with a factual class: `added`,
+     `removed`, `content changed, version unchanged`, or `content changed,
+     version changed`. An empty set is still a recorded baseline, so absence is
+     a fact rather than a missing snapshot. Wording is never a verdict.
 - **Consequences:** `inventory --capabilities` and `bom --format cyclonedx`
   expose the loadable surface by content digest. CAP-2 diffs these digests into
   `capability-changed`; CAP-3/MEM-1 extend kinds and attribution. Per-harness

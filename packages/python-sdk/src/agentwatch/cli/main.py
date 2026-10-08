@@ -39,8 +39,11 @@ from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.capabilities import (
     capabilities_to_json,
+    detect_capability_changes,
     discover_capabilities,
+    record_capability_snapshot,
     render_capabilities,
+    render_capability_changes,
 )
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
 from agentwatch.config_explain import explain_config, render_explanations
@@ -766,6 +769,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--capabilities",
         action="store_true",
         help="list loadable capabilities with content digests (M30 CAP-1)",
+    )
+    inventory.add_argument(
+        "--since",
+        default=None,
+        help="only capability changes at/after this window (with --capabilities --diff)",
     )
 
     coverage_cmd = sub.add_parser(
@@ -2688,12 +2696,30 @@ def _run_inventory(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     if args.capabilities:
+        if args.diff:
+            cutoff = since_cutoff(args.since) if args.since else None
+            changes = detect_capability_changes(store.records(), since=cutoff)
+            if args.json:
+                print(json.dumps([change.to_dict() for change in changes]))
+            else:
+                print(render_capability_changes(changes))
+            return 0
         project = Path(args.project).expanduser() if args.project else Path.cwd()
-        capabilities = discover_capabilities(project=project, home=Path.home())
+        inventory = discover_capabilities(project=project, home=Path.home())
+        if args.snapshot:
+            session_id = args.session_id or "inventory"
+            changes = record_capability_snapshot(store, session_id, inventory.capabilities)
+            message = f"recorded {len(inventory.capabilities)} capabilities in {session_id}"
+            if args.json:
+                print(json.dumps({"recorded": len(inventory.capabilities),
+                                  "changes": [change.to_dict() for change in changes]}))
+            else:
+                print(message)
+            return 0
         if args.json:
-            print(json.dumps(capabilities_to_json(capabilities), indent=2))
+            print(json.dumps(capabilities_to_json(inventory), indent=2))
         else:
-            print(render_capabilities(capabilities))
+            print(render_capabilities(inventory))
         return 0
     if args.snapshot or args.diff:
         records = store.records()

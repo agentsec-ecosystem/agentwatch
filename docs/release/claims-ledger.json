@@ -886,6 +886,20 @@
         "doc:docs/adr/0032-capability-inventory.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C78",
+      "claim": "Capability drift generalizes the S4 tool-surface snapshot: a per-session metadata-only capability-snapshot carrier is diffed across sessions and raises the reused `capability-changed` event with a factual class (added / removed / content changed, version unchanged \u2014 the Plugin4Shell shape / content changed, version changed), never a verdict.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_plugin4shell_shape_is_content_changed_version_unchanged",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_new_hook_is_surfaced",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_event_is_the_existing_capability_changed_type",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_wording_is_factual_never_a_verdict",
+        "doc:docs/design/capability-supply-chain.md",
+        "doc:docs/adr/0032-capability-inventory.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

@@ -44,6 +44,11 @@ Status: living.
   per-harness coverage matrix, and memory is `none` for every harness pending `MEM-1`. `bom --format cyclonedx`
   includes the discovered capabilities. (proving test:
   `packages/python-sdk/tests/test_capabilities.py::test_coverage_declares_per_harness_gaps`).
+- **Capability snapshots (`CAP-2`, M30) are recorded on demand, not yet automatically.** Drift needs a baseline: a
+  `capability-snapshot` carrier is written by `inventory --capabilities --snapshot` (or `record_capability_snapshot`
+  from an integrator). No session-start hook records one yet, so drift is only visible between snapshots that were
+  actually taken. (proving test:
+  `packages/python-sdk/tests/test_capability_drift.py::test_cli_capabilities_snapshot_then_diff`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

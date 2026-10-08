@@ -67,6 +67,12 @@ Digests/names/sizes/origin only; no content. Foreign/unmappable capability confi
   never retained. Per-harness coverage (`exposed`/`partial`/`none`) is a first-class tuple on the inventory:
   Claude Code is `exposed`; Cursor, Codex CLI, Gemini CLI — and memory for every harness (MEM-1) — are declared
   `none` gaps.
+- **CAP-2 landed (#459).** `record_capability_snapshot` writes one metadata-only `capability-snapshot` carrier per
+  session (the whole set, so an empty set is a baseline); `detect_capability_changes` diffs consecutive sessions and
+  `capability_event` emits the reused `capability-changed` event with a factual class — `added`, `removed`,
+  `content changed, version unchanged` (the Plugin4Shell shape), or `content changed, version changed`.
+  `inventory --capabilities --snapshot` records; `inventory --capabilities --diff --since 7d` lists the drift.
+  Language is factual throughout; no output path labels a change malicious.
 
 ## Decision
 

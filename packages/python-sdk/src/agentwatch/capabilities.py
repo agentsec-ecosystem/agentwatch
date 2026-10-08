@@ -18,9 +18,23 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from agentwatch.records import (
+    AgentIdentity,
+    AgentRecord,
+    Outcome,
+    RecordPrivacyMode,
+    SecurityEvent,
+    SecurityEventType,
+    StepType,
+    ToolCall,
+)
+from agentwatch.store import MARKER_PRODUCER, RecordStore
 
 # --- capability kinds -------------------------------------------------------
 
@@ -52,6 +66,22 @@ SCOPE_PROJECT = "project"
 SCOPE_PLUGIN = "plugin"
 
 SCOPES: tuple[str, ...] = (SCOPE_MANAGED, SCOPE_USER, SCOPE_PROJECT, SCOPE_PLUGIN)
+
+# --- drift classes (factual wording, never a verdict) -----------------------
+
+CAPABILITY_SNAPSHOT_TOOL = "capability-snapshot"
+CAPABILITY_EVENT_TOOL = "capability-changed"
+
+CHANGE_ADDED = "added"
+CHANGE_REMOVED = "removed"
+CHANGE_VERSION_UNCHANGED = "content changed, version unchanged"
+CHANGE_VERSION_CHANGED = "content changed, version changed"
+CHANGE_CLASSES: tuple[str, ...] = (
+    CHANGE_ADDED,
+    CHANGE_REMOVED,
+    CHANGE_VERSION_UNCHANGED,
+    CHANGE_VERSION_CHANGED,
+)
 
 # --- per-harness coverage ---------------------------------------------------
 
@@ -357,6 +387,260 @@ def discover_capabilities(
 
 
 # ---------------------------------------------------------------------------
+# Snapshot & drift (M30 CAP-2)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CapabilityState:
+    """One session's capability set as recorded in a carrier."""
+
+    session_id: str
+    at: datetime
+    capabilities: tuple[Capability, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "session_id": self.session_id,
+            "at": self.at.isoformat(),
+            "capabilities": [capability.to_dict() for capability in self.capabilities],
+        }
+
+
+@dataclass(frozen=True)
+class CapabilityChange:
+    """A factual change between two sessions' capability sets."""
+
+    kind: str
+    name: str
+    scope: str
+    change: str
+    prev_digest: str | None
+    digest: str | None
+    prev_declared_version: str | None
+    declared_version: str | None
+    session_id: str
+    prev_session_id: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "name": self.name,
+            "scope": self.scope,
+            "change": self.change,
+            "prev_digest": self.prev_digest,
+            "digest": self.digest,
+            "prev_declared_version": self.prev_declared_version,
+            "declared_version": self.declared_version,
+            "session_id": self.session_id,
+            "prev_session_id": self.prev_session_id,
+        }
+
+
+def _sorted_capabilities(capabilities: Sequence[Capability]) -> tuple[Capability, ...]:
+    return tuple(sorted(capabilities, key=lambda cap: (cap.kind, cap.scope, cap.name, cap.digest)))
+
+
+def snapshot_records(
+    session_id: str, capabilities: Sequence[Capability], *, at: datetime
+) -> list[AgentRecord]:
+    """One metadata-only ``capability-snapshot`` carrier for a session.
+
+    The carrier holds the *entire* set (a list of kind/name/scope/digest/version
+    entries) so that an empty set is still a recorded baseline — absence of a
+    capability is a fact, not a missing snapshot.
+    """
+    payload = [
+        {
+            "kind": capability.kind,
+            "name": capability.name,
+            "scope": capability.scope,
+            "digest": capability.digest,
+            "size": capability.size,
+            "declared_version": capability.declared_version,
+        }
+        for capability in _sorted_capabilities(capabilities)
+    ]
+    return [
+        AgentRecord(
+            session_id=session_id,
+            agent=AgentIdentity(identity="agentwatch"),
+            tool=ToolCall(
+                name=CAPABILITY_SNAPSHOT_TOOL,
+                arguments={"capabilities": payload},
+                privacy_mode=RecordPrivacyMode.METADATA_ONLY,
+            ),
+            outcome=Outcome.OK,
+            started_at=at,
+            producer=MARKER_PRODUCER,
+            step_type=StepType.OBSERVE,
+        )
+    ]
+
+
+def _capability_from_entry(entry: object) -> Capability | None:
+    if not isinstance(entry, dict):
+        return None
+    kind = entry.get("kind")
+    name = entry.get("name")
+    scope = entry.get("scope")
+    digest = entry.get("digest")
+    if not all(isinstance(value, str) and value for value in (kind, name, scope, digest)):
+        return None
+    size = entry.get("size")
+    version = entry.get("declared_version")
+    return Capability(
+        kind=str(kind),
+        name=str(name),
+        scope=str(scope),
+        digest=str(digest),
+        size=size if isinstance(size, int) else 0,
+        declared_version=version if isinstance(version, str) else None,
+    )
+
+
+def survey_capabilities(records: Sequence[AgentRecord]) -> list[CapabilityState]:
+    """Every session's recorded capability set, ordered by first sighting."""
+    states: dict[str, CapabilityState] = {}
+    for record in records:
+        if record.tool.name != CAPABILITY_SNAPSHOT_TOOL:
+            continue
+        arguments = record.tool.arguments if isinstance(record.tool.arguments, dict) else {}
+        raw = arguments.get("capabilities")
+        found: list[Capability] = []
+        if isinstance(raw, list):
+            for entry in raw:
+                capability = _capability_from_entry(entry)
+                if capability is not None:
+                    found.append(capability)
+        states[record.session_id] = CapabilityState(
+            session_id=record.session_id,
+            at=record.started_at,
+            capabilities=_sorted_capabilities(found),
+        )
+    return sorted(states.values(), key=lambda state: (state.at, state.session_id))
+
+
+def _diff_states(prev: CapabilityState, current: CapabilityState) -> list[CapabilityChange]:
+    prev_map = {(cap.kind, cap.name, cap.scope): cap for cap in prev.capabilities}
+    current_map = {(cap.kind, cap.name, cap.scope): cap for cap in current.capabilities}
+    changes: list[CapabilityChange] = []
+    for key in sorted(set(prev_map) | set(current_map)):
+        before = prev_map.get(key)
+        after = current_map.get(key)
+        if before is None:
+            change = CHANGE_ADDED
+        elif after is None:
+            change = CHANGE_REMOVED
+        elif before.digest != after.digest:
+            change = (
+                CHANGE_VERSION_UNCHANGED
+                if before.declared_version == after.declared_version
+                else CHANGE_VERSION_CHANGED
+            )
+        else:
+            continue
+        changes.append(
+            CapabilityChange(
+                kind=key[0],
+                name=key[1],
+                scope=key[2],
+                change=change,
+                prev_digest=before.digest if before else None,
+                digest=after.digest if after else None,
+                prev_declared_version=before.declared_version if before else None,
+                declared_version=after.declared_version if after else None,
+                session_id=current.session_id,
+                prev_session_id=prev.session_id,
+            )
+        )
+    return changes
+
+
+def detect_capability_changes(
+    records: Sequence[AgentRecord], *, since: datetime | None = None
+) -> list[CapabilityChange]:
+    """Consecutive-session capability changes across the recorded carriers."""
+    states = survey_capabilities(records)
+    if since is not None:
+        states = [state for state in states if state.at >= since]
+    changes: list[CapabilityChange] = []
+    for prev, current in zip(states, states[1:], strict=False):
+        changes.extend(_diff_states(prev, current))
+    return changes
+
+
+def capability_event(change: CapabilityChange, *, at: datetime) -> SecurityEvent:
+    """The ``capability-changed`` observation for one factual change."""
+    return SecurityEvent(
+        type=SecurityEventType.CAPABILITY_CHANGED,
+        emitted_at=at,
+        emitter="agentwatch",
+        tool=change.name,
+        evidence={
+            "kind": change.kind,
+            "name": change.name,
+            "scope": change.scope,
+            "change": change.change,
+            "prev_digest": change.prev_digest,
+            "digest": change.digest,
+            "prev_declared_version": change.prev_declared_version,
+            "declared_version": change.declared_version,
+        },
+    )
+
+
+def _change_record(session_id: str, change: CapabilityChange, at: datetime) -> AgentRecord:
+    return AgentRecord(
+        session_id=session_id,
+        agent=AgentIdentity(identity="agentwatch"),
+        tool=ToolCall(name=CAPABILITY_EVENT_TOOL),
+        outcome=Outcome.OK,
+        started_at=at,
+        producer=MARKER_PRODUCER,
+        step_type=StepType.OBSERVE,
+        security_event=capability_event(change, at=at),
+    )
+
+
+def record_capability_snapshot(
+    store: RecordStore,
+    session_id: str,
+    capabilities: Sequence[Capability],
+    *,
+    now: datetime | None = None,
+) -> list[CapabilityChange]:
+    """Append a session's capability snapshot and emit one event per change.
+
+    Compares against the latest prior snapshot; a first snapshot emits nothing
+    (there is no baseline to diff against).
+    """
+    moment = now or datetime.now(timezone.utc)
+    prior = survey_capabilities(store.records())
+    current = CapabilityState(
+        session_id=session_id, at=moment, capabilities=_sorted_capabilities(capabilities)
+    )
+    changes = _diff_states(prior[-1], current) if prior else []
+    for record in snapshot_records(session_id, capabilities, at=moment):
+        store.append(record)
+    for change in changes:
+        store.append(_change_record(session_id, change, moment))
+    return changes
+
+
+def render_capability_changes(changes: Sequence[CapabilityChange]) -> str:
+    if not changes:
+        return "no capability changes"
+    lines = ["KIND\tSCOPE\tNAME\tCHANGE\tPREV_DIGEST\tDIGEST"]
+    for change in changes:
+        lines.append(
+            f"{change.kind}\t{change.scope}\t{change.name}\t{change.change}\t"
+            f"{change.prev_digest or '-'}\t{change.digest or '-'}"
+        )
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
 
@@ -384,6 +668,8 @@ def render_capabilities(inventory: CapabilityInventory) -> str:
 
 
 __all__ = [
+    "CAPABILITY_EVENT_TOOL",
+    "CAPABILITY_SNAPSHOT_TOOL",
     "CAP_KINDS",
     "CAP_KIND_COMMAND",
     "CAP_KIND_HOOK",
@@ -393,11 +679,18 @@ __all__ = [
     "CAP_KIND_RULES",
     "CAP_KIND_SKILL",
     "CAP_KIND_SUBAGENT",
+    "CHANGE_ADDED",
+    "CHANGE_CLASSES",
+    "CHANGE_REMOVED",
+    "CHANGE_VERSION_CHANGED",
+    "CHANGE_VERSION_UNCHANGED",
     "COVERAGE_EXPOSED",
     "COVERAGE_NONE",
     "COVERAGE_PARTIAL",
     "Capability",
+    "CapabilityChange",
     "CapabilityInventory",
+    "CapabilityState",
     "CoverageRow",
     "HARNESSES",
     "SCOPES",
@@ -406,6 +699,12 @@ __all__ = [
     "SCOPE_PROJECT",
     "SCOPE_USER",
     "capabilities_to_json",
+    "capability_event",
+    "detect_capability_changes",
     "discover_capabilities",
+    "record_capability_snapshot",
     "render_capabilities",
+    "render_capability_changes",
+    "snapshot_records",
+    "survey_capabilities",
 ]

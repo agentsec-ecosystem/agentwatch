@@ -34,7 +34,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | # | Task | Deliverable | Dependencies | Acceptance | Issue |
 |---|---|---|---|---|---|
 | 30.CAP-1 DONE | Capability inventory: skills/plugins/hooks/subagents/commands/rules/MCP with content digests + origin | feature + tests + docs | PRD 25, S4 | Content digest (not pin) recorded; no content stored (property test); per-harness gaps declared | #458 |
-| 30.CAP-2 | Capability drift + `capability-changed` event | feature + schema + tests | 30.CAP-1, 29.EXT-3 | Plugin4Shell-shape fixture ("content changed, version unchanged") detected; new hook surfaced; no verdict language | #459 |
+| 30.CAP-2 DONE | Capability drift + `capability-changed` event | feature + schema + tests | 30.CAP-1, 29.EXT-3 | Plugin4Shell-shape fixture ("content changed, version unchanged") detected; new hook surfaced; no verdict language | #459 |
 | 30.CAP-3 | `capability-loaded` context in replay/impact/search | feature + tests | 30.CAP-1, 29.DEP-2 | Loads shown inline; `search --capability` works; per-harness exposure matrix CI-checked; "followed the load of" wording | #460 |
 | 30.MEM-1 | Memory stores as capabilities (digest, writer-session) + `search --memory` | feature + tests | 30.CAP-1, 28.DET-7 | Out-of-band memory edit flagged unattributed; per-harness exposure matrix published | #461 |
 | 30.PRV-1 | `provenance <commit|range|PR|file>` | feature + tests | 30.PRV-3, 29.APV-1 | Commit→session <2 s; "no recorded activity" when none (never "human"); `mixed` ranges correct; gaps flagged | #462 |

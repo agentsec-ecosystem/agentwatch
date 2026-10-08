@@ -28,6 +28,13 @@ fi
 # The v0.2.0 runner sets FT_VERSION=v0.2.0 (see run-suite.sh / `make fieldtest-v020`).
 # FT_RESULTS_ROOT overrides the whole path when set.
 FT_VERSION="${FT_VERSION:-v0.1.0}"
+# FREEZE GUARD: the v0.1.0 field-test results are frozen forever and must never
+# be written by a v0.2.0 run. This blocks any accidental target.
+if [[ "${FT_VERSION}" == "v0.1.0" && "${FT_ALLOW_V010_WRITE:-0}" != "1" ]]; then
+  echo "FATAL: refusing to write to field-test/v0.1.0 (frozen). Set FT_VERSION=v0.2.0." >&2
+  echo "       (override only with FT_ALLOW_V010_WRITE=1, and only for the v0.1.0 report itself)" >&2
+  exit 3
+fi
 RESULTS_ROOT="${FT_RESULTS_ROOT:-$REPO_ROOT/field-test/$FT_VERSION/results}"
 # Stable run directory name (no timestamps). Override with FT_RUN_ID=... per step.
 FT_RUN_ID="${FT_RUN_ID:-all}"

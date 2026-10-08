@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/search.schema.json",
+  "title": "agentwatch search --json",
+  "description": "One record object per line (NDJSON) from `agentwatch search --json`.",
+  "x-agentwatch-command": "search",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "agent": {
+      "type": "object"
+    },
+    "tool": {
+      "type": "object"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_id",
+    "tool",
+    "outcome",
+    "started_at"
+  ]
+}

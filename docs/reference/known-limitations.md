@@ -109,6 +109,25 @@ Status: living.
   override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
   index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
   exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+- The agent-facing MCP server (`agentwatch mcp-serve`, **30.AGI-1**) is **read-only and off by default**
+  (`--enable`); it exposes no mutating tool and cannot enforce or block. Its responses are labeled
+  `untrusted-data` with record citations and every query is recorded as a metadata-only `store-access`
+  record; a client that ignores the label still receives no instruction channel. Injection-shaped record
+  content cannot change behavior (proving test:
+  `packages/python-sdk/tests/test_mcp_server.py::test_injection_shaped_record_content_does_not_change_behavior`).
+- The versioned CLI JSON contract (**30.AGI-2**) covers a documented **read/investigation subset** of
+  commands (`schema/cli/v0.1.0/`, see `agentwatch.cli_schema.READ_COMMANDS`), not every command that emits
+  `--json`; more join additively under the changelog guard. The HTTP contract is PRD 46 API-1 and is not
+  built here (proving test: `packages/python-sdk/tests/test_agent_interfaces.py`).
+- `suggest-policy` (**30.POL-1**) is **advisory only**: it never edits harness settings, never enforces, and
+  writes nothing outside `--out`. Its quality is bounded by captured arguments — a metadata-only call that
+  cannot be command-scoped becomes an explicit coverage gap, never a guessed rule. The `acs` target is a thin
+  consumer of the ACS audit shape (PRD 45); the emit-side ACS depth is not built (proving test:
+  `packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file`).
+- `what-if` (**30.POL-2**) is a **labeled simulation**, not a predictor: it replays a policy over *recorded* calls
+  only. Matcher matching is best-effort (`Tool` / `Tool(program:*)`); unsupported syntax is reported and ignored,
+  and unmatched calls default to `ask`. It cannot foresee calls the recorder never saw (proving test:
+  `packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped`).
 
 ## Policy
 

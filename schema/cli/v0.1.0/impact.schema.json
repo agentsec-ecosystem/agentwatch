@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/impact.schema.json",
+  "title": "agentwatch impact --json",
+  "description": "The change-footprint report from `agentwatch impact <session> --json`.",
+  "x-agentwatch-command": "impact",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "classifier_version": {
+      "type": "string"
+    },
+    "records": {
+      "type": "integer"
+    },
+    "counts": {
+      "type": "object"
+    },
+    "widest_action": {
+      "type": "string"
+    },
+    "files": {
+      "type": "array"
+    },
+    "commands": {
+      "type": "array"
+    },
+    "network": {
+      "type": "array"
+    },
+    "denials": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "session_id",
+    "classifier_version",
+    "records"
+  ]
+}

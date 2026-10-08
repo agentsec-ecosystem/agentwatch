@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/flow.schema.json",
+  "title": "agentwatch flow --json",
+  "description": "Array of content->argument flow edges from `agentwatch flow <session> --json`.",
+  "x-agentwatch-command": "flow",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "source": {
+        "type": "object"
+      },
+      "sink": {
+        "type": "object"
+      },
+      "confidence": {
+        "type": "string"
+      }
+    }
+  }
+}

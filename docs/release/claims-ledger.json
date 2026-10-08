@@ -630,6 +630,19 @@
       "last_verified": "2026-10-06"
     },
     {
+      "id": "C57",
+      "claim": "The owasp-asi-2026 compliance framework gives every ASI risk row a regenerating command or an explicit 'not evidenced', includes an AST10 section, carries a non-certification statement, and runs every evidenced row's command in the executable-docs gate.",
+      "source": "docs/design/owasp-asi-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_all_ten_asi_rows_are_present_with_the_required_fields",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_ast10_section_is_present",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_every_evidenced_row_command_runs_in_the_docs_gate",
+        "doc:docs/compliance/owasp-asi-2026.md",
+        "doc:docs/design/owasp-asi-mapping.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
       "id": "C58",
       "claim": "Under Claude Code managed policy that blocks user/project hooks, `doctor` reports `hooks effective: blocked by managed policy` and never claims \"installed\"; it detects, never circumvents, and managed installs are removed by the admin mechanism.",
       "source": "docs/design/managed-policy-install.md",
@@ -807,19 +820,6 @@
       "last_verified": "2026-10-06"
     },
     {
-      "id": "C57",
-      "claim": "The owasp-asi-2026 compliance framework gives every ASI risk row a regenerating command or an explicit 'not evidenced', includes an AST10 section, carries a non-certification statement, and runs every evidenced row's command in the executable-docs gate.",
-      "source": "docs/design/owasp-asi-mapping.md",
-      "evidence": [
-        "test:packages/python-sdk/tests/test_compliance_asi.py::test_all_ten_asi_rows_are_present_with_the_required_fields",
-        "test:packages/python-sdk/tests/test_compliance_asi.py::test_ast10_section_is_present",
-        "test:packages/python-sdk/tests/test_compliance_asi.py::test_every_evidenced_row_command_runs_in_the_docs_gate",
-        "doc:docs/compliance/owasp-asi-2026.md",
-        "doc:docs/design/owasp-asi-mapping.md"
-      ],
-      "last_verified": "2026-10-06"
-    },
-    {
       "id": "C73",
       "claim": "The A2A interposition proxy records tasks/messages/artifacts and agent-card exchanges over stdio and HTTP, rejects its declared gaps explicitly, and its consent-first install restores the client config byte-identically.",
       "source": "docs/design/harness-adapter-design.md",
@@ -872,6 +872,55 @@
         "file:docs/design/acs-interop.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C109",
+      "claim": "The agent-facing MCP server is read-only: it exposes no mutating tool, labels responses untrusted with record citations, and injection-shaped record content cannot change its behavior.",
+      "source": "docs/design/agent-interfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_tool_set_is_exactly_the_documented_read_only_set",
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_injection_shaped_record_content_does_not_change_behavior",
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_every_query_appends_exactly_one_store_access",
+        "file:docs/adr/0037-mcp-read-only-server.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C110",
+      "claim": "The read/investigation CLI JSON contract is versioned and changelog-guarded, and a shipped skill documents the workflow.",
+      "source": "docs/design/agent-interfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_every_registered_read_command_has_a_versioned_schema",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_changelog_guard_fails_when_the_version_is_not_named",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_scripted_agent_reaches_documented_answers",
+        "file:schema/cli/CHANGELOG.md",
+        "file:docs/skills/investigation/SKILL.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C111",
+      "claim": "`suggest-policy` is advisory only: it writes nothing outside `--out`, never edits harness settings, links every rule to evidence, and never suggests destructive/network/credential-adjacent calls as allow by default.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_destructive_network_and_credential_are_ask_not_allow",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_lint_flags_broad_interpreter_and_network_rules",
+        "file:docs/adr/0038-policy-suggestion-boundary.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C112",
+      "claim": "`what-if` replays a policy over history as a labeled simulation, reporting prompts avoided, would-be denials with sessions, and actual-authorization differences; parse errors are explicit and unsupported syntax is reported.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_counts_and_would_be_denials_and_prompts_avoided",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_parse_errors_are_explicit",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_unsupported_syntax_is_reported_not_guessed"
+      ],
+      "last_verified": "2026-10-07"
     },
     {
       "id": "C129",

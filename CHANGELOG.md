@@ -7,6 +7,24 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - AGI-1: read-only MCP server over the record — `agentwatch mcp-serve --enable` (off by default) exposes a
+    fixed, test-enumerated read-only tool set (`sessions`, `search`, `replay`, `impact`, `blame`, `coverage`,
+    `cost`, `oversight`, `provenance`, `inventory`) over local stdio; responses are labeled `untrusted-data`
+    with record citations, results are bounded and rate-limited, injection-shaped record content cannot change
+    behavior, and every query is appended as a metadata-only `store-access` record (ADR-0037) (#467).
+  - AGI-2: investigation skill + versioned CLI JSON schemas — `docs/skills/investigation/SKILL.md` teaches the
+    search → replay → impact → evidence workflow, and the read/investigation commands' `--json` output is
+    published as versioned schemas in `schema/cli/v0.1.0/` (own changelog, guarded by `agentwatch.cli_schema`);
+    a scripted agent reaches documented answers on the demo store (#468).
+  - POL-1: advisory `suggest-policy` + dangerous-broad lint — `agentwatch suggest-policy --since 30d --target
+    claude-settings|mcp-allowlist|acs` derives least-privilege allow/ask/deny candidates from observed calls
+    and cls1 classes, links each rule to evidence (calls/sessions/approvals/last-seen), never suggests
+    destructive/network/credential-adjacent calls as `allow` by default, lints broad interpreter/network
+    rules, writes nothing outside `--out`, and is deterministic (ADR-0038) (#469).
+  - POL-2: `what-if` policy replay over history — `agentwatch what-if <policy-file> --since 30d` reports
+    allowed/asked/denied counts and the delta vs actual behavior (prompts avoided, would-be denials with
+    sessions, actual-authorization differences), with explicit parse errors, reported unsupported syntax, and
+    a simulation label stamped with the policy-format version (ADR-0038) (#470).
   - OUT-2: recurring failure signatures in `digest` — failed calls/anomalies are grouped by a versioned signature
     (`sg1`: tool, error class, `cls1` class, `bd1` behavior fingerprint) into ranked top-N patterns with counts,
     first/last seen, trend vs the prior equal-length window, and `replay`/`diff` evidence links; same store → same

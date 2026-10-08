@@ -108,6 +108,7 @@ from agentwatch.mcp_config import (
     resolve_mcp_scope,
     uninstall_mcp_proxy,
 )
+from agentwatch.mcp_server import RateLimiter, serve_stdio
 from agentwatch.mcp_surface import (
     detect_surface_changes,
     render_changes,
@@ -125,6 +126,17 @@ from agentwatch.notarize import (
 from agentwatch.ocsf import session_cloudevents, session_ocsf
 from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
 from agentwatch.oversight import build_oversight, render_oversight
+from agentwatch.policy_suggest import (
+    TARGETS,
+    PolicyParseError,
+    load_policy,
+    render_policy_suggestion,
+    render_whatif,
+    simulate_policy,
+    suggest_policy,
+    suggestion_to_dict,
+    whatif_to_dict,
+)
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
 from agentwatch.quarantine import (
     QuarantineError,
@@ -1045,6 +1057,49 @@ def _build_parser() -> argparse.ArgumentParser:
         "agent_command", nargs=argparse.REMAINDER, help="-- <agent command> [args...]"
     )
 
+    mcp_serve = sub.add_parser(
+        "mcp-serve", help="read-only MCP server over the record (M30 AGI-1; off by default)"
+    )
+    mcp_serve.add_argument(
+        "--enable",
+        action="store_true",
+        help="consent-first opt-in; required because the server is off by default",
+    )
+    mcp_serve.add_argument(
+        "--rate-limit",
+        type=int,
+        default=240,
+        help="max tool calls per minute (default 240)",
+    )
+
+    suggest_policy_p = sub.add_parser(
+        "suggest-policy",
+        help="advisory least-privilege permission candidates from history (M30 POL-1)",
+    )
+    suggest_policy_p.add_argument("--since", default="30d", help="window (default 30d)")
+    suggest_policy_p.add_argument("--project", default=None, help="only records for this project")
+    suggest_policy_p.add_argument(
+        "--target", choices=TARGETS, default="claude-settings", help="output target"
+    )
+    suggest_policy_p.add_argument(
+        "--include",
+        action="store_true",
+        help="allow destructive/network/credential-adjacent rules (still annotated)",
+    )
+    suggest_policy_p.add_argument(
+        "--out", default=None, help="write the artifact here (nothing else is written)"
+    )
+    suggest_policy_p.add_argument("--json", action="store_true", help="emit the artifact as JSON")
+
+    what_if = sub.add_parser(
+        "what-if",
+        help="replay a candidate policy over history (M30 POL-2; simulation only)",
+    )
+    what_if.add_argument("policy_file", help="path to a policy JSON file")
+    what_if.add_argument("--since", default="30d", help="window (default 30d)")
+    what_if.add_argument("--project", default=None, help="only records for this project")
+    what_if.add_argument("--json", action="store_true", help="emit the simulation as JSON")
+
     return parser
 
 
@@ -1356,6 +1411,82 @@ def _run_mcp_proxy(args: argparse.Namespace) -> int:
         )
         return _EXIT_USAGE_ERROR
     return run_stdio(args.server, command, socket_path=args.socket)
+
+
+def _run_mcp_serve(args: argparse.Namespace) -> int:
+    if not args.enable:
+        print(
+            "agentwatch: mcp-serve is off by default; pass --enable to opt in "
+            "(read-only server over the record)",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    limiter = RateLimiter(max_queries=max(1, args.rate_limit))
+    return serve_stdio(store, stdin=sys.stdin, stdout=sys.stdout, limiter=limiter)
+
+
+def _run_what_if(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        policy = load_policy(args.policy_file)
+    except PolicyParseError as exc:
+        print(f"agentwatch: policy error: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    report = simulate_policy(store, policy, since=args.since, project=args.project)
+    print(json.dumps(whatif_to_dict(report), indent=2) if args.json else render_whatif(report))
+    return 0
+
+
+def _run_suggest_policy(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        suggestion = suggest_policy(
+            store,
+            since=args.since,
+            target=args.target,
+            project=args.project,
+            include=args.include,
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+
+    if args.out is not None:
+        out_path = Path(args.out).expanduser()
+        if not out_path.parent.is_dir():
+            print(
+                f"agentwatch: --out directory does not exist: {out_path.parent}",
+                file=sys.stderr,
+            )
+            return _EXIT_USAGE_ERROR
+        out_path.write_text(
+            json.dumps(suggestion_to_dict(suggestion), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"agentwatch: wrote advisory policy suggestion to {out_path}")
+        return 0
+
+    if args.json:
+        print(json.dumps(suggestion_to_dict(suggestion), indent=2))
+    else:
+        print(render_policy_suggestion(suggestion))
+    return 0
 
 
 def _run_a2a_proxy(args: argparse.Namespace) -> int:
@@ -3108,6 +3239,12 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_uninstall(args)
     if args.command == "mcp-proxy":
         return _run_mcp_proxy(args)
+    if args.command == "mcp-serve":
+        return _run_mcp_serve(args)
+    if args.command == "suggest-policy":
+        return _run_suggest_policy(args)
+    if args.command == "what-if":
+        return _run_what_if(args)
     if args.command == "a2a-proxy":
         return _run_a2a_proxy(args)
     if args.command == "sessions":

@@ -884,6 +884,19 @@
         "file:docs/adr/0037-mcp-read-only-server.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C110",
+      "claim": "The read/investigation CLI JSON contract is versioned and changelog-guarded, and a shipped skill documents the workflow.",
+      "source": "docs/design/agent-interfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_every_registered_read_command_has_a_versioned_schema",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_changelog_guard_fails_when_the_version_is_not_named",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_scripted_agent_reaches_documented_answers",
+        "file:schema/cli/CHANGELOG.md",
+        "file:docs/skills/investigation/SKILL.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

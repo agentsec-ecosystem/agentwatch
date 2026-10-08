@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/replay.schema.json",
+  "title": "agentwatch replay --json",
+  "description": "Array of `{record}` items (optionally `{record, receipt}`) from `agentwatch replay --json`.",
+  "x-agentwatch-command": "replay",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "record": {
+        "type": "object"
+      },
+      "receipt": {
+        "type": "object"
+      }
+    }
+  }
+}

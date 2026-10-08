@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/oversight.schema.json",
+  "title": "agentwatch oversight --json",
+  "description": "The human-oversight report from `agentwatch oversight --json`.",
+  "x-agentwatch-command": "oversight",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "by": {
+      "type": "string"
+    },
+    "groups": {
+      "type": "array"
+    },
+    "note": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "by"
+  ]
+}

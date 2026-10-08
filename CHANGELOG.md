@@ -12,6 +12,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     `cost`, `oversight`, `provenance`, `inventory`) over local stdio; responses are labeled `untrusted-data`
     with record citations, results are bounded and rate-limited, injection-shaped record content cannot change
     behavior, and every query is appended as a metadata-only `store-access` record (ADR-0037) (#467).
+  - AGI-2: investigation skill + versioned CLI JSON schemas — `docs/skills/investigation/SKILL.md` teaches the
+    search → replay → impact → evidence workflow, and the read/investigation commands' `--json` output is
+    published as versioned schemas in `schema/cli/v0.1.0/` (own changelog, guarded by `agentwatch.cli_schema`);
+    a scripted agent reaches documented answers on the demo store (#468).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

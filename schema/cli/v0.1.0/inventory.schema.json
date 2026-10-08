@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/inventory.schema.json",
+  "title": "agentwatch inventory --json",
+  "description": "The agent/MCP-server inventory from `agentwatch inventory --json`.",
+  "x-agentwatch-command": "inventory",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "agents": {
+      "type": "array"
+    },
+    "servers": {
+      "type": "array"
+    }
+  }
+}

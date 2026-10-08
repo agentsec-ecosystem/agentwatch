@@ -106,6 +106,10 @@ Status: living.
   record; a client that ignores the label still receives no instruction channel. Injection-shaped record
   content cannot change behavior (proving test:
   `packages/python-sdk/tests/test_mcp_server.py::test_injection_shaped_record_content_does_not_change_behavior`).
+- The versioned CLI JSON contract (**30.AGI-2**) covers a documented **read/investigation subset** of
+  commands (`schema/cli/v0.1.0/`, see `agentwatch.cli_schema.READ_COMMANDS`), not every command that emits
+  `--json`; more join additively under the changelog guard. The HTTP contract is PRD 46 API-1 and is not
+  built here (proving test: `packages/python-sdk/tests/test_agent_interfaces.py`).
 
 ## Policy
 

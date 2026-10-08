@@ -98,6 +98,10 @@ It is **not** part of this contract and carries no authority:
 - It is a stdlib `sqlite3` artifact — no heavyweight runtime dependency.
 - A purge/retention tombstone invalidates it (the freshness digest includes the
   tombstone bit), and `agentwatch index rebuild` regenerates it from the chain.
+- `purge` and `retention` propagate to the index (the erased rows are dropped),
+  and both **enumerate known leftover artifacts** beside the store (archives,
+  parquet/NDJSON exports, repair-evidence copies, quarantine) rather than
+  assuming them absent (M30 EXT-5).
 - `verify-store` verifies the chain and **never** consults the index.
 
 ## Time

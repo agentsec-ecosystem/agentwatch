@@ -913,6 +913,20 @@
         "file:docs/design/local-console.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C102",
+      "claim": "`purge` and retention propagate to the derived index (and console), so they return nothing for the erased session, while a legal hold still fails the purge closed; known leftover artifacts are enumerated rather than assumed absent.",
+      "source": "docs/design/legal-hold.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_purge_propagates_to_the_index",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_console_returns_nothing_for_a_purged_session",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_retention_propagates_to_the_index",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_purge_enumerates_leftover_artifacts",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_blocked_purge_does_not_touch_the_index",
+        "file:docs/design/legal-hold.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

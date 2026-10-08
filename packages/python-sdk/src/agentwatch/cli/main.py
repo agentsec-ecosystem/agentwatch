@@ -2515,6 +2515,11 @@ def _run_purge(args: argparse.Namespace) -> int:
     print(f"agentwatch: purged {report.purged} record(s) for session {args.session_id}")
     if report.override_reason:
         print(f"agentwatch: legal hold override recorded: {report.override_reason}")
+    if report.leftovers:
+        print(
+            "agentwatch: leftover derived artifact(s) may still retain data: "
+            + ", ".join(report.leftovers)
+        )
     return 0
 
 
@@ -2572,6 +2577,8 @@ def _run_retention(args: argparse.Namespace) -> int:
         "retention_days": profile.retention_days,
         "profile": profile.name,
     }
+    if report.leftovers:
+        payload["leftovers"] = list(report.leftovers)
     if report.held:
         payload["held"] = report.held
     if args.dry_run:
@@ -2589,6 +2596,8 @@ def _run_retention(args: argparse.Namespace) -> int:
             print(f"  {report.held} record(s) skipped by an active legal hold")
         if args.dry_run:
             print("  dry run: nothing was tombstoned")
+        if report.leftovers:
+            print(f"  leftover derived artifact(s): {', '.join(report.leftovers)}")
         if not status.ok:
             print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
     return 0 if status.ok else _EXIT_INSTALL_ERROR

@@ -19,6 +19,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     stdlib `sqlite3` index (no heavyweight runtime dependency; ADR-0035); deleting it loses nothing and it
     rebuilds **bit-for-bit** from the chain; indexed lookup on a 1M-record store is ~2 ms (target < 250 ms);
     `agentwatch index rebuild|status|drop|export-parquet` (parquet is a lazy optional extra) (#466).
+  - EXT-5: `purge`/retention propagate to every derived index/export — a successful purge/retention drops the
+    erased rows from the embedded index (and next use rebuilds it from the now-tombstoned chain) so the index and
+    console return nothing for the session; a hold still fails the purge closed; known leftover artifacts
+    (archives, parquet/NDJSON exports, repair-evidence copies, quarantine) are enumerated (#483).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

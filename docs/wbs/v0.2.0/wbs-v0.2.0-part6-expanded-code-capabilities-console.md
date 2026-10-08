@@ -58,7 +58,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.DEMO-1 | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM | #480 |
 | 30.NTF-1 | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
 | 30.EXT-4 | Publish `cls2` (test/build outcome classes); reproduce `cls1` | feature + docs | PRD 33 | `cls2` table published; `cls1` outputs reproducible | #482 |
-| 30.EXT-5 | `purge`/retention propagate to every derived index/export; enumerate leftovers | feature + tests | 29.HLD-1, 30.LUI-2 | Post-purge index/console empty; leftover artifacts enumerated | #483 |
+| 30.EXT-5 DONE | `purge`/retention propagate to every derived index/export; enumerate leftovers | feature + tests | 29.HLD-1, 30.LUI-2 | Post-purge index/console empty; leftover artifacts enumerated | #483 |
 | 30.EXT-8 | Re-sequence PG behind LUI-2; record decision | docs + ADR | 30.LUI-2 | ADR records embedded-index-first; PG = fleet/tenant tier | #484 |
 | 30.T | Add/expand test cases for this milestone | tests | M30 feature tickets | All new paths covered; coverage ≥ 95% | #485 |
 | 30.D | Create/update the design + reference docs for this milestone | docs | M30 feature tickets | Docs updated and linked from the WBS | #486 |

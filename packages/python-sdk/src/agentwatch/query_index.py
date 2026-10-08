@@ -89,6 +89,44 @@ def index_path_for_store(store_path: Path | str) -> Path:
     return Path(store_path).parent / INDEX_FILENAME
 
 
+@dataclass(frozen=True)
+class DerivedArtifact:
+    """A known derived artifact beside the chain store (EXT-5 enumeration)."""
+
+    kind: str
+    path: str
+
+
+def derived_artifacts(store_dir: Path | str) -> list[DerivedArtifact]:
+    """Enumerate known derived artifacts beside the store (EXT-5).
+
+    `purge`/retention act on the chain and the embedded index; any *other*
+    derived artifact in the store directory may still retain data, so it is
+    enumerated (never assumed absent). The authoritative ``records.jsonl`` is not
+    a leftover and is not listed.
+    """
+    directory = Path(store_dir)
+    found: list[DerivedArtifact] = []
+    if (directory / INDEX_FILENAME).is_file():
+        found.append(DerivedArtifact("index", INDEX_FILENAME))
+    archive_dir = directory / "archives"
+    if archive_dir.is_dir():
+        found.append(DerivedArtifact("archive", "archives"))
+    if (directory / "quarantine.jsonl").is_file():
+        found.append(DerivedArtifact("quarantine", "quarantine.jsonl"))
+    for path in sorted(directory.glob("*.parquet")):
+        found.append(DerivedArtifact("parquet", path.name))
+    for path in sorted(directory.glob("*.zip")):
+        found.append(DerivedArtifact("evidence", path.name))
+    for path in sorted(directory.glob("records.jsonl.corrupt-*")):
+        found.append(DerivedArtifact("repair-evidence", path.name))
+    for path in sorted(directory.glob("*.ndjson")):
+        if path.name != "records.jsonl":
+            found.append(DerivedArtifact("export", path.name))
+    found.sort(key=lambda artifact: (artifact.kind, artifact.path))
+    return found
+
+
 def _canonical(record: Mapping[str, Any]) -> str:
     return json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
@@ -391,8 +429,10 @@ __all__ = [
     "INDEX_FILENAME",
     "INDEX_FORMAT_VERSION",
     "PARQUET_EXTRA",
+    "DerivedArtifact",
     "IndexStatus",
     "ParquetUnavailableError",
     "QueryIndex",
+    "derived_artifacts",
     "index_path_for_store",
 ]

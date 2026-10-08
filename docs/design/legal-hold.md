@@ -4,8 +4,8 @@
 so litigation preservation does not collide silently with retention windows or right-to-erasure. Holds are chain records;
 derived indexes and exports honor them.
 
-**Status:** HLD-1 implemented (2026-10-06, v0.2.0 M29); derived-index propagation BLOCKED on 30.EXT-5 ·
-**Milestone:** M29 · Sources: [PRD 56](../prd/56-governance-retention-and-redaction-quality.md),
+**Status:** HLD-1 implemented (2026-10-06, v0.2.0 M29); derived-index propagation landed with 30.EXT-5 (2026-10-07, M30) ·
+**Milestone:** M29–M30 · Sources: [PRD 56](../prd/56-governance-retention-and-redaction-quality.md),
 [storage-design.md](storage-design.md), [derived-postgres.md](derived-postgres.md), PRD 44 (CMP-3).
 
 ## Semantics
@@ -27,14 +27,17 @@ decision rather than choosing silently.
 
 ## Propagation
 
-Holds apply to the chain store **now**; the embedded index (LUI-2), the Postgres tier, and other derived/export
-artifacts are 30.EXT-5 (M30). A rebuild after release reproduces the index consistently once EXT-5 lands. The
-`evidence` bundle already carries the session-scoped override record and the compliance report lists holds + overrides.
-ADR-0041. **BLOCKED (declared):** the acceptance criterion "derived indexes and exports honor holds" requires EXT-5 /
-LUI-2, which are not in this branch.
+Holds apply to the chain store and now **propagate to the derived artifacts** (30.EXT-5, M30): a purge that is
+refused by a hold touches nothing, and a successful purge/retention drops the erased rows from the embedded index
+(and, next use, rebuilds it from the now-tombstoned chain) so the index and console return nothing for the session.
+Known leftover artifacts beside the store (archives, parquet/NDJSON exports, repair-evidence copies, quarantine)
+are **enumerated** by `purge`/`retention` rather than assumed absent. A rebuild after release reproduces the index
+consistently. The `evidence` bundle carries the session-scoped override record and the compliance report lists holds
++ overrides. ADR-0041; the Postgres tier stays the fleet tier and is not built here.
 
 ## Testing
 
 - Held records survive `retention apply` and a rebuild-from-chain (FT-HLD-1) — `tests/test_legal_hold.py`.
 - `purge` on a held session fails closed; override requires a reason and is surfaced.
+- `purge`/retention propagation to the index + leftover enumeration — `tests/test_purge_propagation.py` (EXT-5).
 - Compliance-report retention row lists holds + overrides.

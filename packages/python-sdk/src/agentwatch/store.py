@@ -95,6 +95,7 @@ class RetentionReport:
     kept: int
     held: int = 0
     dry_run: bool = False
+    leftovers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -106,6 +107,7 @@ class PurgeReport:
     marker_seq: int | None
     blocked_by_hold: str | None = None
     override_reason: str | None = None
+    leftovers: tuple[str, ...] = ()
 
     @property
     def override_required(self) -> bool:
@@ -502,7 +504,14 @@ class RecordStore:
                 tmp.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
                 os.replace(tmp, self.path)
                 self._entries = self._load()
-            return RetentionReport(purged=purged, kept=kept, held=held, dry_run=dry_run)
+                self._propagate_retention()
+            return RetentionReport(
+                purged=purged,
+                kept=kept,
+                held=held,
+                dry_run=dry_run,
+                leftovers=() if dry_run else self._leftovers(),
+            )
 
     def purge_session(
         self,
@@ -605,11 +614,13 @@ class RecordStore:
             entry = self.append(
                 self._purge_marker(session_id, moment, reason),
             )
+            self._propagate_purge(session_id)
             return PurgeReport(
                 purged=len(matched),
                 found=True,
                 marker_seq=entry.seq,
                 override_reason=override_reason,
+                leftovers=self._leftovers(),
             )
 
     @staticmethod
@@ -628,6 +639,38 @@ class RecordStore:
             outcome=Outcome.OK,
             started_at=moment,
             producer=MARKER_PRODUCER,
+        )
+
+    # -- derived-artifact propagation (M30 EXT-5) --------------------------
+
+    def _propagate_purge(self, session_id: str) -> None:
+        """Drop one session's rows from the derived index (never touches the chain).
+
+        Deferred import: ``query_index`` reads this store, so importing it at
+        module load would cycle. The chain remains authoritative; the index is
+        only ever a projection.
+        """
+        from agentwatch import query_index
+
+        index = query_index.QueryIndex(query_index.index_path_for_store(self.path))
+        if index.exists:
+            index.purge_session(session_id)
+
+    def _propagate_retention(self) -> None:
+        """Rebuild the derived index from the now-tombstoned chain (EXT-5)."""
+        from agentwatch import query_index
+
+        index = query_index.QueryIndex(query_index.index_path_for_store(self.path))
+        if index.exists:
+            index.rebuild(self)
+
+    def _leftovers(self) -> tuple[str, ...]:
+        """Known derived artifacts beside the store that may still retain data."""
+        from agentwatch import query_index
+
+        return tuple(
+            f"{artifact.kind}:{artifact.path}"
+            for artifact in query_index.derived_artifacts(self.path.parent)
         )
 
 

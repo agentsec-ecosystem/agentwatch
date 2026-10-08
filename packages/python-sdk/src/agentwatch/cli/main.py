@@ -156,7 +156,12 @@ from agentwatch.recorder_state import (
     record_retention_changed,
 )
 from agentwatch.records import EVENT_VERSION, SecurityEvent, SecurityEventType, validate_event
-from agentwatch.redact import redaction_config_from_mode
+from agentwatch.redact import (
+    evaluate_corpus,
+    load_corpus,
+    redaction_config_from_mode,
+    render_report_table,
+)
 from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
@@ -571,6 +576,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="privacy mode for the filter (default: active config)",
     )
     redact.add_argument("--json", action="store_true", help="emit findings as JSON")
+    redact.add_argument(
+        "target",
+        nargs="?",
+        default=None,
+        help="'eval' to run the public redaction corpus and print per-class numbers",
+    )
+    redact.add_argument(
+        "--corpus",
+        default=None,
+        metavar="VERSION",
+        help="redaction corpus version for 'redact eval' (default: v1)",
+    )
 
     export_session_cmd = sub.add_parser(
         "export-session", help="export one session as NDJSON with its chain segment (M13 J2)"
@@ -1819,6 +1836,18 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 
 def _run_redact(args: argparse.Namespace) -> int:
+    if args.target == "eval":
+        try:
+            report = evaluate_corpus(load_corpus(args.corpus or "v1"))
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        if args.json:
+            print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+        else:
+            print(render_report_table(report))
+        return 0
+
     try:
         cfg = _load(args)
     except ConfigError as exc:

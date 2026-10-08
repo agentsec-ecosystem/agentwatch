@@ -119,6 +119,11 @@ Status: living.
   already dropped). A cross-host join is by W3C `traceparent` only; when the header is absent the runner session
   is imported **unjoined**. Proving test:
   `packages/python-sdk/tests/test_runner_segments.py::test_imported_records_are_visibly_weaker_than_local`.
+- Redaction recall (M30 RED-1) is published from the public corpus
+  ([reference/redaction-corpus.md](redaction-corpus.md)); the one declared miss is `api-key-encoded-base64` — an
+  API key that has been base64-encoded is not decoded before detection, so `api-key` publishes 0.8333 recall, not
+  1.0. Encoded/structured secrets remain a gap (proving test:
+  `packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations`).
 
 ## Policy
 

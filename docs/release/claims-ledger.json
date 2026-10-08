@@ -913,6 +913,20 @@
         "file:docs/design/runner-segments.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C122",
+      "claim": "Redaction quality is published from a versioned, public corpus of synthetic secrets/PII as per-class recall and a false-positive rate, reproduced deterministically offline by `agentwatch redact eval`, with known misses declared in known-limitations and the corpus registered for the secret scan.",
+      "source": "docs/design/redaction-corpus.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_numbers_reproduce_and_do_not_drift",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_table_is_generated_and_current",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_false_positive_rate_is_published",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_corpus_is_registered_for_the_secret_scan",
+        "file:docs/reference/redaction-corpus.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

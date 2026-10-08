@@ -25,6 +25,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Public redaction corpus — synthetic, fabricated secret-shaped values (M30 RED-1)"
+paths = [
+  '''^schema/vectors/redaction/''',
+]
+
+[[allowlists]]
 description = "Field-test evidence (ephemeral per-run keys, decrypted stores)"
 paths = [
   '''^field-test/v0\.1\.0/results/''',

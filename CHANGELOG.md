@@ -25,6 +25,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     record; imported records are chain-protected but **NOT locally witnessed** (S11 distinction, visible in
     `segment custody`), sealing/import refuse unredacted records, a `traceparent` joins the originating session,
     a tampered segment fails and is not imported, and agentwatch performs no egress; ADR-0039 (#479).
+  - RED-1: public redaction corpus + `redact eval` — a versioned, synthetic corpus
+    (`schema/vectors/redaction/v1/`) drives `agentwatch redact eval --corpus v1` to publish per-class recall and a
+    false-positive rate, reproduced deterministically offline; the committed numbers/table cannot drift
+    (`docs/reference/redaction-corpus-numbers.json`); the one honest miss (base64-encoded API keys) is declared in
+    known-limitations; the corpus is allowlisted for the first-party secret scan (#471).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

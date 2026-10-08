@@ -14,8 +14,8 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ⏳ in progress — **30.IR-1 (#473), 30.VFY-1 (#475) and 30.RUN-1 (#479) implemented**; RED-1 and the
-remaining M30 items pending.
+**Status:** ⏳ in progress — **30.RED-1 (#471), 30.IR-1 (#473), 30.VFY-1 (#475) and 30.RUN-1 (#479)
+implemented** (WS-5 slice); the remaining M30 items are other workstreams.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -47,7 +47,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.AGI-2 | Investigation skill + versioned CLI JSON schemas | feature + skill + docs | 30.AGI-1 | Scripted agent reaches documented answers on the demo store; JSON schemas changelog-guarded | #468 |
 | 30.POL-1 | `suggest-policy` + dangerous-broad lint | feature + tests | 29.APV-1, cls1 | No write outside `--out`; each rule evidence-linked; destructive/network/credential never allow-by-default; deterministic | #469 |
 | 30.POL-2 | `what-if` policy replay over history | feature + tests | 30.POL-1 | Prompts-avoided + would-be denials with sessions; parse errors explicit; labeled simulation; format-version stamp | #470 |
-| 30.RED-1 | Public redaction corpus + `redact eval` + published per-class numbers | feature + corpus + docs | PRD 43 pattern | Reproduces published numbers deterministically offline; misses in known-limitations; corpus secret-scanned | #471 |
+| 30.RED-1 DONE | Public redaction corpus + `redact eval` + published per-class numbers | feature + corpus + docs | PRD 43 pattern | Reproduces published numbers deterministically offline; misses in known-limitations; corpus secret-scanned | #471 |
 | 30.ENV-1 | Environment fingerprint + delta in `diff`/`drift`; `sessions --group-by-env` | feature + tests | 30.CAP-1, 29.APV-2, 29.CCO-1 | Seeded model change surfaces first; "coincides with" wording; digests only | #472 |
 | 30.IR-1 DONE | Incident cases + merged timeline + case bundle | feature + tests | 28.COR-3, 26.TRACE-2 | Membership changes chain-recorded; gaps classified; bundle verifies offline; no registry egress | #473 |
 | 30.CNC-1 | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |

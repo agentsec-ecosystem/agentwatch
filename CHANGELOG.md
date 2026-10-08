@@ -11,6 +11,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     server with **no Docker**: loopback-only bind, per-launch token, Host-header (DNS-rebinding) check, no
     mutation endpoint, no egress; sessions → timeline → record detail with impact/cost/coverage/oversight and a
     read-only session export; chain gaps/tombstones rendered; UI numbers equal CLI `--json` (ADR-0036) (#465).
+  - UI-1: live timeline + live anomaly inbox + streaming tail in the console — consumes the M26 STR-2
+    store-truth tail (`LiveTail`): back-fills on (re)connect, classifies and renders gaps
+    (`stream-drop`/`purged`/`missing`/`rotated`), keeps a backpressured subscriber visible as `degraded`, and
+    serves Server-Sent Events over the token-gated loopback routes `/api/live/*` (#428).
   - LUI-2: embedded, rebuildable query index — `agentwatch.query_index` projects the hash-chained store into a
     stdlib `sqlite3` index (no heavyweight runtime dependency; ADR-0035); deleting it loses nothing and it
     rebuilds **bit-for-bit** from the chain; indexed lookup on a 1M-record store is ~2 ms (target < 250 ms);

@@ -8,6 +8,7 @@ no egress. UI numbers equal the CLI ``--json`` (parity).
 
 from __future__ import annotations
 
+import http.client
 import json
 import urllib.error
 import urllib.request
@@ -36,12 +37,13 @@ def _tool(
     *,
     arguments: dict[str, object] | None = None,
     minute: int = 0,
+    outcome: Outcome = Outcome.OK,
 ) -> AgentRecord:
     return AgentRecord(
         session_id=session,
         agent=_agent(),
         tool=ToolCall(name=name, arguments=arguments) if arguments else ToolCall(name=name),
-        outcome=Outcome.OK,
+        outcome=outcome,
         started_at=START + timedelta(minutes=minute),
         project="/repo",
         step_type=StepType.ACT,
@@ -206,3 +208,72 @@ def test_cli_ui_check_smoke(tmp_path: Path, capsys: pytest.CaptureFixture[str]) 
     out = capsys.readouterr().out
     assert "http://127.0.0.1:" in out
     assert "read-only" in out.lower()
+
+
+def test_live_timeline_backfills_existing_records(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    with ConsoleServer(store) as server:
+        status, body = _request(server.url + "/api/live/timeline", token=server.token)
+        assert status == 200
+        payload = json.loads(body)
+        assert payload["degraded"] is False
+        assert payload["gaps"] == []
+        assert len(payload["lines"]) == 4
+
+
+def test_live_timeline_emits_new_records_only_once(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    with ConsoleServer(store) as server:
+        _request(server.url + "/api/live/timeline", token=server.token)
+        store.append(_tool("s3", "Grep"))
+
+        _, body = _request(server.url + "/api/live/timeline", token=server.token)
+        payload = json.loads(body)
+        assert len(payload["lines"]) == 1
+        assert payload["gaps"] == []
+
+
+def test_live_anomaly_inbox_surfaces_failures(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    store.append(_tool("s3", "Bash", outcome=Outcome.ERROR))
+    store.append(_tool("s3", "Bash", outcome=Outcome.DENIED, minute=1))
+    with ConsoleServer(store) as server:
+        status, body = _request(server.url + "/api/live/anomalies", token=server.token)
+        assert status == 200
+        payload = json.loads(body)
+        assert len(payload["anomalies"]) == 2
+        assert {item["record"]["outcome"] for item in payload["anomalies"]} == {"error", "denied"}
+
+
+def test_live_shows_degraded_when_backpressured(tmp_path: Path) -> None:
+    from agentwatch.streaming import Subscriber
+
+    subscriber: Subscriber[int] = Subscriber(1)
+    subscriber.offer(0)
+    subscriber.offer(1)  # overflow -> degraded
+    store = _store(tmp_path)
+    with ConsoleServer(store, subscriber=subscriber) as server:
+        _, body = _request(server.url + "/api/live/timeline", token=server.token)
+        assert json.loads(body)["degraded"] is True
+
+
+def test_live_stream_is_sse(tmp_path: Path) -> None:
+    store = _store(tmp_path)
+    with ConsoleServer(store, poll_interval=0.05) as server:
+        connection = http.client.HTTPConnection(server.address[0], server.address[1], timeout=5)
+        try:
+            connection.request(
+                "GET",
+                "/api/live/stream",
+                headers={"X-Agentwatch-Token": server.token},
+            )
+            response = connection.getresponse()
+            assert response.status == 200
+            assert response.getheader("Content-Type", "").startswith("text/event-stream")
+            line = response.fp.readline().decode("utf-8")  # type: ignore[union-attr]
+            assert line.startswith("data: ")
+            payload = json.loads(line.removeprefix("data: ").strip())
+            assert len(payload["lines"]) == 4
+        finally:
+            connection.close()
+

@@ -899,6 +899,20 @@
         "file:docs/adr/0036-console-security-model.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C101",
+      "claim": "The console live timeline, live anomaly inbox, and streaming tail consume the M26 store-truth tail: they back-fill on (re)connect, classify and render gaps rather than hiding them, keep a backpressured subscriber visible as degraded, and serve Server-Sent Events.",
+      "source": "docs/design/local-console.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_console.py::test_live_timeline_backfills_existing_records",
+        "test:packages/python-sdk/tests/test_console.py::test_live_timeline_emits_new_records_only_once",
+        "test:packages/python-sdk/tests/test_console.py::test_live_anomaly_inbox_surfaces_failures",
+        "test:packages/python-sdk/tests/test_console.py::test_live_shows_degraded_when_backpressured",
+        "test:packages/python-sdk/tests/test_console.py::test_live_stream_is_sse",
+        "file:docs/design/local-console.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

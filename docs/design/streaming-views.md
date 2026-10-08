@@ -51,6 +51,12 @@ timestamps disagree with its parent across hosts is surfaced as `skew_ms` plus a
 reordered), and a record whose parent span is absent is attached as an orphan with a `missing-parent` gap (never
 dropped). Implementation: [`agentwatch.trace`](../../packages/python-sdk/src/agentwatch/trace.py).
 
+**UI-1 (M30):** the local console's live timeline, live anomaly inbox, and streaming tail consume the same
+store-truth tail: `agentwatch.ui` polls `LiveTail` (STR-2) and serves `/api/live/timeline`,
+`/api/live/anomalies`, and an SSE `/api/live/stream`, so a backpressured subscriber is back-filled from the store
+and `degraded` stays visible. Implementation: [`agentwatch.ui`](../../packages/python-sdk/src/agentwatch/ui.py),
+[tests/test_console.py](../../packages/python-sdk/tests/test_console.py).
+
 ## Testing
 
 - Drop-consumer test (no store loss); 24 h streaming soak; a reordered/partial stream never diverges the view from

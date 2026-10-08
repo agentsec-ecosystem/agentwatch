@@ -37,17 +37,27 @@ from agentwatch.coverage import (
 )
 from agentwatch.impact import build_impact
 from agentwatch.install import hooks_installed, resolve_scope
+from agentwatch.live import LiveTail
 from agentwatch.quarantine import QuarantineLog
 from agentwatch.query_index import QueryIndex, index_path_for_store
+from agentwatch.records import AgentRecord, Outcome
 from agentwatch.replay import replay_session
 from agentwatch.session_export import export_session
 from agentwatch.session_state import session_states
 from agentwatch.store import RecordStore
+from agentwatch.streaming import Subscriber
 from agentwatch.view import list_sessions
 
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 0
+DEFAULT_POLL_INTERVAL = 1.0
+
+
+def _is_anomaly(record: AgentRecord) -> bool:
+    """A security-relevant record for the live anomaly inbox (denied/error/event)."""
+    return record.security_event is not None or record.outcome in {Outcome.ERROR, Outcome.DENIED}
+
 
 _INDEX_HTML = """<!doctype html>
 <html lang="en">
@@ -85,7 +95,7 @@ api("/api/sessions").then(s => {
 
 
 class _ConsoleHTTPServer(ThreadingHTTPServer):
-    """ThreadingHTTPServer carrying the store, index, and launch token."""
+    """ThreadingHTTPServer carrying the store, index, live tail, and launch token."""
 
     daemon_threads = True
 
@@ -95,10 +105,15 @@ class _ConsoleHTTPServer(ThreadingHTTPServer):
         store: RecordStore,
         token: str,
         index: QueryIndex | None,
+        live: LiveTail,
+        poll_interval: float,
     ) -> None:
         self.store = store
         self.token = token
         self.index = index
+        self.live = live
+        self.poll_interval = poll_interval
+        self.stop_event = threading.Event()
         super().__init__(address, _ConsoleHandler)
 
 
@@ -186,8 +201,12 @@ class _ConsoleHandler(BaseHTTPRequestHandler):
                 self._send_json(self._impact(unquote(path.removeprefix("/api/impact/"))))
             elif path.startswith("/api/export/"):
                 self._export(unquote(path.removeprefix("/api/export/")))
-            elif path == "/api/live":
-                self._send_json({"poll_interval_ms": 1000, "transport": "M25 STR"})
+            elif path == "/api/live/stream":
+                self._live_stream()
+            elif path in ("/api/live", "/api/live/timeline"):
+                self._send_json(self._console.live.poll().to_dict())
+            elif path == "/api/live/anomalies":
+                self._send_json(self._live_anomalies())
             else:
                 self._send_json({"error": "not found"}, status=404)
         except KeyError as exc:
@@ -292,6 +311,37 @@ class _ConsoleHandler(BaseHTTPRequestHandler):
         body = "\n".join(json.dumps(row, ensure_ascii=False) for row in export.rows)
         self._send_text(body, content_type="application/x-ndjson; charset=utf-8")
 
+    # -- live (M30 UI-1; consumes the M26 STR-2 store-truth tail) ----------
+
+    def _live_anomalies(self) -> dict[str, Any]:
+        batch = self._console.live.poll()
+        return {
+            "degraded": batch.degraded,
+            "gaps": [gap.to_dict() for gap in batch.gaps],
+            "anomalies": [
+                {"line": line.text, "record": line.record.to_dict()}
+                for line in batch.lines
+                if line.record is not None and _is_anomaly(line.record)
+            ],
+        }
+
+    def _live_stream(self) -> None:
+        """Server-Sent Events stream of reconciled tail batches (STR-2)."""
+        server = self._console
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.end_headers()
+        while not server.stop_event.is_set():
+            batch = server.live.poll()
+            try:
+                self.wfile.write(f"data: {json.dumps(batch.to_dict())}\n\n".encode())
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                return
+            server.stop_event.wait(server.poll_interval)
+
 
 class ConsoleServer:
     """Loopback-only read-only console server, started/stopped explicitly."""
@@ -304,12 +354,18 @@ class ConsoleServer:
         port: int = DEFAULT_PORT,
         token: str | None = None,
         index: QueryIndex | None = None,
+        subscriber: Subscriber[int] | None = None,
+        poll_interval: float = DEFAULT_POLL_INTERVAL,
     ) -> None:
         self.store = store
         self.token = token or secrets.token_urlsafe(32)
         self.index = index if index is not None else QueryIndex(index_path_for_store(store.path))
+        self.poll_interval = poll_interval
+        self.live = LiveTail(store.path, subscriber=subscriber)
         bind_host = host if host in LOOPBACK_HOSTS else DEFAULT_HOST
-        self._server = _ConsoleHTTPServer((bind_host, port), store, self.token, self.index)
+        self._server = _ConsoleHTTPServer(
+            (bind_host, port), store, self.token, self.index, self.live, poll_interval
+        )
         self._thread: threading.Thread | None = None
 
     @property
@@ -332,6 +388,7 @@ class ConsoleServer:
         self._server.serve_forever()
 
     def stop(self) -> None:
+        self._server.stop_event.set()
         self._server.shutdown()
         self._server.server_close()
         if self._thread is not None:

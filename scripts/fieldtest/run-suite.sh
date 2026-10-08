@@ -56,9 +56,9 @@ rc=0
 for id in "${ids[@]}"; do
   echo
   echo "################ $id ################"
-  keep_arg=""
-  [[ "${STACK_KEEP:-0}" == "1" ]] && keep_arg="--keep"
-  if ! bash "$HERE/run-case.sh" "$id" $keep_arg; then
+  # v0.1.0 methodology: the stack is torn down `down -v` after every case to
+  # prevent cross-case contamination. Do not keep it up.
+  if ! bash "$HERE/run-case.sh" "$id"; then
     rc=1
   fi
 done

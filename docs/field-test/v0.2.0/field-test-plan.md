@@ -222,7 +222,7 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 
 | ID | Capability | PRD/ticket | CUJ | Env | Driver | Pass condition | Class |
 |---|---|---|---|---|---|---|---|
-| FT-ENV-0 | Fresh install → first record, **≤15 min on 3 OSes** (closes R2) | EXT-10, 13 NFR-4, 46 WIN-1 | 1,25 | cm | `first_run_timing.py` | ≤15 min each of macOS/Linux/Windows; zero agent-code change; record+verify green | P/F |
+| FT-ENV-0 | Fresh install → first record, **≤15 min on 3 OSes** (closes R2) | EXT-10, 13 NFR-4, 46 WIN-1, 25 NAM-1 | 1,25 | cm | `first_run_timing.py` | ≤15 min each of macOS/Linux/Windows; zero agent-code change; record+verify green | P/F |
 | FT-WIN-1 | Windows support (named-pipe daemon + service) | WIN-1 | 1 | win | Windows CI leg | hooks+daemon+store+verify+replay green; matrix row `live-verified` | P/F\|D |
 | FT-DEP-1 | Managed-policy environment, honest `doctor` | DEP-1 | 25 | mgd | managed config | `doctor` says "hooks effective: yes/blocked/unknown", **never** "installed" when blocked; recipe works or limitation named | P/F\|D |
 | FT-DEP-2 | Hook-strip → `recorder-config-changed` + gap | DEP-2 | 25 | mac | strip hooks | Next session raises `recorder-config-changed`; unattested interval classified; attestation digest/booleans only | P/F |
@@ -312,7 +312,7 @@ machine, fleet=3-host, win=Windows CI, mgd=managed-policy.
 | FT-GOV-1 | Community plugin API + codemod | GOV-1 | 1 | ci | codemod | Codemod tested against migration examples; plugin without a conformance registration fails CI | P/F |
 | FT-AGI-1 | Read-only MCP server safety | AGI-1 | 26 | ci | MCP server | Tool enumeration proves **no write tool**; injection fuzz holds; every query `store-access`-recorded; off by default | P/F |
 | FT-AGI-2 | Investigation skill + versioned CLI JSON | AGI-2 | 26 | ci | scripted agent | Skill reaches documented answers on the demo store; CLI JSON schemas published + changelog-guarded | P/F |
-| FT-POL-1 | `suggest-policy` + broad-rule lint | POL-1 | 27 | ci | local corpus | **No write outside `--out`**; broad-rule lint flags wildcard exec/network; destructive never allow-by-default; deterministic | P/F |
+| FT-POL-1 | `suggest-policy` + broad-rule lint | POL-1/2 | 27 | ci | local corpus | **No write outside `--out`**; broad-rule lint flags wildcard exec/network; destructive never allow-by-default; deterministic | P/F |
 | FT-FWK-1 | Certified framework recipes (ADK/Strands/OpenAI/Claude SDK) | FWK-1 | 28 | ci | pinned frameworks | Each recipe runs in CI against a pinned version; ≤2 lines/1 config block; `unmapped` explicit; `source`+integrity carried | P/F\|D |
 | FT-FWK-2 | `instrument()` auto-detect | FWK-2 | 28 | ci | local frameworks | Prints detected frameworks + gaps (no silent partial); no-op safe; flush-on-exit; idempotent | P/F |
 | FT-CCO-1 | Claude Code native-OTel ingest + `tool_use_id` join | CCO-1 | 21 | mac | captured OTel | ≥95% join; hook-only/otel-only/discrepancies classified; exact vs estimated cost source-stamped; redaction on ingest | P/F |
@@ -404,10 +404,12 @@ same template and are frozen in the roster and the registry.
 
 ### 7.1 S1 — Install, deployability & attestation
 
-- **FT-ENV-0 — Fresh install on 3 OSes.** Goal: close R2. Preconditions: clean macOS/Linux/Windows VM, no
-  agentwatch, Claude Code + Cursor present. Steps: run `init`; use the harness; assert first tool call recorded.
-  Assertions: `first_run_timing.py` ≤ 900 s per OS; `verify-store` green; no agent-code change; `env.json` OS-tagged.
-  Artifacts: per-OS timing JSON + store copy. Fallback: none (hard gate). Class P/F.
+- **FT-ENV-0 — Fresh install on 3 OSes.** Goal: close R2 and prove the NAM-1 install guard. Preconditions: clean
+  macOS/Linux/Windows VM, no agentwatch, Claude Code + Cursor present. Steps: run `init`; use the harness; assert first
+  tool call recorded; attempt a bare-name install to trigger the distribution-check warning. Assertions:
+  `first_run_timing.py` ≤ 900 s per OS; `verify-store` green; no agent-code change; `env.json` OS-tagged; the bare-name
+  install produces the loud warning and names the qualified package (**NAM-1**, ADR-0026). Artifacts: per-OS timing
+  JSON + store copy. Fallback: none (hard gate). Class P/F.
 - **FT-WIN-1 — Windows.** Goal: named-pipe daemon + `init --service` + CI leg. Steps: run the Windows CI leg;
   bootstrap on a Windows host if available. Assertions: full hook→store→verify→replay green; matrix row
   `live-verified`; named-pipe permissions differ from UDS and are documented. Artifacts: CI log + matrix diff.
@@ -578,7 +580,8 @@ same template and are frozen in the roster and the registry.
   `suggest-policy --since 30d --target claude-settings --out proposed.json`; then `what-if proposed.json --since 30d`;
   monitor filesystem writes. Assertions: **no write outside `--out`**; each rule shows evidence (n calls/sessions/
   approvals/last seen); broad-rule lint flags wildcard exec/network; destructive never `allow` without `--include`;
-  `what-if` table shows prompts avoided + would-be denials; parse errors explicit.
+  `what-if` (**POL-2**) is labeled a simulation, format-version-stamped, and shows prompts avoided + would-be denials
+  with sessions; parse errors explicit.
 - **FT-FWK-1 — Framework recipes.** Steps: run ADK/Strands/OpenAI-Agents/Claude-Agent-SDK recipes against pinned
   versions. Assertions: each runs in CI; ≤2 lines/1 block; `unmapped` explicit; `source` + integrity carried.
   Class P/F|D (live pinned runs).
@@ -876,7 +879,10 @@ milestone.
 
 ## 16. Appendix — PRD 41–59 feature coverage index
 
-Every v0.2.0 / v0.2.0-expanded PRD names its proving cases; nothing is covered "in spirit".
+Every v0.2.0 / v0.2.0-expanded PRD names its proving cases. Non-runtime deliverables are carried by the WBS, not by a
+field case: **COR-4** (registry/postmortem fixture mining, 28.COR-4), **RSK-2** (threat-model rows + ADRs 0016–0026,
+26.RSK-2), and **STD-1** (standards-participation plan / DD-05, 29.STD-1) produce docs, ADRs, and fixtures rather than
+an end-to-end scenario.
 
 | PRD | Theme | Proving cases |
 |---|---|---|
@@ -894,8 +900,11 @@ Every v0.2.0 / v0.2.0-expanded PRD names its proving cases; nothing is covered "
 | 52 | Capability supply chain & memory | FT-CAP-1/2, FT-MEM-1 |
 | 53 | Code provenance & attribution | FT-PRV-1..3 |
 | 54 | Local console & embedded query tier | FT-LUI-1/2 |
-| 55 | Agent interfaces & policy-from-history | FT-AGI-1/2, FT-POL-1 |
+| 55 | Agent interfaces & policy-from-history | FT-AGI-1/2, FT-POL-1 (POL-1/2) |
 | 56 | Governance, retention integrity & redaction quality | FT-ACC-1/2, FT-HLD-1, FT-RED-1 |
 | 57 | Investigation depth & evidence verification | FT-ENV-1, FT-IR-1, FT-CNC-1, FT-VFY-1, FT-SBX-1 |
 | 58 | Outcomes, ephemeral capture & growth | FT-OUT-1/2, FT-RUN-1, FT-DEMO-1, FT-NTF-1 |
-| 59 | OWASP Agentic & standards coverage | FT-ASI-1 |
+| 59 | OWASP Agentic & standards coverage | FT-ASI-1 (STD-1 non-runtime, §16 intro) |
+
+**Folded feature-IDs:** `POL-2` (`what-if`) is exercised by FT-POL-1; `NAM-1` (naming install guard) is asserted by
+FT-ENV-0. Both are named in the case specs above and in §12, so no ID is covered only "in spirit".

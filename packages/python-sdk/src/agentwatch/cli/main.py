@@ -68,6 +68,13 @@ from agentwatch.drift import (
     metric_series,
     signal_to_json,
 )
+from agentwatch.env_fingerprint import (
+    annotate_environment,
+    environment_changes,
+    group_sessions_by_env,
+    render_env_groups,
+    session_environments,
+)
 from agentwatch.evidence import build_bundle, verify_bundle
 from agentwatch.explain import explain_session
 from agentwatch.fingerprint import group_sessions_by_behavior, render_behavior_groups
@@ -442,6 +449,12 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="group_by_behavior",
         action="store_true",
         help="group sessions by their behavior fingerprint (M17 S7)",
+    )
+    sessions.add_argument(
+        "--group-by-env",
+        dest="group_by_env",
+        action="store_true",
+        help="group sessions by their environment fingerprint (M30 ENV-1)",
     )
     sub.add_parser("verify-privacy", help="verify redaction and scan the store for leaks (M5)")
     completions = sub.add_parser("completions", help="print a shell completion script (M5)")
@@ -1595,6 +1608,13 @@ def _run_sessions(args: argparse.Namespace) -> int:
             print("agentwatch: no sessions recorded")
             return 0
         print(render_behavior_groups(groups))
+        return 0
+    if args.group_by_env:
+        env_groups = group_sessions_by_env(store)
+        if not env_groups:
+            print("agentwatch: no sessions recorded")
+            return 0
+        print(render_env_groups(env_groups))
         return 0
     allowed = tagged_sessions(store, args.tag) if args.tag is not None else None
     counts: dict[str, int] = {}
@@ -2824,6 +2844,11 @@ def _run_diff(args: argparse.Namespace) -> int:
                     "removed_tools": list(result.removed_tools),
                     "state_a": result.state_a,
                     "state_b": result.state_b,
+                    "environment_a": result.environment_a.to_dict(),
+                    "environment_b": result.environment_b.to_dict(),
+                    "environment_changes": [
+                        change.to_dict() for change in result.environment_changes
+                    ],
                 }
             )
         )
@@ -3088,6 +3113,7 @@ def _run_drift(args: argparse.Namespace) -> int:
     deployments = load_deployments(Path(args.deploys).expanduser()) if args.deploys else []
     correlated = correlate_deployments(signals, deployments, window_seconds=args.deploy_window)
     emitted = emit_signals(signals) if args.emit else 0
+    dated_env = environment_changes(session_environments(store))
 
     if args.json:
         print(
@@ -3099,6 +3125,14 @@ def _run_drift(args: argparse.Namespace) -> int:
                         {
                             **signal_to_json(item.signal),
                             "deployments": [deployment.label for deployment in item.deployments],
+                            "environment_coincides": [
+                                change.to_dict()
+                                for change in annotate_environment(
+                                    signal_at=item.signal.at,
+                                    changes=dated_env,
+                                    window_seconds=args.deploy_window,
+                                )
+                            ],
                         }
                         for item in correlated
                     ],
@@ -3118,6 +3152,13 @@ def _run_drift(args: argparse.Namespace) -> int:
         for deployment in item.deployments:
             suffix = f" {deployment.version}" if deployment.version else ""
             print(f"    deploy: {deployment.label}{suffix} at {deployment.at.isoformat()}")
+        for change in annotate_environment(
+            signal_at=signal.at, changes=dated_env, window_seconds=args.deploy_window
+        ):
+            print(
+                f"    coincides with environment change: "
+                f"{change.field} {change.a} -> {change.b}"
+            )
     if args.emit:
         print(f"  emitted {emitted} drift-detected event(s)")
     return 0

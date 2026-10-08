@@ -36,6 +36,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0032](0032-capability-inventory.md) | Capability inventory: content digests, origin scope, no content | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
+| [0042](0042-environment-fingerprint.md) | Environment fingerprint contents | accepted |
 | [0043](0043-memory-as-capability.md) | Persistent memory stores are capabilities | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |
 | [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |

@@ -61,6 +61,12 @@ Status: living.
   the published memory-exposure matrix. Writer attribution is by key/name match, so a write recorded with an
   unrelated key leaves the change `unattributed`. (proving test:
   `packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed`).
+- **Environment fingerprint (`ENV-1`, M30) components can be `unknown`.** The fingerprint is derived from what the
+  record holds: if a session never recorded a capability snapshot, an MCP surface, or a recorder attestation, that
+  component is the literal `unknown` rather than a guess — so two sessions can share a digest because the same facts
+  were absent, not because the environments were proven identical. `drift` reports environment changes as
+  "coincides with", never a cause. (proving test:
+  `packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

@@ -27,6 +27,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     and diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed`
     (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness
     memory-exposure matrix is published and CI-checked (#461).
+  - ENV-1: environment fingerprint + delta — each session derives a content-free `env1:<sha256>` fingerprint
+    (model, harness, permission mode, capability/rules/MCP-surface digests, recorder config digest; absent facts
+    `unknown`); `diff` prints the environment delta above the behavior delta (model first), `sessions --group-by-env`
+    groups by it, and `drift` annotates a signal with same-window environment changes under `environment_coincides`
+    with "coincides with" wording, never "caused by" (#472).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

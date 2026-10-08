@@ -928,6 +928,20 @@
         "doc:docs/adr/0043-memory-as-capability.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C81",
+      "claim": "Each session derives a content-free environment fingerprint (`env1:<sha256>` over model, harness, permission mode, capability/rules/MCP-surface digests and recorder config digest; absent facts `unknown`); `diff` prints the environment delta above the behavior delta with the model first, `sessions --group-by-env` groups by it, and `drift` annotates a signal with same-window environment changes worded \"coincides with\", never a cause.",
+      "source": "docs/design/environment-fingerprint.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_fingerprint_changes_on_a_component_change",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_diff_surfaces_environment_then_behavior",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_group_sessions_by_environment",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_cli_drift_annotates_coincident_environment",
+        "doc:docs/adr/0042-environment-fingerprint.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

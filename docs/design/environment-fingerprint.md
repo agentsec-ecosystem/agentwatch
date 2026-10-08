@@ -40,6 +40,18 @@ Keyed digests; no content. Property-tested: no secrets/values.
 - Fingerprint stable for an unchanged environment; changes on any component change.
 - No causal language in output (assertion).
 
+## Implementation status (M30 ENV-1, #472)
+
+- `agentwatch.env_fingerprint` derives a content-free `env1:<sha256>` fingerprint from the record:
+  `model`, `harness`, `permission_mode`, `capabilities` (from CAP-1 snapshot carriers), `rules`, `mcp_surface`
+  (from the S4 survey) and `config` (the recorder-attestation digest); any absent component is the literal
+  `unknown`.
+- `diff a b` prints the environment delta **above** the behavior delta (`SessionDiff.environment_changes`, model
+  first). `sessions --group-by-env` groups by the fingerprint digest. `drift --metric M` annotates each signal with
+  the environment changes in the same window under `environment_coincides`, worded "coincides with".
+- Tests: `tests/test_environment_fingerprint.py` (stable-when-unchanged, model-first, `unknown` for absent facts,
+  capability digest participates, no causal language in `diff`).
+
 ## Decision
 
 ADR-0042 — fingerprint contents.

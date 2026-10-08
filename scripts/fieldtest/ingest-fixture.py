@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _ftutil import STORE, arg, fail, fixture, ok, run
+from _ftutil import QUARANTINE, STORE, arg, fail, fixture, ok, run
 
 # kind -> real `agentwatch ingest` args.
 CLI_FORMAT = {
@@ -35,7 +35,6 @@ ADAPTER = {
     "cursor-blocking": "agentwatch.adapters.cursor",
     "gemini": "agentwatch.adapters.gemini_cli",
     "mcp": "agentwatch.adapters.mcp_proxy",
-    "mcp-malformed": "agentwatch.adapters.mcp_proxy",
 }
 # The long-tail "logreaders" corpus mixes framed hook fixtures (cursor/gemini)
 # with native transcripts (claude-code .jsonl) and codex rollouts. Each file is
@@ -73,6 +72,42 @@ def _adapter_ingest(module_name: str, path: Path) -> int:
             store.append(rec)
             n += 1
     return n
+
+
+def _mcp_malformed_ingest(path: Path) -> tuple[int, int]:
+    """Normalize MCP frames; quarantine (never drop) the non-normalizable ones.
+
+    Closed-by-spec methods and malformed frames land in ``quarantine.jsonl``
+    with the offending field named, exercising the real ``QuarantineLog``.
+    """
+    from agentwatch.adapters import mcp_proxy
+    from agentwatch.quarantine import QuarantineLog
+    from agentwatch.store import RecordStore
+
+    store = RecordStore(STORE)
+    quarantine = QuarantineLog(QUARANTINE)
+    normalized = quarantined = 0
+    for f in sorted(path.rglob("*.json")):
+        if f.name == "manifest.json":
+            continue
+        raw = f.read_text(encoding="utf-8")
+        try:
+            msg = json.loads(raw)
+        except json.JSONDecodeError:
+            quarantine.add(raw, reason="not valid JSON")
+            quarantined += 1
+            continue
+        payload = msg.get("message", msg) if isinstance(msg, dict) else msg
+        try:
+            records = mcp_proxy.normalize(payload)
+        except mcp_proxy.McpProxyAdapterError as exc:
+            quarantine.add(raw, reason=str(exc))
+            quarantined += 1
+            continue
+        for rec in records:
+            store.append(rec)
+            normalized += 1
+    return normalized, quarantined
 
 
 def _is_rollout(path: Path) -> bool:
@@ -140,6 +175,11 @@ def main(argv: list[str]) -> int:
         n = _logreaders_ingest(path)
         if n == 0:
             fail(f"logreaders readers normalized 0 records from {path}")
+    elif kind == "mcp-malformed":
+        normalized, quarantined = _mcp_malformed_ingest(path)
+        if quarantined == 0:
+            fail(f"no malformed MCP frames quarantined from {path}")
+        ok(f"mcp-malformed: {normalized} normalized, {quarantined} quarantined")
     elif kind in ADAPTER:
         n = _adapter_ingest(ADAPTER[kind], path)
         if n == 0:

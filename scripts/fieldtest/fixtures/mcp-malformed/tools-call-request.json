@@ -1,0 +1,25 @@
+{
+  "message": {
+    "phase": "mcp",
+    "harness": "mcp-proxy",
+    "event": {
+      "server": "github",
+      "session_id": "s-bad",
+      "direction": "request",
+      "rpc": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "method": "tools/call",
+        "params": {
+          "name": "issue_get",
+          "arguments": {
+            "number": 3
+          }
+        }
+      },
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "cwd": "/repo"
+    }
+  },
+  "malformed": false
+}

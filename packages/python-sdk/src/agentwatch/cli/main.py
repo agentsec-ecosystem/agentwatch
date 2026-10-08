@@ -48,6 +48,7 @@ from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
+from agentwatch.concurrency import build_concurrency, render_concurrency
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.cost import BY_OPTIONS, build_cost, render_cost
@@ -569,6 +570,14 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="REPO",
         help="cross-validate against existing Agent Trace / git-ai notes in REPO",
     )
+
+    concurrency = sub.add_parser(
+        "concurrency",
+        help="sessions overlapping in time on the same paths (M30 CNC-1)",
+    )
+    concurrency.add_argument("--project", default=None, help="project root to scope the report")
+    concurrency.add_argument("--since", default=None, help="relative (7d/12h) or ISO timestamp")
+    concurrency.add_argument("--json", action="store_true", help="emit the report as JSON")
     provenance.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     tree_cmd = sub.add_parser("tree", help="the subagent fan-out of a session (M17 S17)")
@@ -2073,6 +2082,21 @@ def _run_provenance(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_concurrency(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = build_concurrency(store, project=args.project, since=args.since)
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_concurrency(report))
+    return 0
+
+
 def _run_tree(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -3244,6 +3268,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_blame(args)
     if args.command == "provenance":
         return _run_provenance(args)
+    if args.command == "concurrency":
+        return _run_concurrency(args)
     if args.command == "tree":
         return _run_tree(args)
     if args.command == "trace":

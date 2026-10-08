@@ -916,6 +916,19 @@
         "file:docs/adr/0034-agent-trace-pin-and-write-policy.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C92",
+      "claim": "`agentwatch concurrency --project . --since 7d` deterministically reports sessions overlapping in time on the same path and shared-file edits, and `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently picking one.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_disjoint_sessions_do_not_overlap",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_multi_session_range_is_ambiguous",
+        "file:packages/python-sdk/tests/fixtures/provenance/two_sessions.jsonl",
+        "file:docs/design/code-provenance.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

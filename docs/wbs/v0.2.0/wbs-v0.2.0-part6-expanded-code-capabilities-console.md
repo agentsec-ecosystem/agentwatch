@@ -14,7 +14,7 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** 🔄 in progress — PRV-3 (#464), PRV-1 (#462), PRV-2 (#463) landed on `m30-ws2`
+**Status:** 🔄 in progress — PRV-3 (#464), PRV-1 (#462), PRV-2 (#463), CNC-1 (#474) landed on `m30-ws2`
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -49,7 +49,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.RED-1 | Public redaction corpus + `redact eval` + published per-class numbers | feature + corpus + docs | PRD 43 pattern | Reproduces published numbers deterministically offline; misses in known-limitations; corpus secret-scanned | #471 |
 | 30.ENV-1 | Environment fingerprint + delta in `diff`/`drift`; `sessions --group-by-env` | feature + tests | 30.CAP-1, 29.APV-2, 29.CCO-1 | Seeded model change surfaces first; "coincides with" wording; digests only | #472 |
 | 30.IR-1 | Incident cases + merged timeline + case bundle | feature + tests | 28.COR-3, 26.TRACE-2 | Membership changes chain-recorded; gaps classified; bundle verifies offline; no registry egress | #473 |
-| 30.CNC-1 | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |
+| 30.CNC-1 DONE | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |
 | 30.VFY-1 | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
 | 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
 | 30.OUT-1 | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |

@@ -67,6 +67,16 @@ explicit `unmapped` bucket. A read-only reader (`read_agent_trace`) accepts exis
 `scripts/agent_trace_drift_check.py` against `schema/agent-trace/upstream-revision.json`
 (`.github/workflows/agent-trace-drift.yml`), the AAT-5 pattern.
 
+## Concurrency (CNC-1)
+
+Parallel / worktree / background agents edit the same paths; `blame`/`at` show no overlap, so attribution can silently
+pick the wrong session. `agentwatch.concurrency.build_concurrency` (CLI `agentwatch concurrency --project . --since 7d`)
+is a deterministic, evidence-only report: the per-session activity span (min `started_at` .. max `ended_at`), every
+**overlap** where two sessions' spans intersect on at least one shared path, and the set of **shared-file edits** (a
+path touched by more than one session). `provenance` consumes the same fact: a range covered by two or more sessions is
+`ambiguous` (never a silent pick). No verdicts, no server, no demand to enforce — the PRD asks to validate demand in
+the field before building beyond the report.
+
 ## Privacy
 
 Export contains ranges/hashes/ids only; passes the redaction attack pack. Read-only on the repo by default.
@@ -76,6 +86,7 @@ Export contains ranges/hashes/ids only; passes the redaction attack pack. Read-o
 - commit→session resolves <2 s; "no recorded activity" correct (FT-PRV-1).
 - mixed range correct; export validates against pinned schema; zero code content.
 - Differential: `agree/disagree` vs existing git-ai notes.
+- Concurrency: a two-session overlap fixture reports the overlap + shared file; a multi-session range is `ambiguous`.
 
 ## Decision
 

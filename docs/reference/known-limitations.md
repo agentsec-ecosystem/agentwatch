@@ -116,6 +116,11 @@ Status: living.
   git-ai notes, and writing its own notes requires the explicit `export-session --format agent-trace --write-notes`
   command (proving test:
   `packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo`).
+- **Concurrency (M30 CNC-1) — declared gap.** `agentwatch concurrency` is a **report only**: overlaps are derived
+  from recorded `started_at`/`ended_at` intervals (a session that never sets `ended_at` collapses to a point) and
+  shared-file edits from classified file-modification targets; it enforces nothing and the PRD asks to validate demand
+  in the field before building beyond the report (proving test:
+  `packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file`).
 
 ## Policy
 

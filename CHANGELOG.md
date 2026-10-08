@@ -21,6 +21,10 @@ versioning: [Semantic Versioning](https://semver.org/).
     content**); a read-only reader cross-validates existing notes as agree/disagree/agentwatch-only/notes-only
     (`provenance --notes`); writing git notes requires the explicit `--write-notes` command; a pinned-revision drift
     check + CI job (AAT-5 pattern) (#463).
+  - CNC-1: `agentwatch concurrency --project . --since 7d` (`agentwatch.concurrency.build_concurrency`) — a
+    deterministic, evidence-only report of sessions overlapping in time on the same path and shared-file edits from a
+    two-session fixture; `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently
+    picking one (#474).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

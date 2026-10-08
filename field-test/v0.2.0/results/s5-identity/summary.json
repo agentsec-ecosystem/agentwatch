@@ -460,14 +460,14 @@
         },
         {
           "name": "idn-attribution",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-IDN-1",
       "run_id": "s5-identity",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "assertions": [
@@ -731,12 +731,12 @@
     "run_id": "s5-identity",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T06:52:52.599050+00:00",
+  "generated_at": "2026-10-08T07:17:07.985913+00:00",
   "green": false,
   "run_id": "s5-identity",
   "totals": {
     "declared": 0,
-    "fail": 2,
-    "pass": 6
+    "fail": 1,
+    "pass": 7
   }
 }

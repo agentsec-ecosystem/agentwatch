@@ -5,18 +5,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
-
-def main(argv: list[str]) -> int:
-    if "--commit-to-session" in argv:
-        run("agentwatch provenance --demo")
-    elif "--agent-trace" in argv:
-        run(["agentwatch", "export-session", "ft04", "--format", "agent-trace", "--out", "/tmp/trace.json"])
+def main(argv):
+    if "--agent-trace" in argv:
+        run(["agentwatch", "export-session", "ft04", "--format", "agent-trace", "--output", "/tmp/trace.json"])
     else:
-        run("agentwatch provenance --demo --range-hash")
-    run("agentwatch verify-store")
+        run(["agentwatch", "provenance", "--repo", ".", "--json"])
+    run(["agentwatch", "verify-store"])
     ok("provenance check")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

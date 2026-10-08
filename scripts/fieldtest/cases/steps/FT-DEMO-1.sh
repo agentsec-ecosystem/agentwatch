@@ -1,2 +1,2 @@
-ft_assert "demo-bundle" bash -lc "test -f $REPO_ROOT/docs/field-test/v0.2.0/FIELD_TEST_REPORT.md"
+ft_assert "demo-bundle" bash -lc "test -f $REPO_ROOT/examples/demo-bundle/bundle.json && test -f $REPO_ROOT/examples/demo-bundle/README.md"
 ft_finalize

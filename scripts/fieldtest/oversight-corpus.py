@@ -3,21 +3,17 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from agentwatch import oversight  # real API
 from _ftutil import ok, run
 
-
-def main(argv: list[str]) -> int:
-    if "--fidelity" in argv:
-        run(["agentwatch", "oversight", "--json"])
-    elif "--modes" in argv:
-        run(["agentwatch", "search", "--mode", "bypass"])
-    elif "--sandbox" in argv:
-        run(["agentwatch", "oversight", "--sandbox", "--json"])
-    else:
-        run(["agentwatch", "oversight", "--since", "30d", "--json"])
+def main(argv):
+    if "--modes" in argv:
+        run(["agentwatch", "coverage", "--json"])
+    run(["agentwatch", "oversight", "--json"])
+    if "--sandbox" in argv:
+        oversight.sandbox_boundary_event({"tool": "Bash"})
     ok("oversight check")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

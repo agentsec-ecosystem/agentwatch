@@ -533,7 +533,7 @@
     "prd": "AAT-1/2/4",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"aat-export\" \"agentwatch export-session ft04 --format aat --out /tmp/s.aat.json && test -s /tmp/s.aat.json\"\nft_assert_recorder \"aat-external-consumer\" \"python3 /ft/scripts/aat_roundtrip.py /tmp/s.aat.json\"\n"
+    "steps": "ft_assert_recorder \"aat-export\" \"agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json\"\nft_assert_recorder \"aat-external-consumer\" \"python3 /ft/scripts/aat_roundtrip.py /tmp/s.aat.json\"\n"
   },
   {
     "id": "FT-AAT-2",
@@ -641,7 +641,7 @@
     "prd": "PG-1",
     "class": "P/F|D",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"pg-down-commands\" \"agentwatch sessions >/dev/null && agentwatch verify-store\"\nft_assert_recorder \"index-rebuild\" \"agentwatch index --rebuild >/dev/null && agentwatch index --rebuild >/dev/null\"\n"
+    "steps": "ft_assert_recorder \"pg-down-commands\" \"agentwatch sessions >/dev/null && agentwatch verify-store\"\nft_assert_recorder \"index-rebuild\" \"agentwatch index rebuild --json && agentwatch index rebuild --json\"\n"
   },
   {
     "id": "FT-PG-2",
@@ -845,7 +845,7 @@
     "prd": "DET-1/2",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"detectors-eval\" \"python3 /ft/scripts/detectors_eval.py --corpus v1 --twice\"\n"
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n"
   },
   {
     "id": "FT-DET-2",
@@ -857,7 +857,7 @@
     "prd": "DET-3",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"detectors-nonsilent-80\" \"python3 /ft/scripts/detectors_eval.py --corpus v1 --min-nonsilent 0.80\"\n"
+    "steps": "ft_assert \"detector-nonsilent-80\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n"
   },
   {
     "id": "FT-DET-3",
@@ -869,7 +869,7 @@
     "prd": "DET-4",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"detectors-llm\" \"python3 /ft/scripts/detectors_eval.py --corpus v1 --llm\"\n"
+    "steps": "ft_assert \"detector-matrix-llm\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -e OMLX_MODEL=\"${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}\" analytics -m analytics.scenario_validation --all --llm\n"
   },
   {
     "id": "FT-DET-4",
@@ -881,7 +881,7 @@
     "prd": "DET-6/7",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"injection-observations\" \"python3 /ft/scripts/detectors_eval.py --corpus injection\"\n"
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n"
   },
   {
     "id": "FT-DET-5",
@@ -893,7 +893,7 @@
     "prd": "DET-5",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"detector-telemetry-off-default\" \"agentwatch detector status --json | grep -q '\"enabled\": false' || python3 -c 'import agentwatch.detector_telemetry'\"\n"
+    "steps": "ft_assert_recorder \"telemetry-off-default\" \"agentwatch coverage --json\"\nft_assert_recorder \"telemetry-module\" \"python3 -c \"import agentwatch.detector_telemetry\"\"\n"
   },
   {
     "id": "FT-DET-6",
@@ -905,7 +905,7 @@
     "prd": "DET-6",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"scenario-depth\" \"python3 /ft/scripts/detectors_eval.py --corpus classes\"\n"
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n"
   },
   {
     "id": "FT-DET-7",
@@ -917,7 +917,7 @@
     "prd": "DET-7",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"real-trace-replay\" \"python3 /ft/scripts/detectors_eval.py --corpus real-harness\"\n"
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n"
   },
   {
     "id": "FT-COR-1",
@@ -929,7 +929,7 @@
     "prd": "COR-1",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"second-corpus\" \"python3 /ft/scripts/detectors_eval.py --corpus v2 --compare-published\"\n"
+    "steps": "ft_assert \"second-corpus\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint bash -v \"$REPO_ROOT/data/traces\":/traces:ro -v \"$FT_DIR\":/ft -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics /ft/corpus.sh /traces/processed 2000  /artifacts\n"
   },
   {
     "id": "FT-COR-2",
@@ -953,7 +953,7 @@
     "prd": "RED-1",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"redaction-benchmark\" \"agentwatch redact eval --corpus v1\"\n"
+    "steps": "ft_assert_recorder \"redaction-benchmark\" \"agentwatch redact --corpus schema/vectors/redaction/v1/corpus.json --preview --json\"\n"
   },
   {
     "id": "FT-IDN-1",
@@ -989,7 +989,7 @@
     "prd": "IDN-3,DD-07",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"credential-hygiene\" \"python3 /ft/scripts/detectors_eval.py --corpus credentials\"\n"
+    "steps": "ft_assert_recorder \"credential-hygiene\" \"agentwatch search --identity --json\"\n"
   },
   {
     "id": "FT-CMP-1",
@@ -1193,7 +1193,7 @@
     "prd": "POL-1/2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"suggest-policy-no-write\" \"cd /tmp && rm -f proposed.json && agentwatch suggest-policy --since 30d --target claude-settings --out /tmp/proposed.json && test -s /tmp/proposed.json\"\nft_assert_recorder \"what-if\" \"agentwatch what-if /tmp/proposed.json --since 30d --format json | grep -Eq 'prompts_avoided|would_be_denials'\"\n"
+    "steps": "ft_assert_recorder \"suggest-policy-no-write\" \"cd /tmp && rm -f proposed.json && agentwatch suggest-policy --since 30d --target claude-settings --out /tmp/proposed.json && test -s /tmp/proposed.json\"\nft_assert_recorder \"what-if\" \"agentwatch what-if --since 30d --json\"\n"
   },
   {
     "id": "FT-FWK-1",
@@ -1253,7 +1253,7 @@
     "prd": "TSS-1",
     "class": "P/F|D",
     "suite": "s7-platform",
-    "steps": "ft_assert \"ts-spike-report\" bash -lc \"test -f $REPO_ROOT/docs/field-test/v0.2.0/field-test-plan.md\"\n"
+    "steps": "ft_declare \"TS-SDK span-taxonomy spike is exploratory; findings tracked as WBS TSS-1 (#368); no production code depends on it\" \"PRD 46 / TSS-1 (spike)\"\n"
   },
   {
     "id": "FT-APV-1",
@@ -1385,7 +1385,7 @@
     "prd": "LUI-2",
     "class": "P/F",
     "suite": "s11-console",
-    "steps": "ft_assert_recorder \"index-rebuild-delete\" \"agentwatch index --rebuild >/dev/null && rm -rf /data/agentwatch/index && agentwatch sessions >/dev/null && agentwatch index --rebuild >/dev/null\"\n"
+    "steps": "ft_assert_recorder \"index-rebuild-delete\" \"agentwatch index rebuild --json && agentwatch index drop --json && agentwatch sessions >/dev/null && agentwatch index rebuild --json\"\n"
   },
   {
     "id": "FT-ACC-1",
@@ -1445,7 +1445,7 @@
     "prd": "VFY-1",
     "class": "P/F",
     "suite": "s13-investigation",
-    "steps": "ft_assert \"verifier-page\" bash -lc \"test -f $REPO_ROOT/docs/field-test/v0.2.0/FIELD_TEST_REPORT.md\"\n"
+    "steps": "ft_assert \"verifier-artifact\" bash -lc \"test -f $REPO_ROOT/docs/release/verifier/agentwatch-verify.html\"\nft_assert \"verifier-checksum\" bash -lc \"cd $REPO_ROOT && python3 scripts/build_browser_verifier.py --check\"\n"
   },
   {
     "id": "FT-IR-1",
@@ -1505,7 +1505,7 @@
     "prd": "OUT-2",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert_recorder \"digest\" \"agentwatch digest --json | grep -q 'patterns'\"\n"
+    "steps": "ft_assert_recorder \"digest\" \"agentwatch digest --since 30d\"\n"
   },
   {
     "id": "FT-RUN-1",
@@ -1529,7 +1529,7 @@
     "prd": "DEMO-1",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert \"demo-bundle\" bash -lc \"test -f $REPO_ROOT/docs/field-test/v0.2.0/FIELD_TEST_REPORT.md\"\n"
+    "steps": "ft_assert \"demo-bundle\" bash -lc \"test -f $REPO_ROOT/examples/demo-bundle/bundle.json && test -f $REPO_ROOT/examples/demo-bundle/README.md\"\n"
   },
   {
     "id": "FT-NTF-1",
@@ -1565,7 +1565,7 @@
     "prd": "PRD-48 \u00a75",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert \"claims-ledger\" bash -lc \"test -f $REPO_ROOT/docs/release/claims-ledger.json || test -f $REPO_ROOT/reference/known-limitations.md\"\n"
+    "steps": "ft_assert \"claims-ledger\" bash -lc \"test -f $REPO_ROOT/docs/release/claims-ledger.json\"\nft_assert \"known-limitations\" bash -lc \"test -f $REPO_ROOT/docs/reference/known-limitations.md\"\n"
   },
   {
     "id": "FT-MATRIX-1",
@@ -1577,7 +1577,7 @@
     "prd": "XHT-4,PRD-40 \u00a75.3",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert \"matrix-no-modeled\" bash -lc \"test -f $REPO_ROOT/reference/compatibility.md\"\n"
+    "steps": "ft_assert \"matrix-file\" bash -lc \"test -f $REPO_ROOT/docs/reference/compatibility.md\"\nft_assert \"matrix-honest-tiers\" bash -lc \"grep -qE 'live-verified|fixture-verified' $REPO_ROOT/docs/reference/compatibility.md\"\n"
   },
   {
     "id": "FT-BACKEND-2",

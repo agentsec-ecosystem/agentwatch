@@ -5,13 +5,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
-
-def main(argv: list[str]) -> int:
+def main(argv):
     run(["agentwatch", "drift", "--json"])
-    run(["agentwatch", "diff", "--demo"])
+    run(["agentwatch", "diff", "--json"])
+    run(["agentwatch", "sessions", "--group-by-env"])
     ok("environment delta surfaced above behavior delta ('coincides with')")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

@@ -1,5 +1,5 @@
 ft_up_recorder
 ft_start_daemon
-ft_assert_recorder "second-corpus" "python3 /ft/scripts/detectors_eval.py --corpus v2 --compare-published"
+ft_assert "second-corpus" "${STACK_COMPOSE[@]}" run --rm --entrypoint bash -v "$REPO_ROOT/data/traces":/traces:ro -v "$FT_DIR":/ft -v "$FT_CASE_DIR/artifacts":/artifacts analytics /ft/corpus.sh /traces/processed 2000  /artifacts
 ft_capture_store_soft
 ft_finalize

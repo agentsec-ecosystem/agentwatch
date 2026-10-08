@@ -5,12 +5,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
-
-def main(argv: list[str]) -> int:
-    run(["agentwatch", "evidence", "--schema", "--json"])
-    ok("skill reaches documented answers; CLI JSON schemas published")
+def main(argv):
+    run(["agentwatch", "evidence", "--include", "coverage", "--out", "/tmp/evidence.zip"])
+    run(["agentwatch", "coverage", "--json"])
+    ok("skill reaches documented answers; CLI JSON published")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

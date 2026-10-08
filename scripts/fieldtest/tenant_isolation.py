@@ -3,18 +3,15 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _ftutil import ok, run
+from _ftutil import fail, ok, run
 
-
-def main(argv: list[str]) -> int:
-    proc = run("agentwatch search --tenant other --json", check=False)
+def main(argv):
+    proc = run(["agentwatch", "search", "--project", "other-tenant", "--json"], check=False)
     if proc.stdout.strip() not in ("", "[]", "null"):
-        print("cross-tenant query returned rows", file=sys.stderr)
-        return 1
+        fail("cross-tenant query returned rows")
     run(["agentwatch", "coverage", "--json"])
     ok("cross-tenant query returns nothing and is store-access-recorded")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

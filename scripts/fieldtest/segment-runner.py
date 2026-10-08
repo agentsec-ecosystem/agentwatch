@@ -5,13 +5,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
-
-def main(argv: list[str]) -> int:
-    run(["agentwatch", "segment", "--out", "/tmp/segment.tar"])
-    run(["agentwatch", "import-segment", "/tmp/segment.tar", "--verify"])
+def main(argv):
+    run(["agentwatch", "segment", "export", "--session", "ft04", "--out", "/tmp/segment.tar", "--json"])
+    run(["agentwatch", "import-segment", "/tmp/segment.tar", "--json"])
     ok("sealed runner segment verifies and anchors")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

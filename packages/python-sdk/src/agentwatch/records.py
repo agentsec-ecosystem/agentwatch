@@ -178,6 +178,10 @@ class SecurityEventType(str, Enum):
     # M29 APV-2 (WS-A): a permission-mode transition was observed per call
     # (e.g. default -> bypass -> default), reconstructed from the record stream.
     MODE_TRANSITION = "mode-transition"
+    # M30 SBX-1: a sandbox boundary was observed — a call ran outside the sandbox
+    # or an attempt was denied at the boundary. An observation, never enforcement
+    # (agentwatch does not own the sandbox).
+    SANDBOX_BOUNDARY = "sandbox-boundary"
     # M29 EXT-3 forward-compatible placeholder: a capability inventory digest
     # changed. The event originates in M30 CAP-2 (not built); adding it to the
     # vocabulary/mappings now keeps sinks and consumers stable.
@@ -440,6 +444,9 @@ class AgentRecord:
     approval: Approval | None = None
     authorization: Authorization | None = None
     permission_mode: PermissionMode | None = None
+    # M30 SBX-1: whether the call ran inside the harness sandbox. ``None`` means
+    # the harness exposed no signal — never inferred from absence.
+    sandbox: bool | None = None
     environment: dict[str, Any] | None = None
     truncated: dict[str, Any] | None = None
     security_event: SecurityEvent | None = None
@@ -490,6 +497,8 @@ class AgentRecord:
             data["authorization"] = self.authorization.to_dict()
         if self.permission_mode is not None:
             data["permission_mode"] = self.permission_mode.value
+        if self.sandbox is not None:
+            data["sandbox"] = self.sandbox
         if self.environment is not None:
             data["environment"] = self.environment
         if self.truncated is not None:
@@ -537,6 +546,7 @@ class AgentRecord:
             permission_mode=(
                 PermissionMode(permission_mode) if permission_mode is not None else None
             ),
+            sandbox=data.get("sandbox"),
             environment=data.get("environment"),
             truncated=data.get("truncated"),
             security_event=SecurityEvent.from_dict(event) if event is not None else None,
@@ -578,6 +588,7 @@ _RECORD_FIELDS = frozenset(
         "approval",
         "authorization",
         "permission_mode",
+        "sandbox",
         "environment",
         "truncated",
         "security_event",
@@ -662,6 +673,13 @@ def _check_int(value: Any, where: str, key: str, *, nullable: bool = False) -> N
         return
     if isinstance(value, bool) or not isinstance(value, int):
         _fail(f"{where}: {key} must be an integer")
+
+
+def _check_bool(value: Any, where: str, key: str, *, nullable: bool = False) -> None:
+    if value is None and nullable:
+        return
+    if not isinstance(value, bool):
+        _fail(f"{where}: {key} must be a boolean")
 
 
 def _check_datetime(value: Any, where: str, key: str, *, nullable: bool = False) -> None:
@@ -819,6 +837,8 @@ def _validate_record_dict(data: Any) -> None:
         _check_enum(
             data["permission_mode"], where, "permission_mode", PermissionMode, nullable=True
         )
+    if "sandbox" in data:
+        _check_bool(data["sandbox"], where, "sandbox", nullable=True)
     if "environment" in data:
         _check_table(data["environment"], where, "environment", nullable=True)
     if "truncated" in data:

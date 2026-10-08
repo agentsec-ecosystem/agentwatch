@@ -38,6 +38,42 @@ Status: living.
   `denied`/`policy-fired` with `record_phase: pre_execution`; enforcement stays in the Guardian and agentwatch
   never executes a decision. The spec is young (watch item): signature and SessionContext-chain verification
   (the ACS Crypto/Audit profiles) are **not** done, and the emit-side spike (PRD 45 §ACS-1b) is not built.
+- **Capability inventory (`CAP-1`, M30) covers Claude Code today.** `agentwatch inventory --capabilities` reads
+  skills, plugins, hooks, subagents, commands, rules files and MCP servers under `~/.claude` / `<project>/.claude`
+  (plus best-effort managed paths) by **content digest**; Cursor, Codex CLI and Gemini CLI are declared `none` in the
+  per-harness coverage matrix, and memory is `none` for every harness pending `MEM-1`. `bom --format cyclonedx`
+  includes the discovered capabilities. (proving test:
+  `packages/python-sdk/tests/test_capabilities.py::test_coverage_declares_per_harness_gaps`).
+- **Capability snapshots (`CAP-2`, M30) are recorded on demand, not yet automatically.** Drift needs a baseline: a
+  `capability-snapshot` carrier is written by `inventory --capabilities --snapshot` (or `record_capability_snapshot`
+  from an integrator). No session-start hook records one yet, so drift is only visible between snapshots that were
+  actually taken. (proving test:
+  `packages/python-sdk/tests/test_capability_drift.py::test_cli_capabilities_snapshot_then_diff`).
+- **Capability-load attribution (`CAP-3`, M30) has no automatic load signal yet.** No harness emits a
+  "what was loaded" event in its hook payload here: Claude Code is `partial` (loads are recorded through the
+  `capability-loaded` API by an integrator) and Cursor/Codex CLI/Gemini CLI are `none` in the published
+  load-exposure matrix. `replay`/`impact`/`search --capability` therefore show the loads that were recorded, not
+  every load a harness performed. (proving test:
+  `packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest`).
+- **Memory-store coverage (`MEM-1`, M30) is Claude Code `partial`.** Memory stores are discovered under
+  `~/.claude/memory` / `<project>/.claude/memory` and changes are attributed to the session that recorded a matching
+  memory write; the harness's exact auto-memory layout is not pinned, and Cursor/Codex CLI/Gemini CLI are `none` in
+  the published memory-exposure matrix. Writer attribution is by key/name match, so a write recorded with an
+  unrelated key leaves the change `unattributed`. (proving test:
+  `packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed`).
+- **Environment fingerprint (`ENV-1`, M30) components can be `unknown`.** The fingerprint is derived from what the
+  record holds: if a session never recorded a capability snapshot, an MCP surface, or a recorder attestation, that
+  component is the literal `unknown` rather than a guess — so two sessions can share a digest because the same facts
+  were absent, not because the environments were proven identical. `drift` reports environment changes as
+  "coincides with", never a cause. (proving test:
+  `packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred`).
+- **Sandbox-boundary events (`SBX-1`, M30) capture no live signal yet.** Signal availability was verified first:
+  Claude Code's CCO-1 OTel vocabulary exposes no sandbox event, and Cursor's raw `before/afterShellExecution`
+  payload carries `sandbox` but the Cursor adapter does not preserve it (a harness-adapter follow-up). The
+  per-harness matrix is therefore `claude-code: none`, `cursor: partial` (raw signal only), Codex CLI/Gemini CLI
+  `none`. A record whose harness exposed no signal has `sandbox: null` and is reported `unknown` — never counted as
+  unsandboxed — so `oversight`'s `% calls unsandboxed` is `n/a` until a harness actually reports. (proving test:
+  `packages/python-sdk/tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

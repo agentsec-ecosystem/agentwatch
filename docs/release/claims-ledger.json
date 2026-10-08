@@ -874,6 +874,90 @@
       "last_verified": "2026-10-06"
     },
     {
+      "id": "C77",
+      "claim": "Capabilities (Claude Code skills, plugins, hooks, subagents, commands, rules files and MCP servers) are inventoried by sha256 content digest \u2014 never the declared version \u2014 with origin scope, size and an optional declared version; content is never retained; `inventory --capabilities` lists them and `bom --format cyclonedx` includes them as components; per-harness coverage is declared honestly (Claude Code exposed; Cursor/Codex CLI/Gemini CLI and memory are `none` gaps).",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capabilities.py::test_inventory_lists_every_kind_with_scope_and_digest",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_digest_follows_content_not_declared_version",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_no_capability_content_is_retained",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_coverage_declares_per_harness_gaps",
+        "doc:docs/design/capability-supply-chain.md",
+        "doc:docs/adr/0032-capability-inventory.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C78",
+      "claim": "Capability drift generalizes the S4 tool-surface snapshot: a per-session metadata-only capability-snapshot carrier is diffed across sessions and raises the reused `capability-changed` event with a factual class (added / removed / content changed, version unchanged \u2014 the Plugin4Shell shape / content changed, version changed), never a verdict.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_plugin4shell_shape_is_content_changed_version_unchanged",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_new_hook_is_surfaced",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_event_is_the_existing_capability_changed_type",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_wording_is_factual_never_a_verdict",
+        "doc:docs/design/capability-supply-chain.md",
+        "doc:docs/adr/0032-capability-inventory.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C79",
+      "claim": "Capability-load attribution records a metadata-only `capability-loaded` step (name/kind/scope/digest) that `replay` shows inline as \"followed the load of\", `impact` lists for the session, and `search --capability <name>` selects (the load plus calls after it, never other sessions); a per-harness load-exposure matrix is published and CI-checked, and wording is context, never causation.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_load_record_is_metadata_only",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_impact_lists_capabilities_loaded_in_the_session",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_search_capability_returns_calls_after_a_load",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_replay_shows_loads_inline",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest",
+        "doc:docs/design/capability-supply-chain.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C80",
+      "claim": "Persistent memory stores are inventoried as capabilities (digest/size/last-changed, content never retained), appear in `inventory --capabilities` and `inventory --memory`, and are diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed` (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness memory-exposure matrix is published and CI-checked.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_discover_memory_stores_digest_size_last_changed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_change_attributes_to_the_writer_session",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_exposure_matrix_is_published_and_honest",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_memory_content_is_never_stored",
+        "doc:docs/adr/0043-memory-as-capability.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C81",
+      "claim": "Each session derives a content-free environment fingerprint (`env1:<sha256>` over model, harness, permission mode, capability/rules/MCP-surface digests and recorder config digest; absent facts `unknown`); `diff` prints the environment delta above the behavior delta with the model first, `sessions --group-by-env` groups by it, and `drift` annotates a signal with same-window environment changes worded \"coincides with\", never a cause.",
+      "source": "docs/design/environment-fingerprint.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_fingerprint_changes_on_a_component_change",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_diff_surfaces_environment_then_behavior",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_group_sessions_by_environment",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_cli_drift_annotates_coincident_environment",
+        "doc:docs/adr/0042-environment-fingerprint.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C82",
+      "claim": "Sandbox-boundary events are additive and nullable: a `sandbox` field on records and a `sandbox-boundary` security event (OCSF-mapped) carry metadata only, a call with no harness signal stays `unknown` (never unsandboxed), `oversight` reports `% calls unsandboxed` plus denials by class, `impact` keeps attempted-but-blocked network destinations apart from contacted ones, and a per-harness sandbox-exposure matrix (Claude Code none, Cursor partial, Codex CLI/Gemini CLI none) is published and CI-checked.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_field_round_trips_and_validates",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_boundary_event_type_and_ocsf_mapping",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_oversight_reports_percent_unsandboxed",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_impact_separates_blocked_from_contacted",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
       "id": "C89",
       "claim": "Per file-modifying call, agentwatch captures a content-free attribution fact: the affected line range(s) and a keyed content hash, never content or a diff; it holds under metadata-only and falls back to file-level heuristic when a harness exposes no range.",
       "source": "docs/design/code-provenance.md",

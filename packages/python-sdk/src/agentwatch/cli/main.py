@@ -48,6 +48,15 @@ from agentwatch.archive import archive_store, combined_records, verify_archives
 from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
+from agentwatch.capabilities import (
+    capabilities_to_json,
+    capability_loads,
+    detect_capability_changes,
+    discover_capabilities,
+    record_capability_snapshot,
+    render_capabilities,
+    render_capability_changes,
+)
 from agentwatch.compliance import FRAMEWORKS, build_report, render_report
 from agentwatch.concurrency import build_concurrency, render_concurrency
 from agentwatch.config_explain import explain_config, render_explanations
@@ -70,6 +79,13 @@ from agentwatch.drift import (
     load_deployments,
     metric_series,
     signal_to_json,
+)
+from agentwatch.env_fingerprint import (
+    annotate_environment,
+    environment_changes,
+    group_sessions_by_env,
+    render_env_groups,
+    session_environments,
 )
 from agentwatch.evidence import build_bundle, verify_bundle
 from agentwatch.explain import explain_session
@@ -127,6 +143,7 @@ from agentwatch.mcp_surface import (
     render_snapshots,
     survey,
 )
+from agentwatch.memory import discover_memory_stores, render_memory_stores
 from agentwatch.notarize import (
     CheckpointExport,
     dumps,
@@ -465,6 +482,12 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="group sessions by their behavior fingerprint (M17 S7)",
     )
+    sessions.add_argument(
+        "--group-by-env",
+        dest="group_by_env",
+        action="store_true",
+        help="group sessions by their environment fingerprint (M30 ENV-1)",
+    )
     sub.add_parser("verify-privacy", help="verify redaction and scan the store for leaks (M5)")
     completions = sub.add_parser("completions", help="print a shell completion script (M5)")
     completions.add_argument("shell", choices=("bash", "zsh", "fish"))
@@ -705,6 +728,17 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="only agent memory read/write/delete records (DET-7)",
     )
+    search.add_argument(
+        "--capability",
+        default=None,
+        help="loads of this capability plus calls after the load (M30 CAP-3)",
+    )
+    search.add_argument(
+        "--memory-store",
+        dest="memory_store",
+        default=None,
+        help="writes to this memory store plus calls after the write (M30 MEM-1)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     index_cmd = sub.add_parser(
@@ -871,6 +905,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="MCP tool-surface changes over time (M20 S4)",
     )
     inventory.add_argument("--server", default=None, help="only this MCP server (with --diff)")
+    inventory.add_argument(
+        "--capabilities",
+        action="store_true",
+        help="list loadable capabilities with content digests (M30 CAP-1)",
+    )
+    inventory.add_argument(
+        "--since",
+        default=None,
+        help="only capability changes at/after this window (with --capabilities --diff)",
+    )
+    inventory.add_argument(
+        "--memory",
+        action="store_true",
+        help="list memory stores with digest/size/last-changed (M30 MEM-1)",
+    )
 
     coverage_cmd = sub.add_parser(
         "coverage", help="reconcile the store against transcript ground truth (M16 S2)"
@@ -1820,6 +1869,13 @@ def _run_sessions(args: argparse.Namespace) -> int:
             return 0
         print(render_behavior_groups(groups))
         return 0
+    if args.group_by_env:
+        env_groups = group_sessions_by_env(store)
+        if not env_groups:
+            print("agentwatch: no sessions recorded")
+            return 0
+        print(render_env_groups(env_groups))
+        return 0
     allowed = tagged_sessions(store, args.tag) if args.tag is not None else None
     counts: dict[str, int] = {}
     order: list[str] = []
@@ -1978,6 +2034,9 @@ def _run_replay(args: argparse.Namespace) -> int:
         return 0
     for record in records:
         print(render_record(record))
+        loads = capability_loads([record])
+        if loads:
+            print(f"    {loads[0].context_line()}")
         if args.receipts:
             receipt = record_receipt(record, seq=seq_by_id.get(id(record), 0))
             rules = ",".join(receipt.rules) if receipt.rules else "none"
@@ -2681,6 +2740,8 @@ def _run_search(args: argparse.Namespace) -> int:
         mcp_resource=args.mcp_resource,
         memory_only=args.memory,
         permission_mode=args.permission_mode,
+        capability=args.capability,
+        memory_store=args.memory_store,
         records=combined.records,
     )
     for record in records:
@@ -3114,6 +3175,40 @@ def _run_inventory(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.memory:
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        stores = discover_memory_stores(project=project, home=Path.home())
+        if args.json:
+            print(json.dumps([store.to_dict() for store in stores], indent=2))
+        else:
+            print(render_memory_stores(stores))
+        return 0
+    if args.capabilities:
+        if args.diff:
+            cutoff = since_cutoff(args.since) if args.since else None
+            changes = detect_capability_changes(store.records(), since=cutoff)
+            if args.json:
+                print(json.dumps([change.to_dict() for change in changes]))
+            else:
+                print(render_capability_changes(changes))
+            return 0
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        inventory = discover_capabilities(project=project, home=Path.home())
+        if args.snapshot:
+            session_id = args.session_id or "inventory"
+            changes = record_capability_snapshot(store, session_id, inventory.capabilities)
+            message = f"recorded {len(inventory.capabilities)} capabilities in {session_id}"
+            if args.json:
+                print(json.dumps({"recorded": len(inventory.capabilities),
+                                  "changes": [change.to_dict() for change in changes]}))
+            else:
+                print(message)
+            return 0
+        if args.json:
+            print(json.dumps(capabilities_to_json(inventory), indent=2))
+        else:
+            print(render_capabilities(inventory))
+        return 0
     if args.snapshot or args.diff:
         records = store.records()
         if args.snapshot:
@@ -3148,7 +3243,10 @@ def _run_bom(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
-    bom = build_bom(store, session_id=args.session_id, project=args.project)
+    capabilities = discover_capabilities(project=Path.cwd(), home=Path.home()).capabilities
+    bom = build_bom(
+        store, session_id=args.session_id, project=args.project, capabilities=capabilities
+    )
     document = to_cyclonedx(bom) if args.format == "cyclonedx" else to_agentwatch_json(bom)
     print(json.dumps(document, indent=2, sort_keys=True))
     record_store_access(
@@ -3183,6 +3281,11 @@ def _run_diff(args: argparse.Namespace) -> int:
                     "removed_tools": list(result.removed_tools),
                     "state_a": result.state_a,
                     "state_b": result.state_b,
+                    "environment_a": result.environment_a.to_dict(),
+                    "environment_b": result.environment_b.to_dict(),
+                    "environment_changes": [
+                        change.to_dict() for change in result.environment_changes
+                    ],
                 }
             )
         )
@@ -3447,6 +3550,7 @@ def _run_drift(args: argparse.Namespace) -> int:
     deployments = load_deployments(Path(args.deploys).expanduser()) if args.deploys else []
     correlated = correlate_deployments(signals, deployments, window_seconds=args.deploy_window)
     emitted = emit_signals(signals) if args.emit else 0
+    dated_env = environment_changes(session_environments(store))
 
     if args.json:
         print(
@@ -3458,6 +3562,14 @@ def _run_drift(args: argparse.Namespace) -> int:
                         {
                             **signal_to_json(item.signal),
                             "deployments": [deployment.label for deployment in item.deployments],
+                            "environment_coincides": [
+                                change.to_dict()
+                                for change in annotate_environment(
+                                    signal_at=item.signal.at,
+                                    changes=dated_env,
+                                    window_seconds=args.deploy_window,
+                                )
+                            ],
                         }
                         for item in correlated
                     ],
@@ -3477,6 +3589,13 @@ def _run_drift(args: argparse.Namespace) -> int:
         for deployment in item.deployments:
             suffix = f" {deployment.version}" if deployment.version else ""
             print(f"    deploy: {deployment.label}{suffix} at {deployment.at.isoformat()}")
+        for change in annotate_environment(
+            signal_at=signal.at, changes=dated_env, window_seconds=args.deploy_window
+        ):
+            print(
+                f"    coincides with environment change: "
+                f"{change.field} {change.a} -> {change.b}"
+            )
     if args.emit:
         print(f"  emitted {emitted} drift-detected event(s)")
     return 0

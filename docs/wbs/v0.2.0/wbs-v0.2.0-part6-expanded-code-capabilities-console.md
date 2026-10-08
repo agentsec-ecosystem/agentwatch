@@ -14,10 +14,11 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** 🔄 in progress — WS-2 (PRV-1/2/3, CNC-1, OUT-1: #462–#464, #474, #477), WS-3
-(LUI-1/2, UI-1, EXT-5/8: #465/#466/#428/#483/#484), WS-4 (AGI-1/2, POL-1/2: #467–#470), WS-6 (OUT-2,
-EXT-4, DEMO-1, NTF-1: #478/#482/#480/#481) landed; remaining M30 tickets (capabilities/memory/env/
-sandbox/investigation/redaction) in progress across workstreams.
+**Status:** 🔄 in progress — WS-1 (CAP-1/2/3, MEM-1, ENV-1, SBX-1: #458–#461, #472, #476), WS-2
+(PRV-1/2/3, CNC-1, OUT-1: #462–#464, #474, #477), WS-3 (LUI-1/2, UI-1, EXT-5/8: #465/#466/#428/#483/#484),
+WS-4 (AGI-1/2, POL-1/2: #467–#470), WS-6 (OUT-2, EXT-4, DEMO-1, NTF-1: #478/#482/#480/#481) landed; remaining
+M30 tickets: IR-1 (#473), VFY-1 (#475), RUN-1 (#479), RED-1 (#471) on branch m30-ws5, plus 30.T/30.D/30.R
+close-out. 30.OUT-2 console rendering is a follow-up.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -36,10 +37,10 @@ local-first, redact-before-store, no LLM in the trust path.
 
 | # | Task | Deliverable | Dependencies | Acceptance | Issue |
 |---|---|---|---|---|---|
-| 30.CAP-1 | Capability inventory: skills/plugins/hooks/subagents/commands/rules/MCP with content digests + origin | feature + tests + docs | PRD 25, S4 | Content digest (not pin) recorded; no content stored (property test); per-harness gaps declared | #458 |
-| 30.CAP-2 | Capability drift + `capability-changed` event | feature + schema + tests | 30.CAP-1, 29.EXT-3 | Plugin4Shell-shape fixture ("content changed, version unchanged") detected; new hook surfaced; no verdict language | #459 |
-| 30.CAP-3 | `capability-loaded` context in replay/impact/search | feature + tests | 30.CAP-1, 29.DEP-2 | Loads shown inline; `search --capability` works; per-harness exposure matrix CI-checked; "followed the load of" wording | #460 |
-| 30.MEM-1 | Memory stores as capabilities (digest, writer-session) + `search --memory` | feature + tests | 30.CAP-1, 28.DET-7 | Out-of-band memory edit flagged unattributed; per-harness exposure matrix published | #461 |
+| 30.CAP-1 ✅ | Capability inventory: skills/plugins/hooks/subagents/commands/rules/MCP with content digests + origin | feature + tests + docs | PRD 25, S4 | Content digest (not pin) recorded; no content stored (property test); per-harness gaps declared | #458 |
+| 30.CAP-2 ✅ | Capability drift + `capability-changed` event | feature + schema + tests | 30.CAP-1, 29.EXT-3 | Plugin4Shell-shape fixture ("content changed, version unchanged") detected; new hook surfaced; no verdict language | #459 |
+| 30.CAP-3 ✅ | `capability-loaded` context in replay/impact/search | feature + tests | 30.CAP-1, 29.DEP-2 | Loads shown inline; `search --capability` works; per-harness exposure matrix CI-checked; "followed the load of" wording | #460 |
+| 30.MEM-1 ✅ | Memory stores as capabilities (digest, writer-session) + `search --memory` | feature + tests | 30.CAP-1, 28.DET-7 | Out-of-band memory edit flagged unattributed; per-harness exposure matrix published | #461 |
 | 30.PRV-1 ✅ | `provenance <commit|range|PR|file>` | feature + tests | 30.PRV-3, 29.APV-1 | Commit→session <2 s; "no recorded activity" when none (never "human"); `mixed` ranges correct; gaps flagged | #462 |
 | 30.PRV-2 ✅ | Agent Trace export + git-ai notes cross-validation; spec pin + drift job | feature + tests + CI | 30.PRV-1 | Export validates against the pinned revision; zero code content in output; agree/disagree reported; write-to-repo only by explicit command | #463 |
 | 30.PRV-3 ✅ | Content-free range+hash capture (+ ADR) | feature + property test | 29.DEP-3, privacy review | Under `metadata-only`, ranges+hashes exist and no content/diff does; fallback to file-level `heuristic` documented | #464 |
@@ -50,11 +51,11 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.POL-1 | `suggest-policy` + dangerous-broad lint | feature + tests | 29.APV-1, cls1 | No write outside `--out`; each rule evidence-linked; destructive/network/credential never allow-by-default; deterministic | #469 |
 | 30.POL-2 | `what-if` policy replay over history | feature + tests | 30.POL-1 | Prompts-avoided + would-be denials with sessions; parse errors explicit; labeled simulation; format-version stamp | #470 |
 | 30.RED-1 | Public redaction corpus + `redact eval` + published per-class numbers | feature + corpus + docs | PRD 43 pattern | Reproduces published numbers deterministically offline; misses in known-limitations; corpus secret-scanned | #471 |
-| 30.ENV-1 | Environment fingerprint + delta in `diff`/`drift`; `sessions --group-by-env` | feature + tests | 30.CAP-1, 29.APV-2, 29.CCO-1 | Seeded model change surfaces first; "coincides with" wording; digests only | #472 |
+| 30.ENV-1 ✅ | Environment fingerprint + delta in `diff`/`drift`; `sessions --group-by-env` | feature + tests | 30.CAP-1, 29.APV-2, 29.CCO-1 | Seeded model change surfaces first; "coincides with" wording; digests only | #472 |
 | 30.IR-1 | Incident cases + merged timeline + case bundle | feature + tests | 28.COR-3, 26.TRACE-2 | Membership changes chain-recorded; gaps classified; bundle verifies offline; no registry egress | #473 |
 | 30.CNC-1 ✅ | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |
 | 30.VFY-1 | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
-| 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
+| 30.SBX-1 ✅ | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
 | 30.OUT-1 ✅ | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
 | 30.OUT-2 | Recurring failure signatures in `digest` (console rendering follow-up) | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
 | 30.RUN-1 | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |

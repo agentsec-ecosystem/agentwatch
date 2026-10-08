@@ -17,6 +17,7 @@ from statistics import median
 from typing import Any
 
 from agentwatch.authorization import AUTHORIZATION_TAXONOMY_VERSION
+from agentwatch.capabilities import COVERAGE_NONE, COVERAGE_PARTIAL
 from agentwatch.classify import (
     CMD_DESTRUCTIVE,
     CREDENTIAL,
@@ -27,7 +28,13 @@ from agentwatch.classify import (
 from agentwatch.coverage import is_tool_call_record
 from agentwatch.permission_mode import effective_modes, is_permission_mode_change, mode_intervals
 from agentwatch.query import since_cutoff
-from agentwatch.records import AgentRecord, Outcome, effective_authorization
+from agentwatch.records import (
+    AgentRecord,
+    Outcome,
+    SecurityEvent,
+    SecurityEventType,
+    effective_authorization,
+)
 from agentwatch.store import RecordStore
 
 OVERSIGHT_VERSION = "oversight-v1"
@@ -132,6 +139,89 @@ class HumanOversight:
 
 
 @dataclass(frozen=True)
+class SandboxFacts:
+    """Sandbox-boundary facts: how many calls ran outside it, and denials.
+
+    ``calls_with_fact`` is the denominator: calls that actually carried a sandbox
+    signal. Calls with no signal are counted ``unknown`` and are **not** treated
+    as unsandboxed (never inferred from absence).
+    """
+
+    calls_with_fact: int
+    sandboxed: int
+    unsandboxed: int
+    unknown: int
+    unsandboxed_share: float | None
+    denials: int
+    denials_by_class: tuple[tuple[str, int], ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "calls_with_fact": self.calls_with_fact,
+            "sandboxed": self.sandboxed,
+            "unsandboxed": self.unsandboxed,
+            "unknown": self.unknown,
+            "unsandboxed_share": self.unsandboxed_share,
+            "denials": self.denials,
+            "denials_by_class": dict(self.denials_by_class),
+        }
+
+
+@dataclass(frozen=True)
+class SandboxExposure:
+    """Per-harness sandbox-signal exposure, declared honestly."""
+
+    harness: str
+    status: str
+    note: str
+
+
+# Signal availability verified per harness (M30 SBX-1): Claude Code's OTel
+# vocabulary (CCO-1) has no sandbox event; Cursor's raw before/afterShellExecution
+# payload carries `sandbox`, but the Cursor adapter does not preserve it yet.
+SANDBOX_EXPOSURE: tuple[SandboxExposure, ...] = (
+    SandboxExposure(
+        "claude-code",
+        COVERAGE_NONE,
+        "the CCO-1 OTel vocabulary exposes no sandbox event",
+    ),
+    SandboxExposure(
+        "cursor",
+        COVERAGE_PARTIAL,
+        "raw before/afterShellExecution carries sandbox; adapter capture is a "
+        "harness-adapter follow-up",
+    ),
+    SandboxExposure("codex-cli", COVERAGE_NONE, "no sandbox signal exposed"),
+    SandboxExposure("gemini-cli", COVERAGE_NONE, "no sandbox signal exposed"),
+)
+
+
+def sandbox_exposure_matrix() -> tuple[SandboxExposure, ...]:
+    """The published, CI-checked sandbox-exposure matrix (one row per harness)."""
+    return SANDBOX_EXPOSURE
+
+
+def sandbox_boundary_event(
+    *,
+    tool: str,
+    sandboxed: bool,
+    emitted_at: datetime,
+    denied_destination: str | None = None,
+) -> SecurityEvent:
+    """A ``sandbox-boundary`` observation (never enforcement)."""
+    evidence: dict[str, Any] = {"tool": tool, "sandboxed": sandboxed}
+    if denied_destination is not None:
+        evidence["denied_destination"] = denied_destination
+    return SecurityEvent(
+        type=SecurityEventType.SANDBOX_BOUNDARY,
+        emitted_at=emitted_at,
+        emitter="agentwatch",
+        tool=tool,
+        evidence=evidence,
+    )
+
+
+@dataclass(frozen=True)
 class GroupRow:
     """One ``--by`` bucket and its authorization mix."""
 
@@ -160,6 +250,7 @@ class OversightReport:
     cross_tab: tuple[CrossTabCell, ...] = ()
     destructive_total: int = 0
     groups: tuple[GroupRow, ...] = ()
+    sandbox: SandboxFacts | None = None
     note: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -178,6 +269,7 @@ class OversightReport:
             "human": self.human.to_dict() if self.human is not None else None,
             "cross_tab": [cell.to_dict() for cell in self.cross_tab],
             "groups": [group.to_dict() for group in self.groups],
+            "sandbox": self.sandbox.to_dict() if self.sandbox is not None else None,
             "note": self.note,
         }
 
@@ -343,6 +435,34 @@ def build_oversight(
         for key, bucket in sorted(grouped.items())
     )
 
+    # Sandbox-boundary facts (M30 SBX-1). A missing signal is `unknown`, never
+    # counted as unsandboxed; the share denominator is calls that carried a fact.
+    sandboxed = unsandboxed = unknown = 0
+    denials = 0
+    denial_classes: dict[str, int] = {}
+    for record in calls:
+        if record.sandbox is True:
+            sandboxed += 1
+        elif record.sandbox is False:
+            unsandboxed += 1
+        else:
+            unknown += 1
+        if record.outcome is Outcome.DENIED:
+            denials += 1
+            for fact in classify_record(record):
+                if fact.category != UNCLASSIFIED:
+                    denial_classes[fact.category] = denial_classes.get(fact.category, 0) + 1
+    with_fact = sandboxed + unsandboxed
+    sandbox = SandboxFacts(
+        calls_with_fact=with_fact,
+        sandboxed=sandboxed,
+        unsandboxed=unsandboxed,
+        unknown=unknown,
+        unsandboxed_share=(unsandboxed / with_fact) if with_fact else None,
+        denials=denials,
+        denials_by_class=tuple(sorted(denial_classes.items())),
+    )
+
     note = None if total else "no agent tool calls in the window"
     return OversightReport(
         generated_at=moment,
@@ -356,6 +476,7 @@ def build_oversight(
         cross_tab=cross_tab,
         destructive_total=destructive_total,
         groups=groups,
+        sandbox=sandbox,
         note=note,
     )
 
@@ -418,6 +539,21 @@ def render_oversight(report: OversightReport) -> str:
             lines.append(f"    {cell.tool_class} × {cell.source}: {cell.calls}")
     else:
         lines.append("    none")
+    if report.sandbox is not None:
+        sandbox = report.sandbox
+        lines.append("")
+        share = (
+            f"{sandbox.unsandboxed_share * 100:.1f}%"
+            if sandbox.unsandboxed_share is not None
+            else "n/a (0 calls with a sandbox fact)"
+        )
+        lines.append(
+            f"sandbox boundary: % calls unsandboxed {sandbox.unsandboxed}/"
+            f"{sandbox.calls_with_fact} ({share}); "
+            f"unknown signal {sandbox.unknown}; denials {sandbox.denials}"
+        )
+        for tool_class, count in sandbox.denials_by_class:
+            lines.append(f"    denied {tool_class}: {count}")
     lines.append("")
     lines.append(f"grouped by {report.grouped_by}:")
     for group in report.groups:
@@ -431,14 +567,19 @@ def render_oversight(report: OversightReport) -> str:
 __all__ = [
     "BY_OPTIONS",
     "CROSS_TAB_CLASSES",
+    "SANDBOX_EXPOSURE",
     "CrossTabCell",
     "DecisionLatency",
     "GroupRow",
     "HumanOversight",
     "OVERSIGHT_VERSION",
     "OversightReport",
+    "SandboxExposure",
+    "SandboxFacts",
     "SessionMode",
     "SourceRow",
     "build_oversight",
     "render_oversight",
+    "sandbox_boundary_event",
+    "sandbox_exposure_matrix",
 ]

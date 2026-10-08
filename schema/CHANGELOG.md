@@ -35,6 +35,12 @@ emit version stays `0.1.0` until the v0.2.0 release bump (M30 30.3).
   transition), and `capability-changed` (a forward-compatible placeholder for
   M30 CAP-2, not built). OCSF/CloudEvents mappings and fixtures updated; the
   `agentwatch.security-event` readers accept them additively.
+- `agent-record.schema.json` new optional `sandbox` (M30 SBX-1, PRD 57):
+  `true` (inside the sandbox) \| `false` (ran outside it) \| `null`/absent
+  (the harness exposed no signal — never inferred). Additive; absent on legacy
+  records. `security-event.schema.json` adds the `sandbox-boundary` event type
+  (a call outside the sandbox or an attempt denied at the boundary; an
+  observation, never enforcement) with its OCSF mapping.
 
 ## 0.1.0 — 2026-10-03
 

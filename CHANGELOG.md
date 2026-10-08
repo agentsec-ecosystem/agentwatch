@@ -81,6 +81,37 @@ versioning: [Semantic Versioning](https://semver.org/).
     `agentwatch outcomes --since 30d --by project|model|harness` reports test/build/lint pass ratios and
     retained/reverted/interrupted/rejected counts with numerator/denominator and a derivation version (unknown stays
     unknown); `cost --per retained-change` is source-stamped and joins PRV-1; no LLM, no network, runs offline (#477).
+  - CAP-1: capability inventory (`agentwatch.capabilities`) — Claude Code skills, plugins, hooks, subagents,
+    slash commands, rules files and MCP servers are inventoried by **`sha256` content digest** (never the
+    declared pin), with origin scope (`managed`/`user`/`project`/`plugin`), size and optional declared version;
+    content is never retained (property-tested); `inventory --capabilities [--json]` lists them and
+    `bom --format cyclonedx` includes them as components; per-harness coverage (`exposed`/`partial`/`none`) is
+    declared honestly — Claude Code exposed, Cursor/Codex CLI/Gemini CLI (and memory, MEM-1) `none` gaps (#458).
+  - CAP-2: capability drift — a per-session metadata-only `capability-snapshot` carrier is diffed across sessions and
+    raises the reused `capability-changed` event (M29 EXT-3) with a factual class (`added` / `removed` /
+    `content changed, version unchanged` — the Plugin4Shell shape / `content changed, version changed`);
+    `inventory --capabilities --snapshot` records and `inventory --capabilities --diff --since 7d` lists the drift,
+    never a verdict (#459).
+  - CAP-3: `capability-loaded` attribution — a metadata-only load step (name/kind/scope/digest) is shown inline by
+    `replay` ("followed the load of …"), listed by `impact`, and selectable with `search --capability <name>`
+    (the load plus calls recorded after it, never other sessions); a per-harness load-exposure matrix is published
+    and CI-checked. Context wording only — never "caused by" (#460).
+  - MEM-1: memory stores as capabilities — `~/.claude/memory` / `<project>/.claude/memory` are inventoried with
+    digest/size/last-changed (content never retained), shown by `inventory --capabilities` and `inventory --memory`,
+    and diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed`
+    (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness
+    memory-exposure matrix is published and CI-checked (#461).
+  - ENV-1: environment fingerprint + delta — each session derives a content-free `env1:<sha256>` fingerprint
+    (model, harness, permission mode, capability/rules/MCP-surface digests, recorder config digest; absent facts
+    `unknown`); `diff` prints the environment delta above the behavior delta (model first), `sessions --group-by-env`
+    groups by it, and `drift` annotates a signal with same-window environment changes under `environment_coincides`
+    with "coincides with" wording, never "caused by" (#472).
+  - SBX-1: sandbox-boundary events — signal availability was verified per harness first: Claude Code's OTel
+    vocabulary exposes none, Cursor's raw shell hook carries `sandbox` (adapter capture is a follow-up), so the
+    matrix is declared honestly. An additive nullable `sandbox` field on records and the `sandbox-boundary`
+    security event (OCSF-mapped) carry metadata only; a missing signal stays `unknown` (never unsandboxed).
+    `oversight` reports `% calls unsandboxed` + denials by class and `impact` keeps attempted-but-blocked network
+    destinations apart from contacted ones (#476).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

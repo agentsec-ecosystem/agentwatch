@@ -33,6 +33,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0028](0028-managed-policy-install.md) | Managed-policy install posture + honest `doctor` | accepted |
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
+| [0032](0032-capability-inventory.md) | Capability inventory: content digests, origin scope, no content | accepted |
 | [0033](0033-range-hash-capture.md) | Content-free range+hash capture | accepted |
 | [0034](0034-agent-trace-pin-and-write-policy.md) | Agent Trace export pin + write policy | accepted |
 | [0035](0035-embedded-query-index.md) | Embedded query index tier (+ PG re-sequence) | accepted |
@@ -41,6 +42,8 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0038](0038-policy-suggestion-boundary.md) | Policy suggestion boundary: advisory artifacts only | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
+| [0042](0042-environment-fingerprint.md) | Environment fingerprint contents | accepted |
+| [0043](0043-memory-as-capability.md) | Persistent memory stores are capabilities | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |
 | [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |
 | [0047](0047-credential-hygiene-observation.md) | Credential-hygiene observation | accepted |

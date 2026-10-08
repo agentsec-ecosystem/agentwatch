@@ -63,6 +63,9 @@ MAPPING_TABLE: dict[str, OcsfTarget] = {
     "mode-transition": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
     # M29 EXT-3 forward placeholder for M30 CAP-2: a capability inventory digest changed.
     "capability-changed": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
+    # M30 SBX-1: a call ran outside the sandbox or an attempt was denied at the
+    # boundary — an observation, never enforcement.
+    "sandbox-boundary": OcsfTarget(2004, "Detection Finding", *_CATEGORY_FINDINGS, 1, "Create"),
 }
 
 # OCSF cannot express these native fields directly; they ride under `unmapped`.

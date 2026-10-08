@@ -67,3 +67,18 @@
 | `strands` | Tier-2 | 1.0.0–1.x | — | modeled | n/a | OTel GenAI over OTLP (`agentwatch ingest --format otel`) | Strands native spans; fixture-driven, live run BLOCKED (not installable here) |
 <!-- END GENERATED HARNESS MATRIX -->
 
+### Sandbox-boundary exposure (M30 SBX-1)
+
+Whether a harness exposes a sandbox signal was verified per harness before committing
+(`SANDBOX_EXPOSURE` in `agentwatch.oversight`, checked by
+`tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest`). Absence of a signal is
+reported as `unknown`, never inferred; the record field and the `sandbox-boundary` event are additive and
+nullable so a signal can be adopted without a breaking change.
+
+| Harness | Sandbox exposure | Note |
+|---|---|---|
+| claude-code | none | the CCO-1 OTel vocabulary exposes no sandbox event |
+| cursor | partial | raw before/afterShellExecution carries sandbox; adapter capture is a harness-adapter follow-up |
+| codex-cli | none | no sandbox signal exposed |
+| gemini-cli | none | no sandbox signal exposed |
+

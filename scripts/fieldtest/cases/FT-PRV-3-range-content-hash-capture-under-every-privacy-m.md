@@ -17,4 +17,5 @@ The case-specific assertions in `cases/steps/FT-PRV-3.sh` (each recorded in
 `field-test/v0.2.0/results/<run-id>/cases/FT-PRV-3/artifacts/`.
 
 ## Cleanup
-`down -v` via the runner teardown trap (`STACK_KEEP=1` keeps the stack).
+Shared stack: reset in place between cases; `recycle` cases get a fresh `down -v`
++ boot. The stack is torn down once, at the end of the run.

@@ -28,7 +28,16 @@ CLI_FORMAT = {
     "gateway": ["--format", "otel"],
 }
 CLI_AGENT = {"codex": ["--agent", "codex"], "opencode": ["--agent", "opencode"]}
-ADAPTER = {"cursor": "agentwatch.adapters.cursor", "gemini": "agentwatch.adapters.gemini_cli"}
+# Harnesses without a CLI ingest path are normalized through their shipped
+# adapters (agentwatch.adapters.*), which is how the recorder ingests them.
+ADAPTER = {
+    "cursor": "agentwatch.adapters.cursor",
+    "cursor-blocking": "agentwatch.adapters.cursor",
+    "gemini": "agentwatch.adapters.gemini_cli",
+    "mcp": "agentwatch.adapters.mcp_proxy",
+    "mcp-malformed": "agentwatch.adapters.mcp_proxy",
+    "logreaders": "agentwatch.adapters.claude_code",
+}
 
 
 def _adapter_ingest(module_name: str, path: Path) -> int:

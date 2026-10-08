@@ -7,10 +7,14 @@ from agentwatch import sinks  # real API
 from _ftutil import ok
 
 def main(argv):
-    recipes = Path("/work/deploy/recipes")
     names = ["slack", "pagerduty", "alertmanager"]
+    targets = {
+        "slack": "https://hooks.example.invalid/slack",
+        "pagerduty": "https://events.example.invalid/pagerduty",
+        "alertmanager": "syslog://localhost:514",
+    }
     for n in names:
-        sink = sinks.build_sink({"kind": n, "url": "http://localhost:1"})
+        sink = sinks.build_sink(targets[n])
         assert sink is not None, n
     ok(f"three routing recipes built: {', '.join(names)}; routing lives in the user's stack")
     return 0

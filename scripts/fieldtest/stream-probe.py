@@ -6,13 +6,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agentwatch.streaming_soak import run_streaming_soak  # real API
 from _ftutil import arg, ok, run
 
+STORE = "/data/agentwatch/records.jsonl"
+
 def main(argv):
     mode = arg(argv, "--mode", "p99")
     if mode == "p99":
         run(["agentwatch", "tail", "--json"])
         ok("hook->view p99 measured against the 1 s budget")
     else:
-        run_streaming_soak([])
+        run_streaming_soak(STORE)
         run(["agentwatch", "coverage", "--json"])
         ok("no store loss on consumer crash; gaps classified")
     return 0

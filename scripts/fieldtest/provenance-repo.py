@@ -1,18 +1,43 @@
 #!/usr/bin/env python3
-"""M31 31.2 — code provenance + Agent Trace export (PRV-1/2/3)."""
+"""M31 31.2 — code provenance + Agent Trace export (PRV-1/2/3).
+
+`agentwatch provenance` needs a *git fact* (commit/range/PR/file), so the driver
+makes a throwaway git repo + commit and asks which sessions produced it. The
+Agent Trace path exports the session as the pinned Agent Trace format.
+"""
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import ok, run
 
+
+def _git(*args: str) -> str:
+    return subprocess.run(
+        ["git", *args], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
 def main(argv):
     if "--agent-trace" in argv:
-        run(["agentwatch", "export-session", "ft04", "--format", "agent-trace", "--output", "/tmp/trace.json"])
+        run(["agentwatch", "export-session", "ft04", "--format", "agent-trace",
+             "--output", "/tmp/trace.json"])
     else:
-        run(["agentwatch", "provenance", "--repo", ".", "--json"])
+        repo = tempfile.mkdtemp(prefix="ft-prov-")
+        _git("init", "-q", repo)
+        _git("-C", repo, "config", "user.email", "ft@example.com")
+        _git("-C", repo, "config", "user.name", "field-test")
+        Path(repo, "app.py").write_text("print('hi')\n", encoding="utf-8")
+        _git("-C", repo, "add", "app.py")
+        _git("-C", repo, "commit", "-qm", "initial")
+        sha = _git("-C", repo, "rev-parse", "HEAD")
+        run(["agentwatch", "provenance", sha, "--repo", repo, "--json"])
     run(["agentwatch", "verify-store"])
     ok("provenance check")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

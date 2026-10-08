@@ -1,2 +1,3 @@
-+ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ recycle: down -v before case
++ compose --profile v020 --profile tempo up -d (v0.2.0 services)
 + compose exec recorder bash -lc curl -sf http://jaeger:16686/api/services | grep -q m13-raw-agent

@@ -265,6 +265,7 @@ ft_build_images() {
   if [[ "${FT_IMAGES_BUILT:-0}" == "1" ]]; then
     return 0
   fi
+  mkdir -p "$FT_RUN_DIR"
   ft_record "compose build (once per run)"
   local rc=0
   if [[ "${FT_VERSION:-v0.1.0}" == "v0.2.0" ]]; then

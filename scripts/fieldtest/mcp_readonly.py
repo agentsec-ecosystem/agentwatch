@@ -4,10 +4,12 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agentwatch import mcp_surface  # real API
-from _ftutil import fail, ok
+from agentwatch.store import RecordStore
+from _ftutil import STORE, fail, ok
 
 def main(argv):
-    surface = mcp_surface.survey()
+    records = list(RecordStore(STORE).records())
+    surface = mcp_surface.survey(records)
     text = str(surface).lower()
     for bad in ("write", "delete", "mutate", "put_file", "post"):
         if bad in text:

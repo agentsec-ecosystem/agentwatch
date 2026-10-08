@@ -7,7 +7,7 @@ from _ftutil import ok, run
 
 
 def main(argv: list[str]) -> int:
-    run(["python3", "/ft/scripts/drive-agent.py", "--session", "ft-sdk", "--sdk"])
+    run(["python3", "/ft/scripts/drive-agent.py", "--session", "ft-sdk"])
     run(["agentwatch", "verify-store"])
     run(["agentwatch", "union", "--json"])
     ok("SDK spans chain-protected; union is the no-PG fallback")

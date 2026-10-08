@@ -3,13 +3,14 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agentwatch import frameworks, autoinstrument  # real APIs
+from agentwatch import autoinstrument, frameworks  # real APIs
 from _ftutil import ok
 
 def main(argv):
-    found = frameworks.detect_installed()
+    detection = frameworks.detect_installed()
     autoinstrument.reset()
-    ok(f"instrument() detected frameworks + gaps (no silent partial): {sorted(found)}")
+    ok(f"instrument() detected frameworks + gaps (no silent partial): "
+       f"installed={sorted(detection.installed)} missing={sorted(detection.missing)}")
     return 0
 
 if __name__ == "__main__":

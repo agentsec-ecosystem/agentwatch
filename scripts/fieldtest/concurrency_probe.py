@@ -7,7 +7,8 @@ from _ftutil import ok, run
 
 def main(argv):
     run(["agentwatch", "concurrency", "--project", ".", "--json"])
-    run(["agentwatch", "provenance", "--repo", ".", "--json"])
+    # provenance needs a positional git fact; a file target is the documented form.
+    run(["agentwatch", "provenance", "src/app.py", "--repo", ".", "--json"])
     ok("overlap reported; multi-session ranges marked ambiguous")
     return 0
 

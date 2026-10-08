@@ -10,7 +10,7 @@ def main(argv):
     recipes = list(frameworks.all_recipes())
     assert recipes, "no framework recipes registered"
     for r in recipes:
-        assert frameworks.recipe_line_count(r) <= 2 or True
+        assert frameworks.recipe_line_count(r.name) <= 2, f"recipe {r.name} exceeds 2 lines"
     ok(f"{len(recipes)} framework recipes; <=2 lines each; source+integrity carried")
     return 0
 

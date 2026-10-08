@@ -1,0 +1,113 @@
+{
+  "bundle_format": "agentwatch-demo/1",
+  "format_version": 1,
+  "synthetic": true,
+  "generated_by": "agentwatch",
+  "notice": "Synthetic demo data. No real agent, account, host, or secret is represented; this is never evidence.",
+  "session": {
+    "session_id": "demo-synthetic-0001",
+    "agent": {
+      "identity": "demo-agent",
+      "model_version": "demo-model"
+    },
+    "harness": "claude-code",
+    "project": "/home/demo/repo",
+    "producer": {
+      "kind": "demo",
+      "name": "agentwatch"
+    }
+  },
+  "replay": {
+    "timeline": [
+      {
+        "seq": 1,
+        "at": "2026-01-08T12:00:01Z",
+        "step_type": "act",
+        "tool": "Bash",
+        "outcome": "denied",
+        "approval": "user",
+        "command_class": "command:destructive"
+      },
+      {
+        "seq": 2,
+        "at": "2026-01-08T12:00:02Z",
+        "step_type": "act",
+        "tool": "Bash",
+        "outcome": "ok",
+        "command_class": "command:install"
+      },
+      {
+        "seq": 3,
+        "at": "2026-01-08T12:00:03Z",
+        "step_type": "observe",
+        "tool": "Read",
+        "outcome": "ok",
+        "file_class": "file:read"
+      },
+      {
+        "seq": 4,
+        "at": "2026-01-08T12:00:04Z",
+        "step_type": "verify",
+        "tool": "Bash",
+        "outcome": "ok",
+        "command_class": "outcome:test"
+      }
+    ]
+  },
+  "impact": {
+    "facts": [
+      {
+        "category": "command:destructive",
+        "confidence": "heuristic",
+        "detail": "recursive/forced delete"
+      },
+      {
+        "category": "command:install",
+        "confidence": "heuristic",
+        "detail": "python package install"
+      },
+      {
+        "category": "network:destination",
+        "confidence": "heuristic",
+        "detail": "outbound fetch",
+        "target": "example.invalid"
+      },
+      {
+        "category": "file:write",
+        "confidence": "exact",
+        "detail": "structured write",
+        "target": "/home/demo/repo/config.json"
+      }
+    ],
+    "widest_action": "command:destructive"
+  },
+  "oversight": {
+    "calls": 4,
+    "authorization_mix": {
+      "rule": 2,
+      "human-once": 1,
+      "unknown": 1
+    },
+    "human": {
+      "approved": 1,
+      "prompted": 1
+    },
+    "cls1_classes": {
+      "command:install": 1,
+      "network:destination": 1
+    }
+  },
+  "provenance": {
+    "commit": "demo-change-0001",
+    "sessions": [
+      "demo-synthetic-0001"
+    ],
+    "retained": true,
+    "note": "synthetic change id; not a real commit"
+  },
+  "verdicts": {
+    "intact": true,
+    "complete": true,
+    "leak_free": true
+  }
+}

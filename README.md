@@ -46,6 +46,12 @@ New here? Follow the [Tutorials](docs/tutorials/README.md), read the
 [Runbooks](docs/runbooks/README.md) handy. Upgrading from `agent-exec-trace`? See the
 [Migration Guide](docs/release/v0.1.0/migration-guide.md).
 
+### See it before installing
+
+Try the static, synthetic [demo bundle](examples/demo-bundle/) — one recorded session's replay, impact,
+oversight and provenance. It opens offline (from `file://`, no server, zero network requests, no account) and is
+pure synthetic data, never evidence.
+
 ---
 
 ## Why

@@ -5,8 +5,10 @@ touched, side-effecting commands, network destinations, VCS actions, credential-
 deterministic, **published** pattern table. Every entry carries `confidence: exact | heuristic`, and
 anything unmatched lands in a surfaced `unclassified` bucket. It is descriptive, never a verdict.
 
-**Status:** published (v0.1.0) · **Version:** `cls1` (`agentwatch.classify.CLASSIFIER_VERSION`) ·
-Source: [PRD 33](../prd/33-investigation-and-impact.md) S3/S18/S23/S25.
+**Status:** published (v0.1.0) · **Versions:** `cls1` impact facts
+(`agentwatch.classify.CLASSIFIER_VERSION`) and `cls2` test/build/lint outcome classes
+(`agentwatch.classify.OUTCOME_VERSION`) · Source: [PRD 33](../prd/33-investigation-and-impact.md) S3/S18/S23/S25,
+[M30 EXT-4].
 
 ## Confidence
 
@@ -65,6 +67,22 @@ tests. It is transcribed below by rule id.
 
 Structured tools map exactly: `Write`/`NotebookEdit` → `file:write`, `Edit`/`MultiEdit` → `file:edit`,
 `Read`/`Glob`/`Grep` → `file:read`, all with the path argument as the target.
+
+## Outcome table (`cls2`, M30 EXT-4)
+
+`cls2` is a **separate, versioned** table (`OUTCOME_VERSION = cls2`) added alongside the frozen `cls1` table — it
+never changes `cls1` outputs and can be tightened independently. It names the *kind* of a test/build/lint command
+and its exit-status class. `agentwatch.classify.classify_outcome(command, exit_code=?, succeeded=?)` returns an
+`OutcomeFact(category, status, rule_id, confidence)`, or `None` when the command is not an outcome command.
+
+Categories: `outcome:test`, `outcome:build`, `outcome:lint`. Status: `pass` (exit 0 / succeeded), `fail`
+(non-zero exit / failed), or `unknown` (no exit evidence) — **unknown stays unknown**, and `pass`/`fail` is a fact
+about an exit, never a quality verdict. `classify_record_outcome(record)` reads the command and the strongest
+evidence available (an explicit `exit_code`/`returncode` in the response, else the record `outcome`).
+
+The normative table is `agentwatch.classify.OUTCOME_PATTERNS`; `outcome_table()` renders it for docs and tests.
+The first matching rule wins, so targeted test/lint rules precede the generic build rules (`make test` → test,
+`make lint` → lint, `make build` → build).
 
 ## Widest action
 

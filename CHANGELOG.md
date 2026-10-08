@@ -6,6 +6,22 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - OUT-2: recurring failure signatures in `digest` — failed calls/anomalies are grouped by a versioned signature
+    (`sg1`: tool, error class, `cls1` class, `bd1` behavior fingerprint) into ranked top-N patterns with counts,
+    first/last seen, trend vs the prior equal-length window, and `replay`/`diff` evidence links; same store → same
+    output, unknowns preserved, no score. Console rendering is deferred to 30.LUI-1 (#478).
+  - EXT-4: `cls2` — a published, versioned table of test/build/lint outcome classes (`outcome:test`/`build`/`lint`
+    × `pass`/`fail`/`unknown`) added alongside the frozen `cls1` impact classifier; `classify_outcome` /
+    `classify_record_outcome` read an explicit exit code else the record outcome, unknown stays unknown, and
+    `cls1` outputs are unchanged and reproducible (#482).
+  - DEMO-1: a static, synthetic `examples/demo-bundle/` (replay/impact/oversight/provenance) linked from the README
+    and GTM — opens offline with zero network requests, is synthetic (`producer.kind: demo`) and clean under two
+    independent secret scanners. The VFY-1 browser rendering is deferred (#480).
+  - NTF-1: three CI-tested alert-routing recipes (`deploy/recipes/`: Slack incoming webhook, PagerDuty Events API
+    v2, Alertmanager v2) that map agentwatch security events to each stack's payload and post them through the
+    shipped `agentwatch.sinks.WebhookSink`. agentwatch defines no rules or thresholds — routing stays in the
+    user's stack, and every event is forwarded (#481).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

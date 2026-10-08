@@ -53,11 +53,11 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.VFY-1 | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
 | 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |
 | 30.OUT-1 | Deterministic outcome facts + `cost --per retained-change` | feature + tests | EXT-4 (cls2), 30.PRV-1 | Numerator/denominator + derivation version; unknown preserved; runs offline with no model configured | #477 |
-| 30.OUT-2 | Recurring failure signatures in `digest`/console | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
+| 30.OUT-2 ✅ | Recurring failure signatures in `digest`/console | feature + tests | bd1, detectors, 30.LUI-1 | Top-N patterns with counts/trend/evidence links; grouping rules versioned | #478 |
 | 30.RUN-1 | Sealed runner segments + `import-segment` + custody label | feature + tests | 26.TRACE-1, S11 | Tampered segment fails; imported records visibly weaker; zero egress; trace join when `traceparent` present | #479 |
-| 30.DEMO-1 | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM | #480 |
-| 30.NTF-1 | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
-| 30.EXT-4 | Publish `cls2` (test/build outcome classes); reproduce `cls1` | feature + docs | PRD 33 | `cls2` table published; `cls1` outputs reproducible | #482 |
+| 30.DEMO-1 ✅ | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM (VFY-1 page deferred) | #480 |
+| 30.NTF-1 ✅ | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
+| 30.EXT-4 ✅ | Publish `cls2` (test/build outcome classes); reproduce `cls1` | feature + docs | PRD 33 | `cls2` table published; `cls1` outputs reproducible | #482 |
 | 30.EXT-5 | `purge`/retention propagate to every derived index/export; enumerate leftovers | feature + tests | 29.HLD-1, 30.LUI-2 | Post-purge index/console empty; leftover artifacts enumerated | #483 |
 | 30.EXT-8 | Re-sequence PG behind LUI-2; record decision | docs + ADR | 30.LUI-2 | ADR records embedded-index-first; PG = fleet/tenant tier | #484 |
 | 30.T | Add/expand test cases for this milestone | tests | M30 feature tickets | All new paths covered; coverage ≥ 95% | #485 |

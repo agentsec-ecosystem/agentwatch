@@ -28,12 +28,22 @@ to "open the file".
   across the whole evidence fixture set.
 - No server, no upload, no telemetry; static assets only.
 
+## Static demo bundle (DEMO-1)
+
+A committed, synthetic `examples/demo-bundle/bundle.json` lets an evaluator see replay/impact/oversight/provenance
+**before** installing anything: it opens from `file://`, makes zero network requests, has no server/telemetry/account,
+and is synthetic (`producer.kind: demo`) and secret-scanned. It is the same static, offline posture as the verifier
+page, carrying demo data instead of an evidence bundle. The page rendering is owned by **30.VFY-1** and is deferred
+while the page is not in this branch; the artifact is complete and the page consumes it unchanged.
+
 ## Testing
 
 - Zero network requests (FT-VFY-1); bundle stays local.
 - Verdicts equal the CLI verifier on all fixtures.
 - Tampered bundle → clear failure identifying the first broken link.
 - Release artifact hash verifies.
+- The static demo bundle is synthetic, secret-scanned, and carries no network reference
+  (`packages/python-sdk/tests/test_demo_bundle.py`).
 
 ## Decision
 

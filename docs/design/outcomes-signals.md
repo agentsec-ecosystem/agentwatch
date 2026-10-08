@@ -23,9 +23,26 @@ Unknown stays unknown. Deterministic: runs with network disabled and no model co
 
 ## Recurring signatures (OUT-2)
 
-Groups anomalies/failed calls by signature (tool, error class, cls1 class, `bd1` behavior fingerprint) into ranked,
-evidence-linked patterns with counts, first/last seen, trend vs prior window, and example sessions (→ `replay`/`diff`).
-Grouping rules versioned; same store → same output.
+`agentwatch.digest` groups anomalies/failed calls by a **versioned signature** (`SIGNATURES_VERSION = sg1`) whose
+components are, in order: `tool`, `error_class`, `cls1_class` (the most consequential `cls1` category via
+`classify.WIDEST_ORDER`), and the session `bd1` behavior fingerprint. Only records that are agent behavior
+(`fingerprint.action_tuple` is not `None`) and either failed (`outcome != ok`) or carry a `security_event` are
+candidates; internal/marker records never form a pattern.
+
+- `error_class` is a fact: `denied` for a denial, `event:<type>` for an anomaly with no failure outcome, else the
+  normalized `tool.response.error`/`message` string (lowercased, whitespace-collapsed, 80-char cap), else `error`.
+- Each `FailurePattern` carries `count`, `first_seen`/`last_seen` (UTC), `previous_count` over the **immediately
+  preceding window of the same length**, a derived `trend` (`new`/`up`/`down`/`flat`), and up to `TOP_SIGNATURES (5)`
+  patterns ranked by count desc, then first-seen asc, then signature key asc.
+- `evidence()` yields `replay <session>` per example session and, with ≥2 sessions, `diff <a> <b>` — the pattern links
+  to `replay`/`diff`, never to a score.
+
+Grouping rules are versioned; same store → same output (proving test:
+`packages/python-sdk/tests/test_outcome_signatures.py`). The `digest` markdown section states the version.
+
+**Deferred:** the console rendering of these patterns is owned by **30.LUI-1** (read-only loopback console, WS-3) and is
+not in this branch; the deterministic `digest` side is complete and the console consumes `DigestReport.signatures`
+unchanged when it lands.
 
 ## Guardrail
 

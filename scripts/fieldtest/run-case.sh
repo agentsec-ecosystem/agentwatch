@@ -38,6 +38,20 @@ print(match.get("requires", ""))
 PY
 )"
 
+# Declare class (P/F | P/F|D) is carried from the registry so the verdict and the
+# declare-class gate agree (v0.2.0 only; v0.1.0 cases default to P/F).
+FT_CASE_CLASS="$(python3 - "$HERE/cases/registry.json" "$ID" <<'PY'
+import json, sys
+try:
+    registry = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    registry = []
+match = next((c for c in registry if c.get("id") == sys.argv[2]), {})
+print(match.get("class", "P/F"))
+PY
+)"
+export FT_CASE_CLASS
+
 trap ft_teardown_on_exit EXIT
 ft_case_begin "$ID"
 

@@ -6,6 +6,13 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - IR-1: incident cases — `agentwatch case create/add/remove/list/show/export/verify` groups sessions across
+    hosts/days as metadata-only **chain records**, merges their records into one timeline that states its
+    ordering rule and classifies gaps (`recording-gap`/`time-gap`/`purge`/`tombstone`/`unreadable`), and
+    exports a self-contained case bundle (`case.json`, `records.ndjson`, COR-3-shaped
+    `incident-report.json`) that re-verifies offline (member hashes **and** the chain segment) with no
+    registry egress (#473).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

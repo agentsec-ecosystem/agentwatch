@@ -100,6 +100,12 @@ Status: living.
   override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
   index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
   exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+- Incident cases (`agentwatch case`, M30 IR-1) reconstruct a merged timeline from **one local store**: a case
+  crossing machines requires those stores to be pooled first (there is no cross-host case transport). A
+  store-level tombstone cannot be attributed to a member session after the fact (its payload is dropped), so
+  it is reported as a store-level `tombstone` gap and never guessed into a session. Case export is manual and
+  local — there is no registry submission path (proving test:
+  `packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps`).
 
 ## Policy
 

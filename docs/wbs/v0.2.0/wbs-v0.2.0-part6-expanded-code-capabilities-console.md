@@ -14,7 +14,7 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ⏳ not started
+**Status:** ⏳ in progress — **30.IR-1 (#473) implemented**; VFY-1/RUN-1/RED-1 and the remaining M30 items pending.
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -48,7 +48,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.POL-2 | `what-if` policy replay over history | feature + tests | 30.POL-1 | Prompts-avoided + would-be denials with sessions; parse errors explicit; labeled simulation; format-version stamp | #470 |
 | 30.RED-1 | Public redaction corpus + `redact eval` + published per-class numbers | feature + corpus + docs | PRD 43 pattern | Reproduces published numbers deterministically offline; misses in known-limitations; corpus secret-scanned | #471 |
 | 30.ENV-1 | Environment fingerprint + delta in `diff`/`drift`; `sessions --group-by-env` | feature + tests | 30.CAP-1, 29.APV-2, 29.CCO-1 | Seeded model change surfaces first; "coincides with" wording; digests only | #472 |
-| 30.IR-1 | Incident cases + merged timeline + case bundle | feature + tests | 28.COR-3, 26.TRACE-2 | Membership changes chain-recorded; gaps classified; bundle verifies offline; no registry egress | #473 |
+| 30.IR-1 DONE | Incident cases + merged timeline + case bundle | feature + tests | 28.COR-3, 26.TRACE-2 | Membership changes chain-recorded; gaps classified; bundle verifies offline; no registry egress | #473 |
 | 30.CNC-1 | Concurrency report + `ambiguous` provenance | feature + tests | 30.PRV-1 | Overlapping sessions + shared-file edits listed; multi-session ranges `ambiguous`; two-session fixture | #474 |
 | 30.VFY-1 | Offline browser evidence verifier | feature + artifact + tests | S12 verifier, 29.DEP-2 | Opens from `file://`, zero network; verdicts equal CLI on all fixtures; tampered bundle names the first broken link | #475 |
 | 30.SBX-1 | Sandbox-boundary events (verify signals first) | feature + schema + docs | 29.CCO-1, 29.DEP-2 | `% unsandboxed` in `oversight`; attempted-but-blocked destinations separated in `impact`; matrix honest where not exposed | #476 |

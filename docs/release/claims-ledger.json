@@ -872,6 +872,20 @@
         "file:docs/design/acs-interop.md"
       ],
       "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C119",
+      "claim": "Incident cases group sessions across hosts/days as chain records, present a merged timeline that states its ordering rule and classifies gaps, and export a case bundle that re-verifies offline with no registry egress.",
+      "source": "docs/design/incident-cases.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_membership_changes_are_chain_records",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_bundle_verifies_offline",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_tampered_member_is_named_by_the_verifier",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_export_is_local_only",
+        "file:docs/design/incident-cases.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

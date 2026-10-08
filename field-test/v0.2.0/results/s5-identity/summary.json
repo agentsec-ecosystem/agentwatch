@@ -698,27 +698,115 @@
     {
       "assertions": [
         {
-          "name": "reset-recorder-restart",
+          "name": "stack-up-v020",
           "ok": true
         },
         {
-          "name": "state-reset",
+          "name": "svc-postgres",
           "ok": true
         },
         {
-          "name": "stack-reused",
+          "name": "svc-jaeger",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-collector",
+          "ok": true
+        },
+        {
+          "name": "svc-api",
+          "ok": true
+        },
+        {
+          "name": "svc-analytics",
+          "ok": true
+        },
+        {
+          "name": "svc-web",
+          "ok": true
+        },
+        {
+          "name": "svc-recorder",
+          "ok": true
+        },
+        {
+          "name": "svc-verifier",
+          "ok": true
+        },
+        {
+          "name": "ep-postgres",
+          "ok": true
+        },
+        {
+          "name": "ep-api-health",
+          "ok": true
+        },
+        {
+          "name": "ep-jaeger",
+          "ok": true
+        },
+        {
+          "name": "ep-collector",
+          "ok": true
+        },
+        {
+          "name": "ep-web",
+          "ok": true
+        },
+        {
+          "name": "ep-recorder",
+          "ok": true
+        },
+        {
+          "name": "ep-omlx",
+          "ok": true
+        },
+        {
+          "name": "svc-otel-grpc",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h1",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h2",
+          "ok": true
+        },
+        {
+          "name": "svc-fleet-h3",
+          "ok": true
+        },
+        {
+          "name": "svc-a2a-proxy",
+          "ok": true
+        },
+        {
+          "name": "svc-litellm",
+          "ok": true
+        },
+        {
+          "name": "svc-runner",
+          "ok": true
+        },
+        {
+          "name": "svc-managed-hooks",
+          "ok": true
+        },
+        {
+          "name": "emit",
           "ok": true
         },
         {
           "name": "siem-conformance",
-          "ok": false
+          "ok": true
         }
       ],
       "class": "P/F",
       "declared": false,
       "id": "FT-SIEM-1",
       "run_id": "s5-identity",
-      "status": "fail"
+      "status": "pass"
     }
   ],
   "env": {
@@ -731,12 +819,12 @@
     "run_id": "s5-identity",
     "version": "v0.2.0"
   },
-  "generated_at": "2026-10-08T07:17:07.985913+00:00",
-  "green": false,
+  "generated_at": "2026-10-08T07:21:38.790708+00:00",
+  "green": true,
   "run_id": "s5-identity",
   "totals": {
     "declared": 0,
-    "fail": 1,
-    "pass": 7
+    "fail": 0,
+    "pass": 8
   }
 }

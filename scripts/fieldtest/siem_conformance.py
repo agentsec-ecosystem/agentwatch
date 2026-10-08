@@ -11,7 +11,7 @@ from _ftutil import ok, run
 
 def main(argv):
     run(["agentwatch", "export-session", "ft04", "--format", "ocsf", "--output", "/tmp/ocsf.json"])
-    run(["agentwatch", "event", "emit", "--tool", "Bash", "--reason", "field-test"])
+    run(["agentwatch", "event", "emit", "secret-detected", "--tool", "Bash", "--reason", "field-test"])
     ok("OCSF/Syslog conformance green; redaction gate blocks unconfigured sinks")
     return 0
 

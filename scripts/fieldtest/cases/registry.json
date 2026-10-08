@@ -1134,7 +1134,7 @@
     "prd": "SIEM-1/2",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"siem-conformance\" \"python3 /ft/scripts/siem_conformance.py\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"siem-conformance\" \"python3 /ft/scripts/siem_conformance.py\"\n",
     "recycle": false
   },
   {

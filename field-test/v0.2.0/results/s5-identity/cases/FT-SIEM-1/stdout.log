@@ -1,1 +1,2 @@
-DO
+emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
+ok: OCSF/Syslog conformance green; redaction gate blocks unconfigured sinks

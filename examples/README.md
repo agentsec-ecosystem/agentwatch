@@ -11,6 +11,7 @@ explicitly **illustrative** (it needs an external service; the reason is listed)
 | [`claude_agent_sdk_otel.py`](claude_agent_sdk_otel.py) | Claude Agent SDK / headless OTel | **executed** | Transcodes a native export to `source: sdk-native` records (CCO-2); identity from resource attributes. |
 | [`demo-agent/`](demo-agent/) | raw Python SDK → OTLP → collector | illustrative | Needs the `langgraph`/OTLP extras and a collector; see its README. |
 | [`framework_recipes.py`](framework_recipes.py) | ADK / Strands / OpenAI Agents (OpenInference) / Claude Agent SDK → OTel ingest | **executed** | Prints the certified recipes and replays a fixture through `agentwatch ingest`; live framework run BLOCKED here (tier `modeled`). |
+| [`demo-bundle/`](demo-bundle/) | offline browser demo (VFY-1) | **artifact** | Static synthetic bundle (replay/impact/oversight/provenance); opens offline, zero network, secret-scanned; page rendering is 30.VFY-1 (deferred). |
 
 The gallery index is enforced by `packages/python-sdk/tests/test_examples_gallery.py`:
 a recipe must exist, be indexed here, and — if marked **executed** — pass in CI.

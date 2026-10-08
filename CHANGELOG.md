@@ -15,6 +15,9 @@ versioning: [Semantic Versioning](https://semver.org/).
     × `pass`/`fail`/`unknown`) added alongside the frozen `cls1` impact classifier; `classify_outcome` /
     `classify_record_outcome` read an explicit exit code else the record outcome, unknown stays unknown, and
     `cls1` outputs are unchanged and reproducible (#482).
+  - DEMO-1: a static, synthetic `examples/demo-bundle/` (replay/impact/oversight/provenance) linked from the README
+    and GTM — opens offline with zero network requests, is synthetic (`producer.kind: demo`) and clean under two
+    independent secret scanners. The VFY-1 browser rendering is deferred (#480).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

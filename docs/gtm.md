@@ -57,3 +57,7 @@ Content plan additions: "Auto mode is the default; here's what your audit trail 
 `oversight`); a Plugin4Shell-shape capability-drift demo; an Agent Trace / git-ai interoperability write-up; a
 zero-Docker console walkthrough ("<60 s, local-first, no services"). Positioning line unchanged; the fourth story
 strengthens "Enforcement tools act; agentwatch proves."
+
+**Try-before-install:** the static, synthetic [`examples/demo-bundle/`](../examples/demo-bundle/) opens offline
+(zero network, no account) and shows replay/impact/oversight/provenance — so an evaluator sees the value before
+wiring any hooks (DEMO-1).

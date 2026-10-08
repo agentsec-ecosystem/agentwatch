@@ -895,6 +895,19 @@
         "doc:docs/design/impact-classification.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C131",
+      "claim": "A static synthetic demo bundle opens offline with zero network references, is synthetic (never evidence), and is clean under two independent secret scanners.",
+      "source": "examples/demo-bundle/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_makes_zero_network_references",
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_is_secret_scanned_by_two_independent_scanners",
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_is_synthetic_and_not_evidence",
+        "file:examples/demo-bundle/bundle.json",
+        "doc:examples/demo-bundle/README.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

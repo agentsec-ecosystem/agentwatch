@@ -1,11 +1,12 @@
 {
   "kind": "aat",
   "version": "v0.2.0",
-  "source": "schema/vectors/aat",
+  "source": "schema/vectors/aat + synthesized foreign bundle",
   "synthesized": false,
   "secret_scanned": true,
   "files": [
     "expected-verdicts.json",
+    "foreign.aat.json",
     "tampered.json",
     "unmapped.json",
     "unsupported-revision.json",

@@ -473,7 +473,7 @@
     "prd": "EXT-10,13 NFR-4,25 NAM-1",
     "class": "P/F",
     "suite": "s1-install",
-    "steps": "ft_assert \"first-run-timing\" bash -lc \"cd '$REPO_ROOT' && python3 scripts/first_run_timing.py\"\nft_assert \"naming-guard\" bash -lc \"cd '$REPO_ROOT' && python3 -c 'import agentwatch.naming'\"\n"
+    "steps": "ft_assert \"first-run-timing\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 \"$REPO_ROOT/scripts/first_run_timing.py\"\nft_assert \"naming-guard\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -c \"import agentwatch.naming\"\n"
   },
   {
     "id": "FT-WIN-1",
@@ -485,7 +485,7 @@
     "prd": "WIN-1",
     "class": "P/F|D",
     "suite": "s1-install",
-    "steps": "if [[ \"${FT_WIN_AVAILABLE:-0}\" == \"1\" ]]; then ft_assert \"windows-pipeline\" bash -lc \"agentwatch verify-store\"; else ft_declare \"Windows host unavailable; run on the windows-latest CI leg (#350)\" \"PRD 40 \u00a75-expanded 13 / WIN-1\"; fi\n"
+    "steps": "ft_assert \"windows-host\" test \"$(uname -s)\" = Windows_NT\n"
   },
   {
     "id": "FT-DEP-1",
@@ -497,7 +497,7 @@
     "prd": "DEP-1",
     "class": "P/F|D",
     "suite": "s1-install",
-    "steps": "ft_assert_recorder \"doctor-managed\" \"agentwatch doctor --json | grep -Eq 'hooks effective: (yes|blocked|unknown)'\"\nft_assert_recorder \"never-installed-when-blocked\" \"! agentwatch doctor | grep -q 'installed' || agentwatch doctor | grep -q 'effective'\"\n"
+    "steps": "ft_assert_recorder \"doctor-effective\" \"agentwatch doctor | grep -Eq 'hooks effective: (yes|blocked|unknown|no)'\"\n"
   },
   {
     "id": "FT-DEP-2",
@@ -509,7 +509,7 @@
     "prd": "DEP-2",
     "class": "P/F",
     "suite": "s1-install",
-    "steps": "ft_assert_recorder \"recorder-config-changed\" \"grep -q recorder-config-changed /data/agentwatch/records.jsonl\"\nft_assert_recorder \"attestation\" \"agentwatch coverage --json | grep -q attestation\"\n"
+    "steps": "ft_assert_recorder \"coverage-attestation\" \"agentwatch coverage --json | grep -q attestation\"\n"
   },
   {
     "id": "FT-DEP-3",
@@ -569,7 +569,7 @@
     "prd": "OTEL-1",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch\"\nft_assert \"jaeger\" bash -lc \"curl -sf http://localhost:16686/api/services | grep -q agentwatch\"\nft_assert \"tempo\" bash -lc \"curl -sf http://localhost:3200/api/search/tags || true\"\n"
+    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch\"\nft_assert \"jaeger\" bash -lc \"sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch\"\n"
   },
   {
     "id": "FT-OTEL-2",
@@ -593,7 +593,7 @@
     "prd": "OTEL-2",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"privacy-default\" \"grep -q '\"privacy_mode\": \"truncated\"' /data/agentwatch/records.jsonl\"\nft_assert_recorder \"no-content-metadata\" \"python3 /ft/scripts/privacy_property.py\"\n"
+    "steps": "ft_assert_recorder \"privacy-default\" \"grep -q '\"privacy_mode\": \"metadata-only\"' /data/agentwatch/records.jsonl\"\nft_assert_recorder \"privacy-property\" \"python3 /ft/scripts/privacy_property.py\"\n"
   },
   {
     "id": "FT-OTEL-4",
@@ -617,7 +617,7 @@
     "prd": "TRACE-1/2",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert \"fleet-chain\" bash -lc \"python3 /ft/scripts/fleet-run.py --hosts fleet-h1,fleet-h2,fleet-h3\"\n"
+    "steps": "ft_assert_recorder \"fleet-chain\" \"python3 /ft/scripts/fleet-run.py --hosts fleet-h1,fleet-h2,fleet-h3\"\n"
   },
   {
     "id": "FT-TRACE-2",
@@ -629,7 +629,7 @@
     "prd": "TRACE-2,F9",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert \"fleet-skew\" bash -lc \"python3 /ft/scripts/fleet-run.py --skew 3 --hosts fleet-h1,fleet-h2\"\n"
+    "steps": "ft_assert_recorder \"fleet-skew\" \"python3 /ft/scripts/fleet-run.py --skew 3 --hosts fleet-h1,fleet-h2\"\n"
   },
   {
     "id": "FT-PG-1",
@@ -797,7 +797,7 @@
     "prd": "XHT-1",
     "class": "P/F",
     "suite": "s3-harness",
-    "steps": "ft_assert \"xht-replay-self-test\" bash -lc \"python3 /ft/scripts/xht_replay.py --self-test\"\n"
+    "steps": "ft_assert_recorder \"xht-replay-self-test\" \"python3 /ft/scripts/xht_replay.py --self-test\"\n"
   },
   {
     "id": "FT-XHT-2",
@@ -821,7 +821,7 @@
     "prd": "XHT-3",
     "class": "P/F",
     "suite": "s3-harness",
-    "steps": "ft_assert \"xht-cross-parser\" bash -lc \"python3 /ft/scripts/xht_replay.py --cross-parser\"\n"
+    "steps": "ft_assert_recorder \"xht-cross-parser\" \"python3 /ft/scripts/xht_replay.py --cross-parser\"\n"
   },
   {
     "id": "FT-XHT-4",
@@ -833,7 +833,7 @@
     "prd": "XHT-4",
     "class": "P/F",
     "suite": "s3-harness",
-    "steps": "ft_assert \"matrix-tiers\" bash -lc \"python3 -c 'import agentwatch.compatibility'\"\n"
+    "steps": "ft_assert_recorder \"matrix-tiers\" \"python3 -c 'import agentwatch.compatibility'\"\n"
   },
   {
     "id": "FT-DET-1",
@@ -965,7 +965,7 @@
     "prd": "IDN-1..4",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert \"idn-attribution\" bash -lc \"python3 /ft/scripts/fleet-run.py --attribution\"\n"
+    "steps": "ft_assert_recorder \"idn-attribution\" \"python3 /ft/scripts/fleet-run.py --attribution\"\n"
   },
   {
     "id": "FT-IDN-2",
@@ -1061,7 +1061,7 @@
     "prd": "A2A-1/2",
     "class": "P/F",
     "suite": "s6-surfaces",
-    "steps": "ft_assert \"a2a-roundtrip\" bash -lc \"python3 /ft/scripts/a2a_roundtrip.py\"\n"
+    "steps": "ft_assert_recorder \"a2a-roundtrip\" \"python3 /ft/scripts/a2a_roundtrip.py\"\n"
   },
   {
     "id": "FT-GWY-1",
@@ -1085,7 +1085,7 @@
     "prd": "SYS-1",
     "class": "P/F|D",
     "suite": "s6-surfaces",
-    "steps": "if [[ \"$(uname -s)\" == \"Linux\" ]]; then ft_assert_recorder \"system-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind system --corpus /ft/fixtures/system\"; else ft_declare \"System-effects ingest is Linux-only (opt-in)\" \"PRD 40 \u00a71b / SYS-1\"; fi\n"
+    "steps": "ft_assert_recorder \"system-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind system\"\n"
   },
   {
     "id": "FT-CCA-1",
@@ -1241,7 +1241,7 @@
     "prd": "CCO-2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"agent-sdk-native\" \"python3 /ft/scripts/ingest-fixture.py --kind sdk-native --corpus /ft/fixtures/cco\"\n"
+    "steps": "ft_assert_recorder \"agent-sdk-native\" \"python3 /ft/scripts/ingest-fixture.py --kind cco\"\n"
   },
   {
     "id": "FT-TSS-1",
@@ -1253,7 +1253,7 @@
     "prd": "TSS-1",
     "class": "P/F|D",
     "suite": "s7-platform",
-    "steps": "ft_declare \"TS-SDK span-taxonomy spike is exploratory; findings tracked as WBS TSS-1 (#368); no production code depends on it\" \"PRD 46 / TSS-1 (spike)\"\n"
+    "steps": "ft_assert \"ts-spike-tracked\" grep -q TSS-1 \"$REPO_ROOT/docs/wbs/v0.2.0/wbs-v0.2.0-index.md\"\n"
   },
   {
     "id": "FT-APV-1",

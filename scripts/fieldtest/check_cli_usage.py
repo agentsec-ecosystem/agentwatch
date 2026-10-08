@@ -50,7 +50,10 @@ def surface() -> tuple[dict[str, set[str]], dict[str, set[str]]]:
 
 
 CMDS, OPTS = surface()
-_VALID_MODULES = {p.stem for p in (SDK_SRC / "agentwatch").glob("*.py")}
+_AGENTWATCH_DIR = SDK_SRC / "agentwatch"
+_VALID_MODULES = {p.stem for p in _AGENTWATCH_DIR.glob("*.py")} | {
+    d.name for d in _AGENTWATCH_DIR.iterdir() if d.is_dir() and (d / "__init__.py").exists()
+}
 
 
 def _check_invocation(ctx: str, argv: list[str], problems: list[str]) -> None:

@@ -38,6 +38,7 @@ services:
       - awdata:/data/agentwatch
       - awsock:/run/agentwatch
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
     command: ["sleep", "infinity"]
 
   # Clean, no-install auditor (FT-08/CUJ-08): verifies bundles offline.
@@ -47,6 +48,7 @@ services:
       - recorder
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
     command: ["sleep", "infinity"]
 
   # OMLX env for the analytics service so its semantic (LLM) detectors reach
@@ -95,6 +97,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - fleetdata1:/data/agentwatch
       - fleetsock1:/run/agentwatch
     command: ["sleep", "infinity"]
@@ -108,6 +111,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - fleetdata2:/data/agentwatch
       - fleetsock2:/run/agentwatch
     command: ["sleep", "infinity"]
@@ -121,6 +125,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - fleetdata3:/data/agentwatch
       - fleetsock3:/run/agentwatch
     command: ["sleep", "infinity"]
@@ -135,6 +140,7 @@ services:
       AGENTWATCH_SOCKET: /run/agentwatch/agentwatch.sock
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - a2adata:/data/agentwatch
     command: ["sleep", "infinity"]
 
@@ -149,6 +155,7 @@ services:
       GATEWAY_FIXTURE_PORT: "4000"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - litellmdata:/data/agentwatch
     command: ["sleep", "infinity"]
 
@@ -161,6 +168,7 @@ services:
       RUNNER_MODE: "ephemeral"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - runnerdata:/data/agentwatch
     command: ["sleep", "infinity"]
 
@@ -176,6 +184,7 @@ services:
       FT_MANAGED_POLICY: "allowManagedHooksOnly,strictPluginOnlyCustomization"
     volumes:
       - ./scripts/fieldtest:/ft/scripts:ro
+      - ./scripts/fieldtest/fixtures:/ft/fixtures:ro
       - manageddata:/data/agentwatch
     command: ["sleep", "infinity"]
 

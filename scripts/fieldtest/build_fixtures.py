@@ -79,10 +79,21 @@ def _manifest(dst: Path, kind: str, source: str, synthesized: bool) -> None:
 def build() -> list[str]:
     built: list[str] = []
 
-    # aat — IETF AAT vectors
+    # aat — IETF AAT vectors (+ a foreign bundle for FT-AAT-2 ingest/quarantine)
     d = _reset(FIX / "aat")
     _copy_tree(REPO / "schema/vectors/aat", d)
-    _manifest(d, "aat", "schema/vectors/aat", False); built.append("aat")
+    _write(d, "foreign.aat.json", {
+        "aat_version": "draft-sharif-agent-audit-trail-06",
+        "privacy_mode": "metadata-only",
+        "records": [
+            # real AAT record shape (normalizable) copied from the schema vector
+            *json.loads((REPO / "schema/vectors/aat/valid.json").read_text())["records"],
+            # non-normalizable record → quarantined, never invented
+            {"aat_version": "draft-sharif-agent-audit-trail-06",
+             "action_type": "unknown-surface", "unmapped": True},
+        ],
+    })
+    _manifest(d, "aat", "schema/vectors/aat + synthesized foreign bundle", False); built.append("aat")
 
     # otel — canonical agent-span trees
     d = _reset(FIX / "otel")

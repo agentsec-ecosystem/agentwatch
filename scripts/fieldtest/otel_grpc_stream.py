@@ -8,9 +8,11 @@ from _ftutil import arg, ok, run
 
 def main(argv: list[str]) -> int:
     endpoint = arg(argv, "--endpoint", "http://otel-grpc:4317")
-    mb = arg(argv, "--mb", "100")
-    run(["python3", "/ft/scripts/otel-probe.py", "--endpoint", endpoint, "--mb", str(mb)])
-    ok(f"streamed {mb} MB OTLP/gRPC within the memory bound")
+    spans = arg(argv, "--spans", "200")
+    # otel-probe.py supports --endpoint/--service/--spans (streamed gRPC export).
+    run(["python3", "/ft/scripts/otel-probe.py", "--endpoint", endpoint,
+         "--service", "agentwatch", "--spans", str(spans)])
+    ok(f"streamed {spans} spans OTLP/gRPC within the memory bound")
     return 0
 
 

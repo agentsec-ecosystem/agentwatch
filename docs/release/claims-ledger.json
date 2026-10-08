@@ -883,6 +883,18 @@
         "doc:docs/design/outcomes-signals.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C130",
+      "claim": "The classifier publishes a versioned cls2 table of test/build/lint outcome classes while cls1 outputs stay reproducible.",
+      "source": "docs/design/impact-classification.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_cls2_table_is_versioned_and_shaped",
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_cls1_outputs_are_reproducible",
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_record_outcome_reads_exit_code_and_record_outcome",
+        "doc:docs/design/impact-classification.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

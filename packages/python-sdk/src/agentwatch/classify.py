@@ -474,6 +474,231 @@ def pattern_table() -> tuple[dict[str, str], ...]:
     )
 
 
+# ---------------------------------------------------------------------------
+# cls2 — test/build/lint outcome classes (M30 EXT-4, PRD 33)
+#
+# `cls2` is a **separate, versioned** table: it does not touch the `cls1`
+# pattern table above, so `cls1` outputs stay reproducible. A `cls2` fact names
+# the command *kind* (`outcome:test` / `outcome:build` / `outcome:lint`) and its
+# exit-status class (`pass` / `fail` / `unknown`) from the tool outcome or an
+# explicit exit code. `pass`/`fail` is a fact about an exit, never a verdict.
+# ---------------------------------------------------------------------------
+
+OUTCOME_VERSION = "cls2"
+
+OUTCOME_TEST = "outcome:test"
+OUTCOME_BUILD = "outcome:build"
+OUTCOME_LINT = "outcome:lint"
+
+OUTCOME_CATEGORIES: tuple[str, ...] = (OUTCOME_TEST, OUTCOME_BUILD, OUTCOME_LINT)
+
+PASS = "pass"
+FAIL = "fail"
+UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class OutcomeRule:
+    """One published cls2 outcome rule (kind + regex + docs)."""
+
+    id: str
+    category: str
+    regex: re.Pattern[str]
+    detail: str
+
+
+def _outcome_rule(rule_id: str, category: str, pattern: str, detail: str) -> OutcomeRule:
+    return OutcomeRule(rule_id, category, re.compile(pattern, re.IGNORECASE), detail)
+
+
+# Order matters: specific test/lint targets precede the generic build rules so
+# `make test`, `make lint`, and `npm run build` classify deterministically. The
+# first matching rule wins.
+OUTCOME_PATTERNS: tuple[OutcomeRule, ...] = (
+    # -- tests --
+    _outcome_rule(
+        "test/pytest",
+        OUTCOME_TEST,
+        r"\b(?:python[0-9.]*\s+-m\s+)?pytest\b",
+        "python test runner",
+    ),
+    _outcome_rule(
+        "test/unittest",
+        OUTCOME_TEST,
+        r"\b(?:python[0-9.]*\s+-m\s+)?unittest\b",
+        "python unittest",
+    ),
+    _outcome_rule("test/tox", OUTCOME_TEST, r"\b(?:tox|nox)\b", "python test matrix"),
+    _outcome_rule("test/js", OUTCOME_TEST, r"\b(?:jest|vitest|mocha|ava)\b", "js test runner"),
+    _outcome_rule(
+        "test/node",
+        OUTCOME_TEST,
+        r"\b(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?test\b",
+        "node test script",
+    ),
+    _outcome_rule("test/go", OUTCOME_TEST, r"\bgo\s+test\b", "go test"),
+    _outcome_rule("test/cargo", OUTCOME_TEST, r"\bcargo\s+test\b", "cargo test"),
+    _outcome_rule("test/dotnet", OUTCOME_TEST, r"\bdotnet\s+test\b", "dotnet test"),
+    _outcome_rule(
+        "test/jvm",
+        OUTCOME_TEST,
+        r"\b(?:mvn|gradle)\s+(?:test|verify)\b",
+        "jvm test",
+    ),
+    _outcome_rule(
+        "test/other",
+        OUTCOME_TEST,
+        r"\b(?:rspec|phpunit|pester|bats)\b",
+        "test runner",
+    ),
+    _outcome_rule("test/make", OUTCOME_TEST, r"\bmake\s+(?:test|check)\b", "make test target"),
+    # -- lint / type-check / format-check --
+    _outcome_rule(
+        "lint/python",
+        OUTCOME_LINT,
+        r"\b(?:ruff|flake8|pylint|pyright|mypy|pydocstyle)\b",
+        "python lint/type-check",
+    ),
+    _outcome_rule(
+        "lint/js",
+        OUTCOME_LINT,
+        r"\b(?:eslint|prettier|stylelint|biome)\b",
+        "js/ts lint/format-check",
+    ),
+    _outcome_rule(
+        "lint/rust",
+        OUTCOME_LINT,
+        r"\bcargo\s+(?:clippy|fmt)\b",
+        "rust lint/format-check",
+    ),
+    _outcome_rule("lint/go", OUTCOME_LINT, r"\bgolangci-lint\b|\bgo\s+vet\b", "go lint/vet"),
+    _outcome_rule(
+        "lint/ruby", OUTCOME_LINT, r"\b(?:rubocop|standardrb)\b", "ruby lint"
+    ),
+    _outcome_rule("lint/shell", OUTCOME_LINT, r"\bshellcheck\b|\bshfmt\b", "shell lint"),
+    _outcome_rule("lint/make", OUTCOME_LINT, r"\bmake\s+(?:lint|check)\b", "make lint target"),
+    # -- builds / compiles --
+    _outcome_rule(
+        "build/node",
+        OUTCOME_BUILD,
+        r"\b(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?build\b",
+        "node build script",
+    ),
+    _outcome_rule("build/tsc", OUTCOME_BUILD, r"\btsc\b|\btsc\s+--noEmit\b", "typescript compiler"),
+    _outcome_rule(
+        "build/bundler",
+        OUTCOME_BUILD,
+        r"\b(?:webpack|vite|rollup|esbuild|parcel)\b",
+        "js bundler",
+    ),
+    _outcome_rule("build/cargo", OUTCOME_BUILD, r"\bcargo\s+build\b", "cargo build"),
+    _outcome_rule("build/go", OUTCOME_BUILD, r"\bgo\s+build\b", "go build"),
+    _outcome_rule(
+        "build/dotnet", OUTCOME_BUILD, r"\bdotnet\s+(?:build|publish)\b", "dotnet build"
+    ),
+    _outcome_rule(
+        "build/jvm",
+        OUTCOME_BUILD,
+        r"\b(?:mvn|gradle)\s+(?:package|compile|assemble|build)\b",
+        "jvm build",
+    ),
+    _outcome_rule(
+        "build/native",
+        OUTCOME_BUILD,
+        r"\bcmake\s+--build\b|\bninja\b|\bbazel\s+build\b",
+        "native build",
+    ),
+    _outcome_rule(
+        "build/docker",
+        OUTCOME_BUILD,
+        r"\bdocker(?:\s+compose)?\s+build\b",
+        "container build",
+    ),
+    _outcome_rule("build/make", OUTCOME_BUILD, r"\bmake\b|\bcmake\b", "make/build"),
+)
+
+_EXIT_CODE_KEYS = ("exit_code", "exit_status", "returncode", "code")
+
+
+@dataclass(frozen=True)
+class OutcomeFact:
+    """A cls2 derived fact about a test/build/lint command (never a verdict)."""
+
+    category: str
+    status: str
+    rule_id: str
+    confidence: str
+
+
+def _status_from(*, exit_code: int | None, succeeded: bool | None) -> str:
+    if exit_code is not None:
+        return PASS if exit_code == 0 else FAIL
+    if succeeded is not None:
+        return PASS if succeeded else FAIL
+    return UNKNOWN
+
+
+def classify_outcome(
+    command: str,
+    *,
+    exit_code: int | None = None,
+    succeeded: bool | None = None,
+) -> OutcomeFact | None:
+    """Classify a shell command as a cls2 outcome, or ``None`` when it is not one."""
+    for rule in OUTCOME_PATTERNS:
+        if rule.regex.search(command):
+            return OutcomeFact(
+                category=rule.category,
+                status=_status_from(exit_code=exit_code, succeeded=succeeded),
+                rule_id=rule.id,
+                confidence=HEURISTIC,
+            )
+    return None
+
+
+def _record_exit_code(record: Any) -> int | None:
+    response = record.tool.response
+    if not isinstance(response, Mapping):
+        return None
+    for key in _EXIT_CODE_KEYS:
+        value = response.get(key)
+        if isinstance(value, bool):
+            continue
+        if isinstance(value, int):
+            return value
+    return None
+
+
+def classify_record_outcome(record: Any) -> OutcomeFact | None:
+    """A cls2 outcome fact for a shell record, or ``None`` when not an outcome command."""
+    if record.tool.name.lower() not in _SHELL_TOOLS:
+        return None
+    command = _shell_command(record.tool.arguments or {})
+    if command is None:
+        return None
+    outcome = record.outcome.value
+    succeeded = True if outcome == "ok" else False if outcome in {"error", "denied"} else None
+    return classify_outcome(
+        command,
+        exit_code=_record_exit_code(record),
+        succeeded=succeeded,
+    )
+
+
+def outcome_table() -> tuple[dict[str, str], ...]:
+    """A machine-readable view of the published cls2 table (for docs and tests)."""
+    return tuple(
+        {
+            "id": rule.id,
+            "category": rule.category,
+            "confidence": HEURISTIC,
+            "pattern": rule.regex.pattern,
+            "detail": rule.detail,
+        }
+        for rule in OUTCOME_PATTERNS
+    )
+
+
 __all__ = [
     "CATEGORIES",
     "CLASSIFIER_VERSION",
@@ -488,14 +713,28 @@ __all__ = [
     "FILE_READ",
     "FILE_WRITE",
     "Fact",
+    "FAIL",
     "HEURISTIC",
     "NETWORK",
+    "OUTCOME_BUILD",
+    "OUTCOME_CATEGORIES",
+    "OUTCOME_LINT",
+    "OUTCOME_PATTERNS",
+    "OUTCOME_TEST",
+    "OUTCOME_VERSION",
+    "OutcomeFact",
+    "OutcomeRule",
+    "PASS",
     "PATTERNS",
     "UNCLASSIFIED",
+    "UNKNOWN",
     "VCS",
     "WIDEST_ORDER",
     "classify_arguments",
     "classify_command",
+    "classify_outcome",
     "classify_record",
+    "classify_record_outcome",
+    "outcome_table",
     "pattern_table",
 ]

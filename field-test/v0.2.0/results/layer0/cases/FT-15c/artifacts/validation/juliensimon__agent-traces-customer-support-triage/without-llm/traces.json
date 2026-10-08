@@ -1,0 +1,18 @@
+[
+  {
+    "trace_id": "tr_44e0e7ec531c48a5",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  },
+  {
+    "trace_id": "tr_b73b59d8c6db4b12",
+    "anomalies": [
+      {
+        "type": "low_output"
+      }
+    ]
+  }
+]

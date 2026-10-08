@@ -1,0 +1,4 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder python3 /ft/scripts/seed-fixtures.py --store /data/agentwatch/records.jsonl --out /tmp/ft-fixtures
++ compose exec recorder bash -lc agentwatch cost --by project >/dev/null
++ compose exec recorder bash -lc agentwatch verify-store

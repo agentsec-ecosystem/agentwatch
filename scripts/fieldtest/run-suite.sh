@@ -24,9 +24,14 @@ fi
 
 export FT_VERSION="${FT_VERSION:-v0.2.0}"
 export FT_RUN_ID="$SUITE"
+# STACK_KEEP=0 permanently: every run tears the stack down at the end.
+export STACK_KEEP=0
+# Shared stack across cases: built once, kept up, reset in place between cases.
+export FT_SHARED_STACK=1
 # shellcheck source=lib.sh
 source "$HERE/lib.sh"
 export STACK_ON_NO_DOCKER=fail
+ft_build_images || true
 
 ids=("$@")
 if [[ ${#ids[@]} -eq 0 ]]; then
@@ -56,8 +61,9 @@ rc=0
 for id in "${ids[@]}"; do
   echo
   echo "################ $id ################"
-  # v0.1.0 methodology: the stack is torn down `down -v` after every case to
-  # prevent cross-case contamination. Do not keep it up.
+  # Shared stack: non-recycle cases are reset in place; `recycle` cases get a
+  # fresh `down -v` + boot (handled in run-case.sh). The stack is torn down once,
+  # at the end.
   if ! bash "$HERE/run-case.sh" "$id"; then
     rc=1
   fi
@@ -66,5 +72,10 @@ done
 echo
 echo "==> Aggregating results into $FT_RUN_DIR"
 python3 "$HERE/collect-results.py" "$FT_RUN_DIR" --expect "${ids[@]}" || true
+
+# One teardown per run — unless a parent runner owns the stack.
+if [[ "${FT_STACK_OWNED_BY_PARENT:-0}" != "1" ]]; then
+  stack_teardown
+fi
 
 exit "$rc"

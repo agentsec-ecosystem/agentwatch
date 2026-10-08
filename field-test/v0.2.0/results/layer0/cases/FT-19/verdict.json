@@ -1,0 +1,9 @@
+{
+  "id": "FT-19",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "layer0",
+  "assertions": [{"name":"endpoint-down-nonfatal","ok":true},{"name":"recover","ok":true},{"name":"delivered-after-recovery","ok":true}
+]
+}

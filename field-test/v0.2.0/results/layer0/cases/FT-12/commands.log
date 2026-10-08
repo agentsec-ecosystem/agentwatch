@@ -1,0 +1,4 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder bash -lc printf "nope = 1\n" > /tmp/bad.toml
++ compose exec recorder bash -lc ! agentwatch --config /tmp/bad.toml status
++ compose exec recorder bash -lc agentwatch --config /tmp/bad.toml status 2>&1 | grep -q E_CONFIG

@@ -223,17 +223,83 @@ ft_finalize() {
   fi
 }
 
-# stack_lib teardown trap (honors STACK_KEEP=1, tears down volumes otherwise).
-ft_teardown_on_exit() { stack_teardown_on_exit; }
+# Case-exit trap. In a shared-stack run the stack stays up across cases and is
+# reset in place between them (see ft_reset_state and run-case.sh); the top-level
+# runner tears it down once, at the end. A standalone case honors STACK_KEEP.
+ft_teardown_on_exit() {
+  local code=$?
+  if [[ "${FT_SHARED_STACK:-0}" == "1" ]]; then
+    exit "$code"
+  fi
+  if [[ "${STACK_KEEP:-}" == "1" ]]; then
+    echo "==> STACK_KEEP=1 set; leaving the stack running"
+    exit "$code"
+  fi
+  stack_teardown
+  exit "$code"
+}
 
 # --- recorder lifecycle ------------------------------------------------------
 FT_RECORDER_STORE=/data/agentwatch
 FT_RECORDER_SOCKET=/run/agentwatch/agentwatch.sock
 
-# Every case boots the FULL stack (all 8 services) and verifies it is up.
-# ft_up_recorder is kept as the entry point so all cases get the whole stack.
-# For v0.2.0 runs (FT_VERSION=v0.2.0) it boots the extended environment instead.
+# Every case boots the FULL stack (all services) and verifies it is up. The stack
+# is built once per run and kept up across cases; a non-recycle case is reset in
+# place (ft_reset_state) instead of being destroyed. A `recycle` case mutates
+# durable/container state that a soft reset cannot clear and is given a genuinely
+# fresh stack (run-case.sh tears it down before it runs).
 ft_up_recorder() {
+  if _ft_stack_up; then
+    ft_reset_state
+    ft_pass "stack-reused"
+  else
+    _ft_boot_recorder_fresh
+  fi
+}
+
+# --- build once + stack liveness ---------------------------------------------
+# Build the images ONCE per run. Top-level runners call ft_build_images and export
+# FT_IMAGES_BUILT=1, so every case's `up -d` skips `--build` (images do not change
+# during a run). Without it (e.g. a standalone case) the first `up` builds.
+ft_build_images() {
+  if [[ "${FT_IMAGES_BUILT:-0}" == "1" ]]; then
+    return 0
+  fi
+  ft_record "compose build (once per run)"
+  local rc=0
+  if [[ "${FT_VERSION:-v0.1.0}" == "v0.2.0" ]]; then
+    "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" build "${V020_SERVICES[@]}" \
+      >> "$FT_RUN_DIR/.build.log" 2>&1 || rc=$?
+  else
+    "${STACK_COMPOSE[@]}" build >> "$FT_RUN_DIR/.build.log" 2>&1 || rc=$?
+  fi
+  export FT_IMAGES_BUILT=1
+  return "$rc"
+}
+
+# Expected running services for the active version.
+_ft_expected_services() {
+  if [[ "${FT_VERSION:-v0.1.0}" == "v0.2.0" ]]; then
+    printf '%s\n' "${V020_SERVICES[@]}"
+  else
+    printf '%s\n' postgres jaeger otel-collector api analytics web recorder verifier
+  fi
+}
+
+# True when every expected service has a running container.
+_ft_stack_up() {
+  local svc cid
+  while IFS= read -r svc; do
+    cid="$("${STACK_COMPOSE[@]}" ps -q "$svc" 2>/dev/null)"
+    [[ -n "$cid" ]] || return 1
+    [[ "$(docker inspect --format '{{.State.Running}}' "$cid" 2>/dev/null)" == "true" ]] || return 1
+  done < <(_ft_expected_services)
+  return 0
+}
+
+# Bring up the full stack and verify it (used only when the stack is not already
+# running). Build happens once per run, so this is `up -d` on the shared path.
+_ft_boot_recorder_fresh() {
   if [[ "${FT_VERSION:-v0.1.0}" == "v0.2.0" ]]; then
     ft_up_v020
     ft_verify_v020
@@ -241,6 +307,32 @@ ft_up_recorder() {
     ft_up_all
     ft_verify_all
   fi
+}
+
+# --- per-case state reset (replaces `down -v`) -------------------------------
+# Wipe the recorder store + socket and clear the analytics read-model tables so
+# each case starts clean WITHOUT destroying containers or volumes. Only the
+# recorder process is restarted; the rest of the stack stays up. Cases that need
+# a genuinely fresh stack carry `recycle` and get a real `down -v` instead.
+ft_reset_state() {
+  ft_record "reset: restart recorder; wipe store+socket; truncate read-model"
+  if "${STACK_COMPOSE[@]}" restart recorder \
+      >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"; then
+    ft_pass "reset-recorder-restart"
+  else
+    ft_fail "reset-recorder-restart"
+    return 1
+  fi
+  ft_recorder bash -lc 'shopt -s dotglob; rm -rf /data/agentwatch/* /run/agentwatch/* 2>/dev/null; mkdir -p /data/agentwatch /run/agentwatch; true' \
+    >/dev/null 2>>"$FT_CASE_DIR/stderr.log" || true
+  local pgid
+  pgid="$("${STACK_COMPOSE[@]}" ps -q postgres 2>/dev/null)"
+  if [[ -n "$pgid" ]]; then
+    docker exec "$pgid" psql -U analytics -d analytics -c \
+      "DO \$\$ DECLARE r record; BEGIN FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname='public') LOOP EXECUTE 'TRUNCATE TABLE '||quote_ident(r.tablename)||' RESTART IDENTITY CASCADE'; END LOOP; END \$\$;" \
+      >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log" || true
+  fi
+  ft_pass "state-reset"
 }
 
 # --- v0.2.0 environment (M31 31.1) ------------------------------------------
@@ -256,8 +348,10 @@ V020_SERVICES=(postgres jaeger otel-collector api analytics web recorder verifie
 V020_PROFILES=(--profile v020 --profile managed --profile tempo)
 
 ft_up_v020() {
-  ft_record "compose --profile v020 --profile tempo up -d --build (v0.2.0 services)"
-  if "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" up -d --build "${V020_SERVICES[@]}" \
+  local args=(-d)
+  [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || args+=(--build)
+  ft_record "compose --profile v020 --profile tempo up ${args[*]} (v0.2.0 services)"
+  if "${STACK_COMPOSE[@]}" "${V020_PROFILES[@]}" up "${args[@]}" "${V020_SERVICES[@]}" \
       >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"; then
     ft_pass "stack-up-v020"
   else
@@ -285,8 +379,10 @@ ft_verify_v020() {
 # endpoint responds. Called by EVERY case so the whole stack is up before any
 # assertions run.
 ft_up_all() {
-  ft_record "compose up -d --build (all services)"
-  if "${STACK_COMPOSE[@]}" up -d --build postgres jaeger otel-collector api analytics web recorder verifier \
+  local args=(-d)
+  [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || args+=(--build)
+  ft_record "compose up ${args[*]} (all services)"
+  if "${STACK_COMPOSE[@]}" up "${args[@]}" postgres jaeger otel-collector api analytics web recorder verifier \
       >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"; then
     ft_pass "stack-up"
   else

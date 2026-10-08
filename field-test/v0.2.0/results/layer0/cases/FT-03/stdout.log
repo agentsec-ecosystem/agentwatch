@@ -21,13 +21,13 @@
 #6 transferring context: 170.67kB 0.0s done
 #6 DONE 0.0s
 
-#7 [4/7] COPY packages/python-sdk /work/packages/python-sdk
+#7 [3/7] WORKDIR /work
 #7 CACHED
 
 #8 [5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
 #8 CACHED
 
-#9 [3/7] WORKDIR /work
+#9 [4/7] COPY packages/python-sdk /work/packages/python-sdk
 #9 CACHED
 
 #10 [2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
@@ -41,13 +41,14 @@
 
 #13 exporting to image
 #13 exporting layers done
-#13 exporting manifest sha256:fc4a0f549bc9d5dff5e2e05f97535504cb743c06612f3d5421d2612b794709f8 done
-#13 exporting config sha256:b0094fa900a159aaa95278311f19045fd852ad2516b951a2ed7e991a4e57336c done
-#13 exporting attestation manifest sha256:180cabff9860b7d9181fb235adfd761a5d8ed0607f1bc558ce1a1057de8176be done
-#13 exporting manifest list sha256:902a7c96baabe3a4c7ed490c199b8ef0875507cc4d286ebbec653ea9a4260ccb done
+#13 exporting manifest sha256:0ecc05f10c54a187389a8dd033300ed6a557e19ffdafd2b997482fd0974199b8 done
+#13 exporting config sha256:c5a424a6134224b9b3e45e24ddc2a799bd0d79347091fc5abe777a9cc4e6f7b6 done
+#13 exporting attestation manifest sha256:b11feccc836b2389c060f5499e4b2468fc4b532df47dd6f32bd30e953e756b02 done
+#13 exporting manifest list sha256:7e7bc78dbb8c6ed1f6a6047478df154348f5523c83080dadbcbe0607693d8cf3 done
 #13 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
 #13 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
 #13 DONE 0.0s
 
 #14 resolving provenance for metadata file
 #14 DONE 0.0s
+otel-probe: 3 spans emitted to http://otel-collector:4317 as agentwatch

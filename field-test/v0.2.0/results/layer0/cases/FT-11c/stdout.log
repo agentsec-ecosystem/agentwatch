@@ -1,0 +1,174 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.21kB done
+#1 DONE 0.0s
+
+#2 [api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 425B done
+#2 DONE 0.0s
+
+#3 [recorder internal] load build definition from recorder.Dockerfile
+#3 transferring dockerfile: 1.19kB done
+#3 DONE 0.0s
+
+#4 [web internal] load build definition from Dockerfile
+#4 transferring dockerfile: 327B done
+#4 DONE 0.0s
+
+#5 [analytics internal] load build definition from Dockerfile
+#5 transferring dockerfile: 394B done
+#5 DONE 0.0s
+
+#6 [analytics internal] load metadata for docker.io/library/python:3.12-slim
+#6 ...
+
+#7 [web internal] load metadata for docker.io/library/node:22-alpine
+#7 DONE 0.6s
+
+#8 [web internal] load .dockerignore
+#8 transferring context: 67B done
+#8 DONE 0.0s
+
+#6 [api internal] load metadata for docker.io/library/python:3.12-slim
+#6 DONE 0.6s
+
+#9 [recorder internal] load .dockerignore
+#9 transferring context: 2B done
+#9 DONE 0.0s
+
+#10 [analytics internal] load .dockerignore
+#10 transferring context: 129B done
+#10 DONE 0.0s
+
+#11 [api internal] load .dockerignore
+#11 transferring context: 116B done
+#11 DONE 0.0s
+
+#12 [web 1/5] FROM docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+#12 resolve docker.io/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 0.0s done
+#12 DONE 0.0s
+
+#13 [web internal] load build context
+#13 transferring context: 14.19kB done
+#13 DONE 0.0s
+
+#14 [web 4/5] RUN npm ci
+#14 CACHED
+
+#15 [web 2/5] WORKDIR /app
+#15 CACHED
+
+#16 [web 3/5] COPY package.json package-lock.json ./
+#16 CACHED
+
+#17 [web 5/5] COPY . .
+#17 CACHED
+
+#18 [recorder 1/7] FROM docker.io/library/python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f
+#18 resolve docker.io/library/python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f 0.0s done
+#18 DONE 0.0s
+
+#19 [analytics internal] load build context
+#19 transferring context: 5.43kB done
+#19 DONE 0.0s
+
+#20 [api internal] load build context
+#20 transferring context: 1.33kB done
+#20 DONE 0.0s
+
+#21 [analytics 4/5] COPY src/ src/
+#21 CACHED
+
+#22 [analytics 3/5] COPY pyproject.toml ./
+#22 CACHED
+
+#23 [analytics 5/5] RUN pip install --no-cache-dir -e ".[trace]"
+#23 CACHED
+
+#24 [api 2/5] WORKDIR /app
+#24 CACHED
+
+#25 [api 4/5] COPY src/ src/
+#25 CACHED
+
+#26 [api 3/5] COPY pyproject.toml ./
+#26 CACHED
+
+#27 [api 5/5] RUN pip install --no-cache-dir -e .
+#27 CACHED
+
+#28 [recorder internal] load build context
+#28 transferring context: 170.67kB 0.0s done
+#28 DONE 0.0s
+
+#29 [web] exporting to image
+#29 exporting layers done
+#29 exporting manifest sha256:3078f9c2a209615ede352c003a8c5e7a50d7164d575c135ce35b20f16622c5a3 done
+#29 exporting config sha256:009dabb10c0d63be3464cba3c1a7df3859b07db6294c275c990ccbbb8fbf8594 done
+#29 exporting attestation manifest sha256:76351a6763220e89ec0f50b8d4fa9e3fbacbb582c1d0fb3e93e4ab124c420d41 0.0s done
+#29 exporting manifest list sha256:f55d52bffaf4c8d118207d36cf3f1bb767c0de7e0bff0aeac0eda61c8b239905 done
+#29 naming to docker.io/library/agentwatch-web:latest done
+#29 unpacking to docker.io/library/agentwatch-web:latest done
+#29 DONE 0.1s
+
+#30 [recorder 2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#30 CACHED
+
+#31 [recorder 4/7] COPY packages/python-sdk /work/packages/python-sdk
+#31 CACHED
+
+#32 [recorder 3/7] WORKDIR /work
+#32 CACHED
+
+#33 [recorder 6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#33 CACHED
+
+#34 [recorder 5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#34 CACHED
+
+#35 [recorder 7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#35 CACHED
+
+#36 [recorder] exporting to image
+#36 exporting layers done
+#36 exporting manifest sha256:0ecc05f10c54a187389a8dd033300ed6a557e19ffdafd2b997482fd0974199b8 done
+#36 exporting config sha256:c5a424a6134224b9b3e45e24ddc2a799bd0d79347091fc5abe777a9cc4e6f7b6 done
+#36 exporting attestation manifest sha256:115390e407707bd286f8d96db2b493b39b8434b32ac2f4c7986c33a414307b6e 0.0s done
+#36 exporting manifest list sha256:5ccc0fc0922855e907d6a7351bb3086594075a605cce6bd1eb9e41b3608a8825 done
+#36 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#36 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#36 DONE 0.1s
+
+#37 [analytics] exporting to image
+#37 exporting layers done
+#37 exporting manifest sha256:1402b17787b911b2f934126165656c984005cd9fde62d8183a8b444a96a69b95 done
+#37 exporting config sha256:f2782f9a4833e5cd0b23ee36abbcc48aec8d0815fdfa7c699cec2507ff3b4e11 done
+#37 exporting attestation manifest sha256:0333bdf92db2fd3f9be1b9d47368c1c9777171500105211ef19ffb06c49e4e51 0.0s done
+#37 exporting manifest list sha256:a9ca5f427feb14ec677fa5c188344605d2add5f59581feb39922e6787957c1b4 0.0s done
+#37 naming to docker.io/library/agentwatch-analytics:latest done
+#37 unpacking to docker.io/library/agentwatch-analytics:latest 0.0s done
+#37 DONE 0.1s
+
+#38 [api] exporting to image
+#38 exporting layers done
+#38 exporting manifest sha256:ad89f485caec93bb841d86dba875730eb7929a057c866e04d1e36397c435386f done
+#38 exporting config sha256:964c5ab106a15c4b83a51cf5e8c82fc5db48a46c0968047b8e6e04b7a1a19ac6 done
+#38 exporting attestation manifest sha256:b587a4ddc10306a77d541b8362fd0fdc88b367fe57907d679e5e91e8abb55b1f 0.0s done
+#38 exporting manifest list sha256:0522ddbeec57d28037eb1d0134ac939ed5a6855a198b2c55a2ca8cd469ba3dda 0.0s done
+#38 naming to docker.io/library/agentwatch-api:latest done
+#38 unpacking to docker.io/library/agentwatch-api:latest 0.0s done
+#38 DONE 0.1s
+
+#39 [analytics] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#40 [web] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [api] resolving provenance for metadata file
+#41 DONE 0.0s
+
+#42 [recorder] resolving provenance for metadata file
+#42 DONE 0.0s
+[    1] this query makes no sense this → Escalated: ticket TKT-6706 (No KB answer for: this
+[   51] password reset urgent          → Resolved: Reset at portal.example.com/settings (ac
+Done: 100 traces generated

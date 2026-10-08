@@ -1,0 +1,3 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder bash -lc agentwatch demo --json >/dev/null
++ compose exec recorder bash -lc agentwatch demo --purge --json >/dev/null

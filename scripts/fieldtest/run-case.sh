@@ -52,6 +52,21 @@ PY
 )"
 export FT_CASE_CLASS
 
+# Recycle flag: a `recycle` case mutates durable/container state that an in-place
+# state reset cannot clear, so it gets a genuinely fresh stack (run-case tears it
+# down before it runs; its own ft_up_recorder then boots clean).
+FT_RECYCLE="$(python3 - "$HERE/cases/registry.json" "$ID" <<'PY'
+import json, sys
+try:
+    registry = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    registry = []
+match = next((c for c in registry if c.get("id") == sys.argv[2]), {})
+print("1" if match.get("recycle") else "0")
+PY
+)"
+export FT_RECYCLE
+
 trap ft_teardown_on_exit EXIT
 ft_case_begin "$ID"
 
@@ -60,6 +75,13 @@ if [[ "$REQUIRES" == *docker* ]] && ! ft_require_docker; then
   printf '{"name":"docker-available","ok":false}\n' >> "$FT_CASE_DIR/assertions.ndjson"
   ft_case_end "$ID" "fail"
   exit 1
+fi
+
+# Shared-stack run: recycle cases get a clean slate; every other case is reset in
+# place by ft_reset_state (called from ft_up_recorder) and shares the stack.
+if [[ "$FT_RECYCLE" == "1" ]]; then
+  ft_record "recycle: down -v before case"
+  stack_teardown
 fi
 
 # Run the step without errexit so that a single failed assertion does not abort

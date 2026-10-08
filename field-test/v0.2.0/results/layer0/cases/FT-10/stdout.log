@@ -1,0 +1,55 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 639B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from recorder.Dockerfile
+#2 transferring dockerfile: 1.19kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.2s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/7] FROM docker.io/library/python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f
+#5 resolve docker.io/library/python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 170.67kB 0.0s done
+#6 DONE 0.0s
+
+#7 [2/7] RUN apt-get update     && apt-get install -y --no-install-recommends git curl procps     && rm -rf /var/lib/apt/lists/*
+#7 CACHED
+
+#8 [3/7] WORKDIR /work
+#8 CACHED
+
+#9 [5/7] RUN pip install --no-cache-dir -e "/work/packages/python-sdk[signing,otlp]"
+#9 CACHED
+
+#10 [4/7] COPY packages/python-sdk /work/packages/python-sdk
+#10 CACHED
+
+#11 [6/7] COPY scripts/fieldtest /work/fieldtest/scripts
+#11 CACHED
+
+#12 [7/7] RUN mkdir -p /data/agentwatch /run/agentwatch
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:0ecc05f10c54a187389a8dd033300ed6a557e19ffdafd2b997482fd0974199b8 done
+#13 exporting config sha256:c5a424a6134224b9b3e45e24ddc2a799bd0d79347091fc5abe777a9cc4e6f7b6 done
+#13 exporting attestation manifest sha256:e0611116056fb3d7a55fb42542e6200d55a99d32bbb8dac5a160ed05bf271d53 done
+#13 exporting manifest list sha256:fb51d70d11a693a577a6aafd5ad81405702209c39e5eb497e52b572a8da824f6 done
+#13 naming to docker.io/library/agentwatch-fieldtest-recorder:local done
+#13 unpacking to docker.io/library/agentwatch-fieldtest-recorder:local done
+#13 DONE 0.0s
+
+#14 resolving provenance for metadata file
+#14 DONE 0.0s
+agentwatch: chain ok (6 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

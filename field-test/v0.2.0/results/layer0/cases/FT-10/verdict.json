@@ -1,0 +1,9 @@
+{
+  "id": "FT-10",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "layer0",
+  "assertions": [{"name":"offline-record-verify","ok":true}
+]
+}

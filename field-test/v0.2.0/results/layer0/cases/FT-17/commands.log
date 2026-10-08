@@ -1,0 +1,8 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder bash -lc mkdir -p /run/agentwatch; (agentwatch-daemon >/tmp/daemon.log 2>&1 &) ; \
+       for i in $(seq 1 50); do [ -S "$AGENTWATCH_SOCKET" ] && exit 0; sleep 0.2; done; \
+       echo "daemon socket did not appear" >&2; tail -20 /tmp/daemon.log >&2; exit 1
++ compose exec recorder bash -lc mkdir -p /data/agentwatch; pgrep -f "[a]gentwatch-daemon" | head -1 > /data/agentwatch/daemon.pid
++ compose exec recorder python3 -c import os,socket; s=socket.socket(socket.AF_UNIX); s.connect(os.environ['AGENTWATCH_SOCKET']); s.sendall(b'{not-json\n'); s.close()
++ compose exec recorder bash -lc test -s /data/agentwatch/quarantine.jsonl
++ compose exec recorder bash -lc agentwatch verify-store

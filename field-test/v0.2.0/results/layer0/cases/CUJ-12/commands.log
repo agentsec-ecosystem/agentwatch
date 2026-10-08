@@ -1,0 +1,7 @@
++ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
++ compose exec recorder python3 /ft/scripts/seed-fixtures.py --store /data/agentwatch/records.jsonl
++ compose exec recorder bash -lc agentwatch purge ft-seed-main --reason 'subject request' --yes
++ compose exec recorder bash -lc agentwatch verify-store
++ compose exec recorder bash -lc grep -q session-purge /data/agentwatch/records.jsonl
++ compose exec recorder bash -lc grep -q '"tombstone": true' /data/agentwatch/records.jsonl
++ compose exec recorder bash -lc ! grep -q 'make build' /data/agentwatch/records.jsonl

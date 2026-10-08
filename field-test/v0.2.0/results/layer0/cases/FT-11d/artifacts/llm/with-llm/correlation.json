@@ -1,0 +1,197 @@
+{
+  "matrix": {
+    "top_co_fires": [
+      {
+        "pair": [
+          "output_drift",
+          "hallucination"
+        ],
+        "count": 97,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "hallucination",
+          "output_drift"
+        ],
+        "count": 97,
+        "pct": 99.0
+      },
+      {
+        "pair": [
+          "inactivity",
+          "hallucination"
+        ],
+        "count": 95,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "hallucination",
+          "inactivity"
+        ],
+        "count": 95,
+        "pct": 96.9
+      },
+      {
+        "pair": [
+          "inactivity",
+          "output_drift"
+        ],
+        "count": 94,
+        "pct": 98.9
+      },
+      {
+        "pair": [
+          "output_drift",
+          "inactivity"
+        ],
+        "count": 94,
+        "pct": 96.9
+      },
+      {
+        "pair": [
+          "tool_timeout",
+          "output_drift"
+        ],
+        "count": 78,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "output_drift",
+          "tool_timeout"
+        ],
+        "count": 78,
+        "pct": 80.4
+      },
+      {
+        "pair": [
+          "tool_timeout",
+          "hallucination"
+        ],
+        "count": 78,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "hallucination",
+          "tool_timeout"
+        ],
+        "count": 78,
+        "pct": 79.6
+      },
+      {
+        "pair": [
+          "tool_timeout",
+          "inactivity"
+        ],
+        "count": 77,
+        "pct": 98.7
+      },
+      {
+        "pair": [
+          "inactivity",
+          "tool_timeout"
+        ],
+        "count": 77,
+        "pct": 81.1
+      },
+      {
+        "pair": [
+          "output_drift",
+          "confusion_pattern"
+        ],
+        "count": 68,
+        "pct": 70.1
+      },
+      {
+        "pair": [
+          "confusion_pattern",
+          "output_drift"
+        ],
+        "count": 68,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "hallucination",
+          "confusion_pattern"
+        ],
+        "count": 68,
+        "pct": 69.4
+      },
+      {
+        "pair": [
+          "confusion_pattern",
+          "hallucination"
+        ],
+        "count": 68,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "inactivity",
+          "confusion_pattern"
+        ],
+        "count": 66,
+        "pct": 69.5
+      },
+      {
+        "pair": [
+          "confusion_pattern",
+          "inactivity"
+        ],
+        "count": 66,
+        "pct": 97.1
+      },
+      {
+        "pair": [
+          "wasted_tool_calls",
+          "output_drift"
+        ],
+        "count": 65,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "output_drift",
+          "wasted_tool_calls"
+        ],
+        "count": 65,
+        "pct": 67.0
+      }
+    ],
+    "type_counts": {
+      "inactivity": 95,
+      "hallucination": 98,
+      "tool_timeout": 78,
+      "output_drift": 97,
+      "loop": 26,
+      "specific_tool_error": 43,
+      "wasted_tool_calls": 65,
+      "retry_storm": 25,
+      "recovery_path": 64,
+      "low_output": 37,
+      "denied-cluster": 47,
+      "confusion_pattern": 68,
+      "cost_efficiency": 4,
+      "tool_latency": 37,
+      "max_step_hit": 22,
+      "intervention_frequency": 9,
+      "argument_loop": 1,
+      "pattern_loop": 1,
+      "token_explosion": 1,
+      "step_efficiency": 1
+    }
+  },
+  "suspicious": {
+    "inactivity": 95.0,
+    "hallucination": 98.0,
+    "tool_timeout": 78.0,
+    "output_drift": 97.0,
+    "wasted_tool_calls": 65.0,
+    "recovery_path": 64.0,
+    "confusion_pattern": 68.0
+  }
+}

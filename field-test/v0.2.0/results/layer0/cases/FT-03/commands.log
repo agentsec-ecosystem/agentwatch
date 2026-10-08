@@ -1,1 +1,3 @@
 + compose up recorder jaeger otel-collector
++ compose exec recorder bash -lc python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch
++ compose exec recorder bash -lc curl -sf http://jaeger:16686/api/services | grep -q agentwatch

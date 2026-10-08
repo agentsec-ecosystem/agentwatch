@@ -14,6 +14,7 @@ fails. Step scripts source ``lib.sh``, run assertions with ``ft_assert`` /
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -204,7 +205,8 @@ The case-specific assertions in `cases/steps/{id}.sh` (each recorded in
 `field-test/{doc_version}/results/{results_token}/cases/{id}/artifacts/`.
 
 ## Cleanup
-`down -v` via the runner teardown trap (`STACK_KEEP=1` keeps the stack).
+Shared stack: reset in place between cases; `recycle` cases get a fresh `down -v`
++ boot. The stack is torn down once, at the end of the run.
 """
 
 _PRE = "ft_up_recorder\nft_start_daemon\n"
@@ -293,7 +295,8 @@ ft_capture_store
 ft_finalize
 """,
     "otel_export": """ft_record "compose up recorder jaeger otel-collector"
-"${STACK_COMPOSE[@]}" up -d --build recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+up_args=(-d); [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || up_args+=(--build)
+"${STACK_COMPOSE[@]}" up "${up_args[@]}" recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"
 sleep 5
 ft_assert_recorder "jaeger-services" "curl -sf http://jaeger:16686/api/services | grep -q agentwatch"
@@ -301,7 +304,8 @@ ft_capture_store_soft
 ft_finalize
 """,
     "otel_export_down": """ft_record "compose up recorder jaeger otel-collector"
-"${STACK_COMPOSE[@]}" up -d --build recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+up_args=(-d); [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || up_args+=(--build)
+"${STACK_COMPOSE[@]}" up "${up_args[@]}" recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 # Endpoint down must not break the agent (exit 0), then recover to a live endpoint.
 ft_assert_recorder "endpoint-down-nonfatal" "python3 /ft/scripts/otel-probe.py --endpoint http://127.0.0.1:9 --service agentwatch"
 ft_assert_recorder "recover" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"
@@ -370,7 +374,7 @@ ft_capture_store_soft
 ft_finalize
 """,
     "offline": """ft_record "build recorder image"
-"${STACK_COMPOSE[@]}" build recorder >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+[[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || "${STACK_COMPOSE[@]}" build recorder >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 # No network namespace: the recorder must run record -> verify entirely offline.
 ft_assert "offline-record-verify" docker run --rm --network none agentwatch-fieldtest-recorder:local bash -lc 'agentwatch --set store.path=/data demo --json >/dev/null && agentwatch --set store.path=/data verify-store'
 ft_finalize
@@ -532,6 +536,22 @@ def _step(case: dict[str, str]) -> str:
     )
 
 
+_SERVICE_RE = re.compile(
+    r"\b(analytics|jaeger|otel-collector|otel-grpc|a2a-proxy|litellm|runner|"
+    r"managed-hooks|verifier|postgres|fleet|tempo|api|web)\b"
+)
+
+
+def _needs_recycle(step: str) -> bool:
+    """True when a case must get a genuinely fresh stack rather than the shared
+    one. A soft reset only wipes the recorder store and the read-model tables, so
+    any case that touches another service (or the OTLP/DB read path) is given a
+    real `down -v` + boot. Host-native cases never boot the stack, never recycle."""
+    if "ft_up_recorder" not in step:
+        return False
+    return bool(_SERVICE_RE.search(step))
+
+
 def _clean_generated() -> None:
     for path in CASES_DIR.glob("*.md"):
         if path.name not in CUSTOM_SPECS:
@@ -545,6 +565,10 @@ def main() -> int:
     STEPS_DIR.mkdir(parents=True, exist_ok=True)
     _clean_generated()
     for case in CASES:
+        step = _step(case)
+        # `recycle`: needs a genuinely fresh stack (touches another service);
+        # everything else shares the stack and is reset in place.
+        case["recycle"] = _needs_recycle(step)
         slug = _slug(case["title"])
         if case.get("spec") != "custom":
             fields = dict(case)
@@ -558,7 +582,7 @@ def main() -> int:
             (CASES_DIR / f"{case['id']}-{slug}.md").write_text(
                 SPEC_TEMPLATE.format(**fields), encoding="utf-8"
             )
-        (STEPS_DIR / f"{case['id']}.sh").write_text(_step(case), encoding="utf-8")
+        (STEPS_DIR / f"{case['id']}.sh").write_text(step, encoding="utf-8")
     (CASES_DIR / "registry.json").write_text(json.dumps(CASES, indent=2) + "\n", encoding="utf-8")
     print(f"gen_cases: wrote {len(CASES)} specs + {len(CASES)} step scripts")
     return 0

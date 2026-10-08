@@ -34,6 +34,7 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0029](0029-recorder-attestation.md) | Recorder attestation contents and non-claims | accepted |
 | [0030](0030-hook-wallclock-budget.md) | Hook transport & end-to-end wall-clock budget | accepted |
 | [0035](0035-embedded-query-index.md) | Embedded query index tier (+ PG re-sequence) | accepted |
+| [0036](0036-console-security-model.md) | Local console security model | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |

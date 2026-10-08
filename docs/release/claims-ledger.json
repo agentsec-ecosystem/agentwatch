@@ -884,6 +884,21 @@
         "file:docs/adr/0035-embedded-query-index.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C100",
+      "claim": "`agentwatch ui` opens a read-only console that binds loopback only, gates every route on a per-launch token, rejects non-loopback Host headers (DNS rebinding), exposes no mutation endpoint, and makes no egress; its numbers equal the CLI --json.",
+      "source": "docs/adr/0036-console-security-model.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_console.py::test_console_binds_loopback_even_when_asked_otherwise",
+        "test:packages/python-sdk/tests/test_console.py::test_console_requires_a_token",
+        "test:packages/python-sdk/tests/test_console.py::test_console_rejects_a_non_loopback_host_header",
+        "test:packages/python-sdk/tests/test_console.py::test_console_has_no_mutation_endpoints",
+        "test:packages/python-sdk/tests/test_console.py::test_console_module_is_egress_clean",
+        "test:packages/python-sdk/tests/test_console.py::test_console_ui_cli_parity",
+        "file:docs/adr/0036-console-security-model.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

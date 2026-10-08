@@ -107,6 +107,11 @@ Status: living.
   fleet/multi-tenant tier (PRD 41 PG-2, re-sequenced behind the embedded index in ADR-0035/EXT-8) and is not
   built here (proving tests: `test_query_index.py::test_import_does_not_pull_pyarrow`,
   `test_query_index.py::test_rebuild_is_bit_for_bit`).
+- `agentwatch ui` (M30 LUI-1) is a **single-operator, loopback-only** console over the local chain store; it has
+  no accounts, roles, or remote access (that is the fleet/Postgres tier, P7/GOV role model, PRD 56). It is
+  read-only and refuses non-loopback Host headers, but it is not a hardened multi-user service (proving tests:
+  `test_console.py::test_console_binds_loopback_even_when_asked_otherwise`,
+  `test_console.py::test_console_rejects_a_non_loopback_host_header`).
 
 ## Policy
 

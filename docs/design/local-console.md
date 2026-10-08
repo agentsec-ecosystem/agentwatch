@@ -47,3 +47,13 @@ keyboard navigation for the timeline.
 ## Decision
 
 ADR-0035 (embedded index + dependency), ADR-0036 (console security model).
+
+## Implementation (M30 LUI-1/LUI-2)
+
+`agentwatch.ui.ConsoleServer` serves the console over a stdlib `http.server` on loopback (no Docker). Routes:
+`/` (HTML shell), `/api/health` (chain gaps/tombstones/parse errors + index freshness), `/api/sessions`,
+`/api/session/<id>` (timeline/replay), `/api/impact/<id>`, `/api/cost`, `/api/coverage`, `/api/oversight`,
+`/api/live` (STR poll descriptor), and `/api/export/<id>` (read-only NDJSON). Every route requires the per-launch
+token and a loopback `Host`; only `GET` exists. `agentwatch.index.QueryIndex` backs the query paths and is
+refreshed from the chain ([ADR-0035](../adr/0035-embedded-query-index.md)). UI JSON equals CLI `--json`.
+

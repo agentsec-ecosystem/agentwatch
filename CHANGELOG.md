@@ -7,6 +7,10 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - LUI-1: `agentwatch ui` read-only loopback console — one command serves the chain store over a stdlib HTTP
+    server with **no Docker**: loopback-only bind, per-launch token, Host-header (DNS-rebinding) check, no
+    mutation endpoint, no egress; sessions → timeline → record detail with impact/cost/coverage/oversight and a
+    read-only session export; chain gaps/tombstones rendered; UI numbers equal CLI `--json` (ADR-0036) (#465).
   - LUI-2: embedded, rebuildable query index — `agentwatch.query_index` projects the hash-chained store into a
     stdlib `sqlite3` index (no heavyweight runtime dependency; ADR-0035); deleting it loses nothing and it
     rebuilds **bit-for-bit** from the chain; indexed lookup on a 1M-record store is ~2 ms (target < 250 ms);

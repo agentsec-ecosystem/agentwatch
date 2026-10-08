@@ -14,6 +14,7 @@ import io
 import json
 import os
 import sys
+import urllib.request
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -175,6 +176,7 @@ from agentwatch.store_access import DestinationKind, record_store_access
 from agentwatch.tail import Tail, TailLine, follow, render_record
 from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.tree import build_tree, render_tree, sort_by_cost
+from agentwatch.ui import ConsoleServer, open_console_url
 from agentwatch.union import render_union, union
 from agentwatch.verify_privacy import verify_privacy
 from agentwatch.view import list_sessions, render_session
@@ -655,6 +657,26 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     for _index_parser in (index_rebuild, index_status, index_drop, index_export):
         _index_parser.add_argument("--json", action="store_true", help="emit the result as JSON")
+
+    ui_cmd = sub.add_parser(
+        "ui", help="read-only loopback console over the store (M30 LUI-1, ADR-0036)"
+    )
+    ui_cmd.add_argument(
+        "--host", default="127.0.0.1", help="loopback bind host (non-loopback is refused)"
+    )
+    ui_cmd.add_argument("--port", type=int, default=0, help="bind port (0 = ephemeral)")
+    ui_cmd.add_argument(
+        "--no-open",
+        dest="open_browser",
+        action="store_false",
+        default=True,
+        help="do not open a browser window",
+    )
+    ui_cmd.add_argument(
+        "--check",
+        action="store_true",
+        help="start, verify readiness on loopback, and exit (CI smoke / <=60s gate)",
+    )
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
     diff.add_argument("a", help="first session id")
@@ -2430,6 +2452,41 @@ def _run_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_ui(args: argparse.Namespace) -> int:
+    """Open the read-only loopback console (M30 LUI-1, ADR-0036)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    server = ConsoleServer(store, host=args.host, port=args.port)
+    server.start()
+    url = f"{server.url}/?token={server.token}"
+    print(f"agentwatch: console {url} (read-only, loopback only)")
+    if args.check:
+        try:
+            request = urllib.request.Request(
+                server.url + "/api/health",
+                headers={"X-Agentwatch-Token": server.token},
+            )
+            with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310 - loopback
+                health = json.loads(response.read().decode("utf-8"))
+        finally:
+            server.stop()
+        print(f"agentwatch: readiness ok (chain_ok={health['chain_ok']})")
+        return 0
+    if args.open_browser:
+        open_console_url(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.stop()
+    return 0
+
+
 def _run_purge(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -3231,6 +3288,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_search(args)
     if args.command == "index":
         return _run_index(args)
+    if args.command == "ui":
+        return _run_ui(args)
     if args.command == "diff":
         return _run_diff(args)
     if args.command == "import":

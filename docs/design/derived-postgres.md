@@ -5,13 +5,25 @@ is a derived, rebuildable index that can be dropped at any time; multi-tenant is
 SDK spans unify through the same store. **How** — the requirement is
 [PRD 41](../prd/41-standards-and-interop-ii.md) (PG-1..3).
 
-**Status:** proposed (2026-10-05, v0.2.0; phaseable to v0.2.1) · **Milestone:** M27 · Sources:
-[PRD 41](../prd/41-standards-and-interop-ii.md), PRD 14 (SDK unification decision), S11 `union`, `data-dictionary.md`.
+**Status:** proposed (2026-10-05, v0.2.0; phaseable to v0.2.1) · **Milestone:** M27 · Re-sequenced (M30 EXT-8) ·
+Sources: [PRD 41](../prd/41-standards-and-interop-ii.md), PRD 14 (SDK unification decision), S11 `union`,
+`data-dictionary.md`.
 
 > **Re-sequenced (v0.2.0-expanded):** the general-case query tier is now the **embedded, rebuildable index** in
 > [`local-console.md`](local-console.md) ([PRD 54](../prd/54-local-console-and-query-tier.md), ADR-0035), which ships with
 > the CLI and console and needs no Postgres. Postgres becomes the **fleet / multi-tenant** tier (PG-2) and, per PRD 40's
 > cut-line, is phased behind the embedded index; the derived-only invariant below is unchanged and applies to both tiers.
+
+## Re-sequencing decision (EXT-8)
+
+**Decision (recorded):** the **embedded, rebuildable query index** (M30 LUI-2, ADR-0035) is the general-case
+query tier and ships with the CLI and the local console; **Postgres is the fleet / multi-tenant tier** (PG-2),
+required only for cross-host fleet analytics and tenant isolation. PG-1..3 are therefore phased behind the
+embedded index rather than being the only tier. The embedded index is the reference implementation of the
+derived/rebuildable invariant above; Postgres must satisfy the same invariant (drop it, rebuild bit-for-bit) and
+`verify-store` still never consults it. This decision supersedes the "Postgres-first" reading of
+[PRD 41](../prd/41-standards-and-interop-ii.md) and is recorded in
+[ADR-0035](../adr/0035-embedded-query-index.md) (which folds in EXT-8; no separate ADR is created).
 
 ## Invariant: derived, never authoritative
 

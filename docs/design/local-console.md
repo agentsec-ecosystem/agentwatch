@@ -47,3 +47,23 @@ keyboard navigation for the timeline.
 ## Decision
 
 ADR-0035 (embedded index + dependency), ADR-0036 (console security model).
+
+## Implementation (M30 LUI-1/LUI-2)
+
+`agentwatch.ui.ConsoleServer` serves the console over a stdlib `http.server` on loopback (no Docker). Routes:
+`/` (HTML shell), `/api/health` (chain gaps/tombstones/parse errors + index freshness), `/api/sessions`,
+`/api/session/<id>` (timeline/replay), `/api/impact/<id>`, `/api/cost`, `/api/coverage`, `/api/oversight`,
+`/api/live*` (STR-2 tail: `/api/live/timeline`, `/api/live/anomalies`, and an SSE `/api/live/stream`), and
+`/api/export/<id>` (read-only NDJSON). Every route requires the per-launch token and a loopback `Host`; only
+`GET` exists. `agentwatch.index.QueryIndex` backs the query paths and is refreshed from the chain
+([ADR-0035](../adr/0035-embedded-query-index.md)). UI JSON equals CLI `--json`.
+
+## Live views (M30 UI-1)
+
+The console's live timeline, live anomaly inbox, and streaming tail consume the M26 STR-2 store-truth tail
+([`agentwatch.live.LiveTail`](../../packages/python-sdk/src/agentwatch/live.py)): the store remains
+authoritative, a backpressured subscriber is **back-filled from the store** and `degraded` stays visible, and
+gaps are classified (`stream-drop`/`purged`/`missing`/`rotated`) and rendered — never silent. The anomaly inbox
+is a derived, content-free filter (denied/error/security-event records). No mutation, no egress.
+
+

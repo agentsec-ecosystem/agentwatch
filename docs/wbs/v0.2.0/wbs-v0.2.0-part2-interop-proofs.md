@@ -50,7 +50,7 @@ engine, and land the risk/ADR register.
 | 26.API-1 | OpenAPI publication + drift-checked typed client | OpenAPI + client + CI | `openapi.json` in repo; client contract test fails on drift | #330 |
 | 26.XHT-2 | Live soak on OpenCode (pinned model, scratch repo) via plugin hooks | CI job + adapter row | Nightly soak green hermetically; discovered quirks feed 25.XHT-1; OpenCode matrix row added | #331 |
 | 26.RSK-2 | Threat-model additions (5 rows) + ADRs 0016–0026 merged with features | docs + ADRs | Every matrix row references a test; all ADRs accepted | #332 |
-| 26.UI-1 | Operator UI: live timeline + live anomaly inbox + streaming tail | feature + tests | Consume STR; back-fill on reconnect; `degraded` visible | #428 |
+| 26.UI-1 DONE | Operator UI: live timeline + live anomaly inbox + streaming tail | feature + tests | Consume STR; back-fill on reconnect; `degraded` visible | #428 |
 | 26.SEC-1 | Security baseline + threat-model traceability + recorder attack matrix | docs | Rows for every new surface; each linked to a test | #429 |
 | 26.PERF-1 | Extend the perf harness + budgets for new paths | feature + CI | Streaming/ingest/eval budgets; performance.md regenerated | #430 |
 | 26.T | Add/expand test cases for this milestone | tests | All new paths covered; coverage ≥ 95% | #374 |

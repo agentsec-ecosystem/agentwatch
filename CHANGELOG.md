@@ -7,6 +7,25 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - LUI-1: `agentwatch ui` read-only loopback console — one command serves the chain store over a stdlib HTTP
+    server with **no Docker**: loopback-only bind, per-launch token, Host-header (DNS-rebinding) check, no
+    mutation endpoint, no egress; sessions → timeline → record detail with impact/cost/coverage/oversight and a
+    read-only session export; chain gaps/tombstones rendered; UI numbers equal CLI `--json` (ADR-0036) (#465).
+  - UI-1: live timeline + live anomaly inbox + streaming tail in the console — consumes the M26 STR-2
+    store-truth tail (`LiveTail`): back-fills on (re)connect, classifies and renders gaps
+    (`stream-drop`/`purged`/`missing`/`rotated`), keeps a backpressured subscriber visible as `degraded`, and
+    serves Server-Sent Events over the token-gated loopback routes `/api/live/*` (#428).
+  - LUI-2: embedded, rebuildable query index — `agentwatch.query_index` projects the hash-chained store into a
+    stdlib `sqlite3` index (no heavyweight runtime dependency; ADR-0035); deleting it loses nothing and it
+    rebuilds **bit-for-bit** from the chain; indexed lookup on a 1M-record store is ~2 ms (target < 250 ms);
+    `agentwatch index rebuild|status|drop|export-parquet` (parquet is a lazy optional extra) (#466).
+  - EXT-5: `purge`/retention propagate to every derived index/export — a successful purge/retention drops the
+    erased rows from the embedded index (and next use rebuilds it from the now-tombstoned chain) so the index and
+    console return nothing for the session; a hold still fails the purge closed; known leftover artifacts
+    (archives, parquet/NDJSON exports, repair-evidence copies, quarantine) are enumerated (#483).
+  - EXT-8: Postgres re-sequenced behind the embedded index — the embedded, rebuildable index is the general-case
+    query tier and Postgres is the fleet / multi-tenant tier (PG-2); the decision is folded into ADR-0035 and
+    recorded in `design/derived-postgres.md` (no separate ADR) (#484).
   - AGI-1: read-only MCP server over the record — `agentwatch mcp-serve --enable` (off by default) exposes a
     fixed, test-enumerated read-only tool set (`sessions`, `search`, `replay`, `impact`, `blame`, `coverage`,
     `cost`, `oversight`, `provenance`, `inventory`) over local stdio; responses are labeled `untrusted-data`

@@ -14,6 +14,7 @@ import io
 import json
 import os
 import sys
+import urllib.request
 from collections.abc import Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -147,6 +148,11 @@ from agentwatch.quarantine import (
     requeue_entries,
 )
 from agentwatch.query import search, since_cutoff
+from agentwatch.query_index import (
+    ParquetUnavailableError,
+    QueryIndex,
+    index_path_for_store,
+)
 from agentwatch.receipts import record_receipt, redact_preview
 from agentwatch.recorder_state import (
     close_coverage_window,
@@ -182,6 +188,7 @@ from agentwatch.store_access import DestinationKind, record_store_access
 from agentwatch.tail import Tail, TailLine, follow, render_record
 from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.tree import build_tree, render_tree, sort_by_cost
+from agentwatch.ui import ConsoleServer, open_console_url
 from agentwatch.union import render_union, union
 from agentwatch.verify_privacy import verify_privacy
 from agentwatch.view import list_sessions, render_session
@@ -643,6 +650,45 @@ def _build_parser() -> argparse.ArgumentParser:
         help="only agent memory read/write/delete records (DET-7)",
     )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
+
+    index_cmd = sub.add_parser(
+        "index", help="embedded rebuildable query index (M30 LUI-2, ADR-0035)"
+    )
+    index_sub = index_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    index_rebuild = index_sub.add_parser(
+        "rebuild", help="rebuild the derived index from the chain store (bit-for-bit)"
+    )
+    index_status = index_sub.add_parser("status", help="show index presence and freshness")
+    index_drop = index_sub.add_parser("drop", help="delete the derived index (chain untouched)")
+    index_export = index_sub.add_parser(
+        "export-parquet", help="columnar export for notebooks (optional parquet extra)"
+    )
+    index_export.add_argument("output", help="destination .parquet path")
+    index_export.add_argument(
+        "--session", dest="session_id", default=None, help="only this session"
+    )
+    for _index_parser in (index_rebuild, index_status, index_drop, index_export):
+        _index_parser.add_argument("--json", action="store_true", help="emit the result as JSON")
+
+    ui_cmd = sub.add_parser(
+        "ui", help="read-only loopback console over the store (M30 LUI-1, ADR-0036)"
+    )
+    ui_cmd.add_argument(
+        "--host", default="127.0.0.1", help="loopback bind host (non-loopback is refused)"
+    )
+    ui_cmd.add_argument("--port", type=int, default=0, help="bind port (0 = ephemeral)")
+    ui_cmd.add_argument(
+        "--no-open",
+        dest="open_browser",
+        action="store_false",
+        default=True,
+        help="do not open a browser window",
+    )
+    ui_cmd.add_argument(
+        "--check",
+        action="store_true",
+        help="start, verify readiness on loopback, and exit (CI smoke / <=60s gate)",
+    )
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
     diff.add_argument("a", help="first session id")
@@ -2492,6 +2538,86 @@ def _run_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_index(args: argparse.Namespace) -> int:
+    """Manage the embedded, rebuildable query index (M30 LUI-2, ADR-0035)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    index = QueryIndex(index_path_for_store(store.path))
+    if args.action == "drop":
+        index.drop()
+        if args.json:
+            print(json.dumps({"dropped": True, "path": str(index.path)}))
+        else:
+            print(f"agentwatch: dropped index {index.path} (chain untouched)")
+        return 0
+    if args.action == "export-parquet":
+        index.ensure(store)
+        try:
+            count = index.export_parquet(args.output, session_id=args.session_id)
+        except ParquetUnavailableError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        if args.json:
+            print(json.dumps({"exported": count, "path": str(Path(args.output).expanduser())}))
+        else:
+            print(f"agentwatch: exported {count} record(s) to {args.output}")
+        return 0
+    status = index.rebuild(store) if args.action == "rebuild" else index.status()
+    fresh = index.is_fresh(store)
+    payload = {
+        "path": str(status.path),
+        "present": status.present,
+        "fresh": fresh,
+        "records": status.records,
+        "format_version": status.format_version,
+    }
+    if args.json:
+        print(json.dumps(payload))
+    else:
+        state = "fresh" if fresh else ("stale" if status.present else "absent")
+        print(f"agentwatch: index {state} ({status.records} record(s)) at {status.path}")
+    return 0
+
+
+def _run_ui(args: argparse.Namespace) -> int:
+    """Open the read-only loopback console (M30 LUI-1, ADR-0036)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    server = ConsoleServer(store, host=args.host, port=args.port)
+    server.start()
+    url = f"{server.url}/?token={server.token}"
+    print(f"agentwatch: console {url} (read-only, loopback only)")
+    if args.check:
+        try:
+            request = urllib.request.Request(
+                server.url + "/api/health",
+                headers={"X-Agentwatch-Token": server.token},
+            )
+            with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310 - loopback
+                health = json.loads(response.read().decode("utf-8"))
+        finally:
+            server.stop()
+        print(f"agentwatch: readiness ok (chain_ok={health['chain_ok']})")
+        return 0
+    if args.open_browser:
+        open_console_url(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.stop()
+    return 0
+
+
 def _run_purge(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2520,6 +2646,11 @@ def _run_purge(args: argparse.Namespace) -> int:
     print(f"agentwatch: purged {report.purged} record(s) for session {args.session_id}")
     if report.override_reason:
         print(f"agentwatch: legal hold override recorded: {report.override_reason}")
+    if report.leftovers:
+        print(
+            "agentwatch: leftover derived artifact(s) may still retain data: "
+            + ", ".join(report.leftovers)
+        )
     return 0
 
 
@@ -2577,6 +2708,8 @@ def _run_retention(args: argparse.Namespace) -> int:
         "retention_days": profile.retention_days,
         "profile": profile.name,
     }
+    if report.leftovers:
+        payload["leftovers"] = list(report.leftovers)
     if report.held:
         payload["held"] = report.held
     if args.dry_run:
@@ -2594,6 +2727,8 @@ def _run_retention(args: argparse.Namespace) -> int:
             print(f"  {report.held} record(s) skipped by an active legal hold")
         if args.dry_run:
             print("  dry run: nothing was tombstoned")
+        if report.leftovers:
+            print(f"  leftover derived artifact(s): {', '.join(report.leftovers)}")
         if not status.ok:
             print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
     return 0 if status.ok else _EXIT_INSTALL_ERROR
@@ -3297,6 +3432,10 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_demo(args)
     if args.command == "search":
         return _run_search(args)
+    if args.command == "index":
+        return _run_index(args)
+    if args.command == "ui":
+        return _run_ui(args)
     if args.command == "diff":
         return _run_diff(args)
     if args.command == "import":

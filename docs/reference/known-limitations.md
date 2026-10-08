@@ -106,9 +106,24 @@ Status: living.
   until **29.DEP-1** (PRD 50, WS-B) lands. A wrong or missing role denies rather than silently granting
   (proving test: `packages/python-sdk/tests/test_access.py::test_cross_role_read_returns_nothing_and_is_recorded`).
 - Legal holds are enforced on the **chain store** (retention skips; `purge` fails closed with a recorded
-  override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
-  index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
-  exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+  override) and **propagate to the derived index** as of **30.EXT-5** (M30): a refused purge touches nothing, a
+  successful purge/retention drops the erased rows from the embedded index, and `purge`/`retention` **enumerate**
+  known leftover artifacts (archives, parquet/NDJSON exports, repair-evidence copies, quarantine) rather than
+  assuming them absent. A hold still does not reach a Postgres tier, which is not built here (proving tests:
+  `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`,
+  `packages/python-sdk/tests/test_purge_propagation.py::test_blocked_purge_does_not_touch_the_index`).
+- The embedded query index (M30 LUI-2) is a **derived** convenience over the chain store: it is stdlib
+  `sqlite3` with no service and no heavyweight dependency, deletable at any time. Columnar export is the one
+  optional path — `export-parquet` needs the `agentwatch[parquet]` extra (`pyarrow`) and otherwise fails
+  closed rather than silently degrading. Postgres is **not** the general-case tier; it remains the
+  fleet/multi-tenant tier (PRD 41 PG-2, re-sequenced behind the embedded index in ADR-0035/EXT-8) and is not
+  built here (proving tests: `test_query_index.py::test_import_does_not_pull_pyarrow`,
+  `test_query_index.py::test_rebuild_is_bit_for_bit`).
+- `agentwatch ui` (M30 LUI-1) is a **single-operator, loopback-only** console over the local chain store; it has
+  no accounts, roles, or remote access (that is the fleet/Postgres tier, P7/GOV role model, PRD 56). It is
+  read-only and refuses non-loopback Host headers, but it is not a hardened multi-user service (proving tests:
+  `test_console.py::test_console_binds_loopback_even_when_asked_otherwise`,
+  `test_console.py::test_console_rejects_a_non_loopback_host_header`).
 - The agent-facing MCP server (`agentwatch mcp-serve`, **30.AGI-1**) is **read-only and off by default**
   (`--enable`); it exposes no mutating tool and cannot enforce or block. Its responses are labeled
   `untrusted-data` with record citations and every query is recorded as a metadata-only `store-access`

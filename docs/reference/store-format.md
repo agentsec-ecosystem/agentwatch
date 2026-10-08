@@ -86,6 +86,24 @@ version, plus the pre-marker legacy shape), declared in `manifest.json`. CI
 verifies, replays, and exports; an unknown `format` fails closed. The set grows
 per release.
 
+## Derived index (not part of the store format)
+
+`agentwatch` maintains an optional **derived** query index beside the store
+(`<store.path>/index.sqlite3`, M30 LUI-2, [ADR-0035](../adr/0035-embedded-query-index.md)).
+It is **not** part of this contract and carries no authority:
+
+- It is built **from** the chain and is deletable at any time: every command
+  still works (slower) by reading `records.jsonl`, and the index rebuilds
+  bit-for-bit from the chain.
+- It is a stdlib `sqlite3` artifact — no heavyweight runtime dependency.
+- A purge/retention tombstone invalidates it (the freshness digest includes the
+  tombstone bit), and `agentwatch index rebuild` regenerates it from the chain.
+- `purge` and `retention` propagate to the index (the erased rows are dropped),
+  and both **enumerate known leftover artifacts** beside the store (archives,
+  parquet/NDJSON exports, repair-evidence copies, quarantine) rather than
+  assuming them absent (M30 EXT-5).
+- `verify-store` verifies the chain and **never** consults the index.
+
 ## Time
 
 Times are stored and compared in UTC and rendered local with an explicit offset;

@@ -43,8 +43,8 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.PRV-1 | `provenance <commit|range|PR|file>` | feature + tests | 30.PRV-3, 29.APV-1 | Commit→session <2 s; "no recorded activity" when none (never "human"); `mixed` ranges correct; gaps flagged | #462 |
 | 30.PRV-2 | Agent Trace export + git-ai notes cross-validation; spec pin + drift job | feature + tests + CI | 30.PRV-1 | Export validates against the pinned revision; zero code content in output; agree/disagree reported; write-to-repo only by explicit command | #463 |
 | 30.PRV-3 | Content-free range+hash capture (+ ADR) | feature + property test | 29.DEP-3, privacy review | Under `metadata-only`, ranges+hashes exist and no content/diff does; fallback to file-level `heuristic` documented | #464 |
-| 30.LUI-1 | `agentwatch ui` read-only loopback console | feature + tests | 30.LUI-2, 25.STR-1 | Clean install → browser view ≤60 s, no Docker; loopback+token+read-only+no egress; UI=CLI parity; gaps rendered | #465 |
-| 30.LUI-2 | Embedded rebuildable query index (+ optional parquet export) | feature + CI + ADR | ADR-0019 | Delete index → works + rebuilds bit-for-bit; interactive search on 1M records; no heavyweight dep without ADR | #466 |
+| 30.LUI-1 DONE | `agentwatch ui` read-only loopback console | feature + tests | 30.LUI-2, 25.STR-1 | Clean install → browser view ≤60 s, no Docker; loopback+token+read-only+no egress; UI=CLI parity; gaps rendered | #465 |
+| 30.LUI-2 DONE | Embedded rebuildable query index (+ optional parquet export) | feature + CI + ADR | ADR-0019 | Delete index → works + rebuilds bit-for-bit; interactive search on 1M records; no heavyweight dep without ADR | #466 |
 | 30.AGI-1 | Read-only MCP server over the record | feature + tests | 29.APV-1, S21 | Read-only tool set enumerated by test; untrusted labeling + citations; injection fuzz holds; queries recorded as `store-access` | #467 |
 | 30.AGI-2 | Investigation skill + versioned CLI JSON schemas | feature + skill + docs | 30.AGI-1 | Scripted agent reaches documented answers on the demo store; JSON schemas changelog-guarded | #468 |
 | 30.POL-1 | `suggest-policy` + dangerous-broad lint | feature + tests | 29.APV-1, cls1 | No write outside `--out`; each rule evidence-linked; destructive/network/credential never allow-by-default; deterministic | #469 |
@@ -61,8 +61,8 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.DEMO-1 ✅ | Static synthetic demo bundle | docs + artifact | 30.VFY-1 | Opens offline, zero network; synthetic + secret-scanned; linked from README/GTM (VFY-1 page deferred) | #480 |
 | 30.NTF-1 ✅ | Alert-routing recipes (Slack/PagerDuty/Alertmanager) | docs + CI recipes | EXA-1, SIEM-1, S10 | Three CI-tested recipes; claims-ledger entries; docs state routing stays in the user's stack | #481 |
 | 30.EXT-4 ✅ | Publish `cls2` (test/build outcome classes); reproduce `cls1` | feature + docs | PRD 33 | `cls2` table published; `cls1` outputs reproducible | #482 |
-| 30.EXT-5 | `purge`/retention propagate to every derived index/export; enumerate leftovers | feature + tests | 29.HLD-1, 30.LUI-2 | Post-purge index/console empty; leftover artifacts enumerated | #483 |
-| 30.EXT-8 | Re-sequence PG behind LUI-2; record decision | docs + ADR | 30.LUI-2 | ADR records embedded-index-first; PG = fleet/tenant tier | #484 |
+| 30.EXT-5 ✅ | `purge`/retention propagate to every derived index/export; enumerate leftovers | feature + tests | 29.HLD-1, 30.LUI-2 | Post-purge index/console empty; leftover artifacts enumerated | #483 |
+| 30.EXT-8 ✅ | Re-sequence PG behind LUI-2; record decision | docs + ADR | 30.LUI-2 | ADR records embedded-index-first; PG = fleet/tenant tier | #484 |
 | 30.T | Add/expand test cases for this milestone | tests | M30 feature tickets | All new paths covered; coverage ≥ 95% | #485 |
 | 30.D | Create/update the design + reference docs for this milestone | docs | M30 feature tickets | Docs updated and linked from the WBS | #486 |
 | 30.R | Code review & risk sign-off for this milestone | review | M30 feature tickets + 30.T + 30.D | Review recorded; no unresolved findings | #487 |

@@ -98,6 +98,7 @@ def search(
     memory_only: bool = False,
     permission_mode: str | None = None,
     capability: str | None = None,
+    memory_store: str | None = None,
     records: Iterable[AgentRecord] | None = None,
 ) -> list[AgentRecord]:
     """Return stored records matching every supplied filter, in store order.
@@ -111,6 +112,9 @@ def search(
     modes = effective_modes(candidates) if permission_mode is not None else None
     load_after = (
         _capability_load_times(candidates, capability) if capability is not None else {}
+    )
+    memory_after = (
+        _memory_write_times(candidates, memory_store) if memory_store is not None else {}
     )
     result: list[AgentRecord] = []
     for record in candidates:
@@ -149,6 +153,10 @@ def search(
                 continue
         if capability is not None and not _matches_capability(
             record, capability, load_after
+        ):
+            continue
+        if memory_store is not None and not _matches_memory_store(
+            record, memory_store, memory_after
         ):
             continue
         if cutoff is not None and record.started_at < cutoff:
@@ -193,3 +201,41 @@ def _matches_capability(
         return True
     loaded_at = load_after.get(record.session_id)
     return loaded_at is not None and record.started_at >= loaded_at
+
+
+def _memory_write_key(record: AgentRecord) -> str | None:
+    if not is_memory_record(record):
+        return None
+    arguments = record.tool.arguments
+    if not isinstance(arguments, Mapping) or arguments.get("operation") != "write":
+        return None
+    key = arguments.get("key")
+    return key if isinstance(key, str) else None
+
+
+def _memory_write_times(
+    records: Iterable[AgentRecord], memory_store: str
+) -> dict[str, datetime]:
+    """Earliest write to a named memory store, per session."""
+    needle = memory_store.strip().lower()
+    times: dict[str, datetime] = {}
+    for record in records:
+        key = _memory_write_key(record)
+        if key is None or needle not in key.lower():
+            continue
+        current = times.get(record.session_id)
+        if current is None or record.started_at < current:
+            times[record.session_id] = record.started_at
+    return times
+
+
+def _matches_memory_store(
+    record: AgentRecord, memory_store: str, memory_after: dict[str, datetime]
+) -> bool:
+    """A write to the store, or a call in that session after the write."""
+    needle = memory_store.strip().lower()
+    key = _memory_write_key(record)
+    if key is not None and needle in key.lower():
+        return True
+    written_at = memory_after.get(record.session_id)
+    return written_at is not None and record.started_at >= written_at

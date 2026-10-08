@@ -914,6 +914,20 @@
         "doc:docs/design/capability-supply-chain.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C80",
+      "claim": "Persistent memory stores are inventoried as capabilities (digest/size/last-changed, content never retained), appear in `inventory --capabilities` and `inventory --memory`, and are diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed` (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness memory-exposure matrix is published and CI-checked.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_discover_memory_stores_digest_size_last_changed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_change_attributes_to_the_writer_session",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_exposure_matrix_is_published_and_honest",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_memory_content_is_never_stored",
+        "doc:docs/adr/0043-memory-as-capability.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

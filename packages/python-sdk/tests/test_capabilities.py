@@ -263,11 +263,13 @@ def test_missing_directories_yield_empty_inventory(tmp_path: Path) -> None:
     assert {row.harness for row in inv.coverage} == harnesses
 
 
-def test_coverage_includes_the_memory_gap() -> None:
+def test_coverage_declares_memory_partial_after_mem1() -> None:
     inv = discover_capabilities(project=None, home=Path("/nonexistent-home-m30"))
     rows = {(row.harness, row.kind): row.status for row in inv.coverage}
-    assert rows[("claude-code", CAP_KIND_MEMORY)] == COVERAGE_NONE
+    # MEM-1 discovers memory stores, but the harness layout is not pinned.
+    assert rows[("claude-code", CAP_KIND_MEMORY)] == "partial"
     assert rows[("claude-code", CAP_KIND_MCP)] == COVERAGE_EXPOSED
+    assert rows[("cursor", CAP_KIND_MEMORY)] == COVERAGE_NONE
 
 
 def test_json_carries_the_coverage_matrix_without_content(tmp_path: Path) -> None:

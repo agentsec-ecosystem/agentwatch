@@ -22,6 +22,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     `replay` ("followed the load of …"), listed by `impact`, and selectable with `search --capability <name>`
     (the load plus calls recorded after it, never other sessions); a per-harness load-exposure matrix is published
     and CI-checked. Context wording only — never "caused by" (#460).
+  - MEM-1: memory stores as capabilities — `~/.claude/memory` / `<project>/.claude/memory` are inventoried with
+    digest/size/last-changed (content never retained), shown by `inventory --capabilities` and `inventory --memory`,
+    and diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed`
+    (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness
+    memory-exposure matrix is published and CI-checked (#461).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

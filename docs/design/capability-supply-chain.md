@@ -58,7 +58,20 @@ must agree with it.
 ## Memory
 
 Memory stores are capabilities: digest, size, last-changed, and the **session that wrote** each change. A memory change
-not attributable to any recorded session is flagged. `search --memory` returns sessions following a change.
+not attributable to any recorded session is flagged. `search --memory-store <name>` returns the write plus calls after
+a change to that store; `search --memory` lists memory operations.
+
+### Memory exposure matrix (MEM-1)
+
+`MEMORY_EXPOSURE` in `agentwatch.memory` and the CI test
+`tests/test_memory_capability.py::test_exposure_matrix_is_published_and_honest` must agree with this table.
+
+| Harness | Memory exposure | Note |
+|---|---|---|
+| claude-code | partial | directory-based discovery + writer attribution from recorded memory ops; auto-memory layout not pinned |
+| cursor | none | no memory-store surface exposed |
+| codex-cli | none | no memory-store surface exposed |
+| gemini-cli | none | no memory-store surface exposed |
 
 ## Privacy & containment
 
@@ -91,6 +104,11 @@ Digests/names/sizes/origin only; no content. Foreign/unmappable capability confi
   `impact` lists the session's loads, and `search --capability <name>` returns the load plus the calls recorded
   after it (never other sessions). The load-exposure matrix above is published and CI-checked. Wording is context,
   never causation.
+- **MEM-1 landed (#461).** Memory stores under `~/.claude/memory` / `<project>/.claude/memory` are inventoried as
+  capabilities (digest/size/last-changed, content never retained), appear in `inventory --capabilities` and
+  `inventory --memory`, and are diffed with writer-session attribution: a change with no matching recorded memory
+  write is flagged `unattributed`. `search --memory-store <name>` returns the write plus calls after it. Claude Code
+  is `partial` in the published memory-exposure matrix; other harnesses are `none`.
 
 ## Decision
 

@@ -123,6 +123,7 @@ from agentwatch.mcp_surface import (
     render_snapshots,
     survey,
 )
+from agentwatch.memory import discover_memory_stores, render_memory_stores
 from agentwatch.notarize import (
     CheckpointExport,
     dumps,
@@ -644,6 +645,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="loads of this capability plus calls after the load (M30 CAP-3)",
     )
+    search.add_argument(
+        "--memory-store",
+        dest="memory_store",
+        default=None,
+        help="writes to this memory store plus calls after the write (M30 MEM-1)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
@@ -780,6 +787,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--since",
         default=None,
         help="only capability changes at/after this window (with --capabilities --diff)",
+    )
+    inventory.add_argument(
+        "--memory",
+        action="store_true",
+        help="list memory stores with digest/size/last-changed (M30 MEM-1)",
     )
 
     coverage_cmd = sub.add_parser(
@@ -2382,6 +2394,7 @@ def _run_search(args: argparse.Namespace) -> int:
         memory_only=args.memory,
         permission_mode=args.permission_mode,
         capability=args.capability,
+        memory_store=args.memory_store,
         records=combined.records,
     )
     for record in records:
@@ -2705,6 +2718,14 @@ def _run_inventory(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.memory:
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        stores = discover_memory_stores(project=project, home=Path.home())
+        if args.json:
+            print(json.dumps([store.to_dict() for store in stores], indent=2))
+        else:
+            print(render_memory_stores(stores))
+        return 0
     if args.capabilities:
         if args.diff:
             cutoff = since_cutoff(args.since) if args.since else None

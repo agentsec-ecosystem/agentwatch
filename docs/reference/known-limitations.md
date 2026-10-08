@@ -55,6 +55,12 @@ Status: living.
   load-exposure matrix. `replay`/`impact`/`search --capability` therefore show the loads that were recorded, not
   every load a harness performed. (proving test:
   `packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest`).
+- **Memory-store coverage (`MEM-1`, M30) is Claude Code `partial`.** Memory stores are discovered under
+  `~/.claude/memory` / `<project>/.claude/memory` and changes are attributed to the session that recorded a matching
+  memory write; the harness's exact auto-memory layout is not pinned, and Cursor/Codex CLI/Gemini CLI are `none` in
+  the published memory-exposure matrix. Writer attribution is by key/name match, so a write recorded with an
+  unrelated key leaves the change `unattributed`. (proving test:
+  `packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

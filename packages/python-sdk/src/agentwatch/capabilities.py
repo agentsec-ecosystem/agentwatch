@@ -105,6 +105,10 @@ _CLAUDE_EXPOSED = frozenset(
     }
 )
 
+# Memory is discovered as a capability (MEM-1) but its harness layout is not
+# pinned, so Claude Code is honestly *partial*.
+_CLAUDE_PARTIAL = frozenset({CAP_KIND_MEMORY})
+
 # Standard managed-settings locations (Claude Code). Absent on most machines;
 # scanning them is best-effort and never inferred.
 _MANAGED_DIRS: tuple[str, ...] = (
@@ -334,6 +338,8 @@ def _coverage() -> tuple[CoverageRow, ...]:
         for kind in CAP_KINDS:
             if harness == "claude-code" and kind in _CLAUDE_EXPOSED:
                 status = COVERAGE_EXPOSED
+            elif harness == "claude-code" and kind in _CLAUDE_PARTIAL:
+                status = COVERAGE_PARTIAL
             else:
                 status = COVERAGE_NONE
             rows.append(CoverageRow(harness=harness, kind=kind, status=status))
@@ -383,6 +389,15 @@ def discover_capabilities(
         _discover_plugins(builder, managed_dir, SCOPE_MANAGED)
         _discover_hooks(builder, managed_dir / "managed-settings.json", SCOPE_MANAGED)
         _discover_mcp(builder, managed_dir / "managed-mcp.json", SCOPE_MANAGED)
+
+    # Memory stores are capabilities too (MEM-1); imported lazily to avoid a
+    # module cycle (memory reuses Capability).
+    from agentwatch.memory import discover_memory_capabilities
+
+    for capability in discover_memory_capabilities(
+        home=resolved_home, project=resolved_project
+    ):
+        builder.add(capability)
 
     return CapabilityInventory(capabilities=builder.result(), coverage=_coverage())
 

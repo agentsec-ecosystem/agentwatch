@@ -32,6 +32,12 @@ versioning: [Semantic Versioning](https://semver.org/).
     `unknown`); `diff` prints the environment delta above the behavior delta (model first), `sessions --group-by-env`
     groups by it, and `drift` annotates a signal with same-window environment changes under `environment_coincides`
     with "coincides with" wording, never "caused by" (#472).
+  - SBX-1: sandbox-boundary events — signal availability was verified per harness first: Claude Code's OTel
+    vocabulary exposes none, Cursor's raw shell hook carries `sandbox` (adapter capture is a follow-up), so the
+    matrix is declared honestly. An additive nullable `sandbox` field on records and the `sandbox-boundary`
+    security event (OCSF-mapped) carry metadata only; a missing signal stays `unknown` (never unsandboxed).
+    `oversight` reports `% calls unsandboxed` + denials by class and `impact` keeps attempted-but-blocked network
+    destinations apart from contacted ones (#476).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

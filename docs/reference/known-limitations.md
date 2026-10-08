@@ -67,6 +67,13 @@ Status: living.
   were absent, not because the environments were proven identical. `drift` reports environment changes as
   "coincides with", never a cause. (proving test:
   `packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred`).
+- **Sandbox-boundary events (`SBX-1`, M30) capture no live signal yet.** Signal availability was verified first:
+  Claude Code's CCO-1 OTel vocabulary exposes no sandbox event, and Cursor's raw `before/afterShellExecution`
+  payload carries `sandbox` but the Cursor adapter does not preserve it (a harness-adapter follow-up). The
+  per-harness matrix is therefore `claude-code: none`, `cursor: partial` (raw signal only), Codex CLI/Gemini CLI
+  `none`. A record whose harness exposed no signal has `sandbox: null` and is reported `unknown` — never counted as
+  unsandboxed — so `oversight`'s `% calls unsandboxed` is `n/a` until a harness actually reports. (proving test:
+  `packages/python-sdk/tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest`).
 - Operator live views (UI-1) and the OpenCode live soak (XHT-2) are **re-pointed** to M30/M31 — declared, not dropped.
 
 ## agentwatch-specific (v0.1.0)

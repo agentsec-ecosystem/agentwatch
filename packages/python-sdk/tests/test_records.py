@@ -100,6 +100,7 @@ def test_enums_match_the_schema() -> None:
         "agent-delegation",
         "recorder-config-changed",
         "mode-transition",
+        "sandbox-boundary",
         "capability-changed",
     ]
 

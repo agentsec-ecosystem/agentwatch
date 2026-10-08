@@ -42,7 +42,7 @@ from agentwatch.denials import DenialSequence, denial_sequences
 from agentwatch.identity import Attribution, attribution_for
 from agentwatch.permission_mode import ModeInterval, bypass_intervals
 from agentwatch.query import since_cutoff
-from agentwatch.records import AgentRecord
+from agentwatch.records import AgentRecord, Outcome
 from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
 
@@ -97,6 +97,7 @@ class ImpactReport:
     files: tuple[FileFootprint, ...] = ()
     commands: tuple[ImpactEntry, ...] = ()
     network: tuple[ImpactEntry, ...] = ()
+    blocked_network: tuple[ImpactEntry, ...] = ()
     vcs: tuple[ImpactEntry, ...] = ()
     credentials: tuple[ImpactEntry, ...] = ()
     unclassified: tuple[ImpactEntry, ...] = ()
@@ -132,6 +133,7 @@ class ImpactReport:
             ],
             "commands": [self._entry(e) for e in self.commands],
             "network": [self._entry(e) for e in self.network],
+            "blocked_network": [self._entry(e) for e in self.blocked_network],
             "vcs": [self._entry(e) for e in self.vcs],
             "credentials": [self._entry(e) for e in self.credentials],
             "unclassified": [self._entry(e) for e in self.unclassified],
@@ -203,6 +205,7 @@ def build_impact(
     files: dict[str, _FileAcc] = {}
     commands: list[tuple[ImpactEntry, AgentRecord]] = []
     network: list[tuple[ImpactEntry, AgentRecord]] = []
+    blocked_network: list[tuple[ImpactEntry, AgentRecord]] = []
     vcs: list[tuple[ImpactEntry, AgentRecord]] = []
     credentials: list[tuple[ImpactEntry, AgentRecord]] = []
     unclassified: list[tuple[ImpactEntry, AgentRecord]] = []
@@ -221,6 +224,7 @@ def build_impact(
                 files=files,
                 commands=commands,
                 network=network,
+                blocked_network=blocked_network,
                 vcs=vcs,
                 credentials=credentials,
                 unclassified=unclassified,
@@ -260,6 +264,7 @@ def build_impact(
         files=file_footprints,
         commands=_dedupe(commands),
         network=_dedupe(network),
+        blocked_network=_dedupe(blocked_network),
         vcs=_dedupe(vcs),
         credentials=_dedupe(credentials),
         unclassified=_dedupe(unclassified),
@@ -292,6 +297,7 @@ def _accumulate(
     files: dict[str, _FileAcc],
     commands: list[tuple[ImpactEntry, AgentRecord]],
     network: list[tuple[ImpactEntry, AgentRecord]],
+    blocked_network: list[tuple[ImpactEntry, AgentRecord]],
     vcs: list[tuple[ImpactEntry, AgentRecord]],
     credentials: list[tuple[ImpactEntry, AgentRecord]],
     unclassified: list[tuple[ImpactEntry, AgentRecord]],
@@ -315,7 +321,12 @@ def _accumulate(
     elif fact.category in _COMMAND_CATEGORIES:
         commands.append((entry, record))
     elif fact.category == NETWORK:
-        network.append((entry, record))
+        if record.outcome is Outcome.DENIED:
+            # Attempted but blocked at the boundary: kept apart from contacted
+            # destinations (M30 SBX-1).
+            blocked_network.append((entry, record))
+        else:
+            network.append((entry, record))
     elif fact.category == VCS:
         vcs.append((entry, record))
     elif fact.category == CREDENTIAL:
@@ -386,6 +397,7 @@ def render_impact(report: ImpactReport) -> str:
     for label, entries in (
         ("side effects", report.commands),
         ("network", report.network),
+        ("network (blocked attempts)", report.blocked_network),
         ("vcs", report.vcs),
         ("credential-adjacent", report.credentials),
         ("unclassified", report.unclassified),
@@ -400,7 +412,14 @@ def render_impact(report: ImpactReport) -> str:
         not report.files
         and not report.capabilities
         and not any(
-            (report.commands, report.network, report.vcs, report.credentials, report.unclassified)
+            (
+                report.commands,
+                report.network,
+                report.blocked_network,
+                report.vcs,
+                report.credentials,
+                report.unclassified,
+            )
         )
     ):
         lines.append("  no classifiable activity in the captured records")

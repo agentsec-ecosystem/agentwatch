@@ -942,6 +942,20 @@
         "doc:docs/adr/0042-environment-fingerprint.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C82",
+      "claim": "Sandbox-boundary events are additive and nullable: a `sandbox` field on records and a `sandbox-boundary` security event (OCSF-mapped) carry metadata only, a call with no harness signal stays `unknown` (never unsandboxed), `oversight` reports `% calls unsandboxed` plus denials by class, `impact` keeps attempted-but-blocked network destinations apart from contacted ones, and a per-harness sandbox-exposure matrix (Claude Code none, Cursor partial, Codex CLI/Gemini CLI none) is published and CI-checked.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_field_round_trips_and_validates",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_boundary_event_type_and_ocsf_mapping",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_oversight_reports_percent_unsandboxed",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_impact_separates_blocked_from_contacted",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

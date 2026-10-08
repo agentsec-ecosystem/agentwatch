@@ -8,7 +8,7 @@
   "properties": {
     "event_version": { "type": "string", "enum": ["0.1.0", "0.2.0"] },
     "type": {
-      "enum": ["denied", "policy-fired", "secret-detected", "revoked", "halted", "drift-detected", "tool-surface-changed", "agent-delegation", "recorder-config-changed", "mode-transition", "capability-changed"]
+      "enum": ["denied", "policy-fired", "secret-detected", "revoked", "halted", "drift-detected", "tool-surface-changed", "agent-delegation", "recorder-config-changed", "mode-transition", "sandbox-boundary", "capability-changed"]
     },
     "emitted_at": { "type": "string", "format": "date-time" },
     "emitter": { "type": "string", "examples": ["agentwatch", "agentpolicy", "agentkeys", "agenthalt"] },

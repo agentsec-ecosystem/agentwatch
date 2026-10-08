@@ -927,6 +927,18 @@
         "file:docs/design/legal-hold.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C103",
+      "claim": "Postgres is re-sequenced behind the embedded index: the embedded, rebuildable index is the general-case query tier that ships with the CLI and console, and Postgres is only the fleet / multi-tenant tier (ADR-0035, which folds in EXT-8; no separate ADR).",
+      "source": "docs/design/derived-postgres.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_pg_resequencing.py::test_adr_0035_records_embedded_index_first",
+        "test:packages/python-sdk/tests/test_pg_resequencing.py::test_derived_postgres_documents_the_fleet_tenant_tier",
+        "file:docs/adr/0035-embedded-query-index.md",
+        "file:docs/design/derived-postgres.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

@@ -23,6 +23,9 @@ versioning: [Semantic Versioning](https://semver.org/).
     erased rows from the embedded index (and next use rebuilds it from the now-tombstoned chain) so the index and
     console return nothing for the session; a hold still fails the purge closed; known leftover artifacts
     (archives, parquet/NDJSON exports, repair-evidence copies, quarantine) are enumerated (#483).
+  - EXT-8: Postgres re-sequenced behind the embedded index — the embedded, rebuildable index is the general-case
+    query tier and Postgres is the fleet / multi-tenant tier (PG-2); the decision is folded into ADR-0035 and
+    recorded in `design/derived-postgres.md` (no separate ADR) (#484).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

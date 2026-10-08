@@ -6,6 +6,11 @@ versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
+  - PRV-3: content-free range+hash capture (`agentwatch.provenance.capture_ranges`, ADR-0033) — per file-modifying
+    call, the affected line range(s) and a keyed content hash, **never content or a diff**; the fact is metadata so it
+    holds under `metadata-only`, and a harness that exposes no range falls back to file-level `heuristic`. Shape
+    versioned (`RANGE_CAPTURE_VERSION`); guarded by `is_content_free` and a property + attack pack (#464).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

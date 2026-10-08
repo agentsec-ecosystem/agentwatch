@@ -28,6 +28,15 @@ A commit with no recorded session → "no recorded agent activity" (never "human
 Per file-modifying call, under **every** privacy mode: affected line ranges + content hashes (keyed), **no content**.
 This is the minimum for line attribution; without it, attribution falls back to file-level `heuristic`. ADR-0033.
 
+Implementation: `agentwatch.provenance.capture_ranges` reads the structured edit arguments (a range from
+`start_line`/`end_line`, `line_range`, or `lines`; the replaced/new content from `new_string`/`content`/…), emits a
+`RangeCapture` (ranges + keyed HMAC-SHA256 hashes), and never emits content or a diff. The fact is **metadata**, so it
+is legal under `metadata-only`; it rides in the reserved `tool.arguments` key `agentwatch_attribution`
+(`RANGE_CAPTURE_VERSION = "prv3"`). `range_facts_from_record` reads it back; `is_content_free` is the defensive guard.
+When the harness exposes no range the capture is file-level `heuristic` (documented fallback). Declared gap: persisting
+the reserved fact from the live hook before redaction is owned by the record/redaction path (another workstream); the
+primitive and its content-free property are proven here.
+
 ## Agent Trace export/ingest (PRV-2)
 
 - `export-session <id> --format agent-trace` emits spec-conformant records (ranges, conversation ref, contributor

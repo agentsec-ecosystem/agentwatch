@@ -14,7 +14,7 @@ before the last two milestones, [M31 Field Tests + M32 Release Readiness](wbs-v0
 
 ## Milestone M30 — Expanded II: Code, Capabilities, Console & Investigation (PRD 52–55, 57–58)
 
-**Status:** ⏳ not started
+**Status:** 🔄 in progress — PRV-3 (#464) landed on `m30-ws2`
 
 **Goal:** Close the credibility and usefulness gaps around the record: inventory and diff everything the agent can load,
 connect sessions to the code they produced, give the hook store a first-minute browser view and a fast query tier, expose
@@ -39,7 +39,7 @@ local-first, redact-before-store, no LLM in the trust path.
 | 30.MEM-1 | Memory stores as capabilities (digest, writer-session) + `search --memory` | feature + tests | 30.CAP-1, 28.DET-7 | Out-of-band memory edit flagged unattributed; per-harness exposure matrix published | #461 |
 | 30.PRV-1 | `provenance <commit|range|PR|file>` | feature + tests | 30.PRV-3, 29.APV-1 | Commit→session <2 s; "no recorded activity" when none (never "human"); `mixed` ranges correct; gaps flagged | #462 |
 | 30.PRV-2 | Agent Trace export + git-ai notes cross-validation; spec pin + drift job | feature + tests + CI | 30.PRV-1 | Export validates against the pinned revision; zero code content in output; agree/disagree reported; write-to-repo only by explicit command | #463 |
-| 30.PRV-3 | Content-free range+hash capture (+ ADR) | feature + property test | 29.DEP-3, privacy review | Under `metadata-only`, ranges+hashes exist and no content/diff does; fallback to file-level `heuristic` documented | #464 |
+| 30.PRV-3 DONE | Content-free range+hash capture (+ ADR) | feature + property test | 29.DEP-3, privacy review | Under `metadata-only`, ranges+hashes exist and no content/diff does; fallback to file-level `heuristic` documented | #464 |
 | 30.LUI-1 | `agentwatch ui` read-only loopback console | feature + tests | 30.LUI-2, 25.STR-1 | Clean install → browser view ≤60 s, no Docker; loopback+token+read-only+no egress; UI=CLI parity; gaps rendered | #465 |
 | 30.LUI-2 | Embedded rebuildable query index (+ optional parquet export) | feature + CI + ADR | ADR-0019 | Delete index → works + rebuilds bit-for-bit; interactive search on 1M records; no heavyweight dep without ADR | #466 |
 | 30.AGI-1 | Read-only MCP server over the record | feature + tests | 29.APV-1, S21 | Read-only tool set enumerated by test; untrusted labeling + citations; injection fuzz holds; queries recorded as `store-access` | #467 |

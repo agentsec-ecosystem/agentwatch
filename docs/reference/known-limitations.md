@@ -100,6 +100,14 @@ Status: living.
   override); propagation to *every* derived index/export artifact is **30.EXT-5** (M30, behind the embedded
   index LUI-2) and is not in this branch. A hold does not yet reach a Postgres/console tier that does not
   exist here (proving test: `packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records`).
+- **Code provenance (M30 PRV) — declared gaps.** Range+hash capture (PRV-3) is implemented as a content-free
+  primitive (`agentwatch.provenance.capture_ranges`; ranges + keyed hashes, never content) that is legal under
+  `metadata-only`; persisting the reserved fact from the live hook **before** redaction belongs to the
+  record/redaction path (a different workstream), so end-to-end persistence under `metadata-only` is not in this
+  branch (proving test:
+  `packages/python-sdk/tests/test_code_provenance.py::test_capture_is_content_free_under_metadata_only`).
+  Harnesses that do not expose a line range fall back to file-level `heuristic` attribution, never a guessed
+  range. Line tracking across rebase/squash (git-ai's domain) is out of scope.
 
 ## Policy
 

@@ -1,6 +1,6 @@
 # FT-LUI-1 — Clean-machine console ≤60 s, no Docker
 
-**Layer:** analyst · **LLM:** no · **Requires:** python · **PRD / claim:** LUI-1 · **Suite:** s11-console · **Class:** P/F
+**Layer:** analyst · **LLM:** no · **Requires:** python,node · **PRD / claim:** LUI-1 · **Suite:** s11-console · **Class:** P/F
 
 ## Goal
 Clean-machine console ≤60 s, no Docker. See `docs/field-test/v0.2.0/field-test-plan.md` for the rationale.

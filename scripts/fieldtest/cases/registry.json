@@ -1369,11 +1369,11 @@
     "kind": "v020_host",
     "layer": "analyst",
     "llm": "no",
-    "requires": "python",
+    "requires": "python,node",
     "prd": "LUI-1",
     "class": "P/F",
     "suite": "s11-console",
-    "steps": "ft_assert \"ui-console\" bash -lc \"test -f $REPO_ROOT/packages/python-sdk/src/agentwatch/ui.py\"\n"
+    "steps": "ft_assert \"ui-console-check\" bash -lc \"agentwatch ui --check --host 127.0.0.1 --no-open\"\nft_assert \"ui-module\" python3 -c \"import agentwatch.ui\"\nft_assert \"console-playwright\" python3 \"$REPO_ROOT/scripts/fieldtest/console_playwright.py\"\n"
   },
   {
     "id": "FT-LUI-2",
@@ -1529,7 +1529,7 @@
     "prd": "DEMO-1",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert \"demo-bundle\" bash -lc \"test -f $REPO_ROOT/examples/demo-bundle/bundle.json && test -f $REPO_ROOT/examples/demo-bundle/README.md\"\n"
+    "steps": "ft_assert \"demo-bundle-json\" python3 -m json.tool \"$REPO_ROOT/examples/demo-bundle/bundle.json\"\n"
   },
   {
     "id": "FT-NTF-1",
@@ -1565,7 +1565,7 @@
     "prd": "PRD-48 \u00a75",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert \"claims-ledger\" bash -lc \"test -f $REPO_ROOT/docs/release/claims-ledger.json\"\nft_assert \"known-limitations\" bash -lc \"test -f $REPO_ROOT/docs/reference/known-limitations.md\"\n"
+    "steps": "ft_assert \"claims-ledger-json\" python3 -m json.tool \"$REPO_ROOT/docs/release/claims-ledger.json\"\nft_assert \"known-limitations\" test -f \"$REPO_ROOT/docs/reference/known-limitations.md\"\n"
   },
   {
     "id": "FT-MATRIX-1",

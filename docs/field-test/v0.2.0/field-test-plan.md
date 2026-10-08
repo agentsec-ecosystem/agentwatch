@@ -210,6 +210,24 @@ in-process latency stays under the perf gate, user-visible wall-clock moves to F
 **v0.1.0 deferred → closed here:** R2 → FT-ENV-0; R4 → FT-OTEL-1 + FT-BACKEND-2; live OCSF/Syslog reference
 consumers → FT-SIEM-1; real authenticated captures → FT-STR-1, FT-APV-1, FT-CCO-1, FT-SBX-1, FT-CUR-1 (Cursor).
 
+### 5b. Playwright UI coverage — analyst web + local console
+
+Two browser UIs are exercised by Playwright; both recapture screenshots for v0.2.0.
+
+- **Analyst web UI** — `apps/web/tests/e2e/*.spec.ts` (dashboard, fleet, timeline, anomalies, compare, a11y,
+  acceptance, screenshots). `screenshots.spec.ts` recaptures the 8 user-guide images into `docs/assets/screenshots/`
+  via `FT_SCREENSHOT_DIR`. Runs in the Layer-0 regression block and again at M31 (FT-36 / `make e2e`); the suite
+  count is reconciled against the "49" the plan claims (a count discrepancy is recorded in the report, not waived).
+- **Local console** (`agentwatch ui`, FT-LUI-1/2; PRD 54, CUJ-24) — **gap closed in v0.2.0.** The console is a
+  Python-served loopback UI (`packages/python-sdk/src/agentwatch/ui.py`) with no browser test of its own; its only
+  prior evidence was `ui --check` plus axe-under-jsdom (no real browser). v0.2.0 adds
+  `apps/web/tests/e2e/console.spec.ts` — screenshots of the console views (`#health`/`#sessions`/`#signatures`) and a
+  real-browser axe gate — run against a live console (`FT_CONSOLE_URL`, started by the LUI driver).
+
+**Pass condition:** analyst-web Playwright green (`passed/total` recorded), the 8 guide PNGs refreshed, and the
+console spec green (screenshots captured, **0 serious/critical axe violations**, UI == CLI `--json`). A missing
+console spec is a gap to close, never a silent skip.
+
 ---
 
 ## 6. Master scenario matrix — 94 new cases
@@ -639,9 +657,11 @@ same template and are frozen in the roster and the registry.
 ### 7.11 S11 — Local console & query tier
 
 - **FT-LUI-1 — Console (flagship).** Steps: on a clean machine with one recorded session, time `agentwatch ui` to
-  first browser view; compare each number to CLI `--json`; run the axe gate and an egress capture. Assertions: ≤60 s;
-  loopback only; per-launch token; read-only (no mutation endpoint exists); zero network; broken chain/tombstones/gaps
-  visible; UI == CLI for sessions/impact/cost/coverage/oversight; axe passes.
+  first browser view; run `apps/web/tests/e2e/console.spec.ts` against the live console (`FT_CONSOLE_URL`) to recapture
+  its screenshots (`console-overview`, `console-signatures`) and run the real-browser axe gate; compare UI numbers to
+  CLI `--json`. Assertions: ≤60 s; loopback only; per-launch token; read-only (no mutation endpoint exists); zero
+  network; broken chain/tombstones/gaps visible; UI == CLI for sessions/impact/cost/coverage/oversight; axe passes
+  (0 serious/critical); the console screenshots are written to the case artifacts.
 - **FT-LUI-2 — Index.** Steps: delete the embedded index; run commands; rebuild; compare. Assertions: commands still
   work (slower); rebuild bit-for-bit; targets met on a 1M-record store; no heavyweight new dep (ADR-0035); purge/
   retention propagate (EXT-5).
@@ -769,6 +789,11 @@ golden corpora; Claude Code OTel capture; gateway stream; A2A signed/unverifiabl
 git repo for provenance; hostile pack (ADR-0024, incl. Codex #36937); a 100 MB OTLP/gRPC stream; a second detector
 corpus; a redaction corpus; role/tenant matrices; a mode-transition session.
 
+**Playwright (31.3/31.4).** Extend the browser tests for v0.2.0: keep `screenshots.spec.ts` recapturing the 8 guide
+images, and add `apps/web/tests/e2e/console.spec.ts` for the local console (screenshots + axe). The console driver
+(wired into FT-LUI-1) starts `agentwatch ui` and passes its `FT_CONSOLE_URL`; the spec skips only when the URL is
+absent, so a console run that is *claimed* but not exercised fails the case rather than passing by default.
+
 ---
 
 ## 10. Results (all under `field-test/v0.2.0/results/`)
@@ -795,7 +820,10 @@ make setup
 
 # Layer 0 — v0.1.0 regression (must be green first)
 bash scripts/fieldtest/run-all.sh                      # the 50 v0.1.0 cases
-make e2e                                               # 49 Playwright tests
+make e2e                                               # Playwright: analyst web + screenshots (8 guide PNGs)
+
+# Console Playwright (FT-LUI-1): starts the loopback console + runs the console spec
+python3 scripts/fieldtest/console_playwright.py
 
 # Layer 1 — v0.2.0 suites (per-suite so a failure localizes)
 OMLX_BASE_URL=http://host.docker.internal:8000/v1 OMLX_MODEL=Qwen3-4B-Instruct-2507-4bit \

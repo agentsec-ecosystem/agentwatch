@@ -886,6 +886,21 @@
         "file:docs/adr/0033-range-hash-capture.md"
       ],
       "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C90",
+      "claim": "`agentwatch provenance <commit|range|PR|file>` returns the contributing sessions with per-range confidence (exact|heuristic|mixed|ambiguous|unknown); a commit with no recorded session says \"no recorded agent activity\" (never \"human\"), hand-edited-after-agent ranges are mixed, and PR resolution is offline and read-only on the repo.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_to_contributing_session_exact",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_with_no_session_says_no_recorded_agent_activity",
+        "test:packages/python-sdk/tests/test_provenance.py::test_mixed_range_when_part_of_the_commit_is_unattributed",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_under_two_seconds_with_real_git",
+        "test:packages/python-sdk/tests/test_provenance.py::test_pr_target_resolves_through_commit_message",
+        "file:docs/design/code-provenance.md",
+        "file:docs/adr/0033-range-hash-capture.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

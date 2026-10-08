@@ -126,6 +126,7 @@ from agentwatch.ocsf import session_cloudevents, session_ocsf
 from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
 from agentwatch.oversight import build_oversight, render_oversight
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
+from agentwatch.provenance import build_provenance, render_provenance
 from agentwatch.quarantine import (
     QuarantineError,
     QuarantineLog,
@@ -524,6 +525,22 @@ def _build_parser() -> argparse.ArgumentParser:
         "--sessions", action="store_true", help="print only the distinct session ids"
     )
     blame.add_argument("--json", action="store_true", help="emit the hits as JSON")
+
+    provenance = sub.add_parser(
+        "provenance",
+        help="which sessions produced a commit/range/PR/file (M30 PRV-1)",
+    )
+    provenance.add_argument(
+        "target", help="<commit|range|PR|file[:lines]>, e.g. abc1234, a..b, PR42, src/app.py:3-5"
+    )
+    provenance.add_argument("--repo", default=None, help="git repository root (default: cwd)")
+    provenance.add_argument("--project", default=None, help="project root for relative paths")
+    provenance.add_argument(
+        "--window",
+        default="7d",
+        help="how far back to look for a session (default 7d)",
+    )
+    provenance.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     tree_cmd = sub.add_parser("tree", help="the subagent fan-out of a session (M17 S17)")
     tree_cmd.add_argument("session_id", help="session id to render as a tree")
@@ -1975,6 +1992,28 @@ def _run_blame(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_provenance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    repo = args.repo or os.getcwd()
+    report = build_provenance(
+        store,
+        args.target,
+        repo=repo,
+        project=args.project,
+        window=args.window,
+    )
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_provenance(report))
+    return 0
+
+
 def _run_tree(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -3144,6 +3183,8 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_impact(args)
     if args.command == "blame":
         return _run_blame(args)
+    if args.command == "provenance":
+        return _run_provenance(args)
     if args.command == "tree":
         return _run_tree(args)
     if args.command == "trace":

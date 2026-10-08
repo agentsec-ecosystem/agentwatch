@@ -11,6 +11,11 @@ versioning: [Semantic Versioning](https://semver.org/).
     call, the affected line range(s) and a keyed content hash, **never content or a diff**; the fact is metadata so it
     holds under `metadata-only`, and a harness that exposes no range falls back to file-level `heuristic`. Shape
     versioned (`RANGE_CAPTURE_VERSION`); guarded by `is_content_free` and a property + attack pack (#464).
+  - PRV-1: `agentwatch provenance <commit|range|PR|file>` (`agentwatch.provenance.build_provenance`) — joins git
+    facts to the recorded sessions that produced them, per range confidence `exact|heuristic|mixed|ambiguous|unknown`,
+    contributing sessions with harness/model, authorization mix, cost, anomalies, coverage, and an evidence pointer; a
+    commit with no recorded session says "no recorded agent activity" (never "human"); PR resolution is offline; the
+    repo is read-only (#462).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

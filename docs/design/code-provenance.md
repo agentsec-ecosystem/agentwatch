@@ -23,6 +23,16 @@ Facts: session records (repo root, VCS revision at start, per-file-modification 
 A commit with no recorded session → "no recorded agent activity" (never "human"). Human edits after the agent →
 `mixed`. Coverage gaps in the window are flagged; no completeness claim beyond the chain.
 
+Implementation (`agentwatch.provenance.build_provenance`, CLI `agentwatch provenance`): a `GitFacts` source reads a
+commit's changed paths and hunks read-only (`git show --unified=0`, never writing to the repo) and degrades to an
+honest `unavailable`/unknown instead of guessing; PR targets resolve offline by matching a merge/squash subject
+`(#N)`. Records are joined by normalized path + a session window (default 7 d) and a direct session-start `vcs.commit`
+link. Per hunk the confidence is `exact` (a structured range covers it), `mixed` (part of the hunk has no recorded
+agent activity), `ambiguous` (two or more sessions edited the same range — CNC-1), `heuristic` (file-level only), or
+`unknown` (no recorded session). Each contributing session carries harness/model, the authorization mix, cost,
+anomalies, coverage, and an evidence pointer. Loaded capabilities are not recorded in this build (M30 CAP-1) and are
+reported as a note, never invented. Read-only on the repo by default.
+
 ## Range+hash capture (PRV-3)
 
 Per file-modifying call, under **every** privacy mode: affected line ranges + content hashes (keyed), **no content**.

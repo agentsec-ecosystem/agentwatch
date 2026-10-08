@@ -1,0 +1,169 @@
+{
+  "schema": "agentwatch.redaction-corpus/1",
+  "version": "v1",
+  "description": "Versioned, PUBLIC, synthetic redaction corpus. Every value is fabricated; none is a real secret. Positive cases assert the expected secret/PII classes fire; negative cases assert no detection (false-positive control). Encoded/structured cases that agentwatch does NOT yet detect are kept as honest misses (see docs/reference/known-limitations.md).",
+  "cases": [
+    {
+      "id": "api-key-sk",
+      "class": "api-key",
+      "label": "positive",
+      "value": "sk-proj-abc1234567890XYZ",
+      "expect": ["api-key"]
+    },
+    {
+      "id": "api-key-ghp",
+      "class": "api-key",
+      "label": "positive",
+      "value": "ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+      "expect": ["api-key"]
+    },
+    {
+      "id": "api-key-aws",
+      "class": "api-key",
+      "label": "positive",
+      "value": "AKIAABCDEFGHIJKLMNOP",
+      "expect": ["api-key"]
+    },
+    {
+      "id": "api-key-slack",
+      "class": "api-key",
+      "label": "positive",
+      "value": "xoxb-1234567890-abcdefghij",
+      "expect": ["api-key"]
+    },
+    {
+      "id": "api-key-google",
+      "class": "api-key",
+      "label": "positive",
+      "value": "AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      "expect": ["api-key"]
+    },
+    {
+      "id": "api-key-encoded-base64",
+      "class": "api-key",
+      "label": "positive",
+      "value": "c2stbGl2ZS1BQkNERUZHSElKS0xNTk9Q",
+      "expect": ["api-key"],
+      "note": "base64 of sk-live-ABCDEFGHIJKLMNOP — a declared miss (encoded secrets are not yet decoded)"
+    },
+    {
+      "id": "oauth-bearer",
+      "class": "oauth-bearer",
+      "label": "positive",
+      "value": "Authorization: Bearer abcdef1234567890abcdef",
+      "expect": ["oauth-bearer"]
+    },
+    {
+      "id": "jwt",
+      "class": "jwt",
+      "label": "positive",
+      "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      "expect": ["jwt"]
+    },
+    {
+      "id": "cloud-secret-google",
+      "class": "cloud-secret",
+      "label": "positive",
+      "value": "ya29.abcdefghijklmnopqrstuvwxyz",
+      "expect": ["cloud-secret"]
+    },
+    {
+      "id": "connection-string-postgres",
+      "class": "connection-string",
+      "label": "positive",
+      "value": "postgres://user:pass@db.example.com:5432/app",
+      "expect": ["connection-string"]
+    },
+    {
+      "id": "credit-card-visa-test",
+      "class": "credit-card",
+      "label": "positive",
+      "value": "4111 1111 1111 1111",
+      "expect": ["credit-card"]
+    },
+    {
+      "id": "ssn-placeholder",
+      "class": "ssn",
+      "label": "positive",
+      "value": "123-45-6789",
+      "expect": ["ssn"]
+    },
+    {
+      "id": "email-ascii",
+      "class": "email",
+      "label": "positive",
+      "value": "contact alice@example.com for access",
+      "expect": ["email"]
+    },
+    {
+      "id": "email-multilingual",
+      "class": "email",
+      "label": "positive",
+      "value": "联系 alice@example.com 获取支持",
+      "expect": ["email"],
+      "note": "multilingual context; the address itself is ASCII"
+    },
+    {
+      "id": "phone-e164",
+      "class": "phone",
+      "label": "positive",
+      "value": "call +14155550123 now",
+      "expect": ["phone"]
+    },
+    {
+      "id": "env-secret-key-name",
+      "class": "env-secret",
+      "label": "positive",
+      "value": {"api_token": "synthetic-value-under-a-sensitive-key"},
+      "expect": ["env-secret"]
+    },
+    {
+      "id": "negative-prose",
+      "class": "none",
+      "label": "negative",
+      "value": "the build passed in 42 seconds"
+    },
+    {
+      "id": "negative-version",
+      "class": "none",
+      "label": "negative",
+      "value": "agentwatch v1.2.3"
+    },
+    {
+      "id": "negative-date",
+      "class": "none",
+      "label": "negative",
+      "value": "recorded 2026-01-02"
+    },
+    {
+      "id": "negative-uuid",
+      "class": "none",
+      "label": "negative",
+      "value": "4bf92f35-77b3-4da6-a3ce-929d0e0e4736"
+    },
+    {
+      "id": "negative-ip",
+      "class": "none",
+      "label": "negative",
+      "value": "127.0.0.1"
+    },
+    {
+      "id": "negative-nonluhn-card",
+      "class": "none",
+      "label": "negative",
+      "value": "1234 5678 9012 3456"
+    },
+    {
+      "id": "negative-path",
+      "class": "none",
+      "label": "negative",
+      "value": "/repo/src/main.py"
+    },
+    {
+      "id": "negative-insensitive-key",
+      "class": "none",
+      "label": "negative",
+      "value": {"token_count": 42}
+    }
+  ]
+}

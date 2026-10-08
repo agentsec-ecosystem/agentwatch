@@ -1145,6 +1145,61 @@
       "last_verified": "2026-10-07"
     },
     {
+      "id": "C119",
+      "claim": "Incident cases group sessions across hosts/days as chain records, present a merged timeline that states its ordering rule and classifies gaps, and export a case bundle that re-verifies offline with no registry egress.",
+      "source": "docs/design/incident-cases.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_membership_changes_are_chain_records",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_bundle_verifies_offline",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_tampered_member_is_named_by_the_verifier",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_export_is_local_only",
+        "file:docs/design/incident-cases.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C120",
+      "claim": "An evidence bundle verifies offline in a self-contained browser page that opens from file:// with zero network requests, reports the same intact/complete/leak-free verdicts as the CLI, and names the first broken chain link of a tampered bundle.",
+      "source": "docs/design/browser-verifier.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_html_is_self_contained_and_has_no_network_surface",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_differential_verdicts_match_the_cli_on_every_fixture",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_tampered_bundle_names_the_first_broken_link",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_checksum_matches_the_artifact_and_is_listed_in_release_evidence",
+        "file:docs/release/verifier/agentwatch-verify.html"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C121",
+      "claim": "A sealed runner segment carries its own hash chain and start/end attestation; import-segment verifies it, anchors it as a source: runner chain-of-custody record, labels imported records as NOT locally witnessed, joins the originating session by traceparent, and performs no egress; a tampered segment fails and is not imported.",
+      "source": "docs/design/runner-segments.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_seal_writes_a_self_verifying_segment",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_rehashed_manifest_still_fails_on_the_chain",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_imported_records_are_visibly_weaker_than_local",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_tampered_segment_is_not_imported",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_traceparent_joins_the_originating_session",
+        "file:docs/design/runner-segments.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C122",
+      "claim": "Redaction quality is published from a versioned, public corpus of synthetic secrets/PII as per-class recall and a false-positive rate, reproduced deterministically offline by `agentwatch redact eval`, with known misses declared in known-limitations and the corpus registered for the secret scan.",
+      "source": "docs/design/redaction-corpus.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_numbers_reproduce_and_do_not_drift",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_table_is_generated_and_current",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_false_positive_rate_is_published",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_corpus_is_registered_for_the_secret_scan",
+        "file:docs/reference/redaction-corpus.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
       "id": "C129",
       "claim": "The digest ranks recurring failure signatures deterministically with a versioned grouping rule (sg1) and links each pattern to replay/diff evidence.",
       "source": "docs/design/outcomes-signals.md",

@@ -111,6 +111,16 @@ from agentwatch.holds import (
 )
 from agentwatch.impact import build_impact, render_impact
 from agentwatch.importer import import_transcripts, resolve_paths
+from agentwatch.incident_cases import (
+    active_cases,
+    build_case_bundle,
+    case_timeline,
+    record_case_add,
+    record_case_create,
+    record_case_remove,
+    render_case_timeline,
+    verify_case_bundle,
+)
 from agentwatch.ingest import resolve_ingest_paths, run_ingest
 from agentwatch.install import (
     EVENT_PHASES,
@@ -194,12 +204,25 @@ from agentwatch.recorder_state import (
     record_retention_changed,
 )
 from agentwatch.records import EVENT_VERSION, SecurityEvent, SecurityEventType, validate_event
-from agentwatch.redact import redaction_config_from_mode
+from agentwatch.redact import (
+    evaluate_corpus,
+    load_corpus,
+    redaction_config_from_mode,
+    render_report_table,
+)
 from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
 from agentwatch.retention import profile_names, resolve_retention_profile
+from agentwatch.runner_segments import (
+    anchor_records,
+    custody_rows,
+    import_segment,
+    render_custody,
+    seal_segment,
+    verify_segment,
+)
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
@@ -433,6 +456,71 @@ def _build_parser() -> argparse.ArgumentParser:
     hold_release.add_argument("--reason", default=None, help="why the hold is released")
     hold_release.add_argument("--json", action="store_true", help="emit the result as JSON")
 
+    case_cmd = sub.add_parser(
+        "case", help="incident cases: merged timeline + offline bundle (M30 IR-1)"
+    )
+    case_sub = case_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    case_create = case_sub.add_parser("create", help="create a case (chain-recorded)")
+    case_create.add_argument("--title", required=True, help="human-readable case title")
+    case_create.add_argument("--severity", default="medium", help="severity label (default medium)")
+    case_create.add_argument("--ref", default=None, help="external reference, e.g. INC-123")
+    case_create.add_argument("--json", action="store_true", help="emit the case as JSON")
+    case_add = case_sub.add_parser("add", help="add a session to a case (chain-recorded)")
+    case_add.add_argument("case_id", help="the case id, e.g. C1")
+    case_add.add_argument("--session", dest="session", required=True, help="session id to add")
+    case_add.add_argument("--json", action="store_true", help="emit the marker as JSON")
+    case_remove = case_sub.add_parser("remove", help="remove a session from a case")
+    case_remove.add_argument("case_id", help="the case id, e.g. C1")
+    case_remove.add_argument(
+        "--session", dest="session", required=True, help="session id to remove"
+    )
+    case_remove.add_argument("--json", action="store_true", help="emit the marker as JSON")
+    case_list = case_sub.add_parser("list", help="list cases and their membership")
+    case_list.add_argument("--json", action="store_true", help="emit the cases as JSON")
+    case_show = case_sub.add_parser("show", help="show a case's merged, gap-annotated timeline")
+    case_show.add_argument("case_id", help="the case id, e.g. C1")
+    case_show.add_argument("--json", action="store_true", help="emit the timeline as JSON")
+    case_export = case_sub.add_parser("export", help="export a case bundle (local, no egress)")
+    case_export.add_argument("case_id", help="the case id, e.g. C1")
+    case_export.add_argument(
+        "--out", default=None, help="write the bundle here (default: <case>.zip)"
+    )
+    case_export.add_argument("--json", action="store_true", help="emit the result as JSON")
+    case_verify = case_sub.add_parser("verify", help="verify a case bundle offline")
+    case_verify.add_argument("bundle", help="case bundle zip path")
+    case_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+
+    segment_cmd = sub.add_parser(
+        "segment", help="sealed runner segments: export/verify/custody (M30 RUN-1)"
+    )
+    segment_sub = segment_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    segment_export = segment_sub.add_parser(
+        "export", help="seal a session's records into a self-verifying segment"
+    )
+    segment_export.add_argument("--session", dest="session", required=True, help="session id")
+    segment_export.add_argument("--runner", required=True, help="runner identity, e.g. ci-runner-7")
+    segment_export.add_argument("--run-id", dest="run_id", required=True, help="runner run id")
+    segment_export.add_argument(
+        "--traceparent", default=None, help="W3C traceparent for the originating session"
+    )
+    segment_export.add_argument(
+        "--out", default=None, help="write the segment here (default: <session>.segment.zip)"
+    )
+    segment_export.add_argument("--json", action="store_true", help="emit the result as JSON")
+    segment_verify = segment_sub.add_parser("verify", help="verify a sealed segment offline")
+    segment_verify.add_argument("bundle", help="segment zip path")
+    segment_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+    segment_custody = segment_sub.add_parser(
+        "custody", help="label records local-witnessed vs imported runner"
+    )
+    segment_custody.add_argument("--json", action="store_true", help="emit the rows as JSON")
+
+    import_segment_cmd = sub.add_parser(
+        "import-segment", help="verify and anchor a sealed runner segment (M30 RUN-1)"
+    )
+    import_segment_cmd.add_argument("bundle", help="segment zip path")
+    import_segment_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
+
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
     )
@@ -543,6 +631,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="privacy mode for the filter (default: active config)",
     )
     redact.add_argument("--json", action="store_true", help="emit findings as JSON")
+    redact.add_argument(
+        "target",
+        nargs="?",
+        default=None,
+        help="'eval' to run the public redaction corpus and print per-class numbers",
+    )
+    redact.add_argument(
+        "--corpus",
+        default=None,
+        metavar="VERSION",
+        help="redaction corpus version for 'redact eval' (default: v1)",
+    )
 
     export_session_cmd = sub.add_parser(
         "export-session", help="export one session as NDJSON with its chain segment (M13 J2)"
@@ -2055,6 +2155,18 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 
 def _run_redact(args: argparse.Namespace) -> int:
+    if args.target == "eval":
+        try:
+            report = evaluate_corpus(load_corpus(args.corpus or "v1"))
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        if args.json:
+            print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+        else:
+            print(render_report_table(report))
+        return 0
+
     try:
         cfg = _load(args)
     except ConfigError as exc:
@@ -2101,7 +2213,8 @@ _COMMANDS_FOR_COMPLETION = (
     "completions uninstall inventory search diff view explain import ingest fleet drift retention "
     "purge export-session mcp-proxy a2a-proxy annotate redact bom evidence coverage "
     "quarantine archive "
-    "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance"
+    "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance "
+    "case segment import-segment"
 )
 
 
@@ -2615,6 +2728,195 @@ def _run_hold(args: argparse.Namespace) -> int:
     else:
         ref = f" (ref {hold.ref})" if hold.ref else ""
         print(f"agentwatch: placed hold {hold.hold_id} on {hold.scope.label()}{ref}")
+    return 0
+
+
+def _run_case(args: argparse.Namespace) -> int:
+    if args.action == "verify":
+        verification = verify_case_bundle(args.bundle)
+        if args.json:
+            print(json.dumps(verification.to_dict()))
+        else:
+            print(f"agentwatch: case bundle {verification.bundle_format or 'unknown'}")
+            print(f"  intact: {verification.intact}")
+            for problem in verification.problems:
+                print(f"  problem: {problem}", file=sys.stderr)
+        return 0 if verification.ok else _EXIT_INSTALL_ERROR
+
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "list":
+        cases = active_cases(store)
+        if args.json:
+            print(json.dumps({"cases": [case.to_dict() for case in cases]}))
+        else:
+            print(f"agentwatch case list: {len(cases)} case(s)")
+            for case in cases:
+                members = ",".join(member.session_id for member in case.members) or "-"
+                print(f"{case.case_id}\t{case.severity}\t{case.title}\t{members}")
+        return 0
+
+    if args.action == "create":
+        case = record_case_create(
+            store, title=args.title, severity=args.severity, ref=args.ref
+        )
+        if args.json:
+            print(json.dumps(case.to_dict()))
+        else:
+            print(f"agentwatch: created case {case.case_id} ({case.title})")
+        return 0
+
+    if args.action == "add":
+        try:
+            marker = record_case_add(store, args.case_id, args.session)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps(marker.to_dict()))
+        else:
+            print(f"agentwatch: added {args.session} to case {args.case_id}")
+        return 0
+
+    if args.action == "remove":
+        try:
+            marker = record_case_remove(store, args.case_id, args.session)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps(marker.to_dict()))
+        else:
+            print(f"agentwatch: removed {args.session} from case {args.case_id}")
+        return 0
+
+    if args.action == "export":
+        try:
+            bundle = build_case_bundle(store, args.case_id)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        out = Path(args.out).expanduser() if args.out else Path.cwd() / f"{args.case_id}.case.zip"
+        bundle.write(out)
+        if args.json:
+            print(json.dumps({"case_id": bundle.case_id, "path": str(out)}))
+        else:
+            print(f"agentwatch: wrote case bundle to {out}")
+            print("  handling: local only; no registry egress.")
+        return 0
+
+    # show
+    try:
+        timeline = case_timeline(store, args.case_id)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(timeline.to_dict()))
+    else:
+        print(render_case_timeline(timeline))
+    return 0
+
+
+def _run_import_segment(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = import_segment(store, args.bundle)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict()))
+    else:
+        print(
+            f"agentwatch: imported segment from {report.runner} "
+            f"({report.records} record(s), {len(report.sessions)} session(s))"
+        )
+        print("  custody: source: runner; chain-protected locally but NOT locally witnessed")
+        if report.joined_sessions:
+            print(f"  joined to: {', '.join(report.joined_sessions)}")
+    return 0
+
+
+def _run_segment(args: argparse.Namespace) -> int:
+    if args.action == "verify":
+        verification = verify_segment(args.bundle)
+        if args.json:
+            print(json.dumps(verification.to_dict()))
+        else:
+            print(f"agentwatch: segment {verification.bundle_format or 'unknown'}")
+            print(f"  intact      : {verification.intact}")
+            print(f"  attestation : {verification.attestation}")
+            for problem in verification.problems:
+                print(f"  problem: {problem}", file=sys.stderr)
+        return 0 if verification.ok else _EXIT_INSTALL_ERROR
+
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "custody":
+        rows = custody_rows(store)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "anchors": [anchor.to_dict() for anchor in anchor_records(store)],
+                        "rows": [row.to_dict() for row in rows],
+                    }
+                )
+            )
+        else:
+            print(render_custody(store))
+        return 0
+
+    # export
+    records = [record for record in store.records() if record.session_id == args.session]
+    if not records:
+        print(f"agentwatch: no records for session {args.session}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    started = min(record.started_at for record in records)
+    ended = max(record.ended_at or record.started_at for record in records)
+    try:
+        segment = seal_segment(
+            records,
+            runner=args.runner,
+            run_id=args.run_id,
+            started_at=started,
+            ended_at=ended,
+            traceparent=args.traceparent,
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    out = (
+        Path(args.out).expanduser()
+        if args.out
+        else Path.cwd() / f"{args.session}.segment.zip"
+    )
+    segment.write(out)
+    if args.json:
+        print(
+            json.dumps(
+                {"runner": segment.runner, "run_id": segment.run_id, "path": str(out)}
+            )
+        )
+    else:
+        print(f"agentwatch: wrote sealed segment to {out}")
+        print("  handling: upload it yourself; agentwatch performs no egress.")
     return 0
 
 
@@ -3654,6 +3956,12 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_governance(args)
     if args.command == "hold":
         return _run_hold(args)
+    if args.command == "case":
+        return _run_case(args)
+    if args.command == "segment":
+        return _run_segment(args)
+    if args.command == "import-segment":
+        return _run_import_segment(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":

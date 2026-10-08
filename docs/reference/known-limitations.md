@@ -206,6 +206,30 @@ Status: living.
   without one the denominator is preserved as **unknown**, never guessed — and a session that never sets `ended_at`
   yields a point span (proving test:
   `packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none`).
+- Incident cases (`agentwatch case`, M30 IR-1) reconstruct a merged timeline from **one local store**: a case
+  crossing machines requires those stores to be pooled first (there is no cross-host case transport). A
+  store-level tombstone cannot be attributed to a member session after the fact (its payload is dropped), so
+  it is reported as a store-level `tombstone` gap and never guessed into a session. Case export is manual and
+  local — there is no registry submission path (proving test:
+  `packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps`).
+- The offline browser verifier (M30 VFY-1, `docs/release/verifier/agentwatch-verify.html`) is **checksummed
+  in-repo but signed at release time**: a private key is never committed, so the ed25519 signature over
+  `SHA256SUMS` is produced by `scripts/build_browser_verifier.py --sign` in the release pipeline (proving
+  test: `packages/python-sdk/tests/test_browser_verifier.py::test_checksum_matches_the_artifact_and_is_listed_in_release_evidence`).
+  The differential test drives the inlined verifier core under a JS engine; a real-browser `file://` smoke run
+  is part of release readiness (VFY-1), not of the unit gate. The page re-verifies the current evidence-bundle
+  format only.
+- Runner segments (M30 RUN-1) carry **per-import** custody: the segment's own chain proves integrity from the
+  runner's genesis, but there is no continuous chain between the runner and the importing host, and redaction is
+  the runner's responsibility (import refuses `privacy_mode=full` records, but cannot re-derive what the runner
+  already dropped). A cross-host join is by W3C `traceparent` only; when the header is absent the runner session
+  is imported **unjoined**. Proving test:
+  `packages/python-sdk/tests/test_runner_segments.py::test_imported_records_are_visibly_weaker_than_local`.
+- Redaction recall (M30 RED-1) is published from the public corpus
+  ([reference/redaction-corpus.md](redaction-corpus.md)); the one declared miss is `api-key-encoded-base64` — an
+  API key that has been base64-encoded is not decoded before detection, so `api-key` publishes 0.8333 recall, not
+  1.0. Encoded/structured secrets remain a gap (proving test:
+  `packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations`).
 
 ## Policy
 

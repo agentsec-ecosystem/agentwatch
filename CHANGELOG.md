@@ -112,6 +112,29 @@ versioning: [Semantic Versioning](https://semver.org/).
     security event (OCSF-mapped) carry metadata only; a missing signal stays `unknown` (never unsandboxed).
     `oversight` reports `% calls unsandboxed` + denials by class and `impact` keeps attempted-but-blocked network
     destinations apart from contacted ones (#476).
+  - IR-1: incident cases — `agentwatch case create/add/remove/list/show/export/verify` groups sessions across
+    hosts/days as metadata-only **chain records**, merges their records into one timeline that states its
+    ordering rule and classifies gaps (`recording-gap`/`time-gap`/`purge`/`tombstone`/`unreadable`), and
+    exports a self-contained case bundle (`case.json`, `records.ndjson`, COR-3-shaped
+    `incident-report.json`) that re-verifies offline (member hashes **and** the chain segment) with no
+    registry egress (#473).
+  - VFY-1: offline browser evidence verifier — a single, self-contained
+    `docs/release/verifier/agentwatch-verify.html` opens from `file://` with **zero network requests** and
+    re-verifies an evidence bundle (member hashes, the hash-chain segment, completeness, leak-scan, and
+    attestation) with the CLI's verdict wording, naming the first broken link of a tampered bundle; a
+    differential test asserts identical verdicts to `agentwatch evidence verify`, `scripts/build_browser_verifier.py`
+    checksums (and can sign) the artifact, and ADR-0044 records the trust model (#475).
+  - RUN-1: sealed runner segments — `agentwatch segment export/verify/custody` and `agentwatch import-segment`
+    seal an ephemeral/CI run into a self-verifying segment (its **own** hash chain from genesis, runner identity,
+    start/end attestation), verify it offline, and anchor it locally as a `source: runner` chain-of-custody
+    record; imported records are chain-protected but **NOT locally witnessed** (S11 distinction, visible in
+    `segment custody`), sealing/import refuse unredacted records, a `traceparent` joins the originating session,
+    a tampered segment fails and is not imported, and agentwatch performs no egress; ADR-0039 (#479).
+  - RED-1: public redaction corpus + `redact eval` — a versioned, synthetic corpus
+    (`schema/vectors/redaction/v1/`) drives `agentwatch redact eval --corpus v1` to publish per-class recall and a
+    false-positive rate, reproduced deterministically offline; the committed numbers/table cannot drift
+    (`docs/reference/redaction-corpus-numbers.json`); the one honest miss (base64-encoded API keys) is declared in
+    known-limitations; the corpus is allowlisted for the first-party secret scan (#471).
 - v0.2.0 M29 (Expanded I — Trust, Identity & Governance):
   - DEP-1: managed-policy install posture + honest `doctor` — `agentwatch.managed_policy` reads the effective
     managed settings (`allowManagedHooksOnly`, `strictPluginOnlyCustomization`) and `doctor` reports

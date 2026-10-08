@@ -4,7 +4,7 @@
 store with an explicit **chain-of-custody** label. Imported records are kept visibly weaker than locally-chained ones —
 same integrity-distinction rule as `union` (S11) — and are never presented as locally witnessed.
 
-**Status:** proposed (2026-10-05, v0.2.0-expanded) · **Milestone:** v0.2.x · Sources:
+**Status:** implemented (2026-10-07, v0.2.0 M30) · **Milestone:** M30 · Sources:
 [PRD 58](../prd/58-outcomes-ephemeral-capture-and-growth.md), [storage-design.md](storage-design.md),
 [streaming-views.md](streaming-views.md), PRD 42 (TRACE).
 
@@ -37,6 +37,17 @@ Redacted records only; attack pack passes on segments; zero egress by default.
 - Tampered segment fails (FT-RUN-1).
 - Imported records distinguished from locally witnessed ones.
 - No egress (assertion); trace join classifies correctly.
+
+## Implementation
+
+`agentwatch.runner_segments`. `agentwatch segment export --session S --runner R --run-id ID [--traceparent TP]`
+seals the session's records; `agentwatch segment verify <seg.zip>` re-verifies offline; `agentwatch import-segment
+<seg.zip>` verifies and anchors; `agentwatch segment custody` labels every record local-witnessed vs imported
+runner. Members: `records.ndjson` (own chain rows), `segment.json`, `attestation.json`, `manifest.json`. Imported
+records get `producer.kind=import`, `producer.name=runner-segment` and are marked `source: runner`,
+`locally_witnessed=false`. Sealing/import refuse `privacy_mode=full` records. A `traceparent` joins the runner
+session to the originating local session and the join is recorded on the anchor. `verify-store`/`evidence`
+handle imported sessions because they are ordinary local-chain entries.
 
 ## Decision
 

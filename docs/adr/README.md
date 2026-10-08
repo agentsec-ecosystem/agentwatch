@@ -40,10 +40,12 @@ Formal records of the accepted decisions. Mirrors [`../design/design-decisions.m
 | [0036](0036-console-security-model.md) | Local console security model | accepted |
 | [0037](0037-mcp-read-only-server.md) | MCP read-only server threat model | accepted |
 | [0038](0038-policy-suggestion-boundary.md) | Policy suggestion boundary: advisory artifacts only | accepted |
+| [0039](0039-runner-segment-custody.md) | Runner segment custody semantics | accepted |
 | [0040](0040-fleet-role-model.md) | Fleet role x data-class read-access model | accepted |
 | [0041](0041-legal-hold.md) | Legal hold suspends retention/purge, with recorded provenance | accepted |
 | [0042](0042-environment-fingerprint.md) | Environment fingerprint contents | accepted |
 | [0043](0043-memory-as-capability.md) | Persistent memory stores are capabilities | accepted |
+| [0044](0044-browser-verifier-trust-model.md) | Browser verifier trust model and release signing | accepted |
 | [0045](0045-standards-participation.md) | Standards participation; closes DD-05 | accepted |
 | [0046](0046-retention-and-signing-posture.md) | Retention profiles + signed default posture | accepted |
 | [0047](0047-credential-hygiene-observation.md) | Credential-hygiene observation | accepted |

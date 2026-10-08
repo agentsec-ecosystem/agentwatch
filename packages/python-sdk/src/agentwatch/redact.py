@@ -72,8 +72,11 @@ Usage
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 
 class PrivacyMode(str, Enum):
@@ -272,3 +275,202 @@ def redaction_config_from_mode(mode: str, *, capture_tool_args: bool = True) -> 
         mode=_CONFIG_MODES.get(mode, PrivacyMode.METADATA_ONLY),
         capture_tool_args=capture_tool_args,
     )
+
+
+# ---------------------------------------------------------------------------
+# Public redaction corpus + ``redact eval`` (M30 RED-1, PRD 56 §RED-1)
+# ---------------------------------------------------------------------------
+
+CORPUS_SCHEMA = "agentwatch.redaction-corpus/1"
+CORPUS_REPORT_SCHEMA = "agentwatch.redaction-corpus-numbers/1"
+CORPUS_VERSIONS: tuple[str, ...] = ("v1",)
+
+
+@dataclass(frozen=True)
+class RedactionCase:
+    """One corpus case: a synthetic secret/PII value and its expected classes."""
+
+    id: str
+    klass: str
+    label: str  # "positive" | "negative"
+    value: Any
+    expect: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "class": self.klass,
+            "label": self.label,
+            "value": self.value,
+            "expect": list(self.expect),
+        }
+
+
+@dataclass(frozen=True)
+class RedactionCorpus:
+    """A versioned corpus of synthetic secret/PII cases."""
+
+    schema: str
+    version: str
+    cases: tuple[RedactionCase, ...]
+
+
+@dataclass(frozen=True)
+class ClassResult:
+    """Published recall for one secret/PII class."""
+
+    klass: str
+    cases: int
+    hits: int
+    recall: float
+    misses: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "cases": self.cases,
+            "hits": self.hits,
+            "recall": self.recall,
+            "misses": list(self.misses),
+        }
+
+
+@dataclass(frozen=True)
+class CorpusReport:
+    """Per-class recall + false-positive rate reproduced from a corpus."""
+
+    schema: str
+    corpus: str
+    positive: int
+    negative: int
+    overall_recall: float
+    false_positive_rate: float
+    classes: tuple[ClassResult, ...]
+    misses: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema": self.schema,
+            "corpus": self.corpus,
+            "corpus_schema": CORPUS_SCHEMA,
+            "cases": {"positive": self.positive, "negative": self.negative},
+            "overall_recall": self.overall_recall,
+            "false_positive_rate": self.false_positive_rate,
+            "classes": {result.klass: result.to_dict() for result in self.classes},
+            "misses": list(self.misses),
+        }
+
+
+def _corpus_root() -> Path:
+    candidate = Path(__file__).resolve()
+    for parent in candidate.parents:
+        root = parent / "schema" / "vectors" / "redaction"
+        if root.is_dir():
+            return root
+    raise ValueError("redaction corpus directory not found (schema/vectors/redaction)")
+
+
+def load_corpus(version: str = "v1", *, root: Path | None = None) -> RedactionCorpus:
+    """Load the public redaction corpus for a version (deterministic, offline)."""
+    directory = (root if root is not None else _corpus_root()) / version
+    path = directory / "corpus.json"
+    if not path.is_file():
+        available = ", ".join(CORPUS_VERSIONS)
+        raise ValueError(f"unknown redaction corpus {version!r}; available: {available}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema") != CORPUS_SCHEMA:
+        raise ValueError(f"corpus {version!r} has an unknown schema {payload.get('schema')!r}")
+    cases = tuple(
+        RedactionCase(
+            id=str(case["id"]),
+            klass=str(case["class"]),
+            label=str(case["label"]),
+            value=case.get("value"),
+            expect=tuple(str(kind) for kind in case.get("expect", ())),
+        )
+        for case in payload.get("cases", ())
+    )
+    return RedactionCorpus(
+        schema=CORPUS_SCHEMA,
+        version=str(payload.get("version", version)),
+        cases=cases,
+    )
+
+
+def _detected_kinds(value: Any) -> set[str]:
+    from agentwatch.secrets import detect, redact_mapping
+
+    if isinstance(value, str):
+        return {match.kind for match in detect(value)}
+    _masked, kinds = redact_mapping(value)
+    return set(kinds)
+
+
+def evaluate_corpus(corpus: RedactionCorpus) -> CorpusReport:
+    """Reproduce per-class recall + false-positive rate from a corpus."""
+    from agentwatch.secrets import SECRET_KINDS
+
+    order = {kind: index for index, kind in enumerate(SECRET_KINDS)}
+    positives: dict[str, list[RedactionCase]] = {}
+    hits: dict[str, int] = {}
+    misses: list[str] = []
+    negative = 0
+    false_positives = 0
+    for case in corpus.cases:
+        detected = _detected_kinds(case.value)
+        if case.label == "negative":
+            negative += 1
+            if detected:
+                false_positives += 1
+            continue
+        positives.setdefault(case.klass, []).append(case)
+        if set(case.expect) <= detected:
+            hits[case.klass] = hits.get(case.klass, 0) + 1
+        else:
+            misses.append(case.id)
+
+    classes = tuple(
+        ClassResult(
+            klass=klass,
+            cases=len(cases),
+            hits=hits.get(klass, 0),
+            recall=round(hits.get(klass, 0) / len(cases), 4),
+            misses=tuple(case.id for case in cases if case.id in set(misses)),
+        )
+        for klass, cases in sorted(positives.items(), key=lambda item: order.get(item[0], 99))
+    )
+    total_positive = sum(len(cases) for cases in positives.values())
+    total_hits = sum(hits.values())
+    return CorpusReport(
+        schema=CORPUS_REPORT_SCHEMA,
+        corpus=corpus.version,
+        positive=total_positive,
+        negative=negative,
+        overall_recall=round(total_hits / total_positive, 4) if total_positive else 0.0,
+        false_positive_rate=round(false_positives / negative, 4) if negative else 0.0,
+        classes=classes,
+        misses=tuple(sorted(misses)),
+    )
+
+
+def render_report_table(report: CorpusReport) -> str:
+    """Render the published per-class table (used in the reference doc)."""
+    counts = f"{report.positive} positive / {report.negative} negative case(s)."
+    lines = [
+        f"Corpus `{report.corpus}` — {counts}",
+        "",
+        "| Class | Cases | Hits | Recall | Misses |",
+        "|---|---|---|---|---|",
+    ]
+    for result in report.classes:
+        misses = ", ".join(result.misses) if result.misses else "—"
+        lines.append(
+            f"| {result.klass} | {result.cases} | {result.hits} | {result.recall:.4f} | {misses} |"
+        )
+    lines.append("")
+    lines.append(
+        f"Overall recall: **{report.overall_recall:.4f}** "
+        f"({report.positive - len(report.misses)}/{report.positive}); "
+        f"false-positive rate: **{report.false_positive_rate:.4f}** "
+        f"({report.negative} negative cases)."
+    )
+    return "\n".join(lines)

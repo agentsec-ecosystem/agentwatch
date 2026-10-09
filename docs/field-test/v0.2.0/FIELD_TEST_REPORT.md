@@ -1,9 +1,9 @@
 # agentwatch v0.2.0 — Field Test Report
 
 > **Generated:** 2026-10-08 — **partial run in progress** from `field-test/v0.2.0/results/` (batches 1–2 + the fixed defects).
-> **Overall:** 32 PASS · 0 FAIL · 61 not run · 1 N/A (94 v0.2.0 cases). Of the 32 PASS, deep analysis counts
-> **27 grounded · 5 over-claimed** — a `PASS` here means the case ran green, **not** that the claim is proven (see the
-> `Notes` column and the journal). Full S1–S15 re-run **not** finished.
+> **Overall:** 30 PASS · 1 FAIL · 62 not run · 1 N/A (94 v0.2.0 cases). Of the 30 PASS, deep analysis counts
+> **28 grounded · 2 over-claimed** — a `PASS` here means the case ran green, **not** that the claim is proven (see the
+> `Notes` column and the journal). The 1 FAIL is a **real finding** (FT-STR-2). Full S1–S15 re-run **not** finished.
 > **Structure:** mirrors the [v0.1.0 report](../v0.1.0/FIELD_TEST_REPORT.md) and the plan's §13 template,
 > extended for the v0.2.0 suites and the `P/F|D` declare class.
 
@@ -11,24 +11,24 @@
 
 ## BLUF + Release Gate Verdict
 
-**32 PASS · 0 FAIL · 61 not run · 1 N/A** — a **partial** run (batch 1, batch 2, and the fixed defects), not the
+**30 PASS · 1 FAIL · 62 not run · 1 N/A** — a **partial** run (batch 1, batch 2, and the fixed defects), not the
 final gate. This report is a **journal**: the Master Table `Status` is the raw verdict, while the `Notes` column and
-the journal record whether a PASS is *grounded* or *over-claimed*. Current tally: **27 grounded · 5 over-claimed**.
+the journal record whether a PASS is *grounded* or *over-claimed*. Current tally: **28 grounded · 2 over-claimed**.
 The release-gate rows below are marked **provisional** and **must not be read as a green release** until every suite
 is run and every step strengthened.
 
-Two genuine release-gate defects were found by hardening and **fixed**: the missing Tempo second OTLP backend (R4) and
-the `gemini-cli` `modeled` Tier-1 matrix row. `FT-WIN-1` is retired (N/A — Windows unsupported).
+Three genuine defects were found by hardening: the missing Tempo second OTLP backend (R4) and the `gemini-cli`
+`modeled` Tier-1 matrix row (**fixed**), and FT-STR-2's soak over-delivery (**open**). `FT-WIN-1` is retired (N/A).
 
 ### Run status (partial)
 
 | | Count |
 |---|---|
-| PASS (raw verdict) | 32 |
-| — of which grounded | 27 |
-| — of which over-claimed (not yet hardened) | 5 |
-| FAIL | 0 |
-| not run | 61 |
+| PASS (raw verdict) | 30 |
+| — of which grounded | 28 |
+| — of which over-claimed (not yet hardened) | 2 |
+| FAIL (real: FT-STR-2 soak over-delivery) | 1 |
+| not run | 62 |
 | N/A (retired) | 1 |
 
 ### Release gate verdict (provisional — partial run)
@@ -135,7 +135,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-IDN-2 | s5-identity | P/F | not run | — |
 | FT-IDN-3 | s5-identity | P/F | not run | fixed F-1a: `search --identity user` value |
 | FT-IR-1 | s13-investigation | P/F | not run | fixed F-1a: incident create via case_incident.py |
-| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `drive-agent.py` run-only (delivery + verify) |
+| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs a real LangGraph / raw-Python SDK driver — not available in this environment |
 | FT-LOG-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-file assertion — each log reader must produce ≥1 record |
 | FT-LUI-1 | s11-console | P/F | not run | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
 | FT-LUI-2 | s11-console | P/F | not run | — |
@@ -162,8 +162,8 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-SBX-1 | s13-investigation | P/F\|D | not run | fixed F-1c: `sandbox_boundary_event()` 0-arg |
 | FT-SDK-1 | s7-platform | P/F | not run | — |
 | FT-SIEM-1 | s5-identity | P/F | not run | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
-| FT-STR-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `stream-probe --mode p99` still ignores `--budget-ms`; no latency measured |
-| FT-STR-2 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): drop-consumer soak has no reconciliation assertion |
+| FT-STR-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): `stream-probe --mode p99` now measures hook→store latency (real socket send + store poll) and gates p99 ≤ budget |
+| FT-STR-2 | s3-harness | P/F | FAIL | ⚠ HARDENED → **FAIL** (real finding): `stream-probe` asserts the soak's `within_bounds`; run reported delivered=5003 vs records=5000 (duplicate deliveries), gaps=4705, degraded_polls=100 → exact reconciliation not met |
 | FT-SYS-1 | s6-surfaces | P/F\|D | not run | fixed H-7: declared → real assertion |
 | FT-TRACE-1 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run` asserts a 3-host chain + a classified `missing-parent` gap |
 | FT-TRACE-2 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run --skew` asserts a classified `clock-skew` gap |
@@ -171,11 +171,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-VFY-1 | s13-investigation | P/F | not run | — |
 | FT-WIN-1 | s1-install | P/F\|D | N/A | Windows is **not supported** — retired; never run again (N/A). |
 | FT-XHT-1 | s3-harness | P/F | PASS | ✓ grounded: `--self-test` asserts all 8 adapters conform |
-| FT-XHT-2 | s3-harness | P/F\|D | PASS | ⚠ over-claimed (NOT hardened): `--opencode` still ignored by the driver |
-| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `--cross-parser` still asserts only ≥2 adapters |
+| FT-XHT-2 | s3-harness | P/F\|D | not run | DECLARED (not run): OpenCode binary absent from the recorder image; needs an external runner + pinned model endpoint (P/F\|D) |
+| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs 2 independent OSS parsers — not available in this environment |
 | FT-XHT-4 | s3-harness | P/F | PASS | FIXED: same declared row; re-run PASS (fresh stack) |
 
-**Totals:** 32 PASS · 0 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
+**Totals:** 30 PASS · 1 FAIL · 62 not run · 1 N/A  (of 94 v0.2.0 cases).
 
 ## Per-Suite Results
 
@@ -189,7 +189,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s3-harness
 
-14 case(s): 14 PASS · 0 FAIL · 0 not run · 0 N/A
+14 case(s): 12 PASS · 1 FAIL · 1 not run · 0 N/A
 
 ### s4-detectors
 
@@ -295,13 +295,27 @@ under `docs/assets/screenshots`. Fixing the harness (host CLI invocation, buffer
 
 ## Root Cause Analysis
 
-No failures recorded.
+### FT-STR-2 — Drop-consumer reconciliation + 24 h soak
+
+- **Suite:** s3-harness · **Class:** P/F
+- **Failed assertions:** stream-drop-reconcile
+- **Evidence:** `field-test/v0.2.0/results/s3-harness/cases/FT-STR-2`
+- **stderr (tail):**
+
+```
+ Container agentwatch-recorder-1 Restarting 
+ Container agentwatch-recorder-1 Started 
+fail: soak exceeded the memory/bounded-queue budget: StreamingSoakReport(records=5000, delivered=5003, gaps=4705, degraded_polls=100, reconnects=0, size_mb=2.307, within_bounds=False)
+```
+
+- **Cause:** TBD (from the evidence above)
+- **Fix / regression:** TBD
 
 ## Defect Catalogue
 
 | Case | Suite | Failed assertions | Evidence |
 |---|---|---|---|
-| — | — | — | — |
+| FT-STR-2 | s3-harness | stream-drop-reconcile | `field-test/v0.2.0/results/s3-harness/cases/FT-STR-2` |
 
 ## Deep Analysis Notes — Final Re-run (journal)
 
@@ -445,8 +459,10 @@ Outcome of hardening the 20 batch-2 cases:
 | Group | Cases | Count |
 |---|---|---|
 | Grounded (no change needed) | FT-TRACE-1, FT-TRACE-2, FT-PG-2, FT-MCP-2, FT-XHT-1 | 5 |
-| **Hardened + re-run GREEN (confirmed)** | FT-CUR-1, FT-CUR-2, FT-GEM-1, FT-MCP-1, FT-OTEL-3, FT-OTEL-4, FT-PG-1, FT-PG-3, FT-COD-1, FT-LOG-1 | 10 |
-| **NOT hardened (still over-claimed)** | FT-STR-1, FT-STR-2, FT-LG-1, FT-XHT-2, FT-XHT-3 | 5 |
+| **Hardened + re-run GREEN (confirmed)** | FT-CUR-1, FT-CUR-2, FT-GEM-1, FT-MCP-1, FT-OTEL-3, FT-OTEL-4, FT-PG-1, FT-PG-3, FT-COD-1, FT-LOG-1, FT-STR-1 | 11 |
+| **Hardened → FAIL (real finding)** | FT-STR-2 (soak `within_bounds=False`: duplicate deliveries) | 1 |
+| **Declared (P/F\|D)** | FT-XHT-2 (OpenCode binary absent from the recorder image) | 1 |
+| **NOT hardened — needs external tooling** | FT-LG-1 (LangGraph / raw-Python SDK driver), FT-XHT-3 (2 independent OSS parsers) | 2 |
 
 **A harness bug found only by hardening the drivers:** the store JSONL wraps each fact as
 `{"seq","prev_hash","hash","record":{…}}`, but `_ftutil.records()` returned the outer wrapper — so any driver
@@ -716,9 +732,14 @@ Product suite: `packages/python-sdk/tests/test_compatibility.py` — 9 passed af
 - **Content-check false positive.** FT-OTEL-3's first real run flagged `privacy-mode-changed` / `retention-changed` /
   `export-configured` — control-plane markers whose `arguments` are their own metadata, not user content; the check is
   now scoped to records with a `step_type`.
-- **Hardening is not done until it is re-run and green:** of batch-2's 20, **10 are confirmed** (CUR-1/2, GEM-1,
-  MCP-1, OTEL-3/4, PG-1/3, COD-1, LOG-1), **5 were already grounded**, and **5 are not yet hardened** (STR-1/2,
-  LG-1, XHT-2/3). Several first attempts were red and only went green after a further fix.
+- **Hardening is not done until it is re-run and green:** of batch-2's 20, **11 are confirmed** (CUR-1/2, GEM-1,
+  MCP-1, OTEL-3/4, PG-1/3, COD-1, LOG-1, STR-1), **5 were already grounded**, **1 is a real FAIL** (STR-2),
+  **1 is declared** (XHT-2), and **2 need external tooling** (LG-1, XHT-3). Several first attempts were red and only
+  went green after a further fix.
+- **Hardening surfaced a real product defect (FT-STR-2):** the streaming soak's own `within_bounds` is `False`
+  (delivered 5003 vs records 5000 — duplicate deliveries), so the case now correctly **fails**.
+- **Some steps cannot be grounded in this environment** — FT-LG-1 needs a LangGraph / raw-Python SDK driver and
+  FT-XHT-3 needs two independent OSS parsers; neither is available here, so they stay honestly flagged, not faked.
 
 ### Harness vs product
 
@@ -756,6 +777,12 @@ FT-COD-1) are still driver-side.
     (CUR-1/2, GEM-1, MCP-1).
 12. **Iterate and re-run:** first hardening attempts are often wrong (wrong field, wrong dedup key, wrong fixture
     format); a fix is only real when the case is re-run green.
+13. **Assert the product's own correctness gate, not a lenient reading.** FT-STR-2's soak shows a real over-delivery:
+    "no store loss" (delivered ≥ records) passes, but the product's own `within_bounds` (delivered == records) does not.
+14. **Declare honestly for `P/F|D` when the environment cannot provide** (FT-XHT-2: no OpenCode binary) — a
+    declaration is not a pass.
+15. **A hard gate (P/F) with missing external tooling cannot be honestly passed** — FT-LG-1 (LangGraph SDK) and
+    FT-XHT-3 (two independent OSS parsers) remain unproven here, and are flagged as such, never faked.
 
 
 ## Takeaways

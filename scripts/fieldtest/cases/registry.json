@@ -888,8 +888,8 @@
     "prd": "XHT-2",
     "class": "P/F|D",
     "suite": "s3-harness",
-    "steps": "if [[ \"${OMLX_BASE_URL:-}\" == \"\" ]]; then ft_assert_recorder \"xht-opencode-bounded\" \"python3 /ft/scripts/xht_replay.py --opencode --bounded\"; else ft_assert_recorder \"xht-opencode\" \"python3 /ft/scripts/xht_replay.py --opencode --bounded\"; fi\n",
-    "recycle": false
+    "steps": "ft_declare \"OpenCode binary is absent from the field-test recorder image; a hermetic OpenCode soak needs an external runner with a pinned model endpoint\" \"PRD 40 \u00a75 XHT-2\"\n",
+    "recycle": true
   },
   {
     "id": "FT-XHT-3",

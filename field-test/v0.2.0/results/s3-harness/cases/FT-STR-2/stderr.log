@@ -1,2 +1,3 @@
  Container agentwatch-recorder-1 Restarting 
  Container agentwatch-recorder-1 Started 
+fail: soak exceeded the memory/bounded-queue budget: StreamingSoakReport(records=5000, delivered=5003, gaps=4705, degraded_polls=100, reconnects=0, size_mb=2.307, within_bounds=False)

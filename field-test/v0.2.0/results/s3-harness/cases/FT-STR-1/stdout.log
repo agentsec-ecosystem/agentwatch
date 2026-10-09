@@ -1,2 +1,3 @@
 DO
-ok: hook->view p99 measured against the 1 s budget
+hook->view p50=6.0ms p99=6.9ms (budget 1000ms); 40/40 visible
+ok: hook->view p99 6.9ms within the 1000ms budget

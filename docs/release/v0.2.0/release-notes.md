@@ -50,8 +50,7 @@ The v0.2.0 field test executed **all 94 cases**: **92 PASS · 0 FAIL · 1 not ru
 - Supply chain: [release-evidence.md](release-evidence.md) — `make release-dry-run` builds and verifies the
   bundle (CycloneDX SBOM + checksums + `verify-release`); CI signs (cosign) and attests provenance on the tag.
 - Dependencies/licences: [dependency-review.md](dependency-review.md); notices: `THIRD_PARTY_NOTICES.md`.
-- Compliance: [compliance-matrix.md](compliance-matrix.md); OpenSSF: `docs/reference/open-source-checklist.md`.
-- Versioning: one version across SDK/CLI/CHANGELOG, enforced by `tests/test_release_tooling.py`.
+- Compliance: [compliance-matrix.md](compliance-matrix.md); OpenSSF: `docs/reference/open-source-checklist.md`.- Versioning: one version across SDK/CLI/CHANGELOG, enforced by `tests/test_release_tooling.py`.
 - First run: [first-run-evidence.md](first-run-evidence.md).
 - Release gate: [release-checklist.md](release-checklist.md) (PRD 40 §5 gates 1–16; gate 9 partial — Windows
   unsupported).

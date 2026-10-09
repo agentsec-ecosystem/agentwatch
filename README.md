@@ -89,8 +89,8 @@ consented live capture lands). Codex CLI, Gemini CLI, CrewAI, and PydanticAI shi
   local dry-run via `make release-dry-run`.
 - **Dependencies & licences** — [dependency-review.md](docs/release/v0.2.0/dependency-review.md) ·
   [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- **Compliance mapping** — [OpenSSF checklist](docs/reference/open-source-checklist.md) ·
-  [compliance/](docs/compliance/).
+- **Compliance mapping** — [compliance-matrix.md](docs/release/v0.2.0/compliance-matrix.md) ·
+  [OpenSSF checklist](docs/reference/open-source-checklist.md) · [compliance/](docs/compliance/).
 - **Disclosure** — [SECURITY.md](SECURITY.md).
 
 ## Verification & quality gates

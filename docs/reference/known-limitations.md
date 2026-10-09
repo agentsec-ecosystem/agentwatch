@@ -14,7 +14,7 @@ Status: living.
   test: `tests/test_trace.py`).
 - No multi-tenant isolation.
 - LLM detectors were research-grade (10-trace sample).
-- ~~28/35 detectors silent on the HF field-test corpus.~~ **Resolved in M26 (DET-2/DET-3):** 38/38 rule detectors are
+- ~~28/35 detectors silent on the HF field-test corpus.~~ **Resolved in M26 (DET-2/DET-3):** 40/40 rule detectors are
   non-silent on the field-test matrix, with generated, drift-guarded precision/recall in the catalog (proving test:
   `services/analytics/tests/test_detector_non_silent.py`).
 - ~~No memory-audit.~~ **Closed in M28 (DET-7):** memory read/write/delete are recorded (metadata always;

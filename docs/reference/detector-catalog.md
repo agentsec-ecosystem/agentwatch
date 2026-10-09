@@ -37,7 +37,7 @@ The field-test scenario matrix (`analytics.scenario_validation`, 143 boundary + 
 runs every **rule** detector offline and deterministically; the DET-2 gate
 (`scripts/detector_eval.py --scenarios`, tested in
 `services/analytics/tests/test_detector_non_silent.py`) requires **≥ 80 % of rule detectors non-silent** and
-currently reports **38/38 (100 %)**. Classification:
+currently reports **40/40 (100 %)**. Classification:
 
 - **Offline rule detectors (38):** evaluated from synthetic spans/summaries; all fire on at least one positive
   scenario (none retired, none silent).

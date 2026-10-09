@@ -147,10 +147,14 @@ Full index: [docs/README.md](docs/README.md).
 
 **Release v0.2.0**
 
-- [Release notes](docs/release/v0.2.0/release-notes.md) · [Release checklist & go/no-go](docs/release/v0.2.0/release-checklist.md)
+- [Release notes](docs/release/v0.2.0/release-notes.md) · [Release checklist & go/no-go](docs/release/v0.2.0/release-checklist.md) ·
+  [Migration guide](docs/release/v0.2.0/migration-guide.md)
 - [Security audit](docs/release/v0.2.0/security-audit.md) · [Secret scan report](docs/release/v0.2.0/secret-scan-report.md) ·
-  [Dependency & license review](docs/release/v0.2.0/dependency-review.md)
+  [Dependency & license review](docs/release/v0.2.0/dependency-review.md) · [Compliance matrix](docs/release/v0.2.0/compliance-matrix.md)
 - [Release evidence](docs/release/v0.2.0/release-evidence.md) · [First-run evidence](docs/release/v0.2.0/first-run-evidence.md)
+- [AAT external verification](docs/release/v0.2.0/aat-external-verification.md) ·
+  [Known-limitations shrink](docs/release/v0.2.0/known-limitations-shrink.md) ·
+  [Detector numbers](docs/release/v0.2.0/detector-numbers.md)
 - [Field test report v0.2.0](docs/field-test/v0.2.0/FIELD_TEST_REPORT.md) · [WBS v0.2.0](docs/wbs/v0.2.0/wbs-v0.2.0-index.md)
 
 **Release v0.1.0**

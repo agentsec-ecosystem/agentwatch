@@ -24,3 +24,4 @@
 {"name":"svc-tempo","ok":true}
 {"name":"svc-managed-hooks","ok":true}
 {"name":"detector-matrix-llm","ok":true}
+{"name":"llm-detectors-semantics","ok":true}

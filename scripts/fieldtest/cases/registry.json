@@ -927,7 +927,7 @@
     "prd": "DET-1/2",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\nft_assert \"detector-eval-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_detector_eval.py\n",
     "recycle": true
   },
   {
@@ -953,7 +953,7 @@
     "prd": "DET-4",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix-llm\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -e OMLX_MODEL=\"${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}\" analytics -m analytics.scenario_validation --all\n",
+    "steps": "ft_assert \"detector-matrix-llm\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -e OMLX_MODEL=\"${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}\" analytics -m analytics.scenario_validation --all\nft_assert \"llm-detectors-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_llm_eval.py services/analytics/tests/test_llm_detectors.py\n",
     "recycle": true
   },
   {
@@ -966,7 +966,7 @@
     "prd": "DET-6/7",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\nft_assert \"injection-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_injection_detector.py services/analytics/tests/test_detectors_gaps.py\n",
     "recycle": true
   },
   {
@@ -992,7 +992,7 @@
     "prd": "DET-6",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\nft_assert \"detector-catalog-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_detector_catalog.py\n",
     "recycle": true
   },
   {
@@ -1005,7 +1005,7 @@
     "prd": "DET-7",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-tpr-fpr\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\nft_assert \"real-traces-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_detector_real_traces.py\n",
     "recycle": true
   },
   {

@@ -1,0 +1,286 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-DET-1 (s4-detectors) ########################
+== case FT-DET-1 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS detector-matrix
+  PASS detector-tpr-fpr
+  PASS detector-eval-semantics
+== case FT-DET-1: pass ==
+######################## FT-DET-3 (s4-detectors) ########################
+== case FT-DET-3 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS detector-matrix-llm
+  PASS llm-detectors-semantics
+== case FT-DET-3: pass ==
+######################## FT-DET-4 (s4-detectors) ########################
+== case FT-DET-4 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS detector-matrix
+  PASS detector-tpr-fpr
+  PASS injection-semantics
+== case FT-DET-4: pass ==
+######################## FT-DET-6 (s4-detectors) ########################
+== case FT-DET-6 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS detector-matrix
+  PASS detector-tpr-fpr
+  PASS detector-catalog-semantics
+== case FT-DET-6: pass ==
+######################## FT-DET-7 (s4-detectors) ########################
+== case FT-DET-7 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS detector-matrix
+  PASS detector-tpr-fpr
+  PASS real-traces-semantics
+== case FT-DET-7: pass ==
+>>> BATCH COMPLETE

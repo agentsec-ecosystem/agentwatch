@@ -25,3 +25,4 @@
 {"name":"svc-managed-hooks","ok":true}
 {"name":"detector-matrix","ok":true}
 {"name":"detector-tpr-fpr","ok":true}
+{"name":"detector-catalog-semantics","ok":true}

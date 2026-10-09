@@ -120,13 +120,13 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-DEP-1 | s1-install | P/F\|D | PASS | HARDENED: `doctor_managed.py` asserts doctor reports blocked/yes/unknown and never 'installed' while blocked (was a regex that accepted `no`) → PASS |
 | FT-DEP-2 | s1-install | P/F | PASS | HARDENED: `attestation_strip.py` performs the real digest move and asserts a `recorder-config-changed` fact (digests/booleans only) → PASS |
 | FT-DEP-3 | s1-install | P/F\|D | PASS | HARDENED: `run-hook-perf.py` measures end-to-end hook wall-clock and gates p99 ≤ 250 ms + a 500-call quote (was delivery-only) → PASS |
-| FT-DET-1 | s4-detectors | P/F | PASS | — |
+| FT-DET-1 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_detector_eval.py` — offline deterministic harness over the real detectors + published per-detector numbers (was matrix + non-silent check) |
 | FT-DET-2 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): `check-detector-results.py --nonsilent-80` asserts ≥80% of detectors fire on ≥1 positive |
-| FT-DET-3 | s4-detectors | P/F | PASS | fixed F-1c: drop invalid `--llm`; LLM matrix |
-| FT-DET-4 | s4-detectors | P/F | PASS | — |
+| FT-DET-3 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_llm_eval.py` + `test_llm_detectors.py` — LLM detectors on the shared harness, additive, never in the deterministic path (was matrix exit-0) |
+| FT-DET-4 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_injection_detector.py` + `test_detectors_gaps.py` — injection heuristics + declared gaps, signals-only (was matrix + non-silent check) |
 | FT-DET-5 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): `detector_telemetry_check.py` asserts telemetry is off by default and, when enabled, markers are content-free + bounded (was `coverage` + `import`) |
-| FT-DET-6 | s4-detectors | P/F | PASS | — |
-| FT-DET-7 | s4-detectors | P/F | PASS | — |
+| FT-DET-6 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_detector_catalog.py` — per-detector precision/recall regenerated from the field-test matrix; the committed doc cannot drift (was matrix + non-silent check) |
+| FT-DET-7 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_detector_real_traces.py` — every rule detector runs over real licensed captures (was matrix + non-silent check) |
 | FT-ENV-0 | s1-install | P/F | PASS | HARDENED: `first_run_timing.py` now enforces the ≤900 s budget; `naming_guard.py` asserts the NAM-1 warning fires for a foreign distribution (no false positive) → PASS |
 | FT-ENV-1 | s13-investigation | P/F | PASS | fixed F-1a: `diff <a> <b>` positionals |
 | FT-EXA-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_examples_gallery.py` — every recipe exists, is indexed, and runs green or is explicitly illustrative (was `find` only) |
@@ -513,13 +513,13 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s3 | FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1/2, FT-LOG-1, FT-STR-1, FT-XHT-1 | G | — (hardened) |
 | s3 | FT-LG-1 | R | needs a real LangGraph / raw-Python **SDK** driver (spans `source: sdk`, chain-protected); `drive-agent.py` only proves delivery |
 | s3 | FT-XHT-3 | V | `--cross-parser` only asserts ≥2 registered adapters; needs a true normalized diff vs 2 independent OSS parsers |
-| s4 | FT-DET-1 | R | run `detectors eval` twice; assert **byte-identical** + published per-detector numbers |
+| s4 | FT-DET-1 | ✅ G | done — shipped detector-eval test |
 | s4 | FT-DET-2 | ✅ G | done — `--nonsilent-80` asserts the ≥80% rule (catalog guard still to add) |
-| s4 | FT-DET-3 | R | assert the LLM matrix ran with `llm_called_ok` per scenario (currently just exit 0) |
-| s4 | FT-DET-4 | V | assert injection/memory observations with published precision/recall; signals-only; high-FP rules off |
+| s4 | FT-DET-3 | ✅ G | done — shipped LLM-eval tests |
+| s4 | FT-DET-4 | ✅ G | done — shipped injection + gaps tests |
 | s4 | FT-DET-5 | ✅ G | done — off-by-default + content-free + bounded |
-| s4 | FT-DET-6 | V | same generic check; assert per-class scenarios + per-harness numbers in the catalog |
-| s4 | FT-DET-7 | V | same generic check; assert firing on **real** harness traces (not fixtures) |
+| s4 | FT-DET-6 | ✅ G | done — shipped detector-catalog test |
+| s4 | FT-DET-7 | ✅ G | done — shipped real-traces test |
 | s4 | FT-COR-1 | R | `corpus.sh` exit 0; assert the numbers reproduce the published set within stated bounds + CIs |
 | s4 | FT-RED-1 | ✅ G | done — shipped redact-eval test |
 | s5 | FT-IDN-1 | G | — (fleet-run asserts identity + delegation) |
@@ -609,6 +609,11 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-GWY-1 | shipped `test_gateway_cost.py` | PASS |
 | FT-CCO-2 | shipped `test_claude_agent_sdk.py` | PASS |
 | FT-POL-1 | shipped `test_policy_suggest.py` + `test_policy_whatif.py` | PASS |
+| FT-DET-1 | shipped `test_detector_eval.py` | PASS |
+| FT-DET-3 | shipped `test_llm_eval.py` + `test_llm_detectors.py` | PASS |
+| FT-DET-4 | shipped `test_injection_detector.py` + `test_detectors_gaps.py` | PASS |
+| FT-DET-6 | shipped `test_detector_catalog.py` | PASS |
+| FT-DET-7 | shipped `test_detector_real_traces.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Hardening patterns (the common shapes)
@@ -939,6 +944,7 @@ FT-COD-1) are still driver-side.
 19. **Assert the shape the product guarantees, not a number the fixture cannot produce.** The `cco`
     fixture is OTel-only, so the honest recorder check is "coverage carries the classified join
     summary"; the ≥95% join rate / discrepancy classification is the shipped `test_claude_otel.py`'s job.
+20. **Service tests need their own source root on `PYTHONPATH`.** The analytics detector tests import `analytics`; `shipped_tests.py` now prepends `packages/python-sdk/src`, `services/analytics/src`, and `services/api/src`, so one generic driver grounds SDK *and* service cases (batch 4).
 
 
 ## Takeaways

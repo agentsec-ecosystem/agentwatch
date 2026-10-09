@@ -24,13 +24,23 @@ from _ftutil import fail, ok  # noqa: E402
 
 REPO = Path(os.environ.get("REPO_ROOT") or Path(__file__).resolve().parents[2])
 
+# Source roots that shipped tests import from (SDK + the services' src trees).
+ROOTS = (
+    "packages/python-sdk/src",
+    "services/analytics/src",
+    "services/api/src",
+)
+
 
 def main(argv: list[str]) -> int:
     targets = [arg for arg in argv if arg]
     if not targets:
         fail("no pytest targets given")
     env = dict(os.environ)
-    env["PYTHONPATH"] = str(REPO / "packages/python-sdk/src") + os.pathsep + env.get("PYTHONPATH", "")
+    parts = [str(REPO / root) for root in ROOTS]
+    if env.get("PYTHONPATH"):
+        parts.append(env["PYTHONPATH"])
+    env["PYTHONPATH"] = os.pathsep.join(parts)
     proc = subprocess.run(
         [sys.executable, "-m", "pytest", *targets, "-q"],
         cwd=str(REPO),

@@ -9,11 +9,19 @@ from _ftutil import arg, ok, records, run
 def main(argv: list[str]) -> int:
     run(["agentwatch", "verify-privacy"])
     what = arg(argv, "--what", "content")
-    leaks = [r for r in records() if what == "identity" and r.get("identity", {}).get("secret")]
+    leaks: list[str] = []
+    for r in records():
+        tool = r.get("tool") or {}
+        if what == "content" and tool.get("privacy_mode") == "metadata-only":
+            # Under metadata-only there must be no captured content anywhere.
+            if tool.get("arguments") or tool.get("response") or tool.get("content"):
+                leaks.append(str(r.get("session_id")))
+        if what == "identity" and (r.get("identity") or {}).get("secret"):
+            leaks.append(str(r.get("session_id")))
     if leaks:
-        print(f"leaks: {len(leaks)}", file=sys.stderr)
+        print(f"leaks: {len(leaks)} ({what})", file=sys.stderr)
         return 1
-    ok(f"privacproperty holds for {what}")
+    ok(f"privacy property holds for {what}: no metadata-only content across {len(records())} records")
     return 0
 
 

@@ -1,4 +1,1 @@
 DO
-ok: ingested codex from /ft/fixtures/codex
-agentwatch: chain ok (4 entries)
-  signing: not configured (optional; `checkpoint export --sign`)

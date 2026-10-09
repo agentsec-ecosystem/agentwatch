@@ -48,12 +48,19 @@ HARNESS_ADAPTER = {
 _ROLLOUT_TYPES = {"session_meta", "turn_context", "response_item"}
 
 
+def _sig(d: dict) -> tuple:
+    """The canonical fidelity signature of a record (what a fixture declares as expected)."""
+    tool = d.get("tool") or {}
+    return (tool.get("name"), str(d.get("step_type")), str(d.get("outcome")), d.get("harness"))
+
+
 def _adapter_ingest(module_name: str, path: Path) -> int:
     mod = importlib.import_module(module_name)
     from agentwatch.store import RecordStore
 
     store = RecordStore(STORE)
     n = 0
+    diverged: list[str] = []
     for f in sorted(path.rglob("*.json")):
         if f.name == "manifest.json":
             continue
@@ -68,9 +75,21 @@ def _adapter_ingest(module_name: str, path: Path) -> int:
             records = mod.normalize(payload)
         except Exception:  # noqa: BLE001 - not an adapter message; skip (it is not a fixture failure)
             continue
+        # Real fidelity check: the normalized record(s) must reproduce the fixture's
+        # declared canonical output (per event), not merely "produce something".
+        expected = msg.get("expected")
+        if expected and records:
+            want = sorted(_sig(e) for e in expected)
+            got = sorted(_sig(r.to_dict()) for r in records)
+            if want != got:
+                diverged.append(f"{f.name}: expected {want} got {got}")
         for rec in records:
             store.append(rec)
             n += 1
+    if diverged:
+        for line in diverged:
+            print(line, file=sys.stderr)
+        fail(f"{len(diverged)} fixture(s) diverged from their expected record")
     return n
 
 
@@ -133,34 +152,36 @@ def _logreaders_ingest(path: Path) -> int:
 
     store = RecordStore(STORE)
     n = 0
+    empty: list[str] = []
     for f in sorted(path.iterdir()):
         if f.name == "manifest.json":
             continue
+        start = n
         if f.suffix == ".jsonl":
             if _is_rollout(f):
                 n += ingest_rollouts([f], store).records
             else:
                 n += import_transcripts([f], store).records
-            continue
-        if f.suffix != ".json":
-            continue
-        try:
-            msg = json.loads(f.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        message = msg.get("message") if isinstance(msg, dict) else None
-        if not isinstance(message, dict):
-            continue
-        module_name = HARNESS_ADAPTER.get(str(message.get("harness")))
-        if module_name is None:
-            continue
-        try:
-            records = importlib.import_module(module_name).normalize(message)
-        except Exception:  # noqa: BLE001 - not a framed message for this reader
-            continue
-        for rec in records:
-            store.append(rec)
-            n += 1
+        elif f.suffix == ".json":
+            try:
+                msg = json.loads(f.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                msg = None
+            message = msg.get("message") if isinstance(msg, dict) else None
+            if isinstance(message, dict):
+                module_name = HARNESS_ADAPTER.get(str(message.get("harness")))
+                if module_name is not None:
+                    try:
+                        records = importlib.import_module(module_name).normalize(message)
+                    except Exception:  # noqa: BLE001 - not a framed message for this reader
+                        records = []
+                    for rec in records:
+                        store.append(rec)
+                        n += 1
+        if n == start:
+            empty.append(f.name)
+    if empty:
+        fail(f"reader(s) produced 0 records from {path}: {empty}")
     return n
 
 

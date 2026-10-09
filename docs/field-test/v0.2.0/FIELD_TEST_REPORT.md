@@ -1,8 +1,9 @@
 # agentwatch v0.2.0 — Field Test Report
 
-> **Generated:** 2026-10-07 from `field-test/v0.2.0/results/` — **re-run after the F-1 driver fixes** (commit `8e50b51`).
-> **Overall:** 93 PASS · 1 FAIL · 0 not run (94 v0.2.0 cases). Of the first-pass 39 FAILs, **38 are now verified fixed
-> (re-run green)** and **1 remains** (0 harness/step + 1 platform).
+> **Generated:** 2026-10-08 — **partial run in progress** from `field-test/v0.2.0/results/` (batches 1–2 + the fixed defects).
+> **Overall:** 30 PASS · 2 FAIL · 61 not run · 1 N/A (94 v0.2.0 cases). Of the 30 PASS, deep analysis counts
+> **25 grounded · 5 over-claimed** — a `PASS` here means the case ran green, **not** that the claim is proven (see the
+> `Notes` column and the journal). The 2 FAIL are **hardening-in-progress** (FT-OTEL-4, FT-COD-1). Full S1–S15 re-run **not** finished.
 > **Structure:** mirrors the [v0.1.0 report](../v0.1.0/FIELD_TEST_REPORT.md) and the plan's §13 template,
 > extended for the v0.2.0 suites and the `P/F|D` declare class.
 
@@ -10,48 +11,46 @@
 
 ## BLUF + Release Gate Verdict
 
-**93 PASS · 1 FAIL · 0 not run** (94 v0.2.0 cases), after re-running every still-failing case with the F-1 driver
-fixes committed in `8e50b51` plus the FT-OTEL-3, FT-NTF-1, FT-TRACE-1, FT-TRACE-2, FT-IDN-1, FT-RED-1, FT-SIEM-1,
-FT-RUN-1, FT-AGI-2, FT-LOG-1, FT-MCP-2, FT-XHT-1 and FT-LUI-1 fixes. **38 of the first-pass 39 FAILs are now green —
-the fix worked.** There is **no remaining FAIL** (`FT-WIN-1` is N/A — Windows unsupported). The re-runs also surfaced
-and fixed **one product defect** — the local console page lacked a `<main>` landmark (axe
-`landmark-one-main`/`region`), caught by the LUI-1 a11y test.
-The v0.1.0 lesson held again: the first pass was dominated by *harness bugs masquerading as product failures* (F-1),
-and correcting the driver invocations resolved the large majority of them.
+**30 PASS · 2 FAIL · 61 not run · 1 N/A** — a **partial** run (batch 1, batch 2, and the fixed defects), not the
+final gate. This report is a **journal**: the Master Table `Status` is the raw verdict, while the `Notes` column and
+the journal record whether a PASS is *grounded* or *over-claimed*. Current tally: **25 grounded · 5 over-claimed**;
+the 2 FAIL are hardening-in-progress. The release-gate rows below are marked **provisional** and **must not be read
+as a green release** until every suite is run and every step strengthened.
 
-### Re-run verification (first pass → after fixes)
+Two genuine release-gate defects were found by hardening and **fixed**: the missing Tempo second OTLP backend (R4) and
+the `gemini-cli` `modeled` Tier-1 matrix row. `FT-WIN-1` is retired (N/A — Windows unsupported).
 
-| | First pass | After F-1 fixes (this run) |
-|---|---|---|
-| PASS | 55 | **93** |
-| FAIL | 39 | **1** |
-| not run | 0 | 0 |
+### Run status (partial)
 
-**38 first-pass FAILs now verified PASS:** `FT-PRV-1, FT-PRV-3, FT-HLD-1, FT-CNC-1, FT-ENV-1, FT-IR-1, FT-SBX-1,
-FT-HOSTILE-1, FT-PG-3, FT-CUR-2, FT-LG-1, FT-MCP-1, FT-STR-2, FT-XHT-2, FT-XHT-3, FT-DET-2, FT-DET-3, FT-DET-5,
-FT-CMP-2, FT-IDN-3, FT-AGI-1, FT-EXA-1, FT-FWK-1, FT-FWK-2, FT-POL-1, FT-OTEL-3, FT-NTF-1, FT-TRACE-1, FT-TRACE-2,
-FT-IDN-1, FT-RED-1, FT-SIEM-1, FT-RUN-1, FT-AGI-2, FT-LOG-1, FT-MCP-2, FT-XHT-1, FT-LUI-1`.
+| | Count |
+|---|---|
+| PASS (raw verdict) | 30 |
+| — of which grounded | 25 |
+| — of which over-claimed (not yet hardened) | 5 |
+| FAIL (hardening in progress) | 2 |
+| not run | 61 |
+| N/A (retired) | 1 |
 
-### Release gate verdict
+### Release gate verdict (provisional — partial run)
 
-| Gate | Source | Status | Evidence |
+| Gate | Source | Status | Evidence / honesty |
 |---|---|---|---|
-| 1 AAT third-party round-trip | PRD 40 §5 | ✅ PASS | FT-AAT-1/2/3, FT-AAT-2 (foreign+quarantine) |
-| 2 known-limitations shrink | §5 | ✅ PASS | FT-CLAIM-1 |
-| 3 no "modeled" Tier-1 | §5 | ✅ PASS | FT-MATRIX-1, FT-XHT-4 |
-| 4 detector numbers published; ≥80% non-silent | §5 | ✅ PASS | FT-DET-2, FT-DET-3, FT-DET-5 (re-run green) |
-| 5 compliance report offline | §5 | ✅ PASS | FT-CMP-1, FT-CMP-3, FT-ASI-1 |
-| 6 streaming p99 ≤1 s | §5 | ✅ PASS | FT-STR-1, FT-STR-2 |
-| 7 identity+approval one command | §5 | ✅ PASS | FT-IDN-1 (identity+delegation answered, one command) |
-| 8 field-test report + claims ledger | §5 | ✅ PASS | this document, FT-CLAIM-1 |
-| 9 clean-machine 3-OS timing | §5-exp | ⚠️ partial | FT-ENV-0 pass; FT-WIN-1 N/A (Windows unsupported) |
-| 10 two OTel backends | §5-exp | ✅ PASS | FT-OTEL-1, FT-BACKEND-2 |
-| 11 no auto/bypass as `user` | §5-exp | ✅ PASS | FT-APV-1/2/3 |
-| 12 `ui` no-Docker | §5-exp | ✅ PASS | FT-LUI-1 (console boots; Playwright spec + axe a11y green) |
-| 13 managed-policy install | §5-exp | ✅ PASS | FT-DEP-1 |
-| 14 capability drift; commit→session; Agent Trace | §5-exp | ✅ PASS | FT-CAP-1, FT-PRV-1, FT-PRV-3 (re-run green) |
-| 15 suggest-policy no-write; ASI rows | §5-exp | ✅ PASS | FT-POL-1, FT-ASI-1 (re-run green) |
-| 16 hold survives | §5-exp | ✅ PASS | FT-HLD-1 (re-run green) |
+| 1 AAT third-party round-trip | PRD 40 §5 | provisional PASS | FT-AAT-1 (hardened: independent verifier), FT-AAT-2/3 (grounded) |
+| 2 known-limitations shrink | §5 | not run | FT-CLAIM-1 not run |
+| 3 no "modeled" Tier-1 | §5 | PASS (fixed) | FT-MATRIX-1, FT-XHT-4 |
+| 4 detector numbers; ≥80% non-silent | §5 | not run | FT-DET-2/3/5 not run |
+| 5 compliance report offline | §5 | not run | FT-CMP-1/3, FT-ASI-1 not run |
+| 6 streaming p99 ≤1 s | §5 | ⚠️ NOT established | FT-STR-1/2 over-claimed (driver ignores the budget) |
+| 7 identity+approval one command | §5 | not run | FT-IDN-1 not run |
+| 8 report + claims ledger | §5 | in progress | this document; FT-CLAIM-1 not run |
+| 9 clean-machine 3-OS timing | §5-exp | ⚠️ partial | FT-ENV-0 (hardened, macOS only); FT-WIN-1 N/A |
+| 10 two OTel backends | §5-exp | PASS (fixed) | FT-OTEL-1 (hardened), FT-BACKEND-2 |
+| 11 no auto/bypass as `user` | §5-exp | not run | FT-APV-1/2/3 not run |
+| 12 `ui` no-Docker | §5-exp | not run | FT-LUI-1 not run |
+| 13 managed-policy install | §5-exp | PASS (hardened) | FT-DEP-1 |
+| 14 capability/commit/Agent Trace | §5-exp | not run | FT-CAP-1, FT-PRV-1/3 not run |
+| 15 suggest-policy/ASI rows | §5-exp | not run | FT-POL-1, FT-ASI-1 not run |
+| 16 hold survives | §5-exp | not run | FT-HLD-1 not run |
 
 
 ## Environment
@@ -106,11 +105,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-CMP-2 | s5-identity | P/F | not run | fixed F-1a: `retention apply --profile general-6mo` enum |
 | FT-CMP-3 | s5-identity | P/F | not run | — |
 | FT-CNC-1 | s13-investigation | P/F\|D | not run | fixed F-1a: incident via case_incident.py (auto case id) |
-| FT-COD-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; dedup / .zst / crashed not asserted |
+| FT-COD-1 | s3-harness | P/F | FAIL | ⚠ HARDENING IN PROGRESS (currently FAIL): `codex_check.py` failed on a dedup-key mismatch; corrected to `(session_id, span_id, step_type)` — re-run pending |
 | FT-COR-1 | s4-detectors | P/F | not run | — |
 | FT-COR-2 | s4-detectors | P/F | not run | — |
-| FT-CUR-1 | s3-harness | P/F\|D | PASS | ⚠ over-claimed: `ingest-fixture --kind cursor` run-only (+verify-store); no step-type/coverage reconciliation |
-| FT-CUR-2 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; blocking events not asserted |
+| FT-CUR-1 | s3-harness | P/F\|D | PASS | HARDENED (confirmed PASS): `ingest-fixture` now compares every event to the fixture's `expected` canonical record (per-event fidelity) |
+| FT-CUR-2 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the cursor blocking corpus |
 | FT-DEMO-1 | s14-outcomes | P/F\|D | not run | — |
 | FT-DEP-1 | s1-install | P/F\|D | PASS | HARDENED: `doctor_managed.py` asserts doctor reports blocked/yes/unknown and never 'installed' while blocked (was a regex that accepted `no`) → PASS |
 | FT-DEP-2 | s1-install | P/F | PASS | HARDENED: `attestation_strip.py` performs the real digest move and asserts a `recorder-config-changed` fact (digests/booleans only) → PASS |
@@ -127,7 +126,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-EXA-1 | s7-platform | P/F | not run | fixed F-1c: examples-gallery step quoting |
 | FT-FWK-1 | s7-platform | P/F\|D | not run | fixed F-1c: `framework_recipes` signature |
 | FT-FWK-2 | s7-platform | P/F | not run | fixed F-1c: `detect_installed()` iterable |
-| FT-GEM-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; approval-mode / email-hash / logPrompts redaction not asserted |
+| FT-GEM-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the gemini corpus |
 | FT-GOV-1 | s7-platform | P/F | not run | — |
 | FT-GWY-1 | s6-surfaces | P/F | not run | — |
 | FT-HLD-1 | s12-governance | P/F | not run | fixed F-1a: `hold add --reason` |
@@ -136,24 +135,24 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-IDN-2 | s5-identity | P/F | not run | — |
 | FT-IDN-3 | s5-identity | P/F | not run | fixed F-1a: `search --identity user` value |
 | FT-IR-1 | s13-investigation | P/F | not run | fixed F-1a: incident create via case_incident.py |
-| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed: `drive-agent.py` run-only (delivery + verify); no chain-protection / conformance |
-| FT-LOG-1 | s3-harness | P/F | PASS | partial: asserts ≥1 record normalized; per-reader fidelity not asserted |
+| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `drive-agent.py` run-only (delivery + verify) |
+| FT-LOG-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-file assertion — each log reader must produce ≥1 record |
 | FT-LUI-1 | s11-console | P/F | not run | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
 | FT-LUI-2 | s11-console | P/F | not run | — |
 | FT-MATRIX-1 | s15-hostile | P/F | PASS | FIXED: `gemini-cli` is now a **declared** row (`HarnessInfo.declared=True`); `compatibility.md` regenerated; re-run PASS |
-| FT-MCP-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; full surface / 3 revisions not asserted |
+| FT-MCP-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the MCP surface corpus |
 | FT-MCP-2 | s3-harness | P/F | PASS | ✓ grounded: asserts `quarantined>0` (1 normalized, 3 quarantined) |
 | FT-MEM-1 | s9-capability | P/F | not run | — |
 | FT-NTF-1 | s14-outcomes | P/F\|D | not run | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
 | FT-OTEL-1 | s2-interop | P/F | PASS | HARDENED: `otel-probe --tree` emits a real parent/child agent-span tree; `otel_tree_check.py` asserts the CHILD_OF tree in Jaeger AND Tempo → PASS |
 | FT-OTEL-2 | s2-interop | P/F | PASS | HARDENED: `otel_grpc_stream.py` honors `--mb`; streamed 102400 spans (~100 MiB), peak child RSS 51 MiB → PASS |
-| FT-OTEL-3 | s2-interop | P/F | PASS | PASS (partial): `privacy-default` greps metadata-only (real); `privacy_property.py` for content is a no-op (+ typo "privacproperty") — property test over-claimed |
-| FT-OTEL-4 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: `skill_spans.py` run-only (ingest + verify-store); no per-harness span/gap assertion |
+| FT-OTEL-3 | s2-interop | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py` now asserts no content fields on metadata-only records (+ `verify-privacy`) |
+| FT-OTEL-4 | s2-interop | P/F\|D | FAIL | ⚠ HARDENING IN PROGRESS (currently FAIL): `skill_spans.py` found no OTLP span mapped (store `tools=[None]`); driver rewritten to assert spanId/traceId mapping from the OTLP fixture — re-run pending |
 | FT-OUT-1 | s14-outcomes | P/F\|D | not run | — |
 | FT-OUT-2 | s14-outcomes | P/F\|D | not run | — |
-| FT-PG-1 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: runs `index rebuild` twice; no Postgres-down mode, no bit-for-bit comparison |
+| FT-PG-1 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `pg_rebuild.py` runs `index rebuild` twice and asserts byte-identical output + sha256 |
 | FT-PG-2 | s2-interop | P/F\|D | PASS | ✓ grounded: cross-tenant `search` returns empty + coverage |
-| FT-PG-3 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: no chain-protection assertion; `union` shows SDK records `chain_protected:false` (plan wants SDK spans chain-protected) |
+| FT-PG-3 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `sdk_emit.py` asserts the union integrity distinction (hook chain-protected, SDK read-only) + verify-store |
 | FT-POL-1 | s7-platform | P/F | not run | fixed F-1a: `what-if <policy_file>` positional |
 | FT-PRV-1 | s10-provenance | P/F | not run | fixed F-1a: `provenance <target>` positional |
 | FT-PRV-2 | s10-provenance | P/F | not run | — |
@@ -163,8 +162,8 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-SBX-1 | s13-investigation | P/F\|D | not run | fixed F-1c: `sandbox_boundary_event()` 0-arg |
 | FT-SDK-1 | s7-platform | P/F | not run | — |
 | FT-SIEM-1 | s5-identity | P/F | not run | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
-| FT-STR-1 | s3-harness | P/F | PASS | ⚠ over-claimed: `stream-probe --mode p99` ignores `--budget-ms`; no latency measured |
-| FT-STR-2 | s3-harness | P/F | PASS | ⚠ over-claimed: drop-consumer runs a soak + coverage; no reconciliation assertion |
+| FT-STR-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `stream-probe --mode p99` still ignores `--budget-ms`; no latency measured |
+| FT-STR-2 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): drop-consumer soak has no reconciliation assertion |
 | FT-SYS-1 | s6-surfaces | P/F\|D | not run | fixed H-7: declared → real assertion |
 | FT-TRACE-1 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run` asserts a 3-host chain + a classified `missing-parent` gap |
 | FT-TRACE-2 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run --skew` asserts a classified `clock-skew` gap |
@@ -172,11 +171,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-VFY-1 | s13-investigation | P/F | not run | — |
 | FT-WIN-1 | s1-install | P/F\|D | N/A | Windows is **not supported** — retired; never run again (N/A). |
 | FT-XHT-1 | s3-harness | P/F | PASS | ✓ grounded: `--self-test` asserts all 8 adapters conform |
-| FT-XHT-2 | s3-harness | P/F\|D | PASS | ⚠ over-claimed: `--opencode` is ignored by the driver; generic replay only |
-| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed: `--cross-parser` only asserts ≥2 registered adapters; no independent OSS-parser diff |
+| FT-XHT-2 | s3-harness | P/F\|D | PASS | ⚠ over-claimed (NOT hardened): `--opencode` still ignored by the driver |
+| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `--cross-parser` still asserts only ≥2 adapters |
 | FT-XHT-4 | s3-harness | P/F | PASS | FIXED: same declared row; re-run PASS (fresh stack) |
 
-**Totals:** 32 PASS · 0 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
+**Totals:** 30 PASS · 2 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
 
 ## Per-Suite Results
 
@@ -186,11 +185,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s2-interop
 
-12 case(s): 12 PASS · 0 FAIL · 0 not run · 0 N/A
+12 case(s): 11 PASS · 1 FAIL · 0 not run · 0 N/A
 
 ### s3-harness
 
-14 case(s): 14 PASS · 0 FAIL · 0 not run · 0 N/A
+14 case(s): 13 PASS · 1 FAIL · 0 not run · 0 N/A
 
 ### s4-detectors
 
@@ -296,13 +295,44 @@ under `docs/assets/screenshots`. Fixing the harness (host CLI invocation, buffer
 
 ## Root Cause Analysis
 
-No failures recorded.
+### FT-COD-1 — Codex rollout reader (dedup, .zst, dangling)
+
+- **Suite:** s3-harness · **Class:** P/F
+- **Failed assertions:** codex-rollout
+- **Evidence:** `field-test/v0.2.0/results/s3-harness/cases/FT-COD-1`
+- **stderr (tail):**
+
+```
+ Container agentwatch-recorder-1 Restarting 
+ Container agentwatch-recorder-1 Started 
+fail: 4 duplicate record(s) survived dedup
+```
+
+- **Cause:** TBD (from the evidence above)
+- **Fix / regression:** TBD
+
+### FT-OTEL-4 — Skill / command-execution agent-span mapping
+
+- **Suite:** s2-interop · **Class:** P/F|D
+- **Failed assertions:** skill-spans
+- **Evidence:** `field-test/v0.2.0/results/s2-interop/cases/FT-OTEL-4`
+- **stderr (tail):**
+
+```
+ Container agentwatch-recorder-1 Restarting 
+ Container agentwatch-recorder-1 Started 
+fail: no OTLP fixture span mapped into the store (store tools=[None], ops=['execute_tool', 'invoke_agent'])
+```
+
+- **Cause:** TBD (from the evidence above)
+- **Fix / regression:** TBD
 
 ## Defect Catalogue
 
 | Case | Suite | Failed assertions | Evidence |
 |---|---|---|---|
-| — | — | — | — |
+| FT-COD-1 | s3-harness | codex-rollout | `field-test/v0.2.0/results/s3-harness/cases/FT-COD-1` |
+| FT-OTEL-4 | s2-interop | skill-spans | `field-test/v0.2.0/results/s2-interop/cases/FT-OTEL-4` |
 
 ## Deep Analysis Notes — Final Re-run (journal)
 
@@ -436,8 +466,30 @@ FT-STR-1/2, FT-LG-1, FT-XHT-2/3).
   property, and the observed value contradicts it.
 - **FT-PG-1** runs `index rebuild` twice but never drops Postgres or compares rebuilds bit-for-bit.
 - **FT-STR-1 / FT-STR-2** never measure latency or reconciliation; the drivers ignore their own budget / `--bounded` intent.
-- **FT-OTEL-3**'s `privacy_property.py` only inspects identity leaks; the content-mode test prints `ok` without
-  checking (and has a "privacproperty" typo).
+- **FT-OTEL-3**'s `privacy_property.py` only inspected identity leaks; the content-mode test printed `ok` without
+  checking (and had a "privacproperty" typo).
+
+### Batch 2 — hardening status (what was fixed, and what wasn't)
+
+Outcome of hardening the 20 batch-2 cases:
+
+| Group | Cases | Count |
+|---|---|---|
+| Grounded (no change needed) | FT-TRACE-1, FT-TRACE-2, FT-PG-2, FT-MCP-2, FT-XHT-1 | 5 |
+| **Hardened + re-run GREEN (confirmed)** | FT-CUR-1, FT-CUR-2, FT-GEM-1, FT-MCP-1, FT-OTEL-3, FT-PG-1, FT-PG-3, FT-LOG-1 | 8 |
+| Hardened but **STILL FAILING** (fix not yet re-run/confirmed) | FT-OTEL-4, FT-COD-1 | 2 |
+| **NOT hardened (still over-claimed)** | FT-STR-1, FT-STR-2, FT-LG-1, FT-XHT-2, FT-XHT-3 | 5 |
+
+What the 8 confirmed fixes now assert: per-event `expected` fidelity (CUR-1/2, GEM-1, MCP-1); no content on
+metadata-only records (OTEL-3); byte-identical index rebuild + sha256 (PG-1); the union integrity distinction
+(PG-3); per-reader ≥1 record (LOG-1).
+
+**Plan ↔ design divergences found while hardening:**
+- **FT-PG-3** — the plan says "SDK spans land chain-protected", but `union.py` intentionally marks SDK-sourced
+  records **not chain-protected** (read-only; only harness records are as-author). The hardened assertion encodes the
+  shipped design (the integrity *distinction*), not the plan wording.
+- **FT-OTEL-4** — the plan's OTLP fixture is `otel_trace.json` (`resourceSpans`); the corpus also holds a
+  Jaeger-format file (`agent-span-tree.json`) whose `operationName`s the `--format otel` path does not map.
 
 ### Systematic finding — the case *steps* are shallower than the plan (all 94 audited)
 
@@ -658,6 +710,10 @@ Product suite: `packages/python-sdk/tests/test_compatibility.py` — 9 passed af
 - **`build_report.py`** now preserves and re-emits the per-case Notes column idempotently.
 - **Independent oracles over self-checks:** the out-of-tree AAT verifier, and cross-backend (Jaeger **and**
   Tempo) assertions.
+- **The fixture's own `expected` output is a cheap, real oracle.** Comparing each normalized record to the
+  fixture's declared canonical record grounds adapter fidelity (CUR-1/2, GEM-1, MCP-1) without extra tooling.
+- **Asserting the shipped semantics when the plan wording is wrong** (FT-PG-3: `union.py` marks SDK records
+  read-only — the assertion encodes the integrity *distinction*, and the divergence is documented, not hidden).
 
 ### What didn't work (and what we did about it)
 
@@ -670,6 +726,16 @@ Product suite: `packages/python-sdk/tests/test_compatibility.py` — 9 passed af
   by running.
 - **No single-shot fix:** each case needed its own edit + run.
 - **Stale summary artifacts** (`summary.json`) — the report must be derived from `verdict.json`, never the summary.
+- **Plan ↔ design mismatches** (FT-PG-3 "SDK chain-protected" vs `union.py` "SDK read-only") — assert the design,
+  and record the divergence; do not encode the wrong claim.
+- **Fixture-format mismatch** (FT-OTEL-4): the OTLP `--format otel` path wants `otel_trace.json` (`resourceSpans`);
+  the corpus also ships a Jaeger-format file whose `operationName`s are not mapped.
+- **Driver-internal bugs surface only on a run**: FT-COD-1's dedup key differed from the reader's
+  `(session_id, span_id, step_type)`; FT-OTEL-4 asserted on `operationName` when the ingest maps span attributes.
+- **Some drivers silently ignore their own flags** (`--opencode`, `--budget-ms`) — a reliable tell that the case
+  is over-claimed; still true for FT-STR-1/2, FT-LG-1, FT-XHT-2/3.
+- **Hardening is not done until it is re-run and green:** of the batch-2 hardening, **8/20 are confirmed**,
+  **2/20** (FT-OTEL-4, FT-COD-1) were still red at last run, and **5/20** are not yet hardened.
 
 ### Harness vs product
 
@@ -677,6 +743,11 @@ The batch-1 over-claims were **entirely harness** problems — the product behav
 assertion was real. Hardening surfaced **two genuine product/release-gate defects** (the missing Tempo second
 backend / R4, and the `modeled` Tier-1 matrix row), both fixed; the seven hardened plan-assertions otherwise
 confirmed correct product behaviour.
+
+Batch 2 follows the same pattern: of the 8 confirmed hardenings, **all were harness** fixes (per-event fidelity,
+privacy content, bit-for-bit index, union distinction, per-reader). The only non-harness item is the **plan ↔
+design divergence** in FT-PG-3 (a wording/claims issue, not a code defect). The 2 unresolved (FT-OTEL-4,
+FT-COD-1) are still driver-side.
 
 
 ## Learnings

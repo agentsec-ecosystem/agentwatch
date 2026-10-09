@@ -1,0 +1,80 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-CUR-1 (s3-harness) ########################
+== case FT-CUR-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS cursor-corpus
+  PASS verify-store
+== case FT-CUR-1: pass ==
+######################## FT-CUR-2 (s3-harness) ########################
+== case FT-CUR-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS cursor-blocking
+== case FT-CUR-2: pass ==
+######################## FT-GEM-1 (s3-harness) ########################
+== case FT-GEM-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS gemini-ingest
+== case FT-GEM-1: pass ==
+######################## FT-MCP-1 (s3-harness) ########################
+== case FT-MCP-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS mcp-surface
+== case FT-MCP-1: pass ==
+######################## FT-OTEL-3 (s2-interop) ########################
+== case FT-OTEL-3 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  PASS privacy-default
+  PASS privacy-property
+  PASS store-has-records
+== case FT-OTEL-3: pass ==
+######################## FT-OTEL-4 (s2-interop) ########################
+== case FT-OTEL-4 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  FAIL skill-spans
+== case FT-OTEL-4: fail ==
+>>> CASE FAILED: FT-OTEL-4
+######################## FT-PG-1 (s2-interop) ########################
+== case FT-PG-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS pg-down-commands
+  PASS index-rebuild-bitfor-bit
+== case FT-PG-1: pass ==
+######################## FT-PG-3 (s2-interop) ########################
+== case FT-PG-3 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS sdk-in-store
+  PASS union-fallback
+== case FT-PG-3: pass ==
+######################## FT-COD-1 (s3-harness) ########################
+== case FT-COD-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  FAIL codex-rollout
+== case FT-COD-1: fail ==
+>>> CASE FAILED: FT-COD-1
+######################## FT-LOG-1 (s3-harness) ########################
+== case FT-LOG-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS log-readers
+== case FT-LOG-1: pass ==
+>>> BATCH COMPLETE

@@ -706,7 +706,7 @@
     "prd": "PG-1",
     "class": "P/F|D",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"pg-down-commands\" \"agentwatch sessions >/dev/null && agentwatch verify-store\"\nft_assert_recorder \"index-rebuild\" \"agentwatch index rebuild --json && agentwatch index rebuild --json\"\n",
+    "steps": "ft_assert_recorder \"pg-down-commands\" \"agentwatch sessions >/dev/null && agentwatch verify-store\"\nft_assert_recorder \"index-rebuild-bitfor-bit\" \"python3 /ft/scripts/pg_rebuild.py\"\n",
     "recycle": false
   },
   {
@@ -784,7 +784,7 @@
     "prd": "COD-1",
     "class": "P/F",
     "suite": "s3-harness",
-    "steps": "ft_assert_recorder \"codex-rollout\" \"python3 /ft/scripts/ingest-fixture.py --kind codex --corpus /ft/fixtures/codex && agentwatch verify-store\"\n",
+    "steps": "ft_assert_recorder \"codex-rollout\" \"python3 /ft/scripts/codex_check.py && agentwatch verify-store\"\n",
     "recycle": false
   },
   {

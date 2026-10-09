@@ -2,4 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"pg-down-commands","ok":true}
-{"name":"index-rebuild","ok":true}
+{"name":"index-rebuild-bitfor-bit","ok":true}

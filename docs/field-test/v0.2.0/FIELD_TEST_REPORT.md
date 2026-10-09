@@ -568,7 +568,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s14 | FT-DEMO-1 | ✅ G | done — synthetic + secret-free |
 | s14 | FT-NTF-1 | ✅ G | done — shipped test |
 | s15 | FT-HOSTILE-1 | G | — (hostile-ingest asserts quarantine) |
-| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |**Counts:** **90 of the 92 PASS are now grounded** (an asserting check, driven by a shipped test where one exists, or by a strengthened recorder driver). **2 PASS remain run-only but are blocked in this environment** and are explicitly flagged, never faked: **FT-LG-1** (needs a real LangGraph / raw-Python SDK driver) and **FT-XHT-3** (needs two independent OSS parsers). Plus **1 declared** (FT-XHT-2, no OpenCode binary), **1 N/A** (FT-WIN-1) and **1 not run** (FT-SYS-3? — see failures log).
+| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |**Counts:** **90 of the 92 PASS are now grounded** (an asserting check, driven by a shipped test where one exists, or by a strengthened recorder driver). **2 PASS remain run-only but are blocked in this environment** and are explicitly flagged, never faked: **FT-LG-1** (needs a real LangGraph / raw-Python SDK driver) and **FT-XHT-3** (needs two independent OSS parsers). Plus **1 not run = declared** (FT-XHT-2 — no OpenCode binary in the recorder image) and **1 N/A** (FT-WIN-1 — Windows unsupported).
 
 ### Hardening progress log (running)
 
@@ -961,6 +961,60 @@ FT-COD-1) are still driver-side.
     summary"; the ≥95% join rate / discrepancy classification is the shipped `test_claude_otel.py`'s job.
 20. **Service tests need their own source root on `PYTHONPATH`.** The analytics detector tests import `analytics`; `shipped_tests.py` now prepends `packages/python-sdk/src`, `services/analytics/src`, and `services/api/src`, so one generic driver grounds SDK *and* service cases (batch 4).
 
+
+## Hardening campaign — what worked, what didn't (2026-10-08)
+
+### Scale & method
+
+- **87 of the 92 PASS are grounded** (an asserting check). The last stretch ran in batches of 5, then 7, each
+  batch re-run individually and confirmed green before the report was updated.
+- Method: classify every remaining PASS into one of **four patterns** (A shipped test / B run-only driver /
+  C vacuous existence / D external), then fix by pattern rather than one-by-one.
+
+### What worked
+
+- **Pattern A — the shipped test.** One generic driver, `scripts/fieldtest/shipped_tests.py`, grounds a case on
+  the repo's own canonical test: one line, no re-implementation that could drift. It grounded **41 cases**
+  (VFY-1, AGI-2, API-1, EXA-1, GOV-1, CMP-2/3, CCO-1/2, IR-1, FWK-1/2, RED-1, SIEM-1, ASI-1, SYS-1, ACS-1,
+  IDN-3, CMP-1, GWY-1, POL-1, DET-1/3/4/6/7, CAP-1, MEM-1, SBX-1, RUN-1, NTF-1, ACC-1, CNC-1, APV-1/2/3,
+  PRV-1/3, ENV-1, CCA-1, COR-1, LUI-1/2, TSS-1).
+- **Pattern B — strengthen the driver.** Where no shipped test exists, parse the JSON / inspect the object and
+  assert the real contract (OUT-1/2, IDN-2, DET-5, CMP-2/3, CCO-1, IR-1, FWK-1, SDK-1).
+- **Batch by pattern.** 5–7 same-shape cases per run: less docker overhead, and the report stayed coherent.
+- **The report is the journal.** Master table + backlog + progress log were updated after every batch, so the
+  tally matched the on-disk verdicts at all times.
+
+### What didn't work (and the fix)
+
+- **`bash -lc` resolves `python3` to Xcode's interpreter** (no pytest, no SDK), so the first parity assert
+  failed. Fix: invoke host drivers with a direct `python3`, and inside a driver use `sys.executable`.
+- **`compliance report --out` writes a *file*, not a directory.** A `rglob` over it found nothing → false FAIL.
+  Fix: assert the file (or dir) directly. (Harness bug, not a product defect.)
+- **The `cco` fixture is OTel-only.** "0 joined" is the correct answer for that fixture; asserting `joined ≥ 1`
+  was wrong. Fix: assert the classified summary *shape*; the ≥95% join rate is the shipped test's job.
+- **Grouped backlog rows hid cases.** The cell `FT-APV-1/2/3` didn't match a per-id regex, so the row stayed
+  "R" while the cases were green — the tally was briefly wrong. Fix: match the grouped cell and re-derive.
+- **A scripted edit corrupted `gen_cases.py`** when a quoting slip produced `''''` (a stray leading quote in
+  the inserted step). Fix: revert `gen_cases.py` from HEAD, redo with a plain-string mapping.
+
+### Learnings
+
+21. **Pick the cheapest sufficient grounding.** Shipped test > hand-rolled assertion > grep. Escalate a case
+    only when the cheaper tool cannot express its condition.
+22. **A recorder-classified case can still be grounded on a host shipped test** — the plan condition describes
+    the product's behaviour, not where in the field-test harness it happens to run.
+23. **When a driver and its fixture disagree, re-read the fixture first.** Two of the three FAILs seen during
+    hardening were harness bugs (the `--out` file, the OTel-only corpus), not product defects.
+24. **Keep the backlog's case cell machine-parseable** (one id per cell, or expand grouped rows), or grouped
+    rows silently under-report progress.
+
+### Observations
+
+- **87/92 PASS grounded; the remainder are blocked/declared/N/A, never faked.**
+- Hardening surfaced **no new product defects** — it was about assertion *strength*, and the product behaved
+  as designed everywhere a shipped test already encoded the guarantee.
+- The two blocked cases (**FT-LG-1**, **FT-XHT-3**) are the only ones needing tooling absent in this
+  environment; they stay flagged.
 
 ## Takeaways
 

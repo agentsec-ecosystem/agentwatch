@@ -60,7 +60,7 @@
 | `codex-cli` | Tier-1 | 0.65–0.x | — | fixture-verified | n/a | log-reader (`ingest --agent codex`) | rollout JSONL / .jsonl.zst; format-derived + cross-parser validated (COD-1/XHT-3); live capture pending |
 | `crewai` | Tier-2 | modeled | — | modeled | n/a | native adapter (modeled) |  |
 | `cursor` | Tier-1 | 1.7–1.x | — | fixture-verified | unknown | native hooks (`hooks.json`) | full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending |
-| `gemini-cli` | Tier-1 | modeled | — | modeled | n/a | native OTel telemetry (`ingest --format otel`) | native approval/principal mapping (GEM-2); live capture pending |
+| `gemini-cli` | Tier-1 (declared) | modeled | — | modeled | n/a | native OTel telemetry (`ingest --format otel`) | declared: provisional/modeled shapes (harness-adapters-plan M10 #82); native approval/principal mapping (GEM-2); real capture pending (v0.3.0 target) |
 | `mcp-proxy` | proxy | 2026-07-28 | 2026-07-28 | live-verified | n/a | `agentwatch mcp-proxy` / `init --mcp-proxy` | MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP |
 | `openai-agents` | Tier-2 | 0.1.0–0.x | — | modeled | n/a | OpenInference → OTLP (`agentwatch ingest --format otel`) | OpenAI Agents SDK via OpenInference; fixture-driven, live run BLOCKED (not installable here) |
 | `pydantic-ai` | Tier-2 | modeled | — | modeled | n/a | native adapter (modeled) |  |

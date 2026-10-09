@@ -44,7 +44,7 @@ try:
 except (OSError, ValueError):
     registry = []
 for case in registry:
-    if case.get("suite") == sys.argv[2]:
+    if case.get("suite") == sys.argv[2] and not case.get("unsupported"):
         print(case["id"])
 PY
 )

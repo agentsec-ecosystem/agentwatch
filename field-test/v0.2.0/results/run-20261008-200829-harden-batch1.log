@@ -1,0 +1,156 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-ENV-0 (s1-install) ########################
+== case FT-ENV-0 ==
+  PASS first-run-timing
+  PASS naming-guard
+== case FT-ENV-0: pass ==
+######################## FT-DEP-1 (s1-install) ########################
+== case FT-DEP-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS doctor-effective
+== case FT-DEP-1: pass ==
+######################## FT-DEP-2 (s1-install) ########################
+== case FT-DEP-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  FAIL attestation-config-changed
+  PASS store-has-records
+== case FT-DEP-2: fail ==
+>>> CASE FAILED: FT-DEP-2
+######################## FT-DEP-3 (s1-install) ########################
+== case FT-DEP-3 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS hook-perf-gate
+== case FT-DEP-3: pass ==
+######################## FT-AAT-1 (s2-interop) ########################
+== case FT-AAT-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  PASS aat-export
+  FAIL aat-independent-consumer
+  PASS store-has-records
+== case FT-AAT-1: fail ==
+>>> CASE FAILED: FT-AAT-1
+######################## FT-OTEL-1 (s2-interop) ########################
+== case FT-OTEL-1 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS emit
+  PASS emit-spans
+  FAIL span-tree-2-backends
+  PASS store-has-records
+== case FT-OTEL-1: fail ==
+>>> CASE FAILED: FT-OTEL-1
+######################## FT-OTEL-2 (s2-interop) ########################
+== case FT-OTEL-2 ==
+==> Tearing down the stack (and volumes)
+  PASS stack-up-v020
+SERVICE          STATUS     CHECK
+postgres         running    container up
+  PASS svc-postgres
+jaeger           running    container up
+  PASS svc-jaeger
+otel-collector   running    container up
+  PASS svc-otel-collector
+api              running    container up
+  PASS svc-api
+analytics        running    container up
+  PASS svc-analytics
+web              running    container up
+  PASS svc-web
+recorder         running    container up
+  PASS svc-recorder
+verifier         running    container up
+  PASS svc-verifier
+postgres         OK         responds
+  PASS ep-postgres
+api-health       OK         responds
+  PASS ep-api-health
+jaeger           OK         responds
+  PASS ep-jaeger
+collector        OK         responds
+  PASS ep-collector
+web              OK         responds
+  PASS ep-web
+recorder         OK         responds
+  PASS ep-recorder
+omlx             OK         responds
+  PASS ep-omlx
+otel-grpc        running    container up
+  PASS svc-otel-grpc
+fleet-h1         running    container up
+  PASS svc-fleet-h1
+fleet-h2         running    container up
+  PASS svc-fleet-h2
+fleet-h3         running    container up
+  PASS svc-fleet-h3
+a2a-proxy        running    container up
+  PASS svc-a2a-proxy
+litellm          running    container up
+  PASS svc-litellm
+runner           running    container up
+  PASS svc-runner
+tempo            running    container up
+  PASS svc-tempo
+managed-hooks    running    container up
+  PASS svc-managed-hooks
+  PASS grpc-stream
+== case FT-OTEL-2: pass ==
+>>> BATCH COMPLETE

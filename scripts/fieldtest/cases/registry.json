@@ -523,7 +523,7 @@
     "prd": "EXT-10,13 NFR-4,25 NAM-1",
     "class": "P/F",
     "suite": "s1-install",
-    "steps": "ft_assert \"first-run-timing\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 \"$REPO_ROOT/scripts/first_run_timing.py\"\nft_assert \"naming-guard\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -c \"import agentwatch.naming\"\n",
+    "steps": "ft_assert \"first-run-timing\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 \"$REPO_ROOT/scripts/first_run_timing.py\"\nft_assert \"naming-guard\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 \"$REPO_ROOT/scripts/fieldtest/naming_guard.py\"\n",
     "recycle": false
   },
   {
@@ -536,7 +536,8 @@
     "prd": "WIN-1",
     "class": "P/F|D",
     "suite": "s1-install",
-    "steps": "ft_assert \"windows-host\" test \"$(uname -s)\" = Windows_NT\n",
+    "unsupported": true,
+    "steps": "ft_finalize\n",
     "recycle": false
   },
   {
@@ -549,7 +550,7 @@
     "prd": "DEP-1",
     "class": "P/F|D",
     "suite": "s1-install",
-    "steps": "ft_assert_recorder \"doctor-effective\" \"agentwatch doctor | grep -Eq 'hooks effective: (yes|blocked|unknown|no)'\"\n",
+    "steps": "ft_assert_recorder \"doctor-effective\" \"python3 /ft/scripts/doctor_managed.py\"\n",
     "recycle": false
   },
   {
@@ -562,7 +563,7 @@
     "prd": "DEP-2",
     "class": "P/F",
     "suite": "s1-install",
-    "steps": "ft_assert_recorder \"coverage-attestation\" \"agentwatch coverage --json | grep -q attestation\"\n",
+    "steps": "ft_assert_recorder \"attestation-config-changed\" \"python3 /ft/scripts/attestation_strip.py\"\n",
     "recycle": false
   },
   {
@@ -575,7 +576,7 @@
     "prd": "DEP-3",
     "class": "P/F|D",
     "suite": "s1-install",
-    "steps": "ft_assert_recorder \"hook-perf-gate\" \"python3 /ft/scripts/run-soak.py --count 500 --interval 0.002 --min-delivery 1.0\"\n",
+    "steps": "ft_assert_recorder \"hook-perf-gate\" \"python3 /ft/scripts/run-hook-perf.py\"\n",
     "recycle": false
   },
   {
@@ -588,7 +589,7 @@
     "prd": "AAT-1/2/4",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"aat-export\" \"agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json\"\nft_assert_recorder \"aat-external-consumer\" \"python3 /ft/scripts/aat_roundtrip.py /tmp/s.aat.json\"\n",
+    "steps": "ft_assert_recorder \"aat-export\" \"agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json\"\nft_assert_recorder \"aat-independent-consumer\" \"python3 /ft/schema-vectors/verify_aat.py /tmp/s.aat.json\"\n",
     "recycle": false
   },
   {
@@ -627,7 +628,7 @@
     "prd": "OTEL-1",
     "class": "P/F",
     "suite": "s2-interop",
-    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch\"\nft_assert \"jaeger\" bash -lc \"sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch\"\n",
+    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch --tree 3\"\nft_assert \"span-tree-2-backends\" python3 \"$REPO_ROOT/scripts/fieldtest/otel_tree_check.py\"\n",
     "recycle": true
   },
   {
@@ -913,7 +914,7 @@
     "prd": "XHT-4",
     "class": "P/F",
     "suite": "s3-harness",
-    "steps": "ft_assert_recorder \"matrix-tiers\" \"python3 -c 'import agentwatch.compatibility'\"\n",
+    "steps": "ft_assert_recorder \"matrix-tiers\" \"python3 /ft/scripts/check-matrix-tiers.py\"\n",
     "recycle": false
   },
   {
@@ -1719,7 +1720,7 @@
     "prd": "XHT-4,PRD-40 \u00a75.3",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert \"matrix-file\" bash -lc \"test -f $REPO_ROOT/docs/reference/compatibility.md\"\nft_assert \"matrix-honest-tiers\" bash -lc \"grep -qE 'live-verified|fixture-verified' $REPO_ROOT/docs/reference/compatibility.md\"\n",
+    "steps": "ft_assert \"matrix-file\" bash -lc \"test -f $REPO_ROOT/docs/reference/compatibility.md\"\nft_assert \"no-modeled-tier1\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 \"$REPO_ROOT/scripts/fieldtest/check-matrix-tiers.py\"\n",
     "recycle": false
   },
   {
@@ -1732,7 +1733,7 @@
     "prd": "EXT-10,OTEL-1",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch\"\nft_assert \"jaeger\" bash -lc \"curl -sf http://localhost:16686/api/services | grep -q agentwatch\"\nft_assert \"tempo\" bash -lc \"curl -sf http://localhost:3200/api/search/tags || true\"\n",
+    "steps": "ft_assert_recorder \"emit-spans\" \"python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch\"\nft_assert \"jaeger\" bash -lc \"sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch\"\nft_assert \"tempo\" bash -lc \"sleep 8 && curl -sf 'http://localhost:3200/api/search?tags=service.name%3Dagentwatch' | grep -q traceID\"\n",
     "recycle": true
   }
 ]

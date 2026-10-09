@@ -1,7 +1,7 @@
 # OpenTelemetry Collector configuration for the local stack.
 #
-# This collector sits between the SDK and the trace backend (Jaeger).
-# It receives OTLP traces from the SDK and forwards them to Jaeger.
+# This collector sits between the SDK and the trace backends (Jaeger + Tempo).
+# It receives OTLP traces from the SDK and fans them out to Jaeger and Tempo.
 # Using a collector is optional — the SDK can export directly to Jaeger
 # via its OTLP gRPC endpoint.  The collector path is useful for:
 #   - testing the collector-mediated export path (3.4)
@@ -20,9 +20,14 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: true
+  # Second live OTLP backend (R4 / FT-BACKEND-2): the same traces also land in Tempo.
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlp/jaeger]
+      exporters: [otlp/jaeger, otlp/tempo]

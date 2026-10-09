@@ -1,0 +1,9 @@
+{
+  "id": "FT-ENV-0",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s1-install",
+  "assertions": [{"name":"first-run-timing","ok":true},{"name":"naming-guard","ok":true}
+]
+}

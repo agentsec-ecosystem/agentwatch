@@ -67,6 +67,21 @@ PY
 )"
 export FT_RECYCLE
 
+# Unsupported (N/A) cases are retired and must never run.
+if python3 - "$HERE/cases/registry.json" "$ID" <<'PY'
+import json, sys
+try:
+    registry = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    registry = []
+match = next((c for c in registry if c.get("id") == sys.argv[2]), {})
+raise SystemExit(0 if match.get("unsupported") else 1)
+PY
+then
+  echo "case $ID is marked unsupported (N/A); not run." >&2
+  exit 0
+fi
+
 trap ft_teardown_on_exit EXIT
 ft_case_begin "$ID"
 

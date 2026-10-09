@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -58,6 +59,29 @@ def _status(verdict: dict | None) -> str:
     return "FAIL"
 
 
+def _existing_notes(text: str) -> dict[str, str]:
+    """Preserve per-case Notes already present in the Master Table (keyed by case id).
+
+    The Class cell may itself contain a pipe (`P/F|D`), so the status literal is
+    used as the anchor and everything after it is treated as the note.
+    """
+    notes: dict[str, str] = {}
+    start = text.find("## Scenario Results (Master Table)")
+    if start == -1:
+        return notes
+    end = text.find("\n## ", start + 1)
+    section = text[start:end if end != -1 else len(text)]
+    for line in section.splitlines():
+        m = re.match(
+            r"^\|\s*(FT-[A-Z0-9-]+|CUJ-\d+)\s*\|(.*)\|\s*(PASS|FAIL|not run|N/A)\s*\|\s*(.*?)\s*\|\s*$",
+            line,
+        )
+        if m:
+            # Unescape the table-safe pipe so re-emitting is idempotent.
+            notes[m.group(1)] = m.group(4).replace("\\|", "|")
+    return notes
+
+
 def _fail_evidence(case_id: str, verdict: dict) -> dict[str, str]:
     case_dir = Path(verdict.get("_case_dir", ""))
     failed: list[str] = []
@@ -93,8 +117,13 @@ def main() -> int:
         by_suite.setdefault(c["suite"], []).append(c)
 
     rows, fails = [], []
-    counts = {"PASS": 0, "FAIL": 0, "not run": 0}
+    counts = {"PASS": 0, "FAIL": 0, "not run": 0, "N/A": 0}
     for c in sorted(cases, key=lambda x: x["id"]):
+        if c.get("unsupported"):
+            # Retired / unsupported: never run, reported as N/A (not a pass/fail).
+            counts["N/A"] += 1
+            rows.append((c["id"], c["suite"], c.get("class", "P/F"), "N/A"))
+            continue
         v = _verdict(c["id"])
         st = _status(v)
         counts[st] += 1
@@ -102,23 +131,29 @@ def main() -> int:
         if st == "FAIL":
             fails.append((c, v, _fail_evidence(c["id"], v or {})))
 
-    # --- master table ---
-    table = ["| Case | Suite | Class | Status |", "|---|---|---|---|"]
+    # --- master table (preserve + emit the per-case Notes column) ---
+    text = REPORT.read_text(encoding="utf-8")
+    notes = _existing_notes(text)
+    table = ["| Case | Suite | Class | Status | Notes |", "|---|---|---|---|---|"]
     for cid, suite, cls, st in rows:
-        table.append(f"| {cid} | {suite} | {cls} | {st} |")
+        note = (notes.get(cid, "").strip() or "—").replace("|", "\\|")
+        table.append(f"| {cid} | {suite} | {cls.replace('|', '\\|')} | {st} | {note} |")
     table.append("")
     table.append(f"**Totals:** {counts['PASS']} PASS · {counts['FAIL']} FAIL · "
-                 f"{counts['not run']} not run  (of {len(cases)} v0.2.0 cases).")
+                 f"{counts['not run']} not run · {counts['N/A']} N/A  (of {len(cases)} v0.2.0 cases).")
 
     # --- per-suite rollup ---
     per = []
     for s in SUITES:
         ids = by_suite.get(s, [])
-        cp = cf = cn = 0
+        cp = cf = cn = cna = 0
         for c in ids:
+            if c.get("unsupported"):
+                cna += 1
+                continue
             st = _status(_verdict(c["id"]))
             cp += st == "PASS"; cf += st == "FAIL"; cn += st == "not run"
-        per.append(f"### {s}\n\n{len(ids)} case(s): {cp} PASS · {cf} FAIL · {cn} not run\n")
+        per.append(f"### {s}\n\n{len(ids)} case(s): {cp} PASS · {cf} FAIL · {cn} not run · {cna} N/A\n")
     per_body = "\n".join(per)
 
     # --- RCA + defect catalogue (FAILs) ---
@@ -148,7 +183,6 @@ def main() -> int:
         t = s.get("totals", {})
         l0.append(f"- `{run.parent.name}`: {t.get('pass', 0)} PASS · {t.get('fail', 0)} FAIL")
 
-    text = REPORT.read_text(encoding="utf-8")
     text = _replace_section(text, "## Scenario Results (Master Table)", "\n".join(table))
     text = _replace_section(text, "## Per-Suite Results", per_body)
     text = _replace_section(text, "## Root Cause Analysis", rca_body)
@@ -160,7 +194,7 @@ def main() -> int:
         )
     REPORT.write_text(text, encoding="utf-8")
     print(f"report filled: {counts['PASS']} PASS / {counts['FAIL']} FAIL / "
-          f"{counts['not run']} not run -> {REPORT}")
+          f"{counts['not run']} not run / {counts['N/A']} N/A -> {REPORT}")
     return 0
 
 

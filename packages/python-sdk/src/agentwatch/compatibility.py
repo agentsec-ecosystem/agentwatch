@@ -72,6 +72,10 @@ class HarnessInfo:
     notes: str = ""
     protocol: str = ""
     managed_policy: str = MANAGED_NA
+    # A declared tier: support is provisional/modeled and *declared* as such, so it
+    # is not a full-fidelity Tier-1 claim (PRD 40 §5.3 "real captures or declared
+    # tiers"). Declared rows are exempt from the "no modeled Tier-1 row" gate.
+    declared: bool = False
 
 
 # Adapter metadata registry: the generated table's single source of truth. Every
@@ -117,7 +121,11 @@ SHIPPED: dict[str, HarnessInfo] = {
         tested=HarnessRange("modeled", "modeled"),
         fidelity=FIDELITY_MODELED,
         invocation="native OTel telemetry (`ingest --format otel`)",
-        notes="native approval/principal mapping (GEM-2); live capture pending",
+        notes=(
+            "declared: provisional/modeled shapes (harness-adapters-plan M10 #82); "
+            "native approval/principal mapping (GEM-2); real capture pending (v0.3.0 target)"
+        ),
+        declared=True,
     ),
     "mcp-proxy": HarnessInfo(
         harness="mcp-proxy",
@@ -224,8 +232,9 @@ def render_table() -> str:
     lines = [_TABLE_HEADER]
     for harness in sorted(ALL_ROWS):
         info = ALL_ROWS[harness]
+        tier = f"{info.tier} (declared)" if info.declared else info.tier
         lines.append(
-            f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
+            f"| `{info.harness}` | {tier} | {info.tested.render()} | "
             f"{info.protocol or '—'} | {info.fidelity} | {info.managed_policy} | "
             f"{info.invocation} | {info.notes} |"
         )

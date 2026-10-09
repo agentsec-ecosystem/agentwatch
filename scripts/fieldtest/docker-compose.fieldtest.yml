@@ -46,6 +46,9 @@ services:
       # schema/vectors/redaction by walking up from the installed SDK; mount it
       # at the same relative path so the real corpus (not a copy) is used.
       - ./schema/vectors/redaction:/work/schema/vectors/redaction:ro
+      # Independent AAT verifier (AAT-1): the second, dependency-free consumer
+      # (`verify_aat.py` imports nothing from agentwatch).
+      - ./schema/vectors:/ft/schema-vectors:ro
     command: ["sleep", "infinity"]
 
   # Clean, no-install auditor (FT-08/CUJ-08): verifies bundles offline.

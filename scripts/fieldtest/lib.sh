@@ -341,7 +341,7 @@ ft_reset_state() {
 # (otel-grpc, fleet-h1..3, a2a-proxy, litellm, runner) and the managed-policy
 # fixture. Defined in docker-compose.fieldtest.yml behind the v020/managed
 # profiles; stack-v020.sh brings the same set up for manual runs.
-V020_PROFILE_SERVICES=(otel-grpc fleet-h1 fleet-h2 fleet-h3 a2a-proxy litellm runner)
+V020_PROFILE_SERVICES=(otel-grpc fleet-h1 fleet-h2 fleet-h3 a2a-proxy litellm runner tempo)
 V020_SERVICES=(postgres jaeger otel-collector api analytics web recorder verifier
   "${V020_PROFILE_SERVICES[@]}" managed-hooks)
 # The profile flags that make the v0.2.0 services present. Single source of truth

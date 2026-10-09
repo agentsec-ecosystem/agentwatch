@@ -14,7 +14,9 @@ fails. Step scripts source ``lib.sh``, run assertions with ``ft_assert`` /
 from __future__ import annotations
 
 import json
+import os
 import re
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -74,16 +76,18 @@ CASES: list[dict[str, str]] = [
     {"id": "CUJ-13", "title": "MCP surface drift", "kind": "cli_seed", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUJ-13", "cmd": "inventory --diff", "cmd2": "agentwatch inventory --diff | grep -qv 'no tool-surface changes'"},
     {"id": "CUJ-14", "title": "\"Did a human approve?\"", "kind": "cli_seed", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUJ-14", "cmd": "search --approval user"},
     # S1 — install, deployability, attestation
-    {"id": "FT-ENV-0", "title": "Fresh install → first record on 3 OSes", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "python", "prd": "EXT-10,13 NFR-4,25 NAM-1", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert "first-run-timing" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/first_run_timing.py"\nft_assert "naming-guard" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 -c "import agentwatch.naming"\n'},
-    {"id": "FT-WIN-1", "title": "Windows support (named-pipe daemon + service)", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "shell", "prd": "WIN-1", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert "windows-host" test "$(uname -s)" = Windows_NT\n'},
-    {"id": "FT-DEP-1", "title": "Managed-policy environment, honest doctor", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-1", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "doctor-effective" "agentwatch doctor | grep -Eq \'hooks effective: (yes|blocked|unknown|no)\'"\n'},
-    {"id": "FT-DEP-2", "title": "Hook-strip → recorder-config-changed + gap", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-2", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert_recorder "coverage-attestation" "agentwatch coverage --json | grep -q attestation"\n'},
-    {"id": "FT-DEP-3", "title": "End-to-end hook wall-clock per OS + budget", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-3", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "hook-perf-gate" "python3 /ft/scripts/run-soak.py --count 500 --interval 0.002 --min-delivery 1.0"\n'},
+    {"id": "FT-ENV-0", "title": "Fresh install → first record on 3 OSes", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "python", "prd": "EXT-10,13 NFR-4,25 NAM-1", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert "first-run-timing" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/first_run_timing.py"\nft_assert "naming-guard" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/fieldtest/naming_guard.py"\n'},
+    # Windows is not supported; retired. Marked N/A and never run (filtered by the
+    # runners). Kept in the roster only so the report can render it as N/A.
+    {"id": "FT-WIN-1", "title": "Windows support (named-pipe daemon + service)", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "shell", "prd": "WIN-1", "class": "P/F|D", "suite": "s1-install", "unsupported": True, "steps": "ft_finalize\n"},
+    {"id": "FT-DEP-1", "title": "Managed-policy environment, honest doctor", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-1", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "doctor-effective" "python3 /ft/scripts/doctor_managed.py"\n'},
+    {"id": "FT-DEP-2", "title": "Hook-strip → recorder-config-changed + gap", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-2", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert_recorder "attestation-config-changed" "python3 /ft/scripts/attestation_strip.py"\n'},
+    {"id": "FT-DEP-3", "title": "End-to-end hook wall-clock per OS + budget", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-3", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "hook-perf-gate" "python3 /ft/scripts/run-hook-perf.py"\n'},
     # S2 — standards & interop
-    {"id": "FT-AAT-1", "title": "AAT export → third-party consumer round-trip", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-1/2/4", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-export" "agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json"\nft_assert_recorder "aat-external-consumer" "python3 /ft/scripts/aat_roundtrip.py /tmp/s.aat.json"\n'},
+    {"id": "FT-AAT-1", "title": "AAT export → third-party consumer round-trip", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-1/2/4", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-export" "agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json"\nft_assert_recorder "aat-independent-consumer" "python3 /ft/schema-vectors/verify_aat.py /tmp/s.aat.json"\n'},
     {"id": "FT-AAT-2", "title": "Foreign AAT ingest + quarantine", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-3", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-ingest" "agentwatch ingest --format aat /ft/fixtures/aat/foreign.aat.json"\nft_assert_recorder "quarantine" "test -s /data/agentwatch/quarantine.jsonl"\n'},
     {"id": "FT-AAT-3", "title": "AAT draft pin + drift check", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-5", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-version-cited" "agentwatch --version | grep -qi aat"\nft_assert_recorder "aat-drift" "python3 /ft/scripts/aat_drift.py"\n'},
-    {"id": "FT-OTEL-1", "title": "Canonical OTel agent spans in ≥2 backends", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "OTEL-1", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"\nft_assert "jaeger" bash -lc "sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch"\n'},
+    {"id": "FT-OTEL-1", "title": "Canonical OTel agent spans in ≥2 backends", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "OTEL-1", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch --tree 3"\nft_assert "span-tree-2-backends" python3 "$REPO_ROOT/scripts/fieldtest/otel_tree_check.py"\n'},
     {"id": "FT-OTEL-2", "title": "OTLP/gRPC + protobuf, streaming", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-3", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "grpc-stream" "python3 /ft/scripts/otel_grpc_stream.py --endpoint http://otel-grpc:4317 --mb 100"\n'},
     {"id": "FT-OTEL-3", "title": "Privacy-mode ↔ content-capture mapping", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-2", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "privacy-default" "grep -q \'privacy_mode.*metadata-only\' /data/agentwatch/records.jsonl"\nft_assert_recorder "privacy-property" "python3 /ft/scripts/privacy_property.py"\n'},
     {"id": "FT-OTEL-4", "title": "Skill / command-execution agent-span mapping", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-4", "class": "P/F|D", "suite": "s2-interop", "steps": 'ft_assert_recorder "skill-spans" "python3 /ft/scripts/skill_spans.py"\n'},
@@ -106,7 +110,7 @@ CASES: list[dict[str, str]] = [
     {"id": "FT-XHT-1", "title": "Payload corpus replay + self-test", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-1", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "xht-replay-self-test" "python3 /ft/scripts/xht_replay.py --self-test"\n'},
     {"id": "FT-XHT-2", "title": "Live soak on OpenCode (real agent)", "kind": "v020", "layer": "recorder", "llm": "yes", "requires": "docker,omlx", "prd": "XHT-2", "class": "P/F|D", "suite": "s3-harness", "steps": 'if [[ "${OMLX_BASE_URL:-}" == "" ]]; then ft_assert_recorder "xht-opencode-bounded" "python3 /ft/scripts/xht_replay.py --opencode --bounded"; else ft_assert_recorder "xht-opencode" "python3 /ft/scripts/xht_replay.py --opencode --bounded"; fi\n'},
     {"id": "FT-XHT-3", "title": "Cross-validate vs 2 independent OSS parsers", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-3", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "xht-cross-parser" "python3 /ft/scripts/xht_replay.py --cross-parser"\n'},
-    {"id": "FT-XHT-4", "title": "Honest fidelity tiers in the generated matrix", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "matrix-tiers" "python3 -c \'import agentwatch.compatibility\'"\n'},
+    {"id": "FT-XHT-4", "title": "Honest fidelity tiers in the generated matrix", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "matrix-tiers" "python3 /ft/scripts/check-matrix-tiers.py"\n'},
     # S4 — detectors & redaction
     {"id": "FT-DET-1", "title": "One-command deterministic detector eval", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-1/2", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-tpr-fpr" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\n'},
     {"id": "FT-DET-2", "title": "≥80% of rule detectors non-silent; catalog guard", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-3", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-nonsilent-80" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\n'},
@@ -180,8 +184,8 @@ CASES: list[dict[str, str]] = [
     # S15 — hostile data, claims ledger, closed gates
     {"id": "FT-HOSTILE-1", "title": "Weaponized ingest containment", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "R5,ADR-0024,RSK-1", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert_recorder "hostile-contained" "python3 /ft/scripts/hostile-ingest.py --corpus /ft/fixtures/hostile"\nft_assert_recorder "quarantined" "test -s /data/agentwatch/quarantine.jsonl"\n'},
     {"id": "FT-CLAIM-1", "title": "Claims ledger green + limitations shrink", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PRD-48 §5", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert "claims-ledger-json" python3 -m json.tool "$REPO_ROOT/docs/release/claims-ledger.json"\nft_assert "known-limitations" test -f "$REPO_ROOT/docs/reference/known-limitations.md"\n'},
-    {"id": "FT-MATRIX-1", "title": "Compatibility matrix honest tiers", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4,PRD-40 §5.3", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert "matrix-file" bash -lc "test -f $REPO_ROOT/docs/reference/compatibility.md"\nft_assert "matrix-honest-tiers" bash -lc "grep -qE \'live-verified|fixture-verified\' $REPO_ROOT/docs/reference/compatibility.md"\n'},
-    {"id": "FT-BACKEND-2", "title": "Second live OTLP backend (closes R4)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "EXT-10,OTEL-1", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"\nft_assert "jaeger" bash -lc "curl -sf http://localhost:16686/api/services | grep -q agentwatch"\nft_assert "tempo" bash -lc "curl -sf http://localhost:3200/api/search/tags || true"\n'},
+    {"id": "FT-MATRIX-1", "title": "Compatibility matrix honest tiers", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4,PRD-40 §5.3", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert "matrix-file" bash -lc "test -f $REPO_ROOT/docs/reference/compatibility.md"\nft_assert "no-modeled-tier1" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/fieldtest/check-matrix-tiers.py"\n'},
+    {"id": "FT-BACKEND-2", "title": "Second live OTLP backend (closes R4)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "EXT-10,OTEL-1", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"\nft_assert "jaeger" bash -lc "sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch"\nft_assert "tempo" bash -lc "sleep 8 && curl -sf \'http://localhost:3200/api/search?tags=service.name%3Dagentwatch\' | grep -q traceID"\n'},
 
 ]
 
@@ -552,6 +556,33 @@ def _needs_recycle(step: str) -> bool:
     return bool(_SERVICE_RE.search(step))
 
 
+_WEAK_IMPORT_RE = re.compile(r"python3\s+-c\s+['\"]import ")
+_WEAK_DRIVER_RE = re.compile(r"python3\s+/ft/scripts/[\w.-]+\.py")
+
+
+def _weak_reasons(step: str) -> list[str]:
+    """Heuristic catalogue of assertions that prove plumbing, not the property.
+
+    The generator guard surfaces these so a weak step cannot ship silently; set
+    ``FT_STRICT_STEPS=1`` (e.g. in CI) to fail generation while any remain.
+    """
+    reasons: list[str] = []
+    for line in step.splitlines():
+        if "ft_assert" not in line:
+            continue
+        if _WEAK_IMPORT_RE.search(line):
+            reasons.append("import-only")
+        if "|| true" in line:
+            reasons.append("cannot-fail")
+        if "json.tool" in line:
+            reasons.append("json.tool")
+        if re.search(r"\btest -[fsn]\b", line) and "grep" not in line and "&&" not in line:
+            reasons.append("existence-only")
+        if _WEAK_DRIVER_RE.search(line) and "grep" not in line and "&&" not in line:
+            reasons.append("driver-only(verify-it-asserts)")
+    return reasons
+
+
 def _clean_generated() -> None:
     for path in CASES_DIR.glob("*.md"):
         if path.name not in CUSTOM_SPECS:
@@ -584,6 +615,26 @@ def main() -> int:
             )
         (STEPS_DIR / f"{case['id']}.sh").write_text(step, encoding="utf-8")
     (CASES_DIR / "registry.json").write_text(json.dumps(CASES, indent=2) + "\n", encoding="utf-8")
+
+    weak = [
+        (case["id"], sorted(set(_weak_reasons(_step(case)))))
+        for case in CASES
+        if case.get("suite") and _weak_reasons(_step(case))
+    ]
+    if weak:
+        print(
+            f"gen_cases: WEAK assertions in {len(weak)} v0.2.0 case(s) "
+            "(import-only / existence-only / cannot-fail / driver-only):"
+        )
+        for cid, reasons in weak:
+            print(f"  {cid}: {', '.join(reasons)}")
+        if os.environ.get("FT_STRICT_STEPS") == "1":
+            print(
+                "gen_cases: FT_STRICT_STEPS=1 -> failing; harden the flagged steps.",
+                file=sys.stderr,
+            )
+            return 1
+
     print(f"gen_cases: wrote {len(CASES)} specs + {len(CASES)} step scripts")
     return 0
 

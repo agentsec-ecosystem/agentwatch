@@ -1,14 +1,18 @@
 # ADR-0026 — Naming decision (agentwatch)
 
-- **Status:** accepted — **decision: full rename at v0.2.0 (option D)** (2026-10-05)
-- **Decision:** **D — full rename at v0.2.0.** The distribution, import module, and CLI are renamed at the
-  v0.2.0 release. The target name is **TBD** and must be recorded here before M30's 30.16 ("Execute the
-  ADR-0026 naming outcome"); until it is pinned, the rename is tracked as a cross-cutting work item, not
-  started. This supersedes the earlier A-or-C recommendation.
-- **Consequences (accepted):** breaks the just-shipped v0.1.0 identity and ecosystem references and carries
-  the highest cost — a migration guide, alias/shim for `import agentwatch` and the `agentwatch` CLI across
-  the v0.2.x window, updates to every doc/example/compatibility row, and the npx launcher. Every package
-  version string must move together (M30 30.3 "single-version consistency").
+- **Status:** accepted — **decision revised (2026-10-08): defer the full rename to v0.3.0; ship v0.2.0 under the
+  current names + guardrails** (originally: full rename at v0.2.0, option D, 2026-10-05)
+- **Decision:** **Keep `agentwatch` as the import module and CLI for v0.2.0.** The v0.2.0 release ships under the
+  existing `agentsec-agentwatch` distribution / `agentwatch` import + CLI, protected by the guardrails below. The
+  **full rename (option D) is deferred to v0.3.0**, where the target name is chosen and recorded. Rationale: the
+  rename is a large, launch-blocking cross-cutting change (a shim + migration guide + a sweep of every
+  doc/example/compatibility row + the npx launcher), and the guardrails already mitigate the supply-chain risk for
+  v0.2.0. This is a **named carry-forward**, not a dropped decision.
+- **Consequences (accepted):** *deferred with the rename* — when it lands (v0.3.0) it will break the shipped
+  identity and ecosystem references and carry the highest cost: a migration guide, an alias/shim for
+  `import agentwatch` and the `agentwatch` CLI across the v0.3.x window, updates to every doc/example/compatibility
+  row, and the npx launcher; every package version string must move together. For v0.2.0 the guardrails below carry
+  the risk.
 - **Context:** The name `agentwatch` is used by five or more active projects, several in the exact category
   (`agentwatch-core`, `agentwatch-monitor`, `agentwatch-io` on PyPI; `@nicofains1/agentwatch` on npm;
   `sreerevanth/AgentWatch`; `dhanraj176/agentwatch`, a near-identical MCP-proxy recorder; plus a Berkeley CLTC

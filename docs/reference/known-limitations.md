@@ -231,6 +231,11 @@ Status: living.
   1.0. Encoded/structured secrets remain a gap (proving test:
   `packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations`).
 
+- **The `agentwatch` name collides with namesakes; the ADR-0026 full rename is deferred to v0.3.0.** v0.2.0 ships
+  under the `agentsec-agentwatch` distribution with the NAM-1 install-confusion warning (`agentwatch.naming`;
+  `doctor` distribution check) and the [namesake FAQ](namesake-faq.md). Proven by
+  `packages/python-sdk/tests/test_naming.py`; recorded in [ADR-0026](../adr/0026-naming-decision.md).
+
 ## Policy
 
 A limitation enters this file when it is discovered and leaves it only when a test proves it closed.

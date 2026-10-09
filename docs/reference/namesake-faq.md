@@ -32,8 +32,9 @@ pip install agentsec-agentwatch   # the real project
 agentwatch doctor                 # distribution check should be PASS
 ```
 
-## What about the v0.2.0 rename?
+## What about the rename?
 
-ADR-0026 records the decision to **fully rename at v0.2.0** (target name TBD). Until that lands, the
-fully-qualified install and the distribution check are the guardrails; the rename is tracked with an
-`import agentwatch` / CLI shim so v0.1/v0.2 users are not broken.
+ADR-0026's original decision was to fully rename at v0.2.0 (target name TBD). **Revised (2026-10-08): the full
+rename is deferred to v0.3.0** — v0.2.0 ships under the current `agentsec-agentwatch` / `agentwatch` names,
+protected by the fully-qualified-install guidance and the distribution check above. The rename stays a **named
+carry-forward** and will ship with an `import agentwatch` / CLI shim so v0.1/v0.2 users are not broken.

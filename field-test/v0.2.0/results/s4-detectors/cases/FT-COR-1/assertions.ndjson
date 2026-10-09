@@ -24,3 +24,4 @@
 {"name":"svc-tempo","ok":true}
 {"name":"svc-managed-hooks","ok":true}
 {"name":"second-corpus","ok":true}
+{"name":"corpus-semantics","ok":true}

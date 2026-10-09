@@ -1018,7 +1018,7 @@
     "prd": "COR-1",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"second-corpus\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint bash -v \"$REPO_ROOT/data/traces\":/traces:ro -v \"$FT_DIR\":/ft -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics /ft/corpus.sh /traces/processed 2000  /artifacts\n",
+    "steps": "ft_assert \"second-corpus\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint bash -v \"$REPO_ROOT/data/traces\":/traces:ro -v \"$FT_DIR\":/ft -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics /ft/corpus.sh /traces/processed 2000  /artifacts\n\nft_assert \"corpus-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/analytics/tests/test_detector_corpus.py\n",
     "recycle": true
   },
   {
@@ -1200,7 +1200,7 @@
     "prd": "CCA-1",
     "class": "P/F",
     "suite": "s6-surfaces",
-    "steps": "ft_assert_recorder \"cca-consent\" \"python3 /ft/scripts/ingest-fixture.py --kind cca --corpus /ft/fixtures/cca\"\n",
+    "steps": "ft_assert_recorder \"cca-consent\" \"python3 /ft/scripts/ingest-fixture.py --kind cca --corpus /ft/fixtures/cca\"\n\nft_assert \"cca-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_compliance_api.py\n",
     "recycle": false
   },
   {
@@ -1369,7 +1369,7 @@
     "prd": "TSS-1",
     "class": "P/F|D",
     "suite": "s7-platform",
-    "steps": "ft_assert \"ts-spike-tracked\" grep -q TSS-1 \"$REPO_ROOT/docs/wbs/v0.2.0/wbs-v0.2.0-index.md\"\n",
+    "steps": "ft_assert \"ts-spike-tracked\" grep -q TSS-1 \"$REPO_ROOT/docs/wbs/v0.2.0/wbs-v0.2.0-index.md\"\n\nft_assert \"ts-spike-deliverables\" python3 \"$REPO_ROOT/scripts/fieldtest/tss_spike.py\"\nft_assert \"ts-portability-contract\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" tests/test_ts_schema_portability.py\n",
     "recycle": false
   },
   {
@@ -1499,7 +1499,7 @@
     "prd": "LUI-1",
     "class": "P/F",
     "suite": "s11-console",
-    "steps": "ft_assert \"ui-console-check\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -m agentwatch ui --check --host 127.0.0.1 --no-open\nft_assert \"ui-module\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -c \"import agentwatch.ui\"\nft_assert \"console-playwright\" python3 \"$REPO_ROOT/scripts/fieldtest/console_playwright.py\"\n",
+    "steps": "ft_assert \"ui-console-check\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -m agentwatch ui --check --host 127.0.0.1 --no-open\nft_assert \"ui-module\" env PYTHONPATH=\"$REPO_ROOT/packages/python-sdk/src\" python3 -c \"import agentwatch.ui\"\nft_assert \"console-playwright\" python3 \"$REPO_ROOT/scripts/fieldtest/console_playwright.py\"\n\nft_assert \"console-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_console.py packages/python-sdk/tests/test_accessibility.py\n",
     "recycle": false
   },
   {
@@ -1512,7 +1512,7 @@
     "prd": "LUI-2",
     "class": "P/F",
     "suite": "s11-console",
-    "steps": "ft_assert_recorder \"index-rebuild-delete\" \"agentwatch index rebuild --json && agentwatch index drop --json && agentwatch sessions >/dev/null && agentwatch index rebuild --json\"\n",
+    "steps": "ft_assert_recorder \"index-rebuild-delete\" \"agentwatch index rebuild --json && agentwatch index drop --json && agentwatch sessions >/dev/null && agentwatch index rebuild --json\"\n\nft_assert \"index-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_query_index.py packages/python-sdk/tests/test_purge_propagation.py\n",
     "recycle": false
   },
   {

@@ -4,6 +4,6 @@
   "class": "P/F",
   "declared": false,
   "run_id": "s6-surfaces",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"cca-consent","ok":true}
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"cca-consent","ok":true},{"name":"cca-semantics","ok":true}
 ]
 }

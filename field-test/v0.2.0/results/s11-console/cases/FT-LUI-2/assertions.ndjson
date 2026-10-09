@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"index-rebuild-delete","ok":true}
+{"name":"index-semantics","ok":true}

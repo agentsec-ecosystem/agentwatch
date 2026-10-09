@@ -1,0 +1,4 @@
+DO
+ok: ingested cursor from /ft/fixtures/cursor
+agentwatch: chain ok (22 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

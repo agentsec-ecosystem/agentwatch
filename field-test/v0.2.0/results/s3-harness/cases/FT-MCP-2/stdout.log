@@ -1,0 +1,3 @@
+DO
+ok: mcp-malformed: 1 normalized, 3 quarantined
+ok: ingested mcp-malformed from /ft/fixtures/mcp-malformed

@@ -106,11 +106,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-CMP-2 | s5-identity | P/F | not run | fixed F-1a: `retention apply --profile general-6mo` enum |
 | FT-CMP-3 | s5-identity | P/F | not run | — |
 | FT-CNC-1 | s13-investigation | P/F\|D | not run | fixed F-1a: incident via case_incident.py (auto case id) |
-| FT-COD-1 | s3-harness | P/F | not run | — |
+| FT-COD-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; dedup / .zst / crashed not asserted |
 | FT-COR-1 | s4-detectors | P/F | not run | — |
 | FT-COR-2 | s4-detectors | P/F | not run | — |
-| FT-CUR-1 | s3-harness | P/F\|D | not run | fixed H-1/H-5: cursor corpus ingest + normalize `message` |
-| FT-CUR-2 | s3-harness | P/F | not run | fixed F-1b: cursor ingest dispatch (not `--kind`) |
+| FT-CUR-1 | s3-harness | P/F\|D | PASS | ⚠ over-claimed: `ingest-fixture --kind cursor` run-only (+verify-store); no step-type/coverage reconciliation |
+| FT-CUR-2 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; blocking events not asserted |
 | FT-DEMO-1 | s14-outcomes | P/F\|D | not run | — |
 | FT-DEP-1 | s1-install | P/F\|D | PASS | HARDENED: `doctor_managed.py` asserts doctor reports blocked/yes/unknown and never 'installed' while blocked (was a regex that accepted `no`) → PASS |
 | FT-DEP-2 | s1-install | P/F | PASS | HARDENED: `attestation_strip.py` performs the real digest move and asserts a `recorder-config-changed` fact (digests/booleans only) → PASS |
@@ -127,7 +127,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-EXA-1 | s7-platform | P/F | not run | fixed F-1c: examples-gallery step quoting |
 | FT-FWK-1 | s7-platform | P/F\|D | not run | fixed F-1c: `framework_recipes` signature |
 | FT-FWK-2 | s7-platform | P/F | not run | fixed F-1c: `detect_installed()` iterable |
-| FT-GEM-1 | s3-harness | P/F | not run | fixed H-1/H-5: gemini ingest normalize `message` |
+| FT-GEM-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; approval-mode / email-hash / logPrompts redaction not asserted |
 | FT-GOV-1 | s7-platform | P/F | not run | — |
 | FT-GWY-1 | s6-surfaces | P/F | not run | — |
 | FT-HLD-1 | s12-governance | P/F | not run | fixed F-1a: `hold add --reason` |
@@ -136,24 +136,24 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-IDN-2 | s5-identity | P/F | not run | — |
 | FT-IDN-3 | s5-identity | P/F | not run | fixed F-1a: `search --identity user` value |
 | FT-IR-1 | s13-investigation | P/F | not run | fixed F-1a: incident create via case_incident.py |
-| FT-LG-1 | s3-harness | P/F | not run | fixed F-1c: `drive-agent.py` (no `--framework`) |
-| FT-LOG-1 | s3-harness | P/F | not run | ✅ fixed (F-4b/F-1b): `ingest-fixture.py` now dispatches the long-tail corpus per file — claude-code `.jsonl` via `importer.import_transcripts`, codex `.jsonl` via `codex_rollout.ingest_rollouts`, cursor/gemini framed fixtures via their adapters (was a single wrong `claude_code` adapter over `*.json` only) |
+| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed: `drive-agent.py` run-only (delivery + verify); no chain-protection / conformance |
+| FT-LOG-1 | s3-harness | P/F | PASS | partial: asserts ≥1 record normalized; per-reader fidelity not asserted |
 | FT-LUI-1 | s11-console | P/F | not run | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
 | FT-LUI-2 | s11-console | P/F | not run | — |
 | FT-MATRIX-1 | s15-hostile | P/F | PASS | FIXED: `gemini-cli` is now a **declared** row (`HarnessInfo.declared=True`); `compatibility.md` regenerated; re-run PASS |
-| FT-MCP-1 | s3-harness | P/F | not run | fixed F-1b: MCP ingest dispatch |
-| FT-MCP-2 | s3-harness | P/F | not run | ✅ fixed (F-4b/F-1b): added the `mcp-malformed` fixture (closed-by-spec `roots/list`, missing `params`, missing `rpc`) and a driver branch that quarantines non-normalizable frames via `agentwatch.quarantine.QuarantineLog` (reason names the offending field) while normalizable frames ingest |
+| FT-MCP-1 | s3-harness | P/F | PASS | ⚠ over-claimed: ingest run-only; full surface / 3 revisions not asserted |
+| FT-MCP-2 | s3-harness | P/F | PASS | ✓ grounded: asserts `quarantined>0` (1 normalized, 3 quarantined) |
 | FT-MEM-1 | s9-capability | P/F | not run | — |
 | FT-NTF-1 | s14-outcomes | P/F\|D | not run | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
 | FT-OTEL-1 | s2-interop | P/F | PASS | HARDENED: `otel-probe --tree` emits a real parent/child agent-span tree; `otel_tree_check.py` asserts the CHILD_OF tree in Jaeger AND Tempo → PASS |
 | FT-OTEL-2 | s2-interop | P/F | PASS | HARDENED: `otel_grpc_stream.py` honors `--mb`; streamed 102400 spans (~100 MiB), peak child RSS 51 MiB → PASS |
-| FT-OTEL-3 | s2-interop | P/F | not run | ✅ fixed (F-4f): generator step now greps `privacy_mode.*metadata-only`; the old text's nested `"` were stripped by the shell chain |
-| FT-OTEL-4 | s2-interop | P/F\|D | not run | — |
+| FT-OTEL-3 | s2-interop | P/F | PASS | PASS (partial): `privacy-default` greps metadata-only (real); `privacy_property.py` for content is a no-op (+ typo "privacproperty") — property test over-claimed |
+| FT-OTEL-4 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: `skill_spans.py` run-only (ingest + verify-store); no per-harness span/gap assertion |
 | FT-OUT-1 | s14-outcomes | P/F\|D | not run | — |
 | FT-OUT-2 | s14-outcomes | P/F\|D | not run | — |
-| FT-PG-1 | s2-interop | P/F\|D | not run | — |
-| FT-PG-2 | s2-interop | P/F\|D | not run | — |
-| FT-PG-3 | s2-interop | P/F\|D | not run | fixed F-1c: `drive-agent.py` (no `--sdk`) |
+| FT-PG-1 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: runs `index rebuild` twice; no Postgres-down mode, no bit-for-bit comparison |
+| FT-PG-2 | s2-interop | P/F\|D | PASS | ✓ grounded: cross-tenant `search` returns empty + coverage |
+| FT-PG-3 | s2-interop | P/F\|D | PASS | ⚠ over-claimed: no chain-protection assertion; `union` shows SDK records `chain_protected:false` (plan wants SDK spans chain-protected) |
 | FT-POL-1 | s7-platform | P/F | not run | fixed F-1a: `what-if <policy_file>` positional |
 | FT-PRV-1 | s10-provenance | P/F | not run | fixed F-1a: `provenance <target>` positional |
 | FT-PRV-2 | s10-provenance | P/F | not run | — |
@@ -163,20 +163,20 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-SBX-1 | s13-investigation | P/F\|D | not run | fixed F-1c: `sandbox_boundary_event()` 0-arg |
 | FT-SDK-1 | s7-platform | P/F | not run | — |
 | FT-SIEM-1 | s5-identity | P/F | not run | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
-| FT-STR-1 | s3-harness | P/F | not run | — |
-| FT-STR-2 | s3-harness | P/F | not run | fixed F-1c: `stream-probe` accepts a path |
+| FT-STR-1 | s3-harness | P/F | PASS | ⚠ over-claimed: `stream-probe --mode p99` ignores `--budget-ms`; no latency measured |
+| FT-STR-2 | s3-harness | P/F | PASS | ⚠ over-claimed: drop-consumer runs a soak + coverage; no reconciliation assertion |
 | FT-SYS-1 | s6-surfaces | P/F\|D | not run | fixed H-7: declared → real assertion |
-| FT-TRACE-1 | s2-interop | P/F | not run | ✅ fixed (F-4a): driver now seeds a genuine 3-host × 3-harness chain (host-tagged, W3C `traceparent`, `parent_span_id`), ingests via `agentwatch fleet ingest`, and reconstructs with `trace <trace_id>`; the injected broker gap is classified `missing-parent` |
-| FT-TRACE-2 | s2-interop | P/F | not run | ✅ fixed (F-4a): same driver, `--skew 3` mode seeds a child that starts 3 s before its parent; `trace <tid>` flags a `clock-skew` gap (F9), never silently reorders |
+| FT-TRACE-1 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run` asserts a 3-host chain + a classified `missing-parent` gap |
+| FT-TRACE-2 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run --skew` asserts a classified `clock-skew` gap |
 | FT-TSS-1 | s7-platform | P/F\|D | not run | fixed H-7: declared → real assertion |
 | FT-VFY-1 | s13-investigation | P/F | not run | — |
 | FT-WIN-1 | s1-install | P/F\|D | N/A | Windows is **not supported** — retired; never run again (N/A). |
-| FT-XHT-1 | s3-harness | P/F | not run | ✅ fixed (F-3): driver registers the shipped adapters via the SDK's canonical `conformance_registry` (fixtures in `packages/python-sdk/tests/fixtures/`), not the field-test corpora whose `manifest.json` broke the `message`/`expected` contract; all 8 adapters conform. XHT-2/3 re-run (no regression) |
-| FT-XHT-2 | s3-harness | P/F\|D | not run | fixed F-3: register shipped adapters in self-test |
-| FT-XHT-3 | s3-harness | P/F | not run | fixed F-3: register shipped adapters |
+| FT-XHT-1 | s3-harness | P/F | PASS | ✓ grounded: `--self-test` asserts all 8 adapters conform |
+| FT-XHT-2 | s3-harness | P/F\|D | PASS | ⚠ over-claimed: `--opencode` is ignored by the driver; generic replay only |
+| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed: `--cross-parser` only asserts ≥2 registered adapters; no independent OSS-parser diff |
 | FT-XHT-4 | s3-harness | P/F | PASS | FIXED: same declared row; re-run PASS (fresh stack) |
 
-**Totals:** 12 PASS · 0 FAIL · 81 not run · 1 N/A  (of 94 v0.2.0 cases).
+**Totals:** 32 PASS · 0 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
 
 ## Per-Suite Results
 
@@ -186,11 +186,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s2-interop
 
-12 case(s): 5 PASS · 0 FAIL · 7 not run · 0 N/A
+12 case(s): 12 PASS · 0 FAIL · 0 not run · 0 N/A
 
 ### s3-harness
 
-14 case(s): 1 PASS · 0 FAIL · 13 not run · 0 N/A
+14 case(s): 14 PASS · 0 FAIL · 0 not run · 0 N/A
 
 ### s4-detectors
 
@@ -392,6 +392,52 @@ Two verification hiccups were driver/stack artifacts, not product gaps: FT-DEP-2
 wrong `AttestationReport` field (`config_changed`), and FT-AAT-1 tripped on a **stale reused
 container** (a non-`recycle` case reuses the live stack, so a new bind mount isn't picked up
 until `down -v`). Both fixed and re-run green.
+
+### Batch 2 — cases 11–30 (deep analysis)
+
+Run: `field-test/v0.2.0/results/run-20261008-201348-batch2.log` (shared stack; `recycle` honored —
+FT-TRACE-1/2 each did `down -v`). Verdicts: **20 PASS · 0 FAIL**. Deep read of every step + driver +
+captured artifact gives the split below.
+
+| Case | What the step actually asserted | Call |
+|---|---|---|
+| FT-OTEL-3 | `grep metadata-only` (real) + `privacy_property.py` (content branch is a no-op; typo "privacproperty") | partial |
+| FT-OTEL-4 | `skill_spans.py` ingest + verify-store | ⚠ over-claimed |
+| FT-TRACE-1 | `fleet-run` asserts hosts/records/node + `missing-parent` gap | ✓ grounded |
+| FT-TRACE-2 | `fleet-run --skew` asserts `clock-skew` gap | ✓ grounded |
+| FT-PG-1 | `index rebuild` twice (no PG-down, no bit-for-bit compare) | ⚠ over-claimed |
+| FT-PG-2 | cross-tenant `search` returns empty + coverage | ✓ grounded |
+| FT-PG-3 | `sdk_emit` + `union --json` (no chain-protection assert; union shows SDK `chain_protected:false`) | ⚠ over-claimed |
+| FT-CUR-1 | `ingest-fixture --kind cursor` + verify-store | ⚠ over-claimed |
+| FT-CUR-2 | `ingest-fixture --kind cursor-blocking` | ⚠ over-claimed |
+| FT-GEM-1 | `ingest-fixture --kind gemini` + verify-store | ⚠ over-claimed |
+| FT-COD-1 | `ingest-fixture --kind codex` + verify-store | ⚠ over-claimed |
+| FT-MCP-1 | `ingest-fixture --kind mcp` + verify-store | ⚠ over-claimed |
+| FT-MCP-2 | asserts `quarantined>0` (1 normalized, 3 quarantined) | ✓ grounded |
+| FT-LOG-1 | `_logreaders_ingest` fails if 0 records normalized | partial |
+| FT-STR-1 | `stream-probe --mode p99` (ignores `--budget-ms`) | ⚠ over-claimed |
+| FT-STR-2 | `stream-probe --mode drop-consumer` (soak + coverage, no reconciliation assert) | ⚠ over-claimed |
+| FT-LG-1 | `drive-agent.py --session ft-lg` (delivery + verify) | ⚠ over-claimed |
+| FT-XHT-1 | `xht_replay --self-test` asserts all 8 adapters conform | ✓ grounded |
+| FT-XHT-2 | `xht_replay --opencode` — flag ignored; generic replay | ⚠ over-claimed |
+| FT-XHT-3 | `xht_replay --cross-parser` — asserts ≥2 registered adapters only | ⚠ over-claimed |
+
+**Summary:** 5 grounded (FT-TRACE-1/2, FT-PG-2, FT-MCP-2, FT-XHT-1), 2 partial (FT-OTEL-3, FT-LOG-1), and
+**13 over-claimed** run-only (FT-OTEL-4, FT-PG-1, FT-PG-3, FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1,
+FT-STR-1/2, FT-LG-1, FT-XHT-2/3).
+
+**Sharpest findings:**
+- **FT-XHT-2 / FT-XHT-3 are near-vacuous:** `xht_replay.py` handles only `--self-test` and `--cross-parser`;
+  `--opencode` is silently ignored, and `--cross-parser` merely asserts `len(names) >= 2` — it does **not**
+  cross-validate against two independent OSS parsers. So "live soak on OpenCode" and "cross-validate vs 2
+  independent parsers" are both unmet.
+- **FT-PG-3 integrity claim unproven:** `union --json` reports SDK-source records with
+  `chain_protected:false`, while the plan says "SDK spans land chain-protected" — the step never asserts the
+  property, and the observed value contradicts it.
+- **FT-PG-1** runs `index rebuild` twice but never drops Postgres or compares rebuilds bit-for-bit.
+- **FT-STR-1 / FT-STR-2** never measure latency or reconciliation; the drivers ignore their own budget / `--bounded` intent.
+- **FT-OTEL-3**'s `privacy_property.py` only inspects identity leaks; the content-mode test prints `ok` without
+  checking (and has a "privacproperty" typo).
 
 ### Systematic finding — the case *steps* are shallower than the plan (all 94 audited)
 

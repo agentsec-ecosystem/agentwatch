@@ -1,0 +1,9 @@
+{
+  "id": "FT-LG-1",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s3-harness",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"langgraph-instrument","ok":true}
+]
+}

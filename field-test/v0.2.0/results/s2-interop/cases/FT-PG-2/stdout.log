@@ -1,0 +1,2 @@
+DO
+ok: cross-tenant query returns nothing and is store-access-recorded

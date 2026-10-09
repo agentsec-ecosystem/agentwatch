@@ -1,0 +1,9 @@
+{
+  "id": "FT-XHT-2",
+  "status": "pass",
+  "class": "P/F|D",
+  "declared": false,
+  "run_id": "s3-harness",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"xht-opencode","ok":true}
+]
+}

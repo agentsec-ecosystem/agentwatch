@@ -3,11 +3,12 @@
 Documentation for **agentwatch** — the vendor-neutral telemetry and security-event layer for AI agents.
 Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
-> **Status: v0.1.0 released; v0.2.0 proposed (2026-10-05).** `agent-exec-trace` is **ported in
+> **Status: v0.1.0 released; v0.2.0 release-ready (2026-10-08).** `agent-exec-trace` is **ported in
 > (M0)** and retained as a **private** repo (never deleted). agentwatch is the **shipped-feature superset** of
-> the retired `agent-exec-trace`/AgentObservatory (#102). The v0.2.0 program (PRD 40–48) turns the shipped
+> the retired `agent-exec-trace`/AgentObservatory (#102). The v0.2.0 program (PRD 40–59) turns the shipped
 > record layer into the best-in-class one: standards-native (AAT, OTel agent spans), real harness fidelity,
-> streaming, honest detector effectiveness, agent identity, and compliance reporting.
+> streaming, honest detector effectiveness, agent identity, and compliance reporting — validated by the
+> [v0.2.0 field test](field-test/v0.2.0/FIELD_TEST_REPORT.md) (92 PASS · 0 FAIL).
 
 ## Start here
 
@@ -43,7 +44,9 @@ Root docs: [glossary](glossary.md) · [deployment](deployment.md) · [distributi
 - [Decisions (accepted)](prd/11-decisions.md) · [Design decisions](design/design-decisions.md)
 - [Record format spec](reference/record-format-spec.md) · [`schema/`](../schema/)
 - [Testing & parity strategy](plans/testing-and-parity-strategy.md)
-- [Migration guide](release/v0.1.0/migration-guide.md)
+- [Migration guide](release/v0.2.0/migration-guide.md) · [v0.1.0 migration guide](release/v0.1.0/migration-guide.md)
+- Release: [v0.2.0 notes](release/v0.2.0/release-notes.md) · [release checklist](release/v0.2.0/release-checklist.md) ·
+  [security audit](release/v0.2.0/security-audit.md) · [field test](field-test/v0.2.0/FIELD_TEST_REPORT.md)
 
 ## Conventions
 

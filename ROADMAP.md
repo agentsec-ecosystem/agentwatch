@@ -5,10 +5,13 @@ then the security layer is added, and the old repo is retained privately at rele
 record layer into the best-in-class one** (PRD 40–48): standards-native, real harness fidelity, streaming, honest
 detector effectiveness, agent identity, and compliance reporting. Later versions add depth and integrations.
 
+> **Status (2026-10-08):** v0.1.0 **released**; **v0.2.0 release-ready** (PRD 40–59) — all 94 field-test cases
+> run (**92 PASS · 0 FAIL**). Tagging/publishing happen at M32 release readiness.
+
 | Version | Theme |
 |---|---|
 | **v0.1.0** | **Full superset** — port all of `agent-exec-trace` → Claude Code recording + OTel GenAI + security-event schema + local store + replay + analytics + 40 detectors + read API + operator UI + stack + demo/E2E; **`agent-exec-trace` retained (private)** |
-| **v0.2.0** | **Best-in-class record layer** (PRD 40–48) — IETF AAT emit/ingest; OTel GenAI agent spans + OTLP/gRPC; cross-agent trace correlation; Cursor/Gemini/Codex real fidelity; MCP 2026-07-28 surface; streaming; detector recall program + public eval corpus; agent identity; compliance reports + retention + signing; SIEM/OCSF; A2A/gateway/system-effects/Compliance-API capture; SDK lifecycle; Windows; cross-harness test kit |
+| **v0.2.0** | **Best-in-class record layer** (PRD 40–59) — **release-ready** — IETF AAT emit/ingest; OTel GenAI agent spans + OTLP/gRPC (two backends); cross-agent trace correlation; Cursor/Gemini/Codex real fidelity; MCP 2026-07-28 surface; streaming; detector recall program + public eval corpus; agent identity; compliance reports + retention + signing; SIEM/OCSF; A2A/gateway/system-effects/Compliance-API capture; SDK lifecycle; cross-harness test kit; **console + investigation skill + versioned CLI JSON, capability/memory supply chain, provenance, approval v2, sandbox boundary, legal hold, OWASP ASI-2026** |
 | v0.2.x | Postgres analytics (if phased), A2A/system-effects depth, TypeScript SDK decision → ship, more adapters |
 | later | CrewAI/PydanticAI full-fidelity; Copilot via OTel; enterprise integrations |
 

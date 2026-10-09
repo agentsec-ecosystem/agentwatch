@@ -1421,7 +1421,7 @@
     "prd": "CAP-1/2",
     "class": "P/F",
     "suite": "s9-capability",
-    "steps": "ft_assert_recorder \"capability-drift\" \"python3 /ft/scripts/capability-drift.py --kind drift\"\n",
+    "steps": "ft_assert_recorder \"capability-drift\" \"python3 /ft/scripts/capability-drift.py --kind drift\"\nft_assert \"capability-drift-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_capability_drift.py\n",
     "recycle": false
   },
   {
@@ -1447,7 +1447,7 @@
     "prd": "MEM-1",
     "class": "P/F",
     "suite": "s9-capability",
-    "steps": "ft_assert_recorder \"memory-oob-edit\" \"python3 /ft/scripts/capability-drift.py --kind memory\"\n",
+    "steps": "ft_assert_recorder \"memory-oob-edit\" \"python3 /ft/scripts/capability-drift.py --kind memory\"\nft_assert \"memory-capability-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_memory_capability.py packages/python-sdk/tests/test_memory_surface.py\n",
     "recycle": false
   },
   {
@@ -1525,7 +1525,7 @@
     "prd": "ACC-1",
     "class": "P/F",
     "suite": "s12-governance",
-    "steps": "ft_assert_recorder \"role-matrix\" \"python3 /ft/scripts/governance_matrix.py --roles\"\n",
+    "steps": "ft_assert_recorder \"role-matrix\" \"python3 /ft/scripts/governance_matrix.py --roles\"\nft_assert \"access-model-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_access.py\n",
     "recycle": false
   },
   {
@@ -1603,7 +1603,7 @@
     "prd": "CNC-1",
     "class": "P/F|D",
     "suite": "s13-investigation",
-    "steps": "ft_assert_recorder \"concurrency-report\" \"python3 /ft/scripts/concurrency_probe.py\"\n",
+    "steps": "ft_assert_recorder \"concurrency-report\" \"python3 /ft/scripts/concurrency_probe.py\"\nft_assert \"concurrency-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_concurrency.py\n",
     "recycle": false
   },
   {
@@ -1616,7 +1616,7 @@
     "prd": "SBX-1",
     "class": "P/F|D",
     "suite": "s13-investigation",
-    "steps": "ft_assert_recorder \"sandbox-events\" \"python3 /ft/scripts/oversight-corpus.py --sandbox\"\n",
+    "steps": "ft_assert_recorder \"sandbox-events\" \"python3 /ft/scripts/oversight-corpus.py --sandbox\"\nft_assert \"sandbox-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_sandbox_events.py\n",
     "recycle": false
   },
   {
@@ -1655,7 +1655,7 @@
     "prd": "RUN-1",
     "class": "P/F",
     "suite": "s14-outcomes",
-    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"runner-segment\" \"python3 /ft/scripts/segment-runner.py\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"runner-segment\" \"python3 /ft/scripts/segment-runner.py\"\nft_assert \"runner-segment-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_runner_segments.py\n",
     "recycle": true
   },
   {
@@ -1681,7 +1681,7 @@
     "prd": "NTF-1",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert_recorder \"alert-recipes\" \"python3 /ft/scripts/alert_recipes.py --webhook-sink\"\n",
+    "steps": "ft_assert_recorder \"alert-recipes\" \"python3 /ft/scripts/alert_recipes.py --webhook-sink\"\nft_assert \"alert-recipes-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_alert_recipes.py\n",
     "recycle": false
   },
   {

@@ -25,3 +25,4 @@
 {"name":"svc-managed-hooks","ok":true}
 {"name":"emit","ok":true}
 {"name":"runner-segment","ok":true}
+{"name":"runner-segment-semantics","ok":true}

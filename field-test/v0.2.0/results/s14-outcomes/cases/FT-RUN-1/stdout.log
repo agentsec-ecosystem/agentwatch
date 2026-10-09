@@ -1,2 +1,5 @@
 emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
 ok: sealed runner segment verifies and anchors
+............                                                             [100%]
+12 passed in 1.80s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_runner_segments.py

@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"concurrency-report","ok":true}
+{"name":"concurrency-semantics","ok":true}

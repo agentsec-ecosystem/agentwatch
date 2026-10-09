@@ -1,2 +1,5 @@
 DO
 ok: role matrix / access log
+....................                                                     [100%]
+20 passed in 2.19s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_access.py

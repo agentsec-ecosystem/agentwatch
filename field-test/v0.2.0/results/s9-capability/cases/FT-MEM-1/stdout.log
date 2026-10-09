@@ -1,2 +1,5 @@
 DO
 ok: capability/memory check (memory)
+..................                                                       [100%]
+18 passed in 0.57s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_memory_capability.py packages/python-sdk/tests/test_memory_surface.py

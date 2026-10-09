@@ -4,6 +4,6 @@
   "class": "P/F|D",
   "declared": false,
   "run_id": "s14-outcomes",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"alert-recipes","ok":true}
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"alert-recipes","ok":true},{"name":"alert-recipes-semantics","ok":true}
 ]
 }

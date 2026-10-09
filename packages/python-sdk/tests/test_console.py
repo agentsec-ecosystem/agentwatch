@@ -305,7 +305,7 @@ def test_live_stream_is_sse(tmp_path: Path) -> None:
             response = connection.getresponse()
             assert response.status == 200
             assert response.getheader("Content-Type", "").startswith("text/event-stream")
-            line = response.fp.readline().decode("utf-8")  # type: ignore[union-attr]
+            line = response.fp.readline().decode("utf-8")
             assert line.startswith("data: ")
             payload = json.loads(line.removeprefix("data: ").strip())
             assert len(payload["lines"]) == 4

@@ -133,7 +133,7 @@ def test_commit_resolves_to_contributing_session_exact(tmp_path: Path) -> None:
     store = _store(tmp_path)
     git = FakeGit({"abc1234": _commit({"app.py": (LineRange(3, 5),)})})
 
-    report = build_provenance(store, "abc1234", repo="/repo", git=git)
+    report = build_provenance(store, "abc1234", repo="/repo", git=git)  # type: ignore[arg-type]
 
     assert report.no_activity is False
     assert [session.session_id for session in report.sessions] == ["s1"]
@@ -149,7 +149,7 @@ def test_commit_with_no_session_says_no_recorded_agent_activity(tmp_path: Path) 
     store = _store(tmp_path)
     git = FakeGit({"abc1234": _commit({"other.py": (LineRange(1, 2),)})})
 
-    report = build_provenance(store, "abc1234", repo="/repo", git=git)
+    report = build_provenance(store, "abc1234", repo="/repo", git=git)  # type: ignore[arg-type]
 
     assert report.no_activity is True
     assert report.status == "no recorded agent activity"
@@ -161,7 +161,7 @@ def test_mixed_range_when_part_of_the_commit_is_unattributed(tmp_path: Path) -> 
     store = _store(tmp_path)
     git = FakeGit({"abc1234": _commit({"app.py": (LineRange(1, 3),)})})
 
-    report = build_provenance(store, "abc1234", repo="/repo", git=git)
+    report = build_provenance(store, "abc1234", repo="/repo", git=git)  # type: ignore[arg-type]
 
     mixed = [r for r in report.ranges if r.confidence == "mixed"]
     assert mixed, report.to_dict()
@@ -195,7 +195,7 @@ def test_unavailable_git_is_not_no_activity(tmp_path: Path) -> None:
         def commit_facts(self, revision: str) -> CommitFacts:
             return CommitFacts(requested=revision, revision=None, available=False)
 
-    report = build_provenance(store, "abc1234", repo="/repo", git=NoGit())
+    report = build_provenance(store, "abc1234", repo="/repo", git=NoGit())  # type: ignore[arg-type]
 
     assert report.no_activity is False
     assert "unavailable" in report.status
@@ -205,7 +205,7 @@ def test_pr_target_resolves_through_commit_message(tmp_path: Path) -> None:
     store = _store(tmp_path)
     git = FakeGit({"abc1234": _commit({"app.py": (LineRange(3, 5),)})}, prs={42: "abc1234"})
 
-    report = build_provenance(store, "PR42", repo="/repo", git=git)
+    report = build_provenance(store, "PR42", repo="/repo", git=git)  # type: ignore[arg-type]
 
     assert report.kind == "pr"
     assert [session.session_id for session in report.sessions] == ["s1"]

@@ -3524,17 +3524,17 @@ def _run_inventory(args: argparse.Namespace) -> int:
             else:
                 print(render_snapshots(states))
         else:
-            changes = detect_surface_changes(records, server=args.server)
+            surface_changes = detect_surface_changes(records, server=args.server)
             if args.json:
-                print(json.dumps([change.to_dict() for change in changes]))
+                print(json.dumps([change.to_dict() for change in surface_changes]))
             else:
-                print(render_changes(changes))
+                print(render_changes(surface_changes))
         return 0
-    inventory = build_inventory(store, session_id=args.session_id, project=args.project)
+    record_inventory = build_inventory(store, session_id=args.session_id, project=args.project)
     if args.json:
-        print(json.dumps(inventory_to_json(inventory)))
+        print(json.dumps(inventory_to_json(record_inventory)))
     else:
-        print(render_inventory(inventory))
+        print(render_inventory(record_inventory))
     return 0
 
 

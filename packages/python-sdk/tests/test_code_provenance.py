@@ -160,7 +160,7 @@ def test_range_facts_roundtrip_under_metadata_only() -> None:
     assert restored is not None
     assert restored.ranges == (LineRange(3, 5),)
     assert restored.hashes == capture.hashes
-    assert AGENTWATCH_ATTRIBUTION_KEY in record.tool.arguments
+    assert AGENTWATCH_ATTRIBUTION_KEY in (record.tool.arguments or {})
     assert CONTENT not in json.dumps(record.to_dict())
 
 

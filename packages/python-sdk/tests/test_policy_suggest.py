@@ -13,6 +13,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import pytest
+
 from agentwatch.cli.main import main
 from agentwatch.policy_suggest import (
     FORMAT_VERSION,
@@ -175,7 +177,7 @@ def test_render_mentions_advisory_and_target(tmp_path: Path) -> None:
 
 
 def test_cli_writes_only_the_out_file(
-    tmp_path: Path, monkeypatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     home = tmp_path / "home"
     home.mkdir()
@@ -231,7 +233,7 @@ def test_cli_writes_only_the_out_file(
     assert "permissions" in payload["document"]
 
 
-def test_cli_json_goes_to_stdout(tmp_path: Path, capsys) -> None:
+def test_cli_json_goes_to_stdout(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     _store(store_dir)

@@ -178,7 +178,9 @@ def test_unmatched_calls_default_to_ask(tmp_path: Path) -> None:
 # --- CLI -----------------------------------------------------------------------
 
 
-def test_cli_what_if_emits_json_simulation(tmp_path: Path, capsys) -> None:
+def test_cli_what_if_emits_json_simulation(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     _store(store_dir, at=datetime.now(timezone.utc))
@@ -203,7 +205,7 @@ def test_cli_what_if_emits_json_simulation(tmp_path: Path, capsys) -> None:
     assert payload["counts"] == {"allow": 1, "ask": 2, "deny": 1}
 
 
-def test_cli_parse_error_is_explicit(tmp_path: Path, capsys) -> None:
+def test_cli_parse_error_is_explicit(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()
     _store(store_dir)

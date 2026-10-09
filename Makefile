@@ -20,12 +20,12 @@ format: ## Auto-format Python (ruff).
 
 lint: ## Lint Python (ruff).
 	@for pkg in $(PACKAGES); do \
-		(cd $$pkg && ruff check .); \
+		(cd $$pkg && ruff check .) || exit 1; \
 	done
 
 typecheck: ## Type-check Python (mypy strict).
 	@for pkg in $(PACKAGES); do \
-		(cd $$pkg && mypy --strict .); \
+		(cd $$pkg && mypy --strict .) || exit 1; \
 	done
 
 test: ## Run all unit tests + coverage gate + repo guard.

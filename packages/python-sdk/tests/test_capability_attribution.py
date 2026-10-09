@@ -60,6 +60,7 @@ def test_load_record_is_metadata_only() -> None:
     assert arguments["kind"] == CAP_KIND_SKILL
     assert arguments["digest"] == "a" * 64
     assert "content" not in arguments
+    assert record.tool.privacy_mode is not None
     assert record.tool.privacy_mode.value == "metadata-only"
 
 

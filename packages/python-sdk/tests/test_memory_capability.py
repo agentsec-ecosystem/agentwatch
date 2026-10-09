@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 from agentwatch.capabilities import (
     CAP_KIND_MEMORY,
@@ -35,7 +36,7 @@ from agentwatch.store import RecordStore
 START = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
 
 
-def _home_with_memory(tmp_path):  # type: ignore[no-untyped-def]
+def _home_with_memory(tmp_path: Path) -> tuple[Path, Path]:
     home = tmp_path / "home"
     memory = home / ".claude" / "memory"
     memory.mkdir(parents=True)

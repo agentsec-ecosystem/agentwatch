@@ -32,7 +32,8 @@ DOC_END = "<!-- END GENERATED: redaction-corpus-numbers -->"
 
 
 def _committed_numbers() -> dict[str, object]:
-    return json.loads(NUMBERS.read_text(encoding="utf-8"))
+    data: dict[str, object] = json.loads(NUMBERS.read_text(encoding="utf-8"))
+    return data
 
 
 def _doc_block() -> str:

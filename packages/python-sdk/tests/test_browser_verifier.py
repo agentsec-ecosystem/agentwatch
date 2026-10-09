@@ -156,7 +156,8 @@ def _node_verify(path: Path, tmp_path: Path) -> dict[str, object]:
     proc = subprocess.run(
         [node, str(driver), str(path)], capture_output=True, text=True, check=True
     )
-    return json.loads(proc.stdout)
+    result: dict[str, object] = json.loads(proc.stdout)
+    return result
 
 
 def _fixture_set(tmp_path: Path) -> list[Path]:
@@ -200,7 +201,9 @@ def test_missing_member_fails_in_both(tmp_path: Path) -> None:
     assert verify_bundle(broken).intact is False
     js = _node_verify(broken, tmp_path)
     assert js["intact"] is False
-    assert any("verify.json" in problem for problem in js["problems"])
+    problems = js["problems"]
+    assert isinstance(problems, list)
+    assert any("verify.json" in problem for problem in problems)
 
 
 def test_tampered_bundle_names_the_first_broken_link(tmp_path: Path) -> None:

@@ -109,7 +109,7 @@ def test_multi_session_range_is_ambiguous(tmp_path: Path) -> None:
         def pr_commit(self, number: int) -> str | None:
             return None
 
-    report = build_provenance(store, "abc1234", repo="/repo", git=FakeGit())
+    report = build_provenance(store, "abc1234", repo="/repo", git=FakeGit())  # type: ignore[arg-type]
 
     ambiguous = [line_range for line_range in report.ranges if line_range.confidence == "ambiguous"]
     assert ambiguous, report.to_dict()

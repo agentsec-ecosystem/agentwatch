@@ -96,7 +96,7 @@ def test_indexed_search_matches_store_search(tmp_path: Path) -> None:
         {"outcome": "ok"},
         {"tool": "Write", "session_id": "s1"},
     ):
-        assert index.search(store, **kwargs) == search(store, **kwargs)
+        assert index.search(store, **kwargs) == search(store, **kwargs)  # type: ignore[arg-type]
 
 
 def test_index_is_stale_after_append_and_rebuilds(tmp_path: Path) -> None:

@@ -12,6 +12,8 @@ import json
 import shutil
 from pathlib import Path
 
+import pytest
+
 from agentwatch.cli.main import main
 from agentwatch.cli_schema import (
     CLI_SCHEMA_VERSION,
@@ -95,7 +97,7 @@ def test_skill_teaches_the_investigation_workflow() -> None:
 
 
 def test_scripted_agent_reaches_documented_answers(
-    tmp_path: Path, capsys
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     store_dir = tmp_path / "store"
     store_dir.mkdir()

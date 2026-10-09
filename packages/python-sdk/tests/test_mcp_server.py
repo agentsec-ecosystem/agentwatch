@@ -124,8 +124,8 @@ def test_every_query_appends_exactly_one_store_access(tmp_path: Path) -> None:
     call_tool(store, "search", {"tool": "Bash"})
     accesses = _accesses(store)
     assert len(accesses) == 2
-    assert [a.tool.arguments["tool"] for a in accesses] == ["sessions", "search"]
-    assert all(a.tool.arguments["command"] == "mcp-serve" for a in accesses)
+    assert [(a.tool.arguments or {})["tool"] for a in accesses] == ["sessions", "search"]
+    assert all((a.tool.arguments or {})["command"] == "mcp-serve" for a in accesses)
 
 
 # --- injection fuzz ------------------------------------------------------------

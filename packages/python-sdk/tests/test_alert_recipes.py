@@ -14,7 +14,7 @@ import json
 import urllib.request
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, cast
 
 from agentwatch import sinks
 
@@ -81,7 +81,7 @@ def test_slack_recipe_maps_events_to_incoming_webhook_payloads() -> None:
     delivered = module.send([event, _events()[1]], "https://hooks.invalid/x", opener=captured)
     assert delivered == 2
     assert captured.urls == ["https://hooks.invalid/x", "https://hooks.invalid/x"]
-    body = json.loads(captured.requests[0].data)
+    body = json.loads(cast(bytes, captured.requests[0].data or b""))
     assert body["text"] == payload["text"]
 
 
@@ -104,7 +104,7 @@ def test_pagerduty_recipe_maps_events_to_events_api_v2() -> None:
         opener=captured,
     )
     assert delivered == 1
-    sent = json.loads(captured.requests[0].data)
+    sent = json.loads(cast(bytes, captured.requests[0].data or b""))
     assert sent["event_action"] == "trigger"
 
 
@@ -122,7 +122,7 @@ def test_alertmanager_recipe_maps_events_to_the_v2_alerts_api() -> None:
     captured = _Captured()
     delivered = module.send([event], "https://alertmanager.invalid/api/v2/alerts", opener=captured)
     assert delivered == 1
-    sent = json.loads(captured.requests[0].data)
+    sent = json.loads(cast(bytes, captured.requests[0].data or b""))
     assert sent[0]["labels"]["event_type"] == event["type"]
 
 

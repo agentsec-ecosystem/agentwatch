@@ -18,6 +18,7 @@ from agentwatch.classify import (
     OUTCOME_VERSION,
     PASS,
     UNKNOWN,
+    OutcomeFact,
     classify_command,
     classify_outcome,
     classify_record_outcome,
@@ -45,6 +46,14 @@ def _record(
     )
 
 
+def _fact(
+    command: str, *, exit_code: int | None = None, succeeded: bool | None = None
+) -> OutcomeFact:
+    fact = classify_outcome(command, exit_code=exit_code, succeeded=succeeded)
+    assert fact is not None
+    return fact
+
+
 def test_cls1_outputs_are_reproducible() -> None:
     # cls2 must not redefine the published cls1 table or the classifier version.
     assert CLASSIFIER_VERSION == "cls1"
@@ -64,19 +73,19 @@ def test_cls2_table_is_versioned_and_shaped() -> None:
 
 
 def test_test_build_lint_commands_are_classified() -> None:
-    assert classify_outcome("pytest -q").category == OUTCOME_TEST
-    assert classify_outcome("python -m pytest tests -q").category == OUTCOME_TEST
-    assert classify_outcome("cargo test").category == OUTCOME_TEST
-    assert classify_outcome("npm run build").category == OUTCOME_BUILD
-    assert classify_outcome("tsc --noEmit").category == OUTCOME_BUILD
-    assert classify_outcome("ruff check .").category == OUTCOME_LINT
-    assert classify_outcome("eslint src/").category == OUTCOME_LINT
+    assert _fact("pytest -q").category == OUTCOME_TEST
+    assert _fact("python -m pytest tests -q").category == OUTCOME_TEST
+    assert _fact("cargo test").category == OUTCOME_TEST
+    assert _fact("npm run build").category == OUTCOME_BUILD
+    assert _fact("tsc --noEmit").category == OUTCOME_BUILD
+    assert _fact("ruff check .").category == OUTCOME_LINT
+    assert _fact("eslint src/").category == OUTCOME_LINT
 
 
 def test_make_targets_disambiguate_test_lint_build() -> None:
-    assert classify_outcome("make test").category == OUTCOME_TEST
-    assert classify_outcome("make lint").category == OUTCOME_LINT
-    assert classify_outcome("make build").category == OUTCOME_BUILD
+    assert _fact("make test").category == OUTCOME_TEST
+    assert _fact("make lint").category == OUTCOME_LINT
+    assert _fact("make build").category == OUTCOME_BUILD
 
 
 def test_unrecognized_command_has_no_outcome_class() -> None:
@@ -84,11 +93,11 @@ def test_unrecognized_command_has_no_outcome_class() -> None:
 
 
 def test_exit_status_is_a_fact_and_unknown_stays_unknown() -> None:
-    assert classify_outcome("pytest", exit_code=0).status == PASS
-    assert classify_outcome("pytest", exit_code=1).status == FAIL
-    assert classify_outcome("pytest").status == UNKNOWN
-    assert classify_outcome("pytest", succeeded=True).status == PASS
-    assert classify_outcome("pytest", succeeded=False).status == FAIL
+    assert _fact("pytest", exit_code=0).status == PASS
+    assert _fact("pytest", exit_code=1).status == FAIL
+    assert _fact("pytest").status == UNKNOWN
+    assert _fact("pytest", succeeded=True).status == PASS
+    assert _fact("pytest", succeeded=False).status == FAIL
 
 
 def test_record_outcome_reads_exit_code_and_record_outcome() -> None:

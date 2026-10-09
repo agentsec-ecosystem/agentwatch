@@ -49,8 +49,7 @@ CUJ-15–34.
 | 31.R | Code review & risk sign-off for this milestone | review | M31 + 31.T + 31.D | Review recorded; no unresolved findings | #385 |
 
 > **Umbrella:** FLD-1 (#370) — the field-test capability from PRD 46; the milestone work items above are its
-> decomposition. Issue numbers in the `TBD` rows are assigned when the tracking issues are created and moved onto
-> the M31 GitHub milestone.
+> decomposition. Every row below carries its real tracking issue number on its GitHub milestone.
 
 **Field-test report — required sections:** executive summary; environment/setup; scenario matrix; per-suite
 results; **observations**; **learnings**; **takeaways**; defects + regressions; coverage/gaps; CUJ-15–34
@@ -96,7 +95,8 @@ verification; evidence paths.
 
 ## Milestone M32 — Release Readiness (PRD 07, 09, 40)
 
-**Status:** ⏳ not started
+**Status:** 🔄 in progress — release-readiness evidence + docs complete (32.1–32.19, 32.25–32.27); merge/tag/
+publish (32.20–32.24) pending.
 
 **Goal:** Execute the full release-readiness checklist and ship **v0.2.0**: scan, audit, sign, document, merge to
 main, tag, publish, and verify — plus the naming outcome.

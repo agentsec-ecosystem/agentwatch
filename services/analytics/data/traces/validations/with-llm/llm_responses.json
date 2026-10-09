@@ -1,0 +1,47 @@
+{
+  "total_responses": 6,
+  "responses": [
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    },
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    },
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    },
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    },
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    },
+    {
+      "trace_id": "t1",
+      "detector": "hallucination",
+      "system": "Verify whether a claim made by an agent is supported by the provided context (tool outputs, documents). Unsupported claims are hallucinations. RETURN ONLY VALID JSON. NO PROSE.",
+      "prompt": "Claim: No output text available\nContext: \n\nReturn JSON: {\"hallucination\": true|false, \"evidence\": \"<quote from context or 'none'>\"}",
+      "response": "{\"hallucination\": true, \"evidence\": \"none\"}"
+    }
+  ]
+}

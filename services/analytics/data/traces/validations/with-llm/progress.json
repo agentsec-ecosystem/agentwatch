@@ -1,0 +1,23 @@
+{
+  "completed_traces": [
+    [
+      "t1",
+      "t1"
+    ]
+  ],
+  "completed_count": 1,
+  "total_in_batch": 1,
+  "anomaly_count": 2,
+  "anomaly_by_type": {
+    "empty_response": 1,
+    "hallucination": 1
+  },
+  "anomaly_by_severity": {
+    "warning": 1,
+    "critical": 1
+  },
+  "detector_fire_rate": {
+    "empty_response": 100.0,
+    "hallucination": 100.0
+  }
+}

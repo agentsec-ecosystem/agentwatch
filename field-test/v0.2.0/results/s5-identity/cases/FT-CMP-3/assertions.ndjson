@@ -3,3 +3,4 @@
 {"name":"stack-reused","ok":true}
 {"name":"all-templates","ok":true}
 {"name":"key-rotation","ok":true}
+{"name":"rotation-semantics","ok":true}

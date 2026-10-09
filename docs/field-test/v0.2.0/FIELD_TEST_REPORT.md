@@ -104,12 +104,12 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-CAP-1 | s9-capability | P/F | PASS | — |
 | FT-CAP-2 | s9-capability | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
 | FT-CCA-1 | s6-surfaces | P/F | PASS | — |
-| FT-CCO-1 | s7-platform | P/F | PASS | — |
+| FT-CCO-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): `native-otel-join.py` asserts coverage carries the classified join summary after claude-otel ingest; shipped `test_claude_otel.py` covers join-by-`tool_use_id` + discrepancy classification (was exit-0 + loose grep) |
 | FT-CCO-2 | s7-platform | P/F | PASS | — |
 | FT-CLAIM-1 | s15-hostile | P/F | PASS | HARDENED (confirmed PASS): `claims_ledger_check.py` asserts every claim has claim/source/evidence + the generated table + known-limitations (was `json.tool`) |
 | FT-CMP-1 | s5-identity | P/F | PASS | — |
-| FT-CMP-2 | s5-identity | P/F | PASS | fixed F-1a: `retention apply --profile general-6mo` enum |
-| FT-CMP-3 | s5-identity | P/F | PASS | — |
+| FT-CMP-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `signed_default.py` asserts `doctor` surfaces the signing key id+epoch + the store verifies; shipped `test_signing_posture.py` covers tamper + missing-key (was export/verify/doctor exit-0) |
+| FT-CMP-3 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `compliance_templates.py` asserts each of the 5 templates writes a non-empty report; `checkpoint_rotate.py` asserts the `key-rotation` chain event matches the reported key id; shipped `test_signing_posture.py` (was exit-0 + loose event grep) |
 | FT-CNC-1 | s13-investigation | P/F\|D | PASS | fixed F-1a: incident via case_incident.py (auto case id) |
 | FT-COD-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): `codex_check.py` asserts dedup on the reader's `(session_id, span_id, step_type)` key + no duplicate signatures (after fixing the store-unwrap bug) |
 | FT-COR-1 | s4-detectors | P/F | PASS | — |
@@ -130,7 +130,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-ENV-0 | s1-install | P/F | PASS | HARDENED: `first_run_timing.py` now enforces the ≤900 s budget; `naming_guard.py` asserts the NAM-1 warning fires for a foreign distribution (no false positive) → PASS |
 | FT-ENV-1 | s13-investigation | P/F | PASS | fixed F-1a: `diff <a> <b>` positionals |
 | FT-EXA-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_examples_gallery.py` — every recipe exists, is indexed, and runs green or is explicitly illustrative (was `find` only) |
-| FT-FWK-1 | s7-platform | P/F\|D | PASS | fixed F-1c: `framework_recipes` signature |
+| FT-FWK-1 | s7-platform | P/F\|D | PASS | HARDENED (confirmed PASS): `framework_recipes.py` asserts each recipe ≤2 lines, a valid source tag, a pinned version, and non-empty identity/step/cost mappings; shipped `test_frameworks.py` (was line-count only) |
 | FT-FWK-2 | s7-platform | P/F | PASS | fixed F-1c: `detect_installed()` iterable |
 | FT-GEM-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the gemini corpus |
 | FT-GOV-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `tests/test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` (codemod + unregistered-plugin rejection) (was `import` only) |
@@ -140,7 +140,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-IDN-1 | s5-identity | P/F | PASS | ✅ fixed (F-4a): driver's `--attribution` mode seeds a multi-agent chain with `principal` + `delegation_chain`; `trace`/`impact`/`tree`/`blame` answer identity + delegation (or honest `unknown`) in one command |
 | FT-IDN-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py --what identity` scans every identity string field for secret material (regex) + `verify-privacy` |
 | FT-IDN-3 | s5-identity | P/F | PASS | fixed F-1a: `search --identity user` value |
-| FT-IR-1 | s13-investigation | P/F | PASS | fixed F-1a: incident create via case_incident.py |
+| FT-IR-1 | s13-investigation | P/F | PASS | HARDENED (confirmed PASS): `case_incident.py` asserts the merged timeline states its ordering rule + is ordered + carries gaps, and the exported bundle verifies offline; shipped `test_incident_cases.py` covers gap classification (was create/show/export exit-0) |
 | FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs a real LangGraph / raw-Python SDK driver — not available in this environment |
 | FT-LOG-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-file assertion — each log reader must produce ≥1 record |
 | FT-LUI-1 | s11-console | P/F | PASS | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
@@ -526,8 +526,8 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s5 | FT-IDN-2 | ✅ G | done — identity secret scan |
 | s5 | FT-IDN-3 | R | `search --identity user` exit 0; assert `credential_class: ambient/shared` fires with precision/recall |
 | s5 | FT-CMP-1 | R | `compliance report` exit 0; regenerate one row's cited command; assert zero unverifiable claims |
-| s5 | FT-CMP-2 | R | `signed_default.py` runs export/verify/doctor; assert tamper **fails** + missing key names the key id/epoch |
-| s5 | FT-CMP-3 | R | `compliance_templates.py` runs templates; assert all five run offline + the rotation chain event |
+| s5 | FT-CMP-2 | ✅ G | done — doctor signing posture + shipped test |
+| s5 | FT-CMP-3 | ✅ G | done — templates write + rotation event + shipped test |
 | s5 | FT-SIEM-1 | R | `siem_conformance.py` runs export/emit; assert OCSF/Syslog conformance + redaction gate blocks a sink |
 | s5 | FT-ASI-1 | R | `compliance report --framework owasp-asi-2026` exit 0; assert all 10 ASI rows + AST10 present |
 | s6 | FT-A2A-1 | G | — (a2a_roundtrip asserts an unverified card never verifies) |
@@ -542,9 +542,9 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s7 | FT-AGI-1 | G | — (mcp_readonly asserts no write tool) |
 | s7 | FT-AGI-2 | ✅ G | done — documented answers + shipped schema guard |
 | s7 | FT-POL-1 | R | `suggest-policy` writes `--out` (real) + `what-if`; assert **no write outside `--out`** + broad-rule lint |
-| s7 | FT-FWK-1 | R | `framework_recipes.py`; assert each recipe runs against a pinned version + `unmapped` explicit |
+| s7 | FT-FWK-1 | ✅ G | done — recipe integrity + shipped test |
 | s7 | FT-FWK-2 | R | `instrument_detect.py`; assert detected frameworks + gaps (no silent partial) |
-| s7 | FT-CCO-1 | R | `native-otel-join.py`; assert ≥95% `tool_use_id` join + classified discrepancies |
+| s7 | FT-CCO-1 | ✅ G | done — coverage join + shipped test |
 | s7 | FT-CCO-2 | R | `ingest-fixture --kind cco`; assert `source: sdk-native` + identity from resource attributes |
 | s7 | FT-TSS-1 | V | `grep -q TSS-1 <wbs>`; link the spike report and assert its findings produced M31 tickets |
 | s8 | FT-APV-1/2/3 | R | `oversight-corpus.py` runs `oversight --json`; assert no auto/bypass misreported as `user` + mode transitions |
@@ -559,7 +559,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s12 | FT-HLD-1 | G | — (hold_lifecycle asserts purge fails closed under hold) |
 | s13 | FT-ENV-1 | R | `env_delta.py` runs drift/diff/sessions; assert env delta ranks above behaviour delta |
 | s13 | FT-VFY-1 | ✅ G | done — shipped differential test |
-| s13 | FT-IR-1 | R | `case_incident.py`; assert the merged timeline ordering + classified gaps + offline bundle |
+| s13 | FT-IR-1 | ✅ G | done — ordered timeline + offline bundle + shipped test |
 | s13 | FT-CNC-1 | R | `concurrency_probe.py`; assert overlap reported + ranges marked `ambiguous` |
 | s13 | FT-SBX-1 | R | `oversight-corpus.py --sandbox`; assert "% calls unsandboxed" + denials by class |
 | s14 | FT-OUT-1 | ✅ G | done — facts + derivation version |
@@ -594,7 +594,28 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-API-1 | live `/openapi.json` + shipped `test_openapi_contract.py` | PASS |
 | FT-EXA-1 | shipped `test_examples_gallery.py` | PASS |
 | FT-GOV-1 | shipped `test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` | PASS |
+| FT-CMP-2 | `signed_default.py` + shipped `test_signing_posture.py` | PASS |
+| FT-CMP-3 | `compliance_templates.py`/`checkpoint_rotate.py` + shipped `test_signing_posture.py` | PASS |
+| FT-CCO-1 | `native-otel-join.py` + shipped `test_claude_otel.py` | PASS |
+| FT-IR-1 | `case_incident.py` + shipped `test_incident_cases.py` | PASS |
+| FT-FWK-1 | `framework_recipes.py` + shipped `test_frameworks.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
+
+### Hardening patterns (the common shapes)
+
+Every un-hardened PASS in the backlog is one of four shapes. Grouping by shape is
+faster and more honest than case-by-case.
+
+| # | Pattern | Symptom | Fix | Cases |
+|---|---|---|---|---|
+| **A** | Shipped test already covers the plan condition | step does an existence/substring/exit-0 check | wire the canonical repo test via `shipped_tests.py <target>` (host) | VFY-1, AGI-2, API-1, EXA-1, GOV-1, CMP-2, CMP-3, CCO-1, IR-1, FWK-1 |
+| **B** | Run-only driver | driver calls the real API/CLI but its `ok()` is unconditional | parse the JSON / inspect the object and assert the contract | OUT-1/2, IDN-2, DET-2/5, CMP-2/3, CCO-1, IR-1, FWK-1 |
+| **C** | Vacuous existence/substring | `test -f`, `grep -q`, `import x`, exit-0 | replace with a structured check of the same condition | CLAIM-1, DEMO-1, ACC-2, API-1, EXA-1, GOV-1 |
+| **D** | Needs an external driver/artifact | no local path to the condition | declare (N/A / blocked) rather than fake | FT-XHT-2 (declared); FT-LG-1, FT-XHT-3 (blocked) |
+
+Pattern A is the highest-leverage: one generic `shipped_tests.py` driver grounds any
+case whose condition a canonical repo test already encodes, without a second
+implementation that could drift.
 
 ### Systematic finding — the case *steps* are shallower than the plan (all 94 audited)
 
@@ -897,6 +918,17 @@ FT-COD-1) are still driver-side.
     declaration is not a pass.
 15. **A hard gate (P/F) with missing external tooling cannot be honestly passed** — FT-LG-1 (LangGraph SDK) and
     FT-XHT-3 (two independent OSS parsers) remain unproven here, and are flagged as such, never faked.
+16. **Prefer the shipped test over a re-implementation.** A generic `shipped_tests.py`
+    turns "does a canonical repo test encode this condition?" into a one-line host assert — single
+    source of truth, no drift. It grounded VFY-1/AGI-2/API-1/EXA-1/GOV-1/CMP-2/CMP-3/CCO-1/IR-1/FWK-1.
+17. **The recorder image ships no pytest.** Run shipped tests on the *host* under `sys.executable`;
+    invoke host drivers with a direct `python3` (not `bash -lc`, whose login PATH resolves `python3`
+    to Xcode's interpreter, which has neither the SDK nor pytest).
+18. **Read the CLI's `--out` semantics before asserting.** `compliance report --out` writes a **file**,
+    not a directory — a `rglob("*")` over it finds nothing. That was a harness bug, not a product defect.
+19. **Assert the shape the product guarantees, not a number the fixture cannot produce.** The `cco`
+    fixture is OTel-only, so the honest recorder check is "coverage carries the classified join
+    summary"; the ≥95% join rate / discrepancy classification is the shipped `test_claude_otel.py`'s job.
 
 
 ## Takeaways

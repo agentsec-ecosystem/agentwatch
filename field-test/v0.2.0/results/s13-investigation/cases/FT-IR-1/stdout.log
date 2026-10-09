@@ -1,2 +1,5 @@
 DO
-ok: incident case C1 created, shown, exported
+ok: incident case C1: 6 ordered entries; offline bundle verifies
+...............                                                          [100%]
+15 passed in 3.40s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_incident_cases.py

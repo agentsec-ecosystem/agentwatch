@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"framework-recipes","ok":true}
+{"name":"framework-recipes-semantics","ok":true}

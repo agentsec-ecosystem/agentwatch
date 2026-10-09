@@ -1,2 +1,5 @@
 DO
-ok: 4 framework recipes; <=2 lines each; source+integrity carried
+ok: 4 framework recipes: <=2 lines, valid source, pinned, mappings present
+.................                                                        [100%]
+17 passed in 0.10s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_frameworks.py

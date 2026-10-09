@@ -1109,7 +1109,7 @@
     "prd": "CMP-3/4",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"retention-apply\" \"agentwatch retention apply --profile general-6mo\"\nft_assert_recorder \"signed-default\" \"python3 /ft/scripts/signed_default.py\"\n",
+    "steps": "ft_assert_recorder \"retention-apply\" \"agentwatch retention apply --profile general-6mo\"\nft_assert_recorder \"signed-default\" \"python3 /ft/scripts/signed_default.py\"\nft_assert \"signing-posture\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_signing_posture.py\n",
     "recycle": false
   },
   {
@@ -1122,7 +1122,7 @@
     "prd": "CMP-3/4",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"all-templates\" \"python3 /ft/scripts/compliance_templates.py\"\nft_assert_recorder \"key-rotation\" \"python3 /ft/scripts/checkpoint_rotate.py\"\n",
+    "steps": "ft_assert_recorder \"all-templates\" \"python3 /ft/scripts/compliance_templates.py\"\nft_assert_recorder \"key-rotation\" \"python3 /ft/scripts/checkpoint_rotate.py\"\nft_assert \"rotation-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_signing_posture.py\n",
     "recycle": false
   },
   {
@@ -1317,7 +1317,7 @@
     "prd": "FWK-1",
     "class": "P/F|D",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"framework-recipes\" \"python3 /ft/scripts/framework_recipes.py\"\n",
+    "steps": "ft_assert_recorder \"framework-recipes\" \"python3 /ft/scripts/framework_recipes.py\"\nft_assert \"framework-recipes-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_frameworks.py\n",
     "recycle": false
   },
   {
@@ -1343,7 +1343,7 @@
     "prd": "CCO-1",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"native-otel-join\" \"python3 /ft/scripts/native-otel-join.py --corpus /ft/fixtures/cco\"\n",
+    "steps": "ft_assert_recorder \"native-otel-join\" \"python3 /ft/scripts/native-otel-join.py --corpus /ft/fixtures/cco\"\nft_assert \"otel-join-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_claude_otel.py\n",
     "recycle": false
   },
   {
@@ -1590,7 +1590,7 @@
     "prd": "IR-1",
     "class": "P/F",
     "suite": "s13-investigation",
-    "steps": "ft_assert_recorder \"incident-case\" \"python3 /ft/scripts/case_incident.py\"\n",
+    "steps": "ft_assert_recorder \"incident-case\" \"python3 /ft/scripts/case_incident.py\"\nft_assert \"incident-case-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_incident_cases.py\n",
     "recycle": false
   },
   {

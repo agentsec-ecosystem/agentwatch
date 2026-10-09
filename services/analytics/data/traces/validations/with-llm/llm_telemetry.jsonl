@@ -1,0 +1,1 @@
+{"trace_id": "t1", "detector": "hallucination", "model": "Qwen3.5-9B-MLX-4bit", "latency_ms": 5947.96, "prompt_tokens": 87, "completion_tokens": 14, "total_tokens": 101, "finish_reason": "stop", "prompt_chars": 131, "system_chars": 176, "content_chars": 43, "cache_hit": false}

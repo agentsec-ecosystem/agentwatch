@@ -1,0 +1,13 @@
+[
+  {
+    "trace_id": "t1",
+    "anomalies": [
+      {
+        "type": "empty_response"
+      },
+      {
+        "type": "hallucination"
+      }
+    ]
+  }
+]

@@ -1,0 +1,874 @@
+{
+  "total_traces": 2,
+  "total_datasets": 2,
+  "total_detectors": 35,
+  "llm_traces_processed": 0,
+  "corpus_field_coverage": {
+    "has_output": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_tool_name": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_tool_result": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_tool_args": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_status": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_timestamps": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_parent_child": {
+      "count": 0,
+      "pct": 0.0
+    },
+    "has_tokens": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_cost": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_operations": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_run_duration": {
+      "count": 2,
+      "pct": 100.0
+    },
+    "has_retry_semantics": {
+      "count": 0,
+      "pct": 0.0
+    }
+  },
+  "per_dataset": {
+    "ds_a-traces-0001": {
+      "total_traces": 1,
+      "fields": {
+        "has_output": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_name": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_result": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_args": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_status": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_timestamps": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_parent_child": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "has_tokens": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_cost": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_operations": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_run_duration": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_retry_semantics": {
+          "count": 0,
+          "pct": 0.0
+        }
+      }
+    },
+    "ds_b-traces-0001": {
+      "total_traces": 1,
+      "fields": {
+        "has_output": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_name": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_result": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_tool_args": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_status": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_timestamps": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_parent_child": {
+          "count": 0,
+          "pct": 0.0
+        },
+        "has_tokens": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_cost": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_operations": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_run_duration": {
+          "count": 1,
+          "pct": 100.0
+        },
+        "has_retry_semantics": {
+          "count": 0,
+          "pct": 0.0
+        }
+      }
+    }
+  },
+  "detector_requirements": {
+    "empty_response": {
+      "required_fields": [
+        "has_output"
+      ]
+    },
+    "low_output": {
+      "required_fields": [
+        "has_output"
+      ]
+    },
+    "indeterminate_status": {
+      "required_fields": [
+        "has_status"
+      ]
+    },
+    "output_drift": {
+      "required_fields": [
+        "has_output"
+      ]
+    },
+    "loop_detected": {
+      "required_fields": [
+        "has_tool_name",
+        "has_operations"
+      ]
+    },
+    "pattern_loop": {
+      "required_fields": [
+        "has_tool_name",
+        "has_operations"
+      ]
+    },
+    "argument_loop": {
+      "required_fields": [
+        "has_tool_name",
+        "has_operations"
+      ]
+    },
+    "tool_error_rate": {
+      "required_fields": [
+        "has_tool_name",
+        "has_tool_result",
+        "has_operations"
+      ]
+    },
+    "specific_tool_error": {
+      "required_fields": [
+        "has_tool_name",
+        "has_tool_result",
+        "has_operations"
+      ]
+    },
+    "tool_latency": {
+      "required_fields": [
+        "has_tool_name",
+        "has_timestamps",
+        "has_operations"
+      ]
+    },
+    "tool_timeout": {
+      "required_fields": [
+        "has_tool_name",
+        "has_timestamps",
+        "has_operations"
+      ]
+    },
+    "redundant_tool_call": {
+      "required_fields": [
+        "has_tool_name",
+        "has_operations"
+      ]
+    },
+    "cost_spike": {
+      "required_fields": [
+        "has_cost"
+      ]
+    },
+    "cost_vs_baseline": {
+      "required_fields": [
+        "has_cost"
+      ]
+    },
+    "cost_efficiency": {
+      "required_fields": [
+        "has_cost",
+        "has_tokens"
+      ]
+    },
+    "token_explosion": {
+      "required_fields": [
+        "has_tokens"
+      ]
+    },
+    "per_tool_cost_spike": {
+      "required_fields": [
+        "has_tool_name",
+        "has_cost"
+      ]
+    },
+    "wasted_tool_calls": {
+      "required_fields": [
+        "has_tool_name",
+        "has_tool_result",
+        "has_operations"
+      ]
+    },
+    "run_duration": {
+      "required_fields": [
+        "has_run_duration",
+        "has_timestamps"
+      ]
+    },
+    "max_step_hit": {
+      "required_fields": [
+        "has_operations"
+      ]
+    },
+    "step_efficiency": {
+      "required_fields": [
+        "has_operations",
+        "has_timestamps"
+      ]
+    },
+    "inactivity": {
+      "required_fields": [
+        "has_timestamps"
+      ]
+    },
+    "premature_completion": {
+      "required_fields": [
+        "has_status",
+        "has_operations"
+      ]
+    },
+    "retry_storm": {
+      "required_fields": [
+        "has_retry_semantics"
+      ]
+    },
+    "systemic_retry": {
+      "required_fields": [
+        "has_retry_semantics"
+      ]
+    },
+    "transient_retry": {
+      "required_fields": [
+        "has_retry_semantics"
+      ]
+    },
+    "cascading_retry": {
+      "required_fields": [
+        "has_retry_semantics",
+        "has_tool_name"
+      ]
+    },
+    "recovery_path": {
+      "required_fields": [
+        "has_retry_semantics",
+        "has_tool_name"
+      ]
+    },
+    "intervention_frequency": {
+      "required_fields": []
+    },
+    "escalation_rate": {
+      "required_fields": []
+    },
+    "approval_latency": {
+      "required_fields": []
+    },
+    "intervention_rejection": {
+      "required_fields": []
+    },
+    "anomaly_cluster": {
+      "required_fields": []
+    },
+    "run_frequency_anomaly": {
+      "required_fields": []
+    },
+    "first_run_heuristic": {
+      "required_fields": []
+    }
+  },
+  "per_dataset_eligibility": {
+    "ds_a-traces-0001": {
+      "total_traces": 1,
+      "eligible_detectors": [
+        "anomaly_cluster",
+        "approval_latency",
+        "argument_loop",
+        "cost_efficiency",
+        "cost_spike",
+        "cost_vs_baseline",
+        "empty_response",
+        "escalation_rate",
+        "first_run_heuristic",
+        "inactivity",
+        "indeterminate_status",
+        "intervention_frequency",
+        "intervention_rejection",
+        "loop_detected",
+        "low_output",
+        "max_step_hit",
+        "output_drift",
+        "pattern_loop",
+        "per_tool_cost_spike",
+        "premature_completion",
+        "redundant_tool_call",
+        "run_duration",
+        "run_frequency_anomaly",
+        "specific_tool_error",
+        "step_efficiency",
+        "token_explosion",
+        "tool_error_rate",
+        "tool_latency",
+        "tool_timeout",
+        "wasted_tool_calls"
+      ],
+      "eligible_count": 30,
+      "ineligible_detectors": [
+        "cascading_retry (missing: has_retry_semantics, has_tool_name)",
+        "recovery_path (missing: has_retry_semantics, has_tool_name)",
+        "retry_storm (missing: has_retry_semantics)",
+        "systemic_retry (missing: has_retry_semantics)",
+        "transient_retry (missing: has_retry_semantics)"
+      ],
+      "ineligible_count": 5,
+      "per_detector_trace_eligibility": {
+        "empty_response": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "low_output": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "indeterminate_status": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "output_drift": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "loop_detected": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "pattern_loop": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "argument_loop": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_error_rate": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "specific_tool_error": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_latency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_timeout": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "redundant_tool_call": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_spike": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_vs_baseline": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_efficiency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "token_explosion": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "per_tool_cost_spike": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "wasted_tool_calls": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "run_duration": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "max_step_hit": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "step_efficiency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "inactivity": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "premature_completion": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "retry_storm": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "systemic_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "transient_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "cascading_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "recovery_path": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "intervention_frequency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "escalation_rate": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "approval_latency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "intervention_rejection": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "anomaly_cluster": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "run_frequency_anomaly": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "first_run_heuristic": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        }
+      }
+    },
+    "ds_b-traces-0001": {
+      "total_traces": 1,
+      "eligible_detectors": [
+        "anomaly_cluster",
+        "approval_latency",
+        "argument_loop",
+        "cost_efficiency",
+        "cost_spike",
+        "cost_vs_baseline",
+        "empty_response",
+        "escalation_rate",
+        "first_run_heuristic",
+        "inactivity",
+        "indeterminate_status",
+        "intervention_frequency",
+        "intervention_rejection",
+        "loop_detected",
+        "low_output",
+        "max_step_hit",
+        "output_drift",
+        "pattern_loop",
+        "per_tool_cost_spike",
+        "premature_completion",
+        "redundant_tool_call",
+        "run_duration",
+        "run_frequency_anomaly",
+        "specific_tool_error",
+        "step_efficiency",
+        "token_explosion",
+        "tool_error_rate",
+        "tool_latency",
+        "tool_timeout",
+        "wasted_tool_calls"
+      ],
+      "eligible_count": 30,
+      "ineligible_detectors": [
+        "cascading_retry (missing: has_retry_semantics, has_tool_name)",
+        "recovery_path (missing: has_retry_semantics, has_tool_name)",
+        "retry_storm (missing: has_retry_semantics)",
+        "systemic_retry (missing: has_retry_semantics)",
+        "transient_retry (missing: has_retry_semantics)"
+      ],
+      "ineligible_count": 5,
+      "per_detector_trace_eligibility": {
+        "empty_response": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "low_output": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "indeterminate_status": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "output_drift": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "loop_detected": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "pattern_loop": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "argument_loop": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_error_rate": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "specific_tool_error": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_latency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "tool_timeout": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "redundant_tool_call": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_spike": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_vs_baseline": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "cost_efficiency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "token_explosion": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "per_tool_cost_spike": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "wasted_tool_calls": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "run_duration": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "max_step_hit": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "step_efficiency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "inactivity": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "premature_completion": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "retry_storm": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "systemic_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "transient_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "cascading_retry": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "recovery_path": {
+          "eligible_traces": 0,
+          "eligible_pct": 0.0
+        },
+        "intervention_frequency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "escalation_rate": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "approval_latency": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "intervention_rejection": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "anomaly_cluster": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "run_frequency_anomaly": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        },
+        "first_run_heuristic": {
+          "eligible_traces": 1,
+          "eligible_pct": 100.0
+        }
+      }
+    }
+  },
+  "per_detector_coverage": {
+    "empty_response": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "low_output": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "indeterminate_status": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "output_drift": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "loop_detected": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "pattern_loop": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "argument_loop": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "tool_error_rate": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "specific_tool_error": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "tool_latency": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "tool_timeout": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "redundant_tool_call": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "cost_spike": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "cost_vs_baseline": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "cost_efficiency": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "token_explosion": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "per_tool_cost_spike": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "wasted_tool_calls": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "run_duration": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "max_step_hit": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "step_efficiency": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "inactivity": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "premature_completion": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "retry_storm": {
+      "eligible_traces": 0,
+      "eligible_pct": 0.0
+    },
+    "systemic_retry": {
+      "eligible_traces": 0,
+      "eligible_pct": 0.0
+    },
+    "transient_retry": {
+      "eligible_traces": 0,
+      "eligible_pct": 0.0
+    },
+    "cascading_retry": {
+      "eligible_traces": 0,
+      "eligible_pct": 0.0
+    },
+    "recovery_path": {
+      "eligible_traces": 0,
+      "eligible_pct": 0.0
+    },
+    "intervention_frequency": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "escalation_rate": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "approval_latency": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "intervention_rejection": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "anomaly_cluster": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "run_frequency_anomaly": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    },
+    "first_run_heuristic": {
+      "eligible_traces": 2,
+      "eligible_pct": 100.0
+    }
+  },
+  "global_compatibility_score_pct": 85.7,
+  "eligible_detector_trace_pairs": 60,
+  "total_detector_trace_pairs": 70,
+  "incompatibility_reasons": {
+    "has_retry_semantics": 10
+  },
+  "notes": [
+    "score = eligible_detector_trace_pairs / total_detector_trace_pairs",
+    "Eligibility is computed per trace, per detector, across all 35 detectors."
+  ]
+}

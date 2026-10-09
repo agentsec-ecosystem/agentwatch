@@ -547,7 +547,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s7 | FT-CCO-1 | ✅ G | done — coverage join + shipped test |
 | s7 | FT-CCO-2 | ✅ G | done — shipped claude-agent-sdk test |
 | s7 | FT-TSS-1 | V | `grep -q TSS-1 <wbs>`; link the spike report and assert its findings produced M31 tickets |
-| s8 | FT-APV-1/2/3 | R | `oversight-corpus.py` runs `oversight --json`; assert no auto/bypass misreported as `user` + mode transitions |
+| s8 | FT-APV-1/2/3 | ✅ G | done — shipped authorization + permission-mode + oversight tests |
 | s9 | FT-CAP-1 | ✅ G | done — shipped test |
 | s9 | FT-MEM-1 | ✅ G | done — shipped test |
 | s10 | FT-PRV-1 | ✅ G | done — shipped test |

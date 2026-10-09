@@ -15,6 +15,7 @@ import os
 import shutil
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -28,8 +29,16 @@ from agentwatch.install import (
     resolve_hook_command,
     resolve_scope,
 )
+from agentwatch.managed_policy import (
+    HOOKS_EFFECTIVE_BLOCKED,
+    HOOKS_EFFECTIVE_UNKNOWN,
+    HOOKS_EFFECTIVE_YES,
+    ManagedPolicy,
+    detect_managed_policy,
+)
 from agentwatch.redact import redaction_config_from_mode
 from agentwatch.selftest import run_redaction_self_test
+from agentwatch.signing import signing_status
 from agentwatch.store import RecordStore
 
 PASS = "PASS"
@@ -47,6 +56,8 @@ CHECKS: tuple[tuple[str, str], ...] = (
     ("store-disk", "store path writable and free disk >= max_size_mb"),
     ("retention", "retention window is sane (>= 1 day)"),
     ("harness-drift", "no unrecognized harness fields observed"),
+    ("signing", "signing key posture and availability"),
+    ("distribution", "agentwatch provided by the expected distribution"),
     ("version", "version self-report"),
 )
 
@@ -96,21 +107,62 @@ def _check_config(cfg: AgentwatchConfig | None, config_error: str | None) -> Che
     )
 
 
-def _check_hooks(settings_paths: Mapping[str, Path]) -> CheckResult:
+def _check_distribution() -> CheckResult:
+    """Warn when the ``agentwatch`` module came from a namesake distribution (NAM-1)."""
+    from agentwatch import naming
+
+    warning = naming.distribution_warning()
+    if warning is None:
+        return CheckResult("distribution", PASS, naming.DISTRIBUTION_NAME)
+    return CheckResult("distribution", WARN, warning, f"reinstall with `{naming.FULL_INSTALL}`")
+
+
+def _check_hooks(
+    settings_paths: Mapping[str, Path], policy: ManagedPolicy | None = None
+) -> CheckResult:
+    effective = policy or ManagedPolicy()
     installed = [scope for scope, path in settings_paths.items() if hooks_installed(Path(path))]
+
+    # DEP-1: never claim "installed" when the effective policy blocks the recorder.
+    if effective.error is not None:
+        return CheckResult(
+            "hooks",
+            WARN,
+            f"hooks effective: {HOOKS_EFFECTIVE_UNKNOWN} (managed settings unreadable)",
+            "fix or remove the managed settings file, or point "
+            "AGENTWATCH_MANAGED_SETTINGS at the right path",
+        )
+    if effective.blocks_user_hooks:
+        if effective.managed_agentwatch:
+            return CheckResult(
+                "hooks",
+                PASS,
+                f"hooks effective: {HOOKS_EFFECTIVE_YES} (managed hook/plugin)",
+            )
+        return CheckResult(
+            "hooks",
+            WARN,
+            f"hooks effective: {HOOKS_EFFECTIVE_BLOCKED} ({effective.reason})",
+            "deploy agentwatch as a managed hook or force-enabled org plugin "
+            "(docs/design/managed-policy-install.md)",
+        )
+
     if len(installed) == 1:
-        return CheckResult("hooks", PASS, f"installed ({installed[0]})")
+        return CheckResult(
+            "hooks", PASS, f"hooks effective: {HOOKS_EFFECTIVE_YES} (installed: {installed[0]})"
+        )
     if not installed:
         return CheckResult(
             "hooks",
             WARN,
-            "not installed in any scope",
+            "hooks effective: no (not installed in any scope)",
             "run `agentwatch init` to install hooks",
         )
     return CheckResult(
         "hooks",
         WARN,
-        f"installed in both scopes ({', '.join(sorted(installed))})",
+        f"hooks effective: {HOOKS_EFFECTIVE_YES} but installed in both scopes "
+        f"({', '.join(sorted(installed))})",
         "remove one scope to avoid double-recording",
     )
 
@@ -205,15 +257,35 @@ def _check_store_disk(cfg: AgentwatchConfig, store: Path) -> CheckResult:
     )
 
 
-def _check_retention(cfg: AgentwatchConfig) -> CheckResult:
-    if cfg.store.retention_days >= 1:
-        return CheckResult("retention", PASS, f"{cfg.store.retention_days} day(s)")
-    return CheckResult(
-        "retention",
-        FAIL,
-        f"retention_days={cfg.store.retention_days}",
-        "set store.retention_days to at least 1",
-    )
+def _check_retention(cfg: AgentwatchConfig, store_path: Path | None = None) -> CheckResult:
+    if cfg.store.retention_days < 1:
+        return CheckResult(
+            "retention",
+            FAIL,
+            f"retention_days={cfg.store.retention_days}",
+            "set store.retention_days to at least 1",
+        )
+    overdue = _overdue_records(store_path, cfg.store.retention_days)
+    if overdue:
+        return CheckResult(
+            "retention",
+            WARN,
+            f"{overdue} record(s) older than the {cfg.store.retention_days} day window",
+            "run `agentwatch retention apply` (or pick a profile)",
+        )
+    return CheckResult("retention", PASS, f"{cfg.store.retention_days} day(s)")
+
+
+def _overdue_records(store_path: Path | None, retention_days: int) -> int:
+    """Records past the retention window — a visible sign the run was missed."""
+    if store_path is None or not Path(store_path).exists():
+        return 0
+    cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
+    try:
+        records = RecordStore(Path(store_path)).records()
+    except (OSError, ValueError):  # pragma: no cover - unreadable store
+        return 0
+    return sum(1 for record in records if record.started_at < cutoff)
 
 
 def _check_harness_drift(store_path: Path) -> CheckResult:
@@ -232,6 +304,25 @@ def _check_harness_drift(store_path: Path) -> CheckResult:
     )
 
 
+def _check_signing(store_path: Path) -> CheckResult:
+    store = RecordStore(store_path) if store_path.exists() else None
+    status = signing_status(store, store_path.parent)
+    if status.key_id is None:
+        return CheckResult(
+            "signing",
+            PASS,
+            "not configured (optional; `checkpoint export --sign`)",
+        )
+    if status.key_present:
+        return CheckResult("signing", PASS, f"{status.key_id} (epoch {status.epoch})")
+    return CheckResult(
+        "signing",
+        WARN,
+        status.summary,
+        "restore the key or start a new epoch with `checkpoint rotate`",
+    )
+
+
 def run_checks(
     cfg: AgentwatchConfig | None = None,
     *,
@@ -239,6 +330,7 @@ def run_checks(
     store_path: Path | str | None = None,
     socket_path: Path | str | None = None,
     settings_paths: Mapping[str, Path] | None = None,
+    managed_paths: Sequence[Path] | None = None,
     executable: str | None = None,
 ) -> list[CheckResult]:
     """Run the ordered checklist and return every result.
@@ -251,6 +343,8 @@ def run_checks(
         store_path: override the records JSONL path (tests).
         socket_path: override the daemon socket path (tests).
         settings_paths: override ``{"project": Path, "user": Path}`` (tests).
+        managed_paths: override the managed-settings locations (tests); the
+            platform locations are used when ``None``.
         executable: interpreter used to resolve the hook entry point (tests).
     """
     if cfg is None or config_error is not None:
@@ -266,17 +360,20 @@ def run_checks(
         "project": resolve_scope("project").settings_path,
         "user": resolve_scope("user").settings_path,
     }
+    policy = detect_managed_policy(managed_paths)
 
     return [
         _check_config(cfg, None),
-        _check_hooks(resolved_settings),
+        _check_hooks(resolved_settings, policy),
         _check_daemon(resolved_socket),
         _check_hook_entrypoint(executable),
         _check_store_chain(resolved_store),
         _check_redaction(cfg),
         _check_store_disk(cfg, resolved_store),
-        _check_retention(cfg),
+        _check_retention(cfg, resolved_store),
         _check_harness_drift(resolved_store),
+        _check_signing(resolved_store),
+        _check_distribution(),
         CheckResult("version", PASS, _version()),
     ]
 

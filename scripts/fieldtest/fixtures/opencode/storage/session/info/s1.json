@@ -1,0 +1,9 @@
+{
+  "id": "s1",
+  "directory": "/home/user/project",
+  "version": "1.2.3",
+  "model": {
+    "id": "claude-sonnet",
+    "providerID": "anthropic"
+  }
+}

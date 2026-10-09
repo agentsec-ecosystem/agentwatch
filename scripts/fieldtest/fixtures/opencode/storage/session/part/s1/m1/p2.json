@@ -1,0 +1,19 @@
+{
+  "id": "p2",
+  "sessionID": "s1",
+  "messageID": "m1",
+  "type": "tool",
+  "callID": "call_2",
+  "tool": "read",
+  "state": {
+    "status": "error",
+    "input": {
+      "path": "/nope"
+    },
+    "error": "No such file",
+    "time": {
+      "start": 1766000000000,
+      "end": 1766000000500
+    }
+  }
+}

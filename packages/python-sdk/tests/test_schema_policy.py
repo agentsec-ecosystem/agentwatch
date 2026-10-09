@@ -22,7 +22,7 @@ def test_enum_drift_without_changelog_fails(tmp_path: Path) -> None:
     text = event_schema.read_text(encoding="utf-8")
     # Introduce a new event type without touching the changelog.
     event_schema.write_text(
-        text.replace('"tool-surface-changed"]', '"tool-surface-changed", "new-thing"]'),
+        text.replace('"capability-changed"]', '"capability-changed", "new-thing"]'),
         encoding="utf-8",
     )
 

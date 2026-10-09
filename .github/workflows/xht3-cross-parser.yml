@@ -1,0 +1,40 @@
+# XHT-3 cross-parser validation (M27, #352). Our Codex rollout reader is diffed
+# against two independent, commit-pinned OSS parsers on a golden fixture; a
+# divergence fails the job (or is a documented interpretation gap).
+name: XHT-3 cross-parser
+
+on:
+  pull_request:
+    paths:
+      - "packages/python-sdk/src/agentwatch/codex_rollout.py"
+      - "packages/python-sdk/tests/fixtures/codex-cli/golden/**"
+      - "packages/python-sdk/tests/test_xht3_cross_parser.py"
+      - "scripts/xht3_cross_validate.py"
+      - ".github/workflows/xht3-cross-parser.yml"
+  schedule:
+    - cron: "0 6 * * 1" # weekly drift check
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "stable"
+      - name: Clone pinned independent parsers (both MIT)
+        run: |
+          mkdir -p "$RUNNER_TEMP/xht3"
+          git clone -q https://github.com/kvsankar/agent-history "$RUNNER_TEMP/xht3/agent-history"
+          git -C "$RUNNER_TEMP/xht3/agent-history" checkout -q 56c766ad182689c887e575a1a387dfec2e4a5ebd
+          git clone -q https://github.com/kylesnowschwartz/agent-ouija "$RUNNER_TEMP/xht3/agent-ouija"
+          git -C "$RUNNER_TEMP/xht3/agent-ouija" checkout -q c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc
+      - name: Cross-validate our reader vs two independent parsers
+        run: python scripts/xht3_cross_validate.py --parsers-dir "$RUNNER_TEMP/xht3"

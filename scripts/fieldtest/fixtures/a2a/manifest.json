@@ -1,0 +1,16 @@
+{
+  "kind": "a2a",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/a2a-proxy + tests/fixtures/a2a",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "agents/echo_agent.py",
+    "error-response.json",
+    "message-send-request.json",
+    "message-send-response.json",
+    "tasks-cancel-request.json",
+    "tasks-get-request.json",
+    "tasks-get-response.json"
+  ]
+}

@@ -37,6 +37,20 @@ def _percentile(sorted_values: list[float], percentile: float) -> float:
     return sorted_values[rank]
 
 
+def summarize(samples_ms: list[float]) -> PerfStats:
+    """Summarize an explicit list of per-call latencies (ms)."""
+    if not samples_ms:
+        raise ValueError("samples_ms must not be empty")
+    ordered = sorted(samples_ms)
+    return PerfStats(
+        iterations=len(samples_ms),
+        mean_ms=statistics.fmean(samples_ms),
+        p50_ms=_percentile(ordered, 0.50),
+        p99_ms=_percentile(ordered, 0.99),
+        max_ms=ordered[-1],
+    )
+
+
 def time_call(fn: Callable[[], T], *, iterations: int = 500) -> PerfStats:
     """Run ``fn`` ``iterations`` times and summarize the per-call latency (ms)."""
     if iterations < 1:
@@ -46,11 +60,4 @@ def time_call(fn: Callable[[], T], *, iterations: int = 500) -> PerfStats:
         start = time.perf_counter()
         fn()
         samples.append((time.perf_counter() - start) * 1000.0)
-    ordered = sorted(samples)
-    return PerfStats(
-        iterations=iterations,
-        mean_ms=statistics.fmean(samples),
-        p50_ms=_percentile(ordered, 0.50),
-        p99_ms=_percentile(ordered, 0.99),
-        max_ms=ordered[-1],
-    )
+    return summarize(samples)

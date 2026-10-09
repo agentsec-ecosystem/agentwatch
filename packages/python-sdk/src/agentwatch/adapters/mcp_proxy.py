@@ -11,9 +11,12 @@ The proxy emits one JSON-RPC message per frame::
 
 A ``tools/call`` request yields an *intent* record (``step_type=act``); its
 response yields an *outcome* record (``step_type=observe``, ``error`` on a
-JSON-RPC error, sharing the request's ``span_id``). Anything else — a declared
-gap, an unknown phase, a non-``tools/call`` method — is rejected explicitly,
-never dropped (PRD 17).
+JSON-RPC error, sharing the request's ``span_id``). A ``resources/read``
+request/response is recorded the same way, with the resource URI kept as
+metadata in ``tool.arguments['uri']`` (so ``search --mcp-resource`` finds it);
+a resource link in a tool result is recorded as a ``resources/link``
+observation. Anything else — a declared gap, an unknown phase, an unresolvable
+method — is rejected explicitly, never dropped (PRD 17).
 
 Redaction runs here, before a record leaves the adapter (DD-06): by default no
 argument/response content is captured (metadata-only). Pass a
@@ -31,6 +34,7 @@ from typing import Any, cast
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
+    Approval,
     Outcome,
     Producer,
     ProducerKind,
@@ -50,12 +54,23 @@ HARNESS_ID = "mcp-proxy"
 PROXY_PRODUCER = Producer(kind=ProducerKind.PROXY, name=HARNESS_ID)
 
 # Capability classes this adapter implements; anything else is a documented gap.
-CAPABILITIES = frozenset({"mcp-tools"})
+CAPABILITIES = frozenset(
+    {"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation", "mcp-tasks"}
+)
 
-# Honest, declared gaps — never dropped silently (R3). Only ``tools/call`` is
-# recorded; resources, prompts, and sampling are relayed by the proxy but have
-# no record-model representation yet.
-DOCUMENTED_GAPS = ("mcp-resources", "mcp-prompts", "mcp-sampling")
+# Honest, declared gaps — never dropped silently (R3). ``tools/call``,
+# ``resources/read``, ``prompts/get``, elicitation, and tasks are recorded.
+# Roots/Sampling/Logging are **closed-by-spec** (SEP-2577): the standard retired
+# them, so they are not recorded and not on our roadmap (see known-limitations).
+DOCUMENTED_GAPS = ("mcp-sampling", "mcp-roots", "mcp-logging")
+
+# Surfaces the 2026-07-28 revision retired (SEP-2577); recorded as documented
+# gaps for explicit rejection, but retired by the standard, not by us.
+CLOSED_BY_SPEC = frozenset({"sampling", "roots", "logging"})
+
+# Elicitation answers map to approval provenance (S14). An answer that does not
+# expose a recognised action stays honest ``unknown`` — never guessed.
+_ELICITATION_APPROVAL = {"accept": Approval.USER, "decline": Approval.DENIED}
 
 _PRIVACY_MAP = {
     PrivacyMode.METADATA_ONLY: RecordPrivacyMode.METADATA_ONLY,
@@ -157,19 +172,47 @@ def normalize(
     project = event.get("cwd") if isinstance(event.get("cwd"), str) else None
     event_time = _event_time(event)
 
+    surface_metadata: dict[str, str] | None = None
+    approval: Approval | None = None
     if direction == "request":
-        if rpc.get("method") != "tools/call":
-            raise McpProxyAdapterError(
-                f"unsupported method {rpc.get('method')!r}; expected 'tools/call'"
-            )
+        method = rpc.get("method")
         params = rpc.get("params")
         if not isinstance(params, Mapping):
-            raise McpProxyAdapterError("tools/call is missing a 'params' object")
-        name = params.get("name")
-        if not isinstance(name, str) or not name:
-            raise McpProxyAdapterError("tools/call is missing a tool 'name'")
-        tool_name = name
-        source: Any = params.get("arguments")
+            raise McpProxyAdapterError(f"{method!r} is missing a 'params' object")
+        if method == "tools/call":
+            name = params.get("name")
+            if not isinstance(name, str) or not name:
+                raise McpProxyAdapterError("tools/call is missing a tool 'name'")
+            tool_name = name
+            source: Any = params.get("arguments")
+        elif method == "resources/read":
+            uri = params.get("uri")
+            if not isinstance(uri, str) or not uri:
+                raise McpProxyAdapterError("resources/read is missing a resource 'uri'")
+            tool_name = "resources/read"
+            surface_metadata = {"uri": uri}
+            source = None
+        elif method == "prompts/get":
+            prompt = params.get("name")
+            if not isinstance(prompt, str) or not prompt:
+                raise McpProxyAdapterError("prompts/get is missing a prompt 'name'")
+            tool_name = "prompts/get"
+            surface_metadata = {"name": prompt}
+            source = None
+        elif method == "elicitation/create":
+            tool_name = "elicitation/create"
+            source = None
+        elif isinstance(method, str) and method.startswith("tasks/"):
+            tool_name = method
+            raw_task = params.get("taskId")
+            if isinstance(raw_task, str) and raw_task:
+                surface_metadata = {"taskId": raw_task}
+            source = None
+        else:
+            raise McpProxyAdapterError(
+                f"unsupported method {method!r}; expected 'tools/call', 'resources/read', "
+                f"'prompts/get', 'elicitation/create', or a 'tasks/*' method"
+            )
         step_type: StepType | None = StepType.ACT
         outcome = Outcome.OK
         ended_at: datetime | None = None
@@ -178,6 +221,23 @@ def normalize(
         if not isinstance(name, str) or not name:
             raise McpProxyAdapterError("response is missing a 'tool_name'")
         tool_name = name
+        raw_resource = event.get("resource")
+        raw_prompt = event.get("prompt")
+        raw_task = event.get("task")
+        result = rpc.get("result")
+        result_task = result.get("task") if isinstance(result, Mapping) else None
+        result_task_id = (
+            result_task.get("id") if isinstance(result_task, Mapping) else None
+        )
+        if isinstance(raw_resource, str) and raw_resource:
+            surface_metadata = {"uri": raw_resource}
+        elif isinstance(raw_prompt, str) and raw_prompt:
+            surface_metadata = {"name": raw_prompt}
+        elif isinstance(raw_task, str) and raw_task:
+            surface_metadata = {"taskId": raw_task}
+        elif isinstance(result_task_id, str) and result_task_id:
+            # A task-augmented tool result: keep the durable task id (SEP-2663).
+            surface_metadata = {"taskId": result_task_id}
         error = rpc.get("error")
         if error is not None:
             outcome = Outcome.ERROR
@@ -188,9 +248,26 @@ def normalize(
         step_type = StepType.OBSERVE
         ended_at = event_time
 
+    if tool_name == "elicitation/create":
+        # Link the human-input answer to approval provenance (S14); an answer
+        # that exposes no recognised action stays honest ``unknown``.
+        action = source.get("action") if isinstance(source, Mapping) else None
+        approval = (
+            _ELICITATION_APPROVAL.get(action, Approval.UNKNOWN)
+            if isinstance(action, str)
+            else Approval.UNKNOWN
+        )
+
     # Mask secrets before any storage transform (DD-06); detection runs even
     # when content is not captured so a secret-detected event still fires (R5).
     masked_source, kinds = redact_mapping(source)
+    masked_metadata: dict[str, Any] | None = None
+    if surface_metadata is not None:
+        # The surface key (resource URI / prompt name) is metadata; it still
+        # passes through secret detection so an embedded secret leaves a masked
+        # trace rather than leaking.
+        masked_metadata, metadata_kinds = redact_mapping(surface_metadata)
+        kinds = (*kinds, *metadata_kinds)
     security_event = (
         SecurityEvent(
             type=SecurityEventType.SECRET_DETECTED,
@@ -205,6 +282,9 @@ def normalize(
     captured, privacy_mode = _capture(masked_source, redaction)
 
     tool_kwargs: dict[str, Any] = {"name": tool_name, "server": server}
+    if masked_metadata is not None:
+        tool_kwargs["arguments"] = masked_metadata
+        tool_kwargs["privacy_mode"] = RecordPrivacyMode.METADATA_ONLY
     if captured is not None:
         tool_kwargs["privacy_mode"] = privacy_mode
         if direction == "request":
@@ -225,6 +305,7 @@ def normalize(
         project=project,
         ended_at=ended_at,
         step_type=step_type,
+        approval=approval,
         security_event=security_event,
     )
     return [record]

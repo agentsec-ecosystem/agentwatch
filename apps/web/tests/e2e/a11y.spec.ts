@@ -29,6 +29,7 @@ const ROUTES = [
   { path: "/runs", name: "Run Timeline" },
   { path: "/compare", name: "Version Compare" },
   { path: "/anomalies", name: "Anomaly Inbox" },
+  { path: "/operator", name: "Operator" },
 ];
 
 async function runAxe(page: Page): Promise<AxeResults> {
@@ -106,6 +107,11 @@ test.describe("Keyboard-only operator journey (CUJ-8)", () => {
     expect(await tabTo(page, "Anomaly Inbox")).toBe(true);
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/anomalies$/);
+
+    // Operator console (identity/attribution + SIEM health + detector markers).
+    expect(await tabTo(page, "Operator")).toBe(true);
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/operator$/);
   });
 
   test("activates a span in the timeline with Enter", async ({ page }) => {

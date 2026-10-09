@@ -7,8 +7,15 @@ counts, and record counts — over already-stored (redacted) records only.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from agentwatch.env_fingerprint import (
+    EnvironmentChange,
+    EnvironmentFingerprint,
+    environment_delta,
+    environment_fingerprint,
+    render_environment_delta,
+)
 from agentwatch.records import AgentRecord
 from agentwatch.replay import replay_session
 from agentwatch.session_state import session_state
@@ -29,10 +36,14 @@ class SessionDiff:
     removed_tools: tuple[str, ...]
     state_a: str = "unknown"
     state_b: str = "unknown"
+    environment_a: EnvironmentFingerprint = field(default_factory=EnvironmentFingerprint)
+    environment_b: EnvironmentFingerprint = field(default_factory=EnvironmentFingerprint)
+    environment_changes: tuple[EnvironmentChange, ...] = ()
 
     def render(self) -> str:
         lines = [
             f"diff {self.a} -> {self.b}",
+            render_environment_delta(self.environment_changes),
             f"records: {self.records_a} -> {self.records_b}",
             f"failed: {self.failed_a} -> {self.failed_b}",
             f"state: {self.state_a} -> {self.state_b}",
@@ -58,6 +69,8 @@ def diff_sessions(store: RecordStore, a: str, b: str) -> SessionDiff:
     counts_b = Counter(record.tool.name for record in records_b)
     added = tuple(sorted(set(counts_b) - set(counts_a)))
     removed = tuple(sorted(set(counts_a) - set(counts_b)))
+    environment_a = environment_fingerprint(records_a)
+    environment_b = environment_fingerprint(records_b)
     return SessionDiff(
         a=a,
         b=b,
@@ -69,4 +82,7 @@ def diff_sessions(store: RecordStore, a: str, b: str) -> SessionDiff:
         removed_tools=removed,
         state_a=session_state(records_a).state,
         state_b=session_state(records_b).state,
+        environment_a=environment_a,
+        environment_b=environment_b,
+        environment_changes=tuple(environment_delta(environment_a, environment_b)),
     )

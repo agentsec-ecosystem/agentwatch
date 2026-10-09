@@ -9,7 +9,7 @@ GenAI-semconv spans so records load into a standard backend unmodified.
 
 ## Pinned semantic conventions
 
-The receiver reports `otel.semconv.version` (currently **1.29.0**) on every
+The receiver reports `otel.semconv.version` (currently **1.37.0**) on every
 span's resource attributes. W4 (M22) formalizes the upstream proposal.
 
 ## Using it

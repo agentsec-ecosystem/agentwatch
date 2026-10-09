@@ -1,0 +1,153 @@
+{
+  "corpora": [
+    {
+      "commit": "c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc",
+      "directory": "claude-code/ouija",
+      "harness": "claude-code",
+      "repo": "https://github.com/kylesnowschwartz/agent-ouija"
+    },
+    {
+      "commit": "c4be5b1d0c6faaa25fc2d4c0d3718276a8c71ecc",
+      "directory": "codex/ouija",
+      "harness": "codex",
+      "repo": "https://github.com/kylesnowschwartz/agent-ouija"
+    },
+    {
+      "commit": "78219cea67e92d03bc9b5d96798adfac0636cbc9",
+      "directory": "cursor/cursor-session-tracer",
+      "harness": "cursor",
+      "repo": "https://github.com/indranildchandra/cursor-session-tracer"
+    }
+  ],
+  "files": {
+    "claude-code/ouija/LICENSE": {
+      "bytes": 1075,
+      "sha256": "d7ce0fbcee2f1209b79ccd70dfffd1b217768500ec264b3669538c6c95b49ab4"
+    },
+    "claude-code/ouija/rollouts/mcp-tools.jsonl": {
+      "bytes": 23099,
+      "sha256": "bac336c64ae24e753798bff41cb82a0acd96f363c0d8e53bfa51871f64550a69"
+    },
+    "claude-code/ouija/rollouts/minimal.jsonl": {
+      "bytes": 745,
+      "sha256": "47929fc6f4681ea2b40561f2cbdf1ada6f6e59f47cbac9d26dc5f4463ba26d65"
+    },
+    "claude-code/ouija/rollouts/multi_turn.jsonl": {
+      "bytes": 2075,
+      "sha256": "8865e76f2522d2a20104181ba7ad11974c151035e5ad171504bf85c0c65cd130"
+    },
+    "claude-code/ouija/rollouts/noise.jsonl": {
+      "bytes": 2347,
+      "sha256": "828e4e9d1ed06b2ffcfe226585b6c140cf256b844cfa3e2ad2c9932cd0493f1c"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_exitplan.jsonl": {
+      "bytes": 581,
+      "sha256": "0eeaf3d8ffff5c22e3983b02097839177543b4a626203549250fe6479aa4b205"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_interrupted.jsonl": {
+      "bytes": 748,
+      "sha256": "5a1a9b54f4be1a5e15d439dfd18a286ffeef561327d6703fcfa4838760fea1bd"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_interrupted_pending.jsonl": {
+      "bytes": 780,
+      "sha256": "dfbbeeb37ca447aeb2bfcb9c752af7664c246967e87fb31295ba4bd2992628b4"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_rejected.jsonl": {
+      "bytes": 779,
+      "sha256": "62d016892149f50dd60a9dd1510632db965748890660c21dceda72b392a8e0a2"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_shutdown.jsonl": {
+      "bytes": 787,
+      "sha256": "56a9bf4c658f205ce5f7ead1827590d587e8f46f20484c10d34d1d43092c8e39"
+    },
+    "claude-code/ouija/rollouts/not_ongoing_text.jsonl": {
+      "bytes": 571,
+      "sha256": "161a0a39281763879c6f81ef93561f2418b98b809ae9c41eb66717b0d2506d17"
+    },
+    "claude-code/ouija/rollouts/ongoing_pending_task.jsonl": {
+      "bytes": 1311,
+      "sha256": "b9b5221b717d3703f5cbe8c72cb1cc936cd850a362b3fb858e887dfaf1f9f8d2"
+    },
+    "claude-code/ouija/rollouts/ongoing_toolresult.jsonl": {
+      "bytes": 747,
+      "sha256": "01e7b87374e3e7f384ebb28807eae6c9403a6b6673da8490b724a67e398c11d2"
+    },
+    "claude-code/ouija/rollouts/ongoing_tooluse.jsonl": {
+      "bytes": 595,
+      "sha256": "531e5ca4957f6abaca7ef05f259da8b6a5cb6782f58cc4cf628352e568b98838"
+    },
+    "claude-code/ouija/rollouts/restamped_title.jsonl": {
+      "bytes": 1383,
+      "sha256": "5cd6e4860d0e6539aae912c4bb41b063593e60a604bdbd403cfc90395c878adb"
+    },
+    "claude-code/ouija/rollouts/streaming_dedup.jsonl": {
+      "bytes": 902,
+      "sha256": "e2c31083a6b7a087c97a813cbd1242f71ca633bcc6a4b949d92b83b2cde01d13"
+    },
+    "claude-code/ouija/rollouts/team-parent.jsonl": {
+      "bytes": 2640,
+      "sha256": "8c5ba2224e6381cb1310d1ea912216193ad3c7397cdb5cb682147220ebcb20e6"
+    },
+    "claude-code/ouija/rollouts/test-session.jsonl": {
+      "bytes": 149,
+      "sha256": "9cc941a71dcfaebdaf77dee224e7b1368de0585294d7b025cc664b130dd83a72"
+    },
+    "codex/ouija/LICENSE": {
+      "bytes": 1075,
+      "sha256": "d7ce0fbcee2f1209b79ccd70dfffd1b217768500ec264b3669538c6c95b49ab4"
+    },
+    "codex/ouija/rollouts/agent-message-citation.jsonl": {
+      "bytes": 610,
+      "sha256": "1b4913f3446db2d8636e78aa387135144be1cd185595c593cc03dafd9b71a656"
+    },
+    "codex/ouija/rollouts/agent-message-final.jsonl": {
+      "bytes": 547,
+      "sha256": "9f1c58ca82a5395faa3c323a16314215865682a1acb2fb85bd9bc98ed41fc6cd"
+    },
+    "codex/ouija/rollouts/agent-message-same-cwd.jsonl": {
+      "bytes": 415,
+      "sha256": "cbe4579ce8900d55d0a3d14147d7e61f2832ad18b1e21d3d0a9d2f28e4d46a9b"
+    },
+    "codex/ouija/rollouts/auto-reviewed-approval.jsonl": {
+      "bytes": 331,
+      "sha256": "3323b8717fcc62ded76aa6a311379f2936b2a2c996e62488c4262f4783a0e74b"
+    },
+    "codex/ouija/rollouts/error-after-final.jsonl": {
+      "bytes": 412,
+      "sha256": "380f9dd6bdd563e88e3219b9eb4a96e0062c87dd7d7991578d27bbedb55df2b8"
+    },
+    "codex/ouija/rollouts/interrupted-after-final.jsonl": {
+      "bytes": 458,
+      "sha256": "fa8192f800ba34659236f7791205b423f1fff61a05a273cec5e78f7ad2bbfa7c"
+    },
+    "codex/ouija/rollouts/malformed-cwd-auto-review.jsonl": {
+      "bytes": 287,
+      "sha256": "63b6a8e7c42bb627a2484ea61a543d93f04204b6288c2601915605fec7bc9931"
+    },
+    "codex/ouija/rollouts/manual-approval.jsonl": {
+      "bytes": 296,
+      "sha256": "9f1b72ad7db6aa5d56ba4e9e8e0cd2b97f3a8aae1b3c05afdbab78a392ad2e4d"
+    },
+    "codex/ouija/rollouts/no-assistant.jsonl": {
+      "bytes": 350,
+      "sha256": "7c45a1be36bc0d1ec101cd8eb1077ce5093371268699aec55acddd969cd1965e"
+    },
+    "codex/ouija/rollouts/response-item-final.jsonl": {
+      "bytes": 647,
+      "sha256": "038ae8901e1f58b66d958ef3894cfad3ddf409c731adeb4839cf0278fc2abc0a"
+    },
+    "cursor/cursor-session-tracer/LICENSE": {
+      "bytes": 1073,
+      "sha256": "eeb724b27c9eb72ea66e57a24f62137775e65abe4207adc17f1a4162d6e43682"
+    },
+    "cursor/cursor-session-tracer/traces/092435_implement_adr0001_resilient_idempotent_outbound.json": {
+      "bytes": 3753,
+      "sha256": "9d525719b3993cbbd027e39168ecbfa60526fbcfad49b9299067de8cb2d4c28f"
+    },
+    "cursor/cursor-session-tracer/traces/143201_resilient_idempotent_checkout.json": {
+      "bytes": 4094,
+      "sha256": "33f07b859625d487edae413a88ed940b95712f84726ff5efcee1281996aac533"
+    }
+  },
+  "version": 1
+}

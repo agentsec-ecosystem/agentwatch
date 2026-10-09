@@ -81,6 +81,7 @@ def test_snapshot_exposes_every_nfr12_field(tmp_path: Path) -> None:
         "store",
         "export",
         "redaction",
+        "signing",
         "hooks",
         "gaps",
         "drift",
@@ -355,4 +356,3 @@ def test_daemon_store_full_flips_state_to_stopped(short_dir: Path) -> None:
     assert payload["state"] == "stopped"
     assert payload["reason"] is not None
     assert payload["store"]["chain_ok"] is True
-

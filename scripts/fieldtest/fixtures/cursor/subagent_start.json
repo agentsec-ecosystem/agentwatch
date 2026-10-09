@@ -1,0 +1,42 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "sa-1",
+        "name": "explore"
+      },
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "span_id": "tc-9",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "step_type": "act",
+      "tool": {
+        "name": "subagent",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "conversation_id": "sess-c",
+      "git_branch": "feature/auth",
+      "is_parallel_worker": false,
+      "parent_conversation_id": "conv-1",
+      "subagent_id": "sa-1",
+      "subagent_model": "claude-sonnet-4-20250514",
+      "subagent_type": "explore",
+      "task": "Explore the authentication flow",
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "tool_call_id": "tc-9"
+    },
+    "harness": "cursor",
+    "phase": "subagentStart"
+  }
+}

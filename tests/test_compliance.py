@@ -11,7 +11,13 @@ SDK_SRC = ROOT / "packages" / "python-sdk" / "src"
 sys.path.insert(0, str(SDK_SRC))
 
 from agentwatch.protocol import STORE_FORMAT_VERSION  # noqa: E402
-from agentwatch.records import EVENT_VERSION, SCHEMA_VERSION, SecurityEventType  # noqa: E402
+from agentwatch.records import (  # noqa: E402
+    EVENT_VERSION,
+    SCHEMA_VERSION,
+    SUPPORTED_EVENT_VERSIONS,
+    SUPPORTED_SCHEMA_VERSIONS,
+    SecurityEventType,
+)
 
 SCHEMA = ROOT / "schema"
 
@@ -20,12 +26,26 @@ def _schema(name: str) -> dict:
     return json.loads((SCHEMA / name).read_text(encoding="utf-8"))
 
 
+def _declares(prop: dict, version: str) -> bool:
+    if prop.get("const") == version:
+        return True
+    enum = prop.get("enum")
+    return isinstance(enum, list) and version in enum
+
+
 def test_schema_constants_match_the_model() -> None:
     record_schema = _schema("agent-record.schema.json")
     event_schema = _schema("security-event.schema.json")
 
-    assert record_schema["properties"]["schema_version"]["const"] == SCHEMA_VERSION
-    assert event_schema["properties"]["event_version"]["const"] == EVENT_VERSION
+    record_version = record_schema["properties"]["schema_version"]
+    event_version = event_schema["properties"]["event_version"]
+    # The schema declares the current emit version plus the supported read range.
+    assert _declares(record_version, SCHEMA_VERSION)
+    assert _declares(event_version, EVENT_VERSION)
+    for version in SUPPORTED_SCHEMA_VERSIONS:
+        assert _declares(record_version, version)
+    for version in SUPPORTED_EVENT_VERSIONS:
+        assert _declares(event_version, version)
     assert STORE_FORMAT_VERSION == 1
 
 

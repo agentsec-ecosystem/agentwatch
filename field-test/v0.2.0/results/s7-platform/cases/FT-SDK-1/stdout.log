@@ -1,0 +1,2 @@
+DO
+ok: SDK lifecycle: flush-on-exit; no-op after shutdown; at-most-once/thread-safe shutdown; deterministic sampler

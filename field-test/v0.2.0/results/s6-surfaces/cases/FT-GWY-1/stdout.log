@@ -1,0 +1,5 @@
+DO
+ok: ingested gateway from /ft/fixtures/gateway
+...                                                                      [100%]
+3 passed in 0.10s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_gateway_cost.py

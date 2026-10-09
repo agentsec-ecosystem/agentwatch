@@ -1,0 +1,38 @@
+{
+  "expected": [
+    {
+      "agent": {
+        "identity": "unknown"
+      },
+      "duration_ms": 1234.0,
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "harness": "cursor",
+      "outcome": "ok",
+      "producer": {
+        "kind": "hook",
+        "name": "cursor"
+      },
+      "schema_version": "0.1.0",
+      "session_id": "sess-c",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe",
+      "tool": {
+        "name": "Shell",
+        "privacy_mode": "metadata-only"
+      },
+      "trace_id": "sess-c"
+    }
+  ],
+  "message": {
+    "event": {
+      "command": "npm test",
+      "conversation_id": "sess-c",
+      "duration": 1234,
+      "output": "1 failing",
+      "sandbox": false,
+      "timestamp": "2026-01-02T03:04:06+00:00"
+    },
+    "harness": "cursor",
+    "phase": "afterShellExecution"
+  }
+}

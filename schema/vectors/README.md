@@ -51,3 +51,76 @@ python scripts/generate_store_vectors.py
 ```
 
 The vector set grows per release; vectors are removed only at a major (PRD 38 §Q7).
+
+---
+
+# AAT conformance vectors
+
+Published test vectors for the [IETF Agent Audit Trail mapping](../../docs/design/aat-mapping.md)
+(M26 AAT-4, PRD 41 §AAT-4). A record-interchange format is only trustworthy if a
+third party can re-verify it independently: these are the valid, tampered,
+unmapped, and unsupported-revision bundles a foreign consumer can replay.
+
+## Layout
+
+| File | Case | Expected verdict |
+|---|---|---|
+| `aat/valid.json` | intact bundle, all entries chained | `ok` |
+| `aat/tampered.json` | entry 1's native record edited, hash not updated | `failed=[1]` |
+| `aat/unmapped.json` | records with AAT fields we cannot populate, surfaced in `unmapped` | `ok` |
+| `aat/unsupported-revision.json` | unknown `aat_version` | `failed=[-1]` (bundle-level) |
+| `aat/expected-verdicts.json` | the machine-readable verdict table | — |
+
+`ok` = no entry failed verification. `failed_entries` lists the 0-based entry
+indices that failed the chain hash or inter-entry linkage check; `-1` means the
+whole bundle failed (not an object, wrong revision, or no records list).
+
+## Implementations
+
+Two independent implementations must agree with the table:
+
+1. **`agentwatch.aat.verify_aat_report()`** — the product verifier (with
+   `verify_aat()` as the boolean convenience form).
+2. **[`verify_aat.py`](verify_aat.py)** — a standalone, dependency-free
+   reference verifier (stdlib only; imports nothing from `agentwatch`).
+
+CI runs both against the table (`packages/python-sdk/tests/test_aat_vectors.py`);
+a verdict that differs between implementations is a contract bug, surfaced.
+
+## Running
+
+```sh
+python schema/vectors/verify_aat.py --table      # check every vector
+python schema/vectors/verify_aat.py <bundle.json>
+```
+
+## Regenerating
+
+Vectors are built with the real `export_aat` writer, and the generator asserts
+the shipped verifier agrees with the authored verdicts before writing:
+
+```sh
+python scripts/generate_aat_vectors.py
+```
+
+---
+
+# Detector-eval corpus (v1)
+
+`detectors/detector-corpus-v1.json` (`agentwatch.detector-corpus/1`) is the
+versioned public corpus for the analytics detectors (M26 COR-1): 143
+shape-synthesized cases rendered from the field-test scenario matrix, tagged
+with a BMWG `dimension` and a `source` (positive field-test cases + benign
+false-positive traffic). Each case carries a serialized `RunSummary` + span tree
+and the detector that should fire, so verdicts are machine-checkable
+(`analytics.detectors.eval.load_public_corpus` / `check_public_corpus`).
+
+Governance-scanned (no secrets/PII) and drift-guarded in
+`services/analytics/tests/test_detector_corpus.py`.
+
+```sh
+python scripts/generate_detector_corpus.py          # regenerate
+python scripts/generate_detector_corpus.py --check  # CI drift check
+```
+
+

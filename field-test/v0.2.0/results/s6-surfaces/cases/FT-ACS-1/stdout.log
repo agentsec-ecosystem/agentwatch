@@ -1,0 +1,7 @@
+DO
+ok: ingested acs from /ft/fixtures/acs
+agentwatch: chain ok (0 entries)
+  signing: not configured (optional; `checkpoint export --sign`)
+...............................                                          [100%]
+31 passed in 0.63s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_acs_ingest.py

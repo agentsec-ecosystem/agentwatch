@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/trace.schema.json",
+  "title": "agentwatch trace --json",
+  "description": "The cross-host causal trace from `agentwatch trace <trace-id> --json`.",
+  "x-agentwatch-command": "trace",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "trace_id": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array"
+    },
+    "edges": {
+      "type": "array"
+    }
+  }
+}

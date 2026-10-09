@@ -1,0 +1,2 @@
+DO
+ok: telemetry off by default; enabled markers are content-free (['at', 'detector', 'kind', 'outcome', 'severity']); bounded to 5

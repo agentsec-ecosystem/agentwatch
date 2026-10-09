@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "act_1",
+      "created_at": "2026-01-02T03:04:05Z",
+      "type": "claude_code.tool_use",
+      "session_id": "s1",
+      "organization_id": "org_1",
+      "actor": {
+        "type": "user",
+        "email": "human@corp.example",
+        "user_id": "u1"
+      },
+      "tool_name": "Bash",
+      "outcome": "ok"
+    },
+    {
+      "id": "act_2",
+      "created_at": "2026-01-02T03:05:05Z",
+      "type": "claude_code.tool_use",
+      "session_id": "s1",
+      "actor": {
+        "type": "user",
+        "email": "human@corp.example"
+      },
+      "outcome": "denied"
+    }
+  ]
+}

@@ -17,14 +17,22 @@ arguments.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any, cast
 
+from agentwatch.authorization import derive_authorization, permission_mode_from
+from agentwatch.identity import apply_identity_privacy
 from agentwatch.records import (
     AgentIdentity,
     AgentRecord,
     Approval,
+    Authorization,
+    AuthorizationEvidence,
+    AuthorizationSource,
+    CredentialClass,
     Outcome,
+    PermissionMode,
     Producer,
     ProducerKind,
     RecordPrivacyMode,
@@ -36,6 +44,7 @@ from agentwatch.records import (
 )
 from agentwatch.redact import PrivacyMode, RedactionConfig
 from agentwatch.secrets import fingerprint_spans, redact_mapping
+from agentwatch.trace_context import format_traceparent, parse_traceparent
 
 HARNESS_ID = "claude-code"
 
@@ -121,8 +130,65 @@ def identity_from(value: Any) -> AgentIdentity:
     return AgentIdentity(identity="unknown")
 
 
-def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
-    """Agent identity for an event: explicit ``agent`` first, else subagent ids."""
+def _optional_str(source: Mapping[str, Any] | None, key: str) -> str | None:
+    if not isinstance(source, Mapping):
+        return None
+    value = source.get(key)
+    return value if isinstance(value, str) and value else None
+
+
+def _identity_dimension(base: AgentIdentity, event: Mapping[str, Any]) -> AgentIdentity:
+    """Add the IDN-1 dimension from optional hook fields (absent stays unknown).
+
+    A hook may expose the on-behalf-of principal, workload identity, credential
+    class, or delegation chain at the top level or inside its ``agent`` block.
+    Anything not exposed stays absent — never inferred.
+    """
+    block = event.get("agent")
+    block = block if isinstance(block, Mapping) else None
+    principal = _optional_str(block, "principal") or _optional_str(event, "principal")
+    workload_identity = _optional_str(block, "workload_identity") or _optional_str(
+        event, "workload_identity"
+    )
+    raw_class = (block.get("credential_class") if block else None) or event.get(
+        "credential_class"
+    )
+    credential_class: CredentialClass | None = None
+    if isinstance(raw_class, str):
+        try:
+            credential_class = CredentialClass(raw_class)
+        except ValueError:
+            credential_class = None
+    raw_chain = (block.get("delegation_chain") if block else None) or event.get(
+        "delegation_chain"
+    )
+    delegation_chain: tuple[str, ...] | None = None
+    if isinstance(raw_chain, list) and all(isinstance(entry, str) for entry in raw_chain):
+        delegation_chain = tuple(raw_chain)
+    if (
+        principal is None
+        and workload_identity is None
+        and credential_class is None
+        and delegation_chain is None
+    ):
+        return base
+    return replace(
+        base,
+        workload_identity=workload_identity,
+        credential_class=credential_class,
+        principal=principal,
+        delegation_chain=delegation_chain,
+    )
+
+
+def identity_for(
+    event: Mapping[str, Any], *, redaction: RedactionConfig | None = None
+) -> AgentIdentity:
+    """Agent identity for an event: explicit ``agent`` first, else subagent ids.
+
+    The IDN-1 dimension is attached from optional hook fields and the principal
+    hashing policy is applied for the session's privacy mode (hashed by default).
+    """
     if event.get("agent") is not None:
         base = identity_from(event["agent"])
     else:
@@ -138,16 +204,11 @@ def identity_for(event: Mapping[str, Any]) -> AgentIdentity:
     # The hook carries the CLAUDE.md fingerprint at the top level (PRD 25 D2);
     # an explicit agent mapping's prompt_version wins.
     if base.prompt_version is None and isinstance(event.get("prompt_version"), str):
-        return AgentIdentity(
-            identity=base.identity,
-            name=base.name,
-            version=base.version,
-            prompt_version=event["prompt_version"],
-            model_version=base.model_version,
-            tool_schema_version=base.tool_schema_version,
-            workload_type=base.workload_type,
-        )
-    return base
+        base = replace(base, prompt_version=event["prompt_version"])
+    mode = (
+        _PRIVACY_MAP[redaction.mode] if redaction is not None else RecordPrivacyMode.METADATA_ONLY
+    )
+    return apply_identity_privacy(_identity_dimension(base, event), mode=mode)
 
 
 def _parse_optional_timestamp(value: Any) -> datetime | None:
@@ -239,6 +300,25 @@ def derive_approval(
     return Approval.UNKNOWN
 
 
+def native_decision_source(event: Mapping[str, Any]) -> str | None:
+    """The harness-native permission decision source, when exposed.
+
+    Accepts the flat ``decision_source`` / ``permission_decision_source`` keys or
+    a nested ``tool_decision`` block (Claude Code native telemetry, CCO-1).
+    Absent stays ``None`` — never inferred.
+    """
+    for key in ("decision_source", "permission_decision_source"):
+        value = event.get(key)
+        if isinstance(value, str) and value:
+            return value
+    block = event.get("tool_decision")
+    if isinstance(block, Mapping):
+        value = block.get("decision_source")
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
 _ENV_STRINGS = {"harness": ("name", "version"), "os": ("system", "arch")}
 _ENV_AGENTWATCH = ("version",)
 _ENV_PRINCIPAL_INTS = ("uid", "pid", "ppid")
@@ -304,7 +384,7 @@ def _host_from(environment: Mapping[str, Any] | None) -> str | None:
     return None
 
 
-def normalize(
+def _normalize_message(
     message: Mapping[str, Any],
     *,
     redaction: RedactionConfig | None = None,
@@ -362,6 +442,27 @@ def normalize(
     # Only persist a decision we actually have; absence reads back as `unknown`
     # so a record never claims an authorization the harness did not expose.
     recorded_approval = approval if approval is not Approval.UNKNOWN else None
+    # Authorization v2 (M29 APV-1): a native decision source is authoritative;
+    # a bypass mode means nothing was checking; else the S14 value maps with
+    # evidence=inferred. `unknown` is never persisted as a claim.
+    mode = permission_mode_from(event.get("permission_mode"))
+    v2 = derive_authorization(
+        approval=approval,
+        decision_source=native_decision_source(event),
+        permission_mode=mode,
+    )
+    # Only a v2-specific fact (a native decision source, or bypass mode) is
+    # persisted. A pure S14 fallback stays on the legacy `approval` field and is
+    # mapped by `effective_authorization` at read time — never written back.
+    recorded_authorization: Authorization | None = (
+        v2
+        if v2.source is not AuthorizationSource.UNKNOWN
+        and v2.evidence is not AuthorizationEvidence.INFERRED
+        else None
+    )
+    # Permission mode is a time-varying fact (M29 APV-2); absent stays unknown on
+    # read and is never inferred.
+    recorded_mode: PermissionMode | None = mode if mode is not PermissionMode.UNKNOWN else None
     environment = (
         sanitize_environment(event.get("environment"), include_principal=include_principal)
         if phase == "session-start"
@@ -403,7 +504,7 @@ def normalize(
             parent_session_id = str(raw_parent) if raw_parent is not None else None
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name=phase,
                 arguments=boundary_args,
@@ -444,7 +545,7 @@ def normalize(
                     break
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name="context-compacted",
                 arguments=compact_args,
@@ -467,7 +568,7 @@ def normalize(
         marker_args = {"tool": tool_name} if tool_name != "unknown" else None
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name="permission-prompt",
                 arguments=marker_args,
@@ -496,7 +597,7 @@ def normalize(
         )
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(
                 name=bare_tool_name, server=server, arguments=arguments, privacy_mode=privacy_mode
             ),
@@ -509,6 +610,8 @@ def normalize(
             project=project,
             step_type=StepType.OBSERVE,
             approval=recorded_approval,
+            authorization=recorded_authorization,
+            permission_mode=recorded_mode,
             security_event=denial,
         )
         return [record]
@@ -541,7 +644,7 @@ def normalize(
                 prompt_mode = _PRIVACY_MAP[redaction.mode]
         record = AgentRecord(
             session_id=session_id,
-            agent=identity_for(event),
+            agent=identity_for(event, redaction=redaction),
             tool=ToolCall(name="user-prompt", arguments=prompt_args, privacy_mode=prompt_mode),
             outcome=Outcome.OK,
             started_at=event_time,
@@ -580,7 +683,7 @@ def normalize(
 
     record = AgentRecord(
         session_id=session_id,
-        agent=identity_for(event),
+        agent=identity_for(event, redaction=redaction),
         tool=ToolCall(
             name=bare_tool_name,
             server=server,
@@ -599,6 +702,54 @@ def normalize(
         duration_ms=duration_ms,
         step_type=step_type,
         approval=recorded_approval,
+        authorization=recorded_authorization,
+        permission_mode=recorded_mode,
         security_event=security_event,
     )
     return [record]
+
+
+def normalize(
+    message: Mapping[str, Any],
+    *,
+    redaction: RedactionConfig | None = None,
+    secret_fingerprint: Callable[[str], str] | None = None,
+    pending_permission: bool = False,
+    include_principal: bool = True,
+) -> list[AgentRecord]:
+    """Normalize one hook message, propagating any W3C ``traceparent`` (TRACE-1).
+
+    A hook that reports a ``traceparent`` (e.g. a subagent fan-out or an MCP-proxy
+    hop) joins the caller's trace instead of starting a new one. A malformed header
+    is ignored — the record keeps its own trace id, never an invented correlation.
+    """
+    records = _normalize_message(
+        message,
+        redaction=redaction,
+        secret_fingerprint=secret_fingerprint,
+        pending_permission=pending_permission,
+        include_principal=include_principal,
+    )
+    if not isinstance(message, Mapping):
+        return records
+    event = message.get("event")
+    if not isinstance(event, Mapping):
+        return records
+    return [_with_traceparent(record, event) for record in records]
+
+
+def _with_traceparent(record: AgentRecord, event: Mapping[str, Any]) -> AgentRecord:
+    raw = event.get("traceparent")
+    if not isinstance(raw, str):
+        return record
+    context = parse_traceparent(raw)
+    if context is None:
+        return record
+    return replace(
+        record,
+        trace_id=context.trace_id,
+        span_id=record.span_id or context.span_id,
+        traceparent=format_traceparent(
+            context.trace_id, context.span_id, sampled=context.sampled
+        ),
+    )

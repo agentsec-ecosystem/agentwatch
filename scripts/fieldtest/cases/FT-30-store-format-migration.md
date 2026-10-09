@@ -17,4 +17,5 @@ The case-specific assertions in `cases/steps/FT-30.sh` (each recorded in
 `field-test/v0.1.0/results/<UTC-ts>/cases/FT-30/artifacts/`.
 
 ## Cleanup
-`down -v` via the runner teardown trap (`STACK_KEEP=1` keeps the stack).
+Shared stack: reset in place between cases; `recycle` cases get a fresh `down -v`
++ boot. The stack is torn down once, at the end of the run.

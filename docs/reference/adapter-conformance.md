@@ -48,16 +48,26 @@ in CI. Release notes carry the compatibility table.
 
 ## Provisional adapters (M10, modeled)
 
-Cursor, Codex CLI, and Gemini CLI ship **provisional (modeled)** adapters — no native event surface is
+Codex CLI and Gemini CLI ship **provisional (modeled)** adapters — no native event surface is
 documented in-repo yet, so the fixtures are synthesized from an assumed shape and must be replaced by real
 captures (M14/N4). Each is registered and passes the shared runner; capabilities and the `mcp-server-events`
 gap are declared the same way as Claude Code.
 
 | Harness | Module | Fixtures |
 |---|---|---|
-| Cursor | `agentwatch.adapters.cursor` | `tests/fixtures/cursor/*.json` |
 | Codex CLI | `agentwatch.adapters.codex_cli` | `tests/fixtures/codex-cli/*.json` |
 | Gemini CLI | `agentwatch.adapters.gemini_cli` | `tests/fixtures/gemini-cli/*.json` |
+
+## Cursor native hooks (v0.2.0 M25, CUR-2)
+
+`agentwatch.adapters.cursor` normalizes Cursor's native `hooks.json` events. The pack
+(`tests/fixtures/cursor/*.json`) covers the full loop: session boundaries, pre/post tool use (+failure),
+shell, MCP, `beforeReadFile`, file edits, subagent start/stop, prompt submission, compaction,
+`afterAgentThought`/`afterAgentResponse`, Tab hooks, and `workspaceOpen`. The declared gap is
+`cloud-agent-hook-events` (cloud agents lack sessionStart/sessionEnd/MCP/Tab/workspace hooks), rejected
+explicitly. Blocking `before*` events are recorded as observations and never answered (monitor-only, R2).
+Field names follow the published contract, and the audit corpus (25.CUR-1) is version-tagged and
+secret-scanned under `tests/testkit/` (`PROVENANCE.md`), so the fidelity tier is `fixture-verified`.
 
 ## Tier-2 framework adapters (M10 10.6, modeled)
 
@@ -73,13 +83,16 @@ lives in `agentwatch.pydantic`.)
 
 ## MCP interposition proxy (M10 N1)
 
-The proxy adapter records MCP `tools/call` request/response frames relayed from an MCP server; each
-record carries `tool.server` attribution and the request/response pair shares a `span_id` derived from
-the JSON-RPC id. Only `tools/call` is recorded.
+The proxy adapter records MCP `tools/call`, `resources/read`, `prompts/get`, server-issued `elicitation/create`, and
+`tasks/*` request/response frames relayed through the proxy; each record carries `tool.server` attribution and the
+request/response pair shares a `span_id` derived from the JSON-RPC id. A resource link in a tool result is recorded
+as a `resources/link` observation; an elicitation answer is linked to approval provenance (`accept`→`user`,
+`decline`→`denied`, otherwise honest `unknown`); a task id (incl. a task-augmented tool result) is metadata. The
+resource URI / prompt name is metadata in `tool.arguments` (`search --mcp-resource` finds resource reads).
 
-- Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-request.json`,
-  `tools-call-response.json`).
+- Fixtures: `packages/python-sdk/tests/fixtures/mcp-proxy/*.json` (`tools-call-*`, `resources-read-*`,
+  `prompts-get-*`, `elicitation-*`, `tasks-get-*`).
 - Adapter: `agentwatch.adapters.mcp_proxy`.
-- Capability class: `mcp-tools`.
-- Declared gaps: `mcp-resources`, `mcp-prompts`, `mcp-sampling` — relayed by the proxy but not recorded;
-  each is rejected explicitly when presented to `normalize`.
+- Capability classes: `mcp-tools`, `mcp-resources`, `mcp-prompts`, `mcp-elicitation`, `mcp-tasks`.
+- Declared gaps: `mcp-sampling`, `mcp-roots`, `mcp-logging` — **closed-by-spec** (SEP-2577), relayed by the proxy
+  but not recorded; each is rejected explicitly when presented to `normalize`.

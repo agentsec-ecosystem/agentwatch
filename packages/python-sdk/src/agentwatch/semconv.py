@@ -15,8 +15,11 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-# The GenAI semantic-convention version agentwatch emits against.
-SEMCONV_VERSION = "1.29.0"
+from agentwatch.attrs import AGENT_SPAN_OPERATIONS
+
+# The GenAI semantic-convention version agentwatch emits against. Re-pinned for
+# v0.2.0 to the semantic-conventions-genai agent-span vocabulary (OTEL-1).
+SEMCONV_VERSION = "1.37.0"
 
 # The `gen_ai.*` attribute keys agentwatch emits today (see docs/design/otel-mapping.md).
 PINNED_ATTRIBUTES: tuple[str, ...] = (
@@ -63,18 +66,31 @@ def check_drift(upstream_attributes: Iterable[str]) -> DriftReport:
     An upstream attribute we emit that is *gone* is drift (``missing``); a new
     upstream attribute is informational (``extra``) and never fails the check.
     """
-    upstream = set(upstream_attributes)
-    missing = tuple(sorted(attr for attr in PINNED_ATTRIBUTES if attr not in upstream))
-    extra = tuple(sorted(attr for attr in upstream if attr not in PINNED_ATTRIBUTES))
-    return DriftReport(
-        version=SEMCONV_VERSION, missing=missing, extra=extra, known=PINNED_ATTRIBUTES
-    )
+    return _drift(PINNED_ATTRIBUTES, upstream_attributes)
+
+
+def check_operation_drift(upstream_operations: Iterable[str]) -> DriftReport:
+    """Compare the canonical agent-span operations against an upstream set (OTEL-1).
+
+    A canonical operation that upstream no longer defines is drift; a new upstream
+    operation is informational. The drift check fails on a simulated upstream bump.
+    """
+    return _drift(AGENT_SPAN_OPERATIONS, upstream_operations)
+
+
+def _drift(pinned: tuple[str, ...], upstream: Iterable[str]) -> DriftReport:
+    known = set(upstream)
+    missing = tuple(sorted(attr for attr in pinned if attr not in known))
+    extra = tuple(sorted(attr for attr in known if attr not in pinned))
+    return DriftReport(version=SEMCONV_VERSION, missing=missing, extra=extra, known=pinned)
 
 
 __all__ = [
+    "AGENT_SPAN_OPERATIONS",
     "PINNED_ATTRIBUTES",
     "SEMCONV_VERSION",
     "DriftReport",
     "check_drift",
+    "check_operation_drift",
     "version_line",
 ]

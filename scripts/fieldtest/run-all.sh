@@ -11,10 +11,16 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/lib.sh"
 export STACK_ON_NO_DOCKER=fail
 
+# Shared stack across cases: built once, kept up, reset in place between cases;
+# torn down once at the end (or by the parent). STACK_KEEP=0 is permanent.
+export FT_SHARED_STACK=1
+export STACK_KEEP=0
+
 # No global Docker gate: each case declares whether it needs Docker (FT-27 runs
 # host-native). A case that cannot run is recorded as a failure, never skipped.
 export FT_RUN_ID="${FT_RUN_ID:-all}"
 ft_run_init
+ft_build_images || true
 
 ids=("$@")
 if [[ ${#ids[@]} -eq 0 ]]; then
@@ -35,5 +41,10 @@ done
 echo
 echo "==> Aggregating results into $FT_RUN_DIR"
 python3 "$HERE/collect-results.py" "$FT_RUN_DIR" --expect "${ids[@]}" || true
+
+# One teardown per run — unless a parent runner owns the stack.
+if [[ "${FT_STACK_OWNED_BY_PARENT:-0}" != "1" ]]; then
+  stack_teardown
+fi
 
 exit "$rc"

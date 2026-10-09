@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/cost.schema.json",
+  "title": "agentwatch cost --json",
+  "description": "The token/cost rollup from `agentwatch cost --json`.",
+  "x-agentwatch-command": "cost",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "by": {
+      "type": "string"
+    },
+    "rows": {
+      "type": "array"
+    },
+    "total_usd": {
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "by"
+  ]
+}

@@ -1,0 +1,4 @@
+DO
+ok: ingested gemini from /ft/fixtures/gemini
+agentwatch: chain ok (3 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

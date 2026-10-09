@@ -1,0 +1,21 @@
+{
+  "id": "p1",
+  "sessionID": "s1",
+  "messageID": "m1",
+  "type": "tool",
+  "callID": "call_1",
+  "tool": "bash",
+  "state": {
+    "status": "completed",
+    "input": {
+      "command": "ls -la"
+    },
+    "output": "total 0",
+    "title": "bash",
+    "metadata": {},
+    "time": {
+      "start": 1766000000000,
+      "end": 1766000001000
+    }
+  }
+}

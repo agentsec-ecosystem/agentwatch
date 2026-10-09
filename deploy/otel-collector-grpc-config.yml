@@ -1,0 +1,25 @@
+# OpenTelemetry Collector configuration for the v0.2.0 field tests (OTEL-3).
+#
+# A second, gRPC-only listener distinct from the HTTP path in
+# otel-collector-config.yml. It accepts OTLP/gRPC + protobuf (including the
+# 100 MB streaming fixture) and forwards traces to Jaeger, so a case can prove
+# streaming ingest succeeds within the memory bound and never whole-document
+# loads. Host port 4327 maps here so it does not collide with otel-collector.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        max_recv_msg_size_mib: 32
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlp/jaeger]

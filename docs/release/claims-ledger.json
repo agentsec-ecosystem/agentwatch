@@ -134,6 +134,1130 @@
         "test:packages/python-sdk/tests/test_release_pipeline.py::test_release_workflow_builds_signs_and_verifies"
       ],
       "last_verified": "2026-10-03"
+    },
+    {
+      "id": "C14",
+      "claim": "Every rule-based detector fires on at least one field-test scenario (no silent detectors); the published precision/recall is generated and drift-guarded.",
+      "source": "docs/reference/detector-catalog.md",
+      "evidence": [
+        "file:docs/reference/detector-catalog.md",
+        "test:services/analytics/tests/test_detector_non_silent.py::test_rule_detectors_are_non_silent",
+        "test:services/analytics/tests/test_detector_catalog.py::test_catalog_detector_metrics_are_generated_and_current"
+      ],
+      "last_verified": "2026-10-05"
+    },
+    {
+      "id": "C15",
+      "claim": "Detector evaluation runs on a versioned, machine-checkable public corpus that is shape-synthesized and free of real secrets or PII.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "file:schema/vectors/detectors/detector-corpus-v1.json",
+        "test:services/analytics/tests/test_detector_corpus.py::test_corpus_cases_are_machine_checkable",
+        "test:services/analytics/tests/test_detector_corpus.py::test_corpus_is_governance_clean"
+      ],
+      "last_verified": "2026-10-05"
+    },
+    {
+      "id": "C16",
+      "claim": "The MCP interposition proxy speaks the 2026-07-28 Streamable HTTP transport statelessly: Mcp-Session-Id is neither required, forwarded, nor emitted, and MCP-Protocol-Version is relayed unchanged.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_streamable_http.py::test_streamable_transport_strips_session_id_both_directions",
+        "test:packages/python-sdk/tests/test_mcp_streamable_http.py::test_streamable_transport_relays_protocol_version"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C17",
+      "claim": "The MCP proxy records resources/read and resource links in tool results; the resource URI is metadata searchable with search --mcp-resource.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_resources_read_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_recorder_frames_resource_links_in_a_tool_result",
+        "test:packages/python-sdk/tests/test_mcp_proxy_resources.py::test_search_filters_by_mcp_resource"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C18",
+      "claim": "The MCP proxy records prompts/get and keeps the prompt name as metadata.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_prompts.py::test_prompts_get_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_prompts.py::test_recorder_pairs_a_prompts_get_response"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C19",
+      "claim": "The MCP proxy records elicitation and links the answer to approval provenance, with honest unknown when no action is exposed.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_elicitation.py::test_accept_links_approval_to_user",
+        "test:packages/python-sdk/tests/test_mcp_proxy_elicitation.py::test_absent_action_is_honest_unknown",
+        "test:packages/python-sdk/tests/test_mcp_proxy_elicitation.py::test_recorder_pairs_a_server_elicitation"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C20",
+      "claim": "The MCP proxy records the tasks/* lifecycle with the task id as metadata; Roots/Sampling/Logging are closed-by-spec (SEP-2577).",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_tasks_get_request_is_recorded",
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_task_augmented_tool_result_keeps_the_task_id",
+        "test:packages/python-sdk/tests/test_mcp_proxy_tasks.py::test_recorder_pairs_a_tasks_request"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C21",
+      "claim": "The MCP proxy declares a protocol-revision conformance matrix; its tested range tracks the newest revision and the compatibility table carries a Protocol column.",
+      "source": "docs/design/mcp-surface.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_tested_range_tracks_the_latest_revision",
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_each_revision_has_a_replayable_fixture_pack",
+        "test:packages/python-sdk/tests/test_mcp_protocol_matrix.py::test_compat_table_gained_a_protocol_column"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C22",
+      "claim": "The Gemini CLI adapter maps active_approval_mode to approval provenance and user.email to a hashed principal.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_gemini_attribute_mapping.py::test_active_approval_mode_auto_maps_to_auto",
+        "test:packages/python-sdk/tests/test_gemini_attribute_mapping.py::test_user_email_becomes_a_hashed_principal"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C23",
+      "claim": "Every security-event type maps to the AIR schema and GMF taxonomy (correspondent or explicit none); annotate incident tags are metadata-only.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_taxonomy.py::test_every_event_has_an_explicit_air_and_gmf_entry",
+        "test:packages/python-sdk/tests/test_incident_taxonomy.py::test_annotate_stores_incident_tags_metadata_only"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C24",
+      "claim": "The security-event stream exports conformance-tested OCSF 1.5.0 and ships a CI-exercised reference consumer.",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_ocsf.py::test_every_shipped_event_type_is_mapped",
+        "test:packages/python-sdk/tests/test_siem_consumers.py::test_consumer_validates_a_generated_ocsf_stream"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C25",
+      "claim": "The opt-in Syslog sink surfaces degraded on delivery failure with a bounded queue (no silent drop).",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_siem_syslog.py::test_syslog_sink_wraps_a_delivery_failure",
+        "test:packages/python-sdk/tests/test_siem_syslog.py::test_forwarder_is_degraded_on_a_syslog_failure"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C26",
+      "claim": "Detector telemetry is opt-in, local-only and content-free (fired/suppressed/false-positive markers only).",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_detector_telemetry.py::test_disabled_telemetry_writes_nothing",
+        "test:packages/python-sdk/tests/test_detector_telemetry.py::test_enabled_marker_is_content_free"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C27",
+      "claim": "The examples gallery is indexed and every executed recipe runs in CI.",
+      "source": "examples/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_readme_indexes_every_recipe",
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_security_event_recipe_runs",
+        "test:packages/python-sdk/tests/test_examples_gallery.py::test_ocsf_recipe_runs"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C28",
+      "claim": "Runbooks cover Cursor, Gemini, Codex, OCSF/SIEM export, and the MCP full surface.",
+      "source": "docs/runbooks/README.md",
+      "evidence": [
+        "file:docs/runbooks/cursor-install-and-verify.md",
+        "file:docs/runbooks/gemini-install-and-verify.md",
+        "file:docs/runbooks/mcp-full-surface.md",
+        "file:docs/runbooks/ocsf-siem-export.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C29",
+      "claim": "Tutorials cover recording Cursor, recording Gemini via telemetry, AAT mapping, and cross-harness testing.",
+      "source": "docs/tutorials/README.md",
+      "evidence": [
+        "file:docs/tutorials/07-record-cursor.md",
+        "file:docs/tutorials/08-record-gemini.md",
+        "file:docs/tutorials/09-aat-mapping.md",
+        "file:docs/tutorials/10-cross-harness-testing.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C30",
+      "claim": "The Operator console renders identity/attribution, SIEM sink health, and content-free detector telemetry.",
+      "source": "docs/design/ui-accessibility.md",
+      "evidence": [
+        "test:services/api/tests/test_operator_endpoints.py::test_attribution_surfaces_identity_per_session",
+        "test:services/api/tests/test_operator_endpoints.py::test_siem_health_reads_degraded_state",
+        "file:apps/web/src/pages/DetectorTelemetry.tsx"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C31",
+      "claim": "Every operator view, including the Operator console, has axe coverage and a keyboard-only journey.",
+      "source": "docs/reference/accessibility.md",
+      "evidence": [
+        "file:apps/web/src/__tests__/a11y.test.tsx",
+        "file:apps/web/tests/e2e/a11y.spec.ts",
+        "file:docs/reference/accessibility.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C32",
+      "claim": "The 6 LLM-augmented detectors are evaluated by the shared offline harness, local-model-first and outside the deterministic trust path.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detectors_run_through_the_shared_harness",
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detectors_are_not_in_the_rule_factory",
+        "test:services/analytics/tests/test_llm_eval.py::test_unavailable_model_degrades_to_no_op"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C33",
+      "claim": "The Codex rollout reader ingests ~/.codex sessions (JSONL and .jsonl.zst), pairs tool calls, dedups, marks dangling sessions crashed/inferred, and never executes foreign content.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_codex_rollout.py::test_pairs_function_call_with_output",
+        "test:packages/python-sdk/tests/test_codex_rollout.py::test_dangling_session_is_inferred_crashed",
+        "test:packages/python-sdk/tests/test_codex_rollout.py::test_jsonl_zst_is_read",
+        "test:packages/python-sdk/tests/test_codex_rollout.py::test_reader_never_spawns_a_shell"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C34",
+      "claim": "The Codex rollout reader is cross-validated against two independent, commit-pinned OSS parsers on a golden fixture (divergence fails CI).",
+      "source": "docs/design/cross-harness-testing.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_xht3_cross_parser.py::test_cross_parser_diff_has_no_unexplained_divergence",
+        "test:packages/python-sdk/tests/test_xht3_cross_parser.py::test_golden_fixture_replays_through_our_reader",
+        "file:scripts/xht3_cross_validate.py",
+        "file:.github/workflows/xht3-cross-parser.yml"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C35",
+      "claim": "The OpenCode transcript reader ingests the SDK-documented storage tree (read-only, producer: import), pairs tool parts, flags dangling calls, and never executes content.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_opencode_reader.py::test_pairs_tool_parts_and_marks_dangling",
+        "test:packages/python-sdk/tests/test_opencode_reader.py::test_secret_in_input_fires_and_is_not_stored",
+        "test:packages/python-sdk/tests/test_opencode_reader.py::test_reader_never_spawns_a_shell"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C36",
+      "claim": "The LangGraph SDK path is held to an O1 conformance pack (fixture replay, record validation, replay idempotency).",
+      "source": "docs/design/sdk-lifecycle.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_sdk_conformance.py::test_langgraph_sdk_pack_conforms",
+        "test:packages/python-sdk/tests/test_sdk_conformance.py::test_sdk_runner_fails_a_broken_pack",
+        "file:packages/python-sdk/tests/sdk_conformance_registry.py"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C37",
+      "claim": "The 6 LLM detectors run through the shared harness and their per-detector numbers are published from a local model.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_llm_eval.py::test_llm_detector_fires_with_a_scripted_local_model",
+        "file:scripts/detector_eval_llm.py",
+        "file:docs/reference/detector-llm-numbers.json"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C38",
+      "claim": "Claude Compliance API ingest is consent-gated, records the pull as store-access, and classifies feed-vs-hook discrepancies without merging.",
+      "source": "docs/prd/45-new-capture-surfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_cli_requires_consent",
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_cli_consent_records_store_access_and_ingests",
+        "test:packages/python-sdk/tests/test_compliance_api.py::test_discrepancies_are_classified_not_merged"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C39",
+      "claim": "Windows service supervision renders a Task Scheduler XML and a windows-latest CI leg exercises the platform-independent SDK subset.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_windows.py::test_windows_task_runs_the_daemon",
+        "test:packages/python-sdk/tests/test_windows.py::test_windows_unit_installs_and_uninstalls",
+        "file:.github/workflows/windows.yml"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C40",
+      "claim": "Checkpoint signing is a supported posture: keys rotate as a recorded chain event and a key we no longer hold reports 'signed by key id X, key unavailable'.",
+      "source": "docs/design/forensic-soundness.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_rotation_is_a_recorded_metadata_only_chain_event",
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_missing_key_reports_signed_but_unavailable",
+        "test:packages/python-sdk/tests/test_signing_posture.py::test_tampered_signature_fails_end_to_end",
+        "doc:docs/design/forensic-soundness.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C41",
+      "claim": "The credential class an agent acted under is recorded (never the value) and a deterministic, opt-in observation flags shared/ambient credentials.",
+      "source": "docs/reference/identity-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_credential_hygiene.py::test_ambient_shared_credential_is_exported",
+        "test:packages/python-sdk/tests/test_credential_hygiene.py::test_absent_credential_class_is_not_invented",
+        "test:services/analytics/tests/test_credential_hygiene_detector.py::test_fires_on_ambient_shared_credential",
+        "test:services/analytics/tests/test_credential_hygiene_detector.py::test_quiet_when_the_credential_is_unknown",
+        "doc:docs/reference/identity-mapping.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C42",
+      "claim": "Retention is driven by named profiles (high-risk-12mo per AAT \u00a79, general-6mo, custom); the change is recorded as a chain event and an unapplied window degrades visibly in doctor.",
+      "source": "docs/design/storage-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_retention_profiles.py::test_high_risk_profile_is_twelve_months",
+        "test:packages/python-sdk/tests/test_retention_profiles.py::test_cli_apply_profile_drives_the_window_and_records_the_change",
+        "test:packages/python-sdk/tests/test_retention_profiles.py::test_doctor_warns_when_retention_was_not_applied",
+        "test:packages/python-sdk/tests/test_retention_profiles.py::test_compliance_report_cites_the_retention_profile",
+        "doc:docs/design/storage-design.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C43",
+      "claim": "The harness adapter plugin contract is a public semver-guaranteed extension surface, and a codemod migrates the legacy agent_exec_trace import name to agentwatch.",
+      "source": "docs/reference/backwards-compatibility-policy.md",
+      "evidence": [
+        "test:tests/test_codemod_agent_exec_trace.py::test_from_import_is_rewritten",
+        "test:tests/test_codemod_agent_exec_trace.py::test_submodule_and_attribute_references_are_rewritten",
+        "test:tests/test_no_legacy_namespace.py::test_no_stray_legacy_namespace_references",
+        "doc:docs/reference/adapter-api.md",
+        "doc:CONTRIBUTING.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C44",
+      "claim": "A v0.1.0 store upgrades to v0.2.0 in place: the v0.2.0 SDK verifies it and appends v0.2.0 records while the chain stays green.",
+      "source": "docs/release/v0.2.0/migration-guide.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_upgrade_v0_1_0.py::test_frozen_v0_1_0_store_still_verifies",
+        "test:packages/python-sdk/tests/test_upgrade_v0_1_0.py::test_v0_2_0_record_appends_without_breaking_the_chain",
+        "doc:docs/release/v0.2.0/migration-guide.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C45",
+      "claim": "Evidence bundles can carry a registry-shaped, redacted incident report with AIR/GMF findings; it never includes tool arguments or content and has no auto-egress path.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_report.py::test_report_is_schema_shaped",
+        "test:packages/python-sdk/tests/test_incident_report.py::test_report_never_carries_tool_arguments",
+        "test:packages/python-sdk/tests/test_incident_report.py::test_module_has_no_egress_path",
+        "file:schema/vectors/incident/incident-report.schema.json",
+        "doc:docs/design/detector-evaluation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C46",
+      "claim": "Skill and command-execution spans are emitted (load_skill, read_skill_resource, execute_command) where a harness exposes them; a harness that does not expose them is a declared gap.",
+      "source": "docs/design/otel-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_load_skill_span",
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_command_execution_span",
+        "test:packages/python-sdk/tests/test_otel_skills_commands.py::test_harnesses_that_do_not_expose_skills_are_a_declared_gap",
+        "file:packages/python-sdk/tests/fixtures/otel/skills-commands.json"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C47",
+      "claim": "Deterministic injection-shape heuristics flag instruction-override and hidden-instruction content in exposed spans; the high-false-positive imperative-density rule is off by default.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:services/analytics/tests/test_injection_detector.py::test_fires_on_instruction_override",
+        "test:services/analytics/tests/test_injection_detector.py::test_fires_on_hidden_instruction_marker",
+        "test:services/analytics/tests/test_injection_detector.py::test_imperative_density_is_off_by_default",
+        "doc:docs/reference/detector-catalog.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C48",
+      "claim": "Agent memory reads/writes/deletes are recorded as observable records with metadata always recorded and content gated by privacy mode, and are filterable with `search --memory`.",
+      "source": "docs/design/detector-evaluation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_g9_memory_surfaces_are_observable",
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_metadata_is_always_recorded_and_content_is_not",
+        "test:packages/python-sdk/tests/test_memory_surface.py::test_cli_search_memory",
+        "doc:docs/design/detector-evaluation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C49",
+      "claim": "The Postgres query tier is a derived, rebuildable index: every table carries source_seq/source_hash back-references to the hash-chained store, which remains the source of truth.",
+      "source": "docs/design/data-dictionary.md",
+      "evidence": [
+        "test:tests/test_derived_index_ddl.py::test_every_table_has_source_back_references",
+        "test:tests/test_derived_index_ddl.py::test_ddl_is_present_and_declares_derived_only",
+        "file:schema/derived-index.sql",
+        "doc:docs/design/data-dictionary.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C50",
+      "claim": "The JSON Schema is portable to generated TypeScript types (spike); a shipped TypeScript SDK is explicitly deferred to v0.3.0.",
+      "source": "docs/adr/0049-typescript-sdk-decision.md",
+      "evidence": [
+        "test:tests/test_ts_schema_portability.py::test_generates_typescript_interfaces",
+        "test:tests/test_ts_schema_portability.py::test_a_v0_2_0_record_round_trips_through_the_schema",
+        "script:scripts/generate_ts_types.py",
+        "doc:docs/adr/0049-typescript-sdk-decision.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C51",
+      "claim": "Public detector fixtures are shape-synthesized, cite a public source per benchmark family, and additions are logged; no external corpus content is copied.",
+      "source": "docs/reference/detector-fixtures.md",
+      "evidence": [
+        "test:services/analytics/tests/test_fixture_provenance.py::test_every_benchmark_source_is_cited",
+        "test:services/analytics/tests/test_fixture_provenance.py::test_provenance_states_shape_synthesized_only",
+        "test:services/analytics/tests/test_fixture_provenance.py::test_provenance_has_a_changelog",
+        "file:schema/vectors/detectors/detector-corpus-v1.json",
+        "doc:docs/reference/detector-fixtures.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C52",
+      "claim": "A classifier-approved Claude Code call is recorded as authorization.source=classifier, never user/rule; a bypass-mode call is bypass.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_authorization.py::test_classifier_is_never_user_or_rule",
+        "test:packages/python-sdk/tests/test_authorization.py::test_adapter_records_bypass_without_prompt",
+        "test:packages/python-sdk/tests/test_authorization.py::test_ok_pre_event_has_no_authorization_field",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C53",
+      "claim": "Claude Code native OTel is ingested, joined to hook records by tool_use_id, with disagreements classified and exact vendor cost.",
+      "source": "docs/design/native-telemetry-join.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_join_classifies_an_outcome_discrepancy",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_coverage_reports_native_telemetry_join",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_transcode_api_request_reports_exact_cost",
+        "test:packages/python-sdk/tests/test_claude_otel.py::test_default_metadata_only_omits_prompt_content",
+        "file:docs/design/native-telemetry-join.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C54",
+      "claim": "Permission mode is recorded per call with transition observations; a default-bypass-default session reconstructs and a missing mode is unknown in coverage.",
+      "source": "docs/design/authorization-provenance-v2.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_default_bypass_default_reconstructs",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_search_by_mode",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_coverage_counts_unknown_modes",
+        "test:packages/python-sdk/tests/test_permission_mode.py::test_impact_flags_the_bypass_interval",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C55",
+      "claim": "agentwatch oversight produces a deterministic, offline authorization mix, human approve/reject latency, and a cls1 destructive x authorization cross-tab.",
+      "source": "docs/prd/49-authorization-and-oversight.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_oversight.py::test_destructive_authorization_cross_tab",
+        "test:packages/python-sdk/tests/test_oversight.py::test_latency_only_when_both_timestamps_exist",
+        "test:packages/python-sdk/tests/test_oversight.py::test_authorization_mix_matches_hand_computed_totals",
+        "test:packages/python-sdk/tests/test_oversight.py::test_compliance_has_art14_oversight_row",
+        "file:docs/design/authorization-provenance-v2.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C56",
+      "claim": "A Claude Agent SDK / headless program's telemetry lands through the same native path as source sdk-native with identity from resource attributes.",
+      "source": "docs/prd/51-harness-native-telemetry-and-framework-reach.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_uses_the_same_path_with_sdk_native_producer",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_identity_comes_from_resource_attributes",
+        "test:packages/python-sdk/tests/test_claude_agent_sdk.py::test_agent_sdk_is_in_the_framework_matrix",
+        "doc:examples/README.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C57",
+      "claim": "The owasp-asi-2026 compliance framework gives every ASI risk row a regenerating command or an explicit 'not evidenced', includes an AST10 section, carries a non-certification statement, and runs every evidenced row's command in the executable-docs gate.",
+      "source": "docs/design/owasp-asi-mapping.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_all_ten_asi_rows_are_present_with_the_required_fields",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_ast10_section_is_present",
+        "test:packages/python-sdk/tests/test_compliance_asi.py::test_every_evidenced_row_command_runs_in_the_docs_gate",
+        "doc:docs/compliance/owasp-asi-2026.md",
+        "doc:docs/design/owasp-asi-mapping.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C58",
+      "claim": "Under Claude Code managed policy that blocks user/project hooks, `doctor` reports `hooks effective: blocked by managed policy` and never claims \"installed\"; it detects, never circumvents, and managed installs are removed by the admin mechanism.",
+      "source": "docs/design/managed-policy-install.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_blocked_never_says_installed",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_managed_hook_is_effective",
+        "test:packages/python-sdk/tests/test_managed_policy.py::test_doctor_unreadable_policy_is_unknown",
+        "doc:docs/design/managed-policy-install.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C59",
+      "claim": "A session-start recorder attestation (effective hook sources, a keyed config digest, managed-policy status, permission mode) is chain-recorded, a digest change raises `recorder-config-changed`, `coverage`/`evidence` carry `attestation: present|absent`, and the attestation stores digests/booleans only \u2014 never config values or secrets.",
+      "source": "docs/design/recorder-attestation.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attest_session_appends_boolean_only_marker",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_stripped_hooks_raise_recorder_config_changed",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_attestation_never_stores_config_values",
+        "test:packages/python-sdk/tests/test_recorder_attestation.py::test_coverage_and_evidence_surface_the_attestation",
+        "doc:docs/design/recorder-attestation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C60",
+      "claim": "The end-to-end hook wall-clock (two fresh-interpreter hooks per tool call) is published per OS with a user-visible budget (< 500 ms per tool call at p99) and a 500-call session overhead quote, and is gated in CI; Windows is reported blocked on WIN-1, not silently measured.",
+      "source": "docs/reference/performance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_budget_violation_is_detected",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_windows_is_blocked_not_measured",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_session_overhead_quote",
+        "test:packages/python-sdk/tests/test_hook_wallclock.py::test_ci_workflow_gates_the_hook_wallclock",
+        "workflow:.github/workflows/hook-perf.yml",
+        "doc:docs/reference/performance.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C61",
+      "claim": "The security-event vocabulary adds `recorder-config-changed` and `mode-transition` with OCSF/CloudEvents mappings and fixtures, and adds `capability-changed` as a forward-compatible placeholder for M30 CAP-2 (not built); the schema changelog and stewardship check pass.",
+      "source": "schema/CHANGELOG.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_enum_matches_the_code_vocabulary",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_every_new_type_has_ocsf_and_cloudevents_mappings",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_schema_policy_passes",
+        "test:packages/python-sdk/tests/test_security_event_types.py::test_capability_changed_is_a_documented_forward_placeholder",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C62",
+      "claim": "The compatibility matrix carries a Managed policy column (`effective`/`blocked`/`unknown`/`n/a`), a normal Claude Code user/project install is shown `blocked` under `allowManagedHooksOnly` with the managed path noted, and framework rows (ADK/Strands/OpenAI Agents SDK/Claude Agent SDK) are a generator input WS-D (FWK-1) populates \u2014 not shipped adapters.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_every_shipped_row_carries_a_managed_policy_value",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_claude_code_is_honest_about_managed_hooks_only",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_framework_rows_are_a_ws_d_input",
+        "test:packages/python-sdk/tests/test_compatibility_managed_policy.py::test_doc_has_the_regenerated_block",
+        "doc:docs/reference/compatibility.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C63",
+      "claim": "A fleet/multi-user reader sees only the data classes their role is granted; a disallowed cross-user read returns nothing and is recorded, so the subject can see who read their records and when.",
+      "source": "docs/design/access-and-governance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_access.py::test_cross_role_read_returns_nothing_and_is_recorded",
+        "test:packages/python-sdk/tests/test_access.py::test_identity_resolution_is_an_explicit_recorded_action",
+        "test:packages/python-sdk/tests/test_access.py::test_access_log_is_scoped_to_the_owner",
+        "doc:docs/adr/0040-fleet-role-model.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C64",
+      "claim": "`agentwatch governance notice` renders what is recorded, what is not, who can see it, retention, and erasure from the live effective configuration; every statement maps to a config key or documented guarantee and any claim the config cannot back is omitted and listed as refused, with a 'not legal advice' banner.",
+      "source": "docs/compliance/dpia-starter.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_every_statement_maps_to_a_config_key_or_a_guarantee",
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_egress_claim_is_refused_when_export_is_enabled",
+        "test:packages/python-sdk/tests/test_governance_notice.py::test_dpia_starter_carries_a_counsel_review_banner",
+        "doc:docs/design/access-and-governance.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C65",
+      "claim": "A legal hold suspends retention and purge: held records survive retention and a rebuild-from-chain, purge fails closed with the hold reference, and an override requires a stated reason and is recorded as a session-scoped chain record.",
+      "source": "docs/design/legal-hold.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_retention_skips_held_records",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_fails_closed_on_a_held_session_and_records_the_refusal",
+        "test:packages/python-sdk/tests/test_legal_hold.py::test_purge_override_requires_a_reason_and_is_conspicuous",
+        "doc:docs/adr/0041-legal-hold.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C66",
+      "claim": "Certified framework recipes (ADK, Strands, OpenAI Agents SDK via OpenInference, Claude Agent SDK) map OTel GenAI and OpenInference attributes through the shared ingest path with an explicit unmapped bucket and carry a compatibility-matrix tier; no live run is claimed until it is verified.",
+      "source": "docs/reference/framework-recipes.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_frameworks.py::test_recipe_transcodes_fixture_with_explicit_unmapped",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_every_recipe_declares_its_blocked_live_run",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_framework_rows_carry_a_tier_in_the_compatibility_matrix",
+        "test:packages/python-sdk/tests/test_frameworks.py::test_framework_sdk_conformance_packs_conform",
+        "doc:docs/reference/framework-recipes.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C67",
+      "claim": "agentwatch.instrument() detects installed supported frameworks, wires their telemetry to the local collector, and reports what it instrumented and what it could not (no silent partial instrumentation); it is no-op safe when the recorder is not running, registers a single flush-on-exit, and is idempotent (no double spans).",
+      "source": "docs/design/sdk-lifecycle.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_autoinstrument.py::test_noop_safe_when_agentwatch_is_not_running",
+        "test:packages/python-sdk/tests/test_autoinstrument.py::test_a_wiring_failure_is_reported_not_silently_dropped",
+        "test:packages/python-sdk/tests/test_autoinstrument.py::test_second_call_is_idempotent_and_does_not_rewire",
+        "test:packages/python-sdk/tests/test_autoinstrument.py::test_flush_on_exit_is_registered_once",
+        "doc:docs/design/sdk-lifecycle.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C68",
+      "claim": "A security-event vocabulary contribution was submitted to OTel GenAI semconv (OTel GenAI semconv); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C69",
+      "claim": "An authorization-taxonomy-v2 contribution was submitted to the IETF Agent Audit Trail draft (IETF AAT); submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C70",
+      "claim": "A capability-changed event-shape contribution was submitted to Agent Trace; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C71",
+      "claim": "A security-event class-mapping contribution was submitted to OCSF; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C72",
+      "claim": "An ASI/AST coverage-vocabulary contribution was submitted to OWASP Agentic; submitted, not adopted.",
+      "source": "docs/reference/standards-participation.md#contributions-submitted",
+      "evidence": [
+        "doc:docs/reference/standards-participation.md",
+        "doc:docs/adr/0045-standards-participation.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C73",
+      "claim": "The A2A interposition proxy records tasks/messages/artifacts and agent-card exchanges over stdio and HTTP, rejects its declared gaps explicitly, and its consent-first install restores the client config byte-identically.",
+      "source": "docs/design/harness-adapter-design.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_a2a_proxy_adapter.py::test_message_send_request_becomes_an_intent_record",
+        "test:packages/python-sdk/tests/test_a2a_proxy_adapter.py::test_task_response_becomes_an_outcome_record_and_artifacts",
+        "test:packages/python-sdk/tests/test_a2a_proxy_stdio.py::test_records_request_and_response",
+        "test:packages/python-sdk/tests/test_a2a_config.py::test_uninstall_restores_the_exact_original_bytes",
+        "doc:docs/design/harness-adapter-design.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C74",
+      "claim": "A2A agent-card signatures are verified deterministically (verified/unverified, never assumed, never an authorization) and a cross-org hand-off is recorded as an agent-delegation observation that extends tree/trace.",
+      "source": "docs/design/agent-identity.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_a2a_agent_card.py::test_verified_card_records_a_verified_outcome",
+        "test:packages/python-sdk/tests/test_a2a_agent_card.py::test_unverified_card_is_recorded_as_unverified",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_message_send_to_a_remote_org_emits_an_agent_delegation_observation",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_delegation_is_never_an_authorization_verdict",
+        "test:packages/python-sdk/tests/test_a2a_delegation.py::test_trace_extends_across_the_organization_boundary",
+        "doc:docs/design/agent-identity.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C75",
+      "claim": "A system-effects layer (AgentSight/Tracee-shaped, Linux-only) is ingested opt-in, every record is labeled source: system-ingest, a lineage not owned by exactly one session is never silently attributed (unjoined), and the synthetic-corpus false-join precision is published; agentwatch builds no probes.",
+      "source": "docs/design/system-effects-ingest.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_system_ingest.py::test_ingest_requires_explicit_optin",
+        "test:packages/python-sdk/tests/test_system_ingest.py::test_every_record_is_labeled_source_system_ingest",
+        "test:packages/python-sdk/tests/test_system_ingest.py::test_unowned_lineage_is_not_attributed_to_a_session",
+        "test:packages/python-sdk/tests/test_system_ingest.py::test_published_false_join_precision_matches_the_corpus",
+        "file:docs/design/system-effects-ingest.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C76",
+      "claim": "An ACS Guardian audit trail is ingested monitor-only: decisions map to denied/policy-fired with record_phase pre_execution, the revision is pinned with a drift check, and an unknown revision/method/decision is quarantined.",
+      "source": "docs/design/acs-interop.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_acs_ingest.py::test_deny_decision_maps_to_denied_pre_execution",
+        "test:packages/python-sdk/tests/test_acs_ingest.py::test_modify_decision_maps_to_policy_fired",
+        "test:packages/python-sdk/tests/test_acs_ingest.py::test_unknown_revision_is_quarantined",
+        "test:packages/python-sdk/tests/test_acs_ingest.py::test_record_is_labeled_acs_and_monitor_only",
+        "test:packages/python-sdk/tests/test_acs_ingest.py::test_check_acs_drift_reports_a_dropped_field",
+        "file:docs/design/acs-interop.md"
+      ],
+      "last_verified": "2026-10-06"
+    },
+    {
+      "id": "C77",
+      "claim": "Capabilities (Claude Code skills, plugins, hooks, subagents, commands, rules files and MCP servers) are inventoried by sha256 content digest \u2014 never the declared version \u2014 with origin scope, size and an optional declared version; content is never retained; `inventory --capabilities` lists them and `bom --format cyclonedx` includes them as components; per-harness coverage is declared honestly (Claude Code exposed; Cursor/Codex CLI/Gemini CLI and memory are `none` gaps).",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capabilities.py::test_inventory_lists_every_kind_with_scope_and_digest",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_digest_follows_content_not_declared_version",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_no_capability_content_is_retained",
+        "test:packages/python-sdk/tests/test_capabilities.py::test_coverage_declares_per_harness_gaps",
+        "doc:docs/design/capability-supply-chain.md",
+        "doc:docs/adr/0032-capability-inventory.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C78",
+      "claim": "Capability drift generalizes the S4 tool-surface snapshot: a per-session metadata-only capability-snapshot carrier is diffed across sessions and raises the reused `capability-changed` event with a factual class (added / removed / content changed, version unchanged \u2014 the Plugin4Shell shape / content changed, version changed), never a verdict.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_plugin4shell_shape_is_content_changed_version_unchanged",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_new_hook_is_surfaced",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_event_is_the_existing_capability_changed_type",
+        "test:packages/python-sdk/tests/test_capability_drift.py::test_wording_is_factual_never_a_verdict",
+        "doc:docs/design/capability-supply-chain.md",
+        "doc:docs/adr/0032-capability-inventory.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C79",
+      "claim": "Capability-load attribution records a metadata-only `capability-loaded` step (name/kind/scope/digest) that `replay` shows inline as \"followed the load of\", `impact` lists for the session, and `search --capability <name>` selects (the load plus calls after it, never other sessions); a per-harness load-exposure matrix is published and CI-checked, and wording is context, never causation.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_load_record_is_metadata_only",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_impact_lists_capabilities_loaded_in_the_session",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_search_capability_returns_calls_after_a_load",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_replay_shows_loads_inline",
+        "test:packages/python-sdk/tests/test_capability_attribution.py::test_exposure_matrix_is_published_and_honest",
+        "doc:docs/design/capability-supply-chain.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C80",
+      "claim": "Persistent memory stores are inventoried as capabilities (digest/size/last-changed, content never retained), appear in `inventory --capabilities` and `inventory --memory`, and are diffed with writer-session attribution: a change no recorded session wrote is flagged `unattributed` (out-of-band edit); `search --memory-store <name>` returns the write plus calls after it; a per-harness memory-exposure matrix is published and CI-checked.",
+      "source": "docs/design/capability-supply-chain.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_discover_memory_stores_digest_size_last_changed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_change_attributes_to_the_writer_session",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_out_of_band_edit_is_flagged_unattributed",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_exposure_matrix_is_published_and_honest",
+        "test:packages/python-sdk/tests/test_memory_capability.py::test_memory_content_is_never_stored",
+        "doc:docs/adr/0043-memory-as-capability.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C81",
+      "claim": "Each session derives a content-free environment fingerprint (`env1:<sha256>` over model, harness, permission mode, capability/rules/MCP-surface digests and recorder config digest; absent facts `unknown`); `diff` prints the environment delta above the behavior delta with the model first, `sessions --group-by-env` groups by it, and `drift` annotates a signal with same-window environment changes worded \"coincides with\", never a cause.",
+      "source": "docs/design/environment-fingerprint.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_fingerprint_changes_on_a_component_change",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_absent_facts_are_unknown_never_inferred",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_diff_surfaces_environment_then_behavior",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_group_sessions_by_environment",
+        "test:packages/python-sdk/tests/test_environment_fingerprint.py::test_cli_drift_annotates_coincident_environment",
+        "doc:docs/adr/0042-environment-fingerprint.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C82",
+      "claim": "Sandbox-boundary events are additive and nullable: a `sandbox` field on records and a `sandbox-boundary` security event (OCSF-mapped) carry metadata only, a call with no harness signal stays `unknown` (never unsandboxed), `oversight` reports `% calls unsandboxed` plus denials by class, `impact` keeps attempted-but-blocked network destinations apart from contacted ones, and a per-harness sandbox-exposure matrix (Claude Code none, Cursor partial, Codex CLI/Gemini CLI none) is published and CI-checked.",
+      "source": "docs/reference/compatibility.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_field_round_trips_and_validates",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_sandbox_boundary_event_type_and_ocsf_mapping",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_oversight_reports_percent_unsandboxed",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_impact_separates_blocked_from_contacted",
+        "test:packages/python-sdk/tests/test_sandbox_events.py::test_exposure_matrix_is_published_and_honest",
+        "file:schema/security-event.schema.json"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C89",
+      "claim": "Per file-modifying call, agentwatch captures a content-free attribution fact: the affected line range(s) and a keyed content hash, never content or a diff; it holds under metadata-only and falls back to file-level heuristic when a harness exposes no range.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_capture_is_content_free_under_metadata_only",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_attack_pack_never_leaks_content",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_property_capture_never_contains_the_content",
+        "test:packages/python-sdk/tests/test_code_provenance.py::test_capture_falls_back_to_file_level_heuristic",
+        "file:docs/design/code-provenance.md",
+        "file:docs/adr/0033-range-hash-capture.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C90",
+      "claim": "`agentwatch provenance <commit|range|PR|file>` returns the contributing sessions with per-range confidence (exact|heuristic|mixed|ambiguous|unknown); a commit with no recorded session says \"no recorded agent activity\" (never \"human\"), hand-edited-after-agent ranges are mixed, and PR resolution is offline and read-only on the repo.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_to_contributing_session_exact",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_with_no_session_says_no_recorded_agent_activity",
+        "test:packages/python-sdk/tests/test_provenance.py::test_mixed_range_when_part_of_the_commit_is_unattributed",
+        "test:packages/python-sdk/tests/test_provenance.py::test_commit_resolves_under_two_seconds_with_real_git",
+        "test:packages/python-sdk/tests/test_provenance.py::test_pr_target_resolves_through_commit_message",
+        "file:docs/design/code-provenance.md",
+        "file:docs/adr/0033-range-hash-capture.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C91",
+      "claim": "Agent Trace export is pinned to a specific RFC revision (agent-trace-rfc-0.1), contains zero code content (ranges/hashes/ids only), surfaces unmapped fields explicitly, cross-validates existing Agent Trace / git-ai notes as agree/disagree/agentwatch-only/notes-only, and writes into a repository only by an explicit command.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_provenance.py::test_export_agent_trace_is_pinned_and_content_free",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_export_marks_unmapped_without_a_range",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_drift_reports_a_revision_move",
+        "test:packages/python-sdk/tests/test_provenance.py::test_cross_validate_classifies_agree_disagree_and_only",
+        "test:packages/python-sdk/tests/test_provenance.py::test_agent_trace_default_export_writes_nothing_to_the_repo",
+        "workflow:.github/workflows/agent-trace-drift.yml",
+        "file:docs/adr/0034-agent-trace-pin-and-write-policy.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C92",
+      "claim": "`agentwatch concurrency --project . --since 7d` deterministically reports sessions overlapping in time on the same path and shared-file edits, and `provenance` marks a range covered by two or more sessions `ambiguous` instead of silently picking one.",
+      "source": "docs/design/code-provenance.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_concurrency.py::test_two_session_fixture_reports_overlap_and_shared_file",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_disjoint_sessions_do_not_overlap",
+        "test:packages/python-sdk/tests/test_concurrency.py::test_multi_session_range_is_ambiguous",
+        "file:packages/python-sdk/tests/fixtures/provenance/two_sessions.jsonl",
+        "file:docs/design/code-provenance.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C93",
+      "claim": "`agentwatch outcomes --since 30d --by project|model|harness` reports deterministic outcome facts (test/build/lint pass ratios, retained/reverted/interrupted/rejected, retries-to-success) with a numerator, denominator, and derivation version; unknown stays unknown; and `cost --per retained-change` is source-stamped and runs offline with no model configured.",
+      "source": "docs/design/outcomes-signals.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_ratios_carry_numerator_denominator_and_version",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_unknown_stays_unknown_when_no_commands",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_outcomes_are_deterministic_without_a_model",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_retained_change_is_source_stamped",
+        "test:packages/python-sdk/tests/test_outcomes.py::test_cost_per_unknown_denominator_is_none",
+        "file:docs/design/outcomes-signals.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C99",
+      "claim": "The embedded query index is derived from the hash-chained store: it deletes and rebuilds bit-for-bit, serves an indexed lookup on a 1,000,000-record store in under 250 ms, and adds no heavyweight runtime dependency (stdlib sqlite3 only; parquet is a lazy optional extra).",
+      "source": "docs/adr/0035-embedded-query-index.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_query_index.py::test_rebuild_is_bit_for_bit",
+        "test:packages/python-sdk/tests/test_query_index.py::test_interactive_search_on_one_million_records",
+        "test:packages/python-sdk/tests/test_query_index.py::test_import_does_not_pull_pyarrow",
+        "file:docs/adr/0035-embedded-query-index.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C100",
+      "claim": "`agentwatch ui` opens a read-only console that binds loopback only, gates every route on a per-launch token, rejects non-loopback Host headers (DNS rebinding), exposes no mutation endpoint, and makes no egress; its numbers equal the CLI --json.",
+      "source": "docs/adr/0036-console-security-model.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_console.py::test_console_binds_loopback_even_when_asked_otherwise",
+        "test:packages/python-sdk/tests/test_console.py::test_console_requires_a_token",
+        "test:packages/python-sdk/tests/test_console.py::test_console_rejects_a_non_loopback_host_header",
+        "test:packages/python-sdk/tests/test_console.py::test_console_has_no_mutation_endpoints",
+        "test:packages/python-sdk/tests/test_console.py::test_console_module_is_egress_clean",
+        "test:packages/python-sdk/tests/test_console.py::test_console_ui_cli_parity",
+        "file:docs/adr/0036-console-security-model.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C101",
+      "claim": "The console live timeline, live anomaly inbox, and streaming tail consume the M26 store-truth tail: they back-fill on (re)connect, classify and render gaps rather than hiding them, keep a backpressured subscriber visible as degraded, and serve Server-Sent Events.",
+      "source": "docs/design/local-console.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_console.py::test_live_timeline_backfills_existing_records",
+        "test:packages/python-sdk/tests/test_console.py::test_live_timeline_emits_new_records_only_once",
+        "test:packages/python-sdk/tests/test_console.py::test_live_anomaly_inbox_surfaces_failures",
+        "test:packages/python-sdk/tests/test_console.py::test_live_shows_degraded_when_backpressured",
+        "test:packages/python-sdk/tests/test_console.py::test_live_stream_is_sse",
+        "file:docs/design/local-console.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C102",
+      "claim": "`purge` and retention propagate to the derived index (and console), so they return nothing for the erased session, while a legal hold still fails the purge closed; known leftover artifacts are enumerated rather than assumed absent.",
+      "source": "docs/design/legal-hold.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_purge_propagates_to_the_index",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_console_returns_nothing_for_a_purged_session",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_retention_propagates_to_the_index",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_purge_enumerates_leftover_artifacts",
+        "test:packages/python-sdk/tests/test_purge_propagation.py::test_blocked_purge_does_not_touch_the_index",
+        "file:docs/design/legal-hold.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C103",
+      "claim": "Postgres is re-sequenced behind the embedded index: the embedded, rebuildable index is the general-case query tier that ships with the CLI and console, and Postgres is only the fleet / multi-tenant tier (ADR-0035, which folds in EXT-8; no separate ADR).",
+      "source": "docs/design/derived-postgres.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_pg_resequencing.py::test_adr_0035_records_embedded_index_first",
+        "test:packages/python-sdk/tests/test_pg_resequencing.py::test_derived_postgres_documents_the_fleet_tenant_tier",
+        "file:docs/adr/0035-embedded-query-index.md",
+        "file:docs/design/derived-postgres.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C109",
+      "claim": "The agent-facing MCP server is read-only: it exposes no mutating tool, labels responses untrusted with record citations, and injection-shaped record content cannot change its behavior.",
+      "source": "docs/design/agent-interfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_tool_set_is_exactly_the_documented_read_only_set",
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_injection_shaped_record_content_does_not_change_behavior",
+        "test:packages/python-sdk/tests/test_mcp_server.py::test_every_query_appends_exactly_one_store_access",
+        "file:docs/adr/0037-mcp-read-only-server.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C110",
+      "claim": "The read/investigation CLI JSON contract is versioned and changelog-guarded, and a shipped skill documents the workflow.",
+      "source": "docs/design/agent-interfaces.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_every_registered_read_command_has_a_versioned_schema",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_changelog_guard_fails_when_the_version_is_not_named",
+        "test:packages/python-sdk/tests/test_agent_interfaces.py::test_scripted_agent_reaches_documented_answers",
+        "file:schema/cli/CHANGELOG.md",
+        "file:docs/skills/investigation/SKILL.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C111",
+      "claim": "`suggest-policy` is advisory only: it writes nothing outside `--out`, never edits harness settings, links every rule to evidence, and never suggests destructive/network/credential-adjacent calls as allow by default.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_cli_writes_only_the_out_file",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_destructive_network_and_credential_are_ask_not_allow",
+        "test:packages/python-sdk/tests/test_policy_suggest.py::test_lint_flags_broad_interpreter_and_network_rules",
+        "file:docs/adr/0038-policy-suggestion-boundary.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C112",
+      "claim": "`what-if` replays a policy over history as a labeled simulation, reporting prompts avoided, would-be denials with sessions, and actual-authorization differences; parse errors are explicit and unsupported syntax is reported.",
+      "source": "docs/design/policy-from-history.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_counts_and_would_be_denials_and_prompts_avoided",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_report_is_labeled_simulation_and_stamped",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_parse_errors_are_explicit",
+        "test:packages/python-sdk/tests/test_policy_whatif.py::test_unsupported_syntax_is_reported_not_guessed"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C119",
+      "claim": "Incident cases group sessions across hosts/days as chain records, present a merged timeline that states its ordering rule and classifies gaps, and export a case bundle that re-verifies offline with no registry egress.",
+      "source": "docs/design/incident-cases.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_membership_changes_are_chain_records",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_timeline_classifies_time_and_explicit_gaps",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_bundle_verifies_offline",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_tampered_member_is_named_by_the_verifier",
+        "test:packages/python-sdk/tests/test_incident_cases.py::test_case_export_is_local_only",
+        "file:docs/design/incident-cases.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C120",
+      "claim": "An evidence bundle verifies offline in a self-contained browser page that opens from file:// with zero network requests, reports the same intact/complete/leak-free verdicts as the CLI, and names the first broken chain link of a tampered bundle.",
+      "source": "docs/design/browser-verifier.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_html_is_self_contained_and_has_no_network_surface",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_differential_verdicts_match_the_cli_on_every_fixture",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_tampered_bundle_names_the_first_broken_link",
+        "test:packages/python-sdk/tests/test_browser_verifier.py::test_checksum_matches_the_artifact_and_is_listed_in_release_evidence",
+        "file:docs/release/verifier/agentwatch-verify.html"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C121",
+      "claim": "A sealed runner segment carries its own hash chain and start/end attestation; import-segment verifies it, anchors it as a source: runner chain-of-custody record, labels imported records as NOT locally witnessed, joins the originating session by traceparent, and performs no egress; a tampered segment fails and is not imported.",
+      "source": "docs/design/runner-segments.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_seal_writes_a_self_verifying_segment",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_rehashed_manifest_still_fails_on_the_chain",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_imported_records_are_visibly_weaker_than_local",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_tampered_segment_is_not_imported",
+        "test:packages/python-sdk/tests/test_runner_segments.py::test_traceparent_joins_the_originating_session",
+        "file:docs/design/runner-segments.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C122",
+      "claim": "Redaction quality is published from a versioned, public corpus of synthetic secrets/PII as per-class recall and a false-positive rate, reproduced deterministically offline by `agentwatch redact eval`, with known misses declared in known-limitations and the corpus registered for the secret scan.",
+      "source": "docs/design/redaction-corpus.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_numbers_reproduce_and_do_not_drift",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_published_table_is_generated_and_current",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_false_positive_rate_is_published",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_known_misses_are_listed_as_known_limitations",
+        "test:packages/python-sdk/tests/test_redact_eval.py::test_corpus_is_registered_for_the_secret_scan",
+        "file:docs/reference/redaction-corpus.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C129",
+      "claim": "The digest ranks recurring failure signatures deterministically with a versioned grouping rule (sg1) and links each pattern to replay/diff evidence.",
+      "source": "docs/design/outcomes-signals.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_outcome_signatures.py::test_recurring_signature_groups_counts_and_evidence",
+        "test:packages/python-sdk/tests/test_outcome_signatures.py::test_signature_grouping_is_deterministic_and_versioned",
+        "doc:docs/design/outcomes-signals.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C130",
+      "claim": "The classifier publishes a versioned cls2 table of test/build/lint outcome classes while cls1 outputs stay reproducible.",
+      "source": "docs/design/impact-classification.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_cls2_table_is_versioned_and_shaped",
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_cls1_outputs_are_reproducible",
+        "test:packages/python-sdk/tests/test_classify_cls2.py::test_record_outcome_reads_exit_code_and_record_outcome",
+        "doc:docs/design/impact-classification.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C131",
+      "claim": "A static synthetic demo bundle opens offline with zero network references, is synthetic (never evidence), and is clean under two independent secret scanners.",
+      "source": "examples/demo-bundle/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_makes_zero_network_references",
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_is_secret_scanned_by_two_independent_scanners",
+        "test:packages/python-sdk/tests/test_demo_bundle.py::test_bundle_is_synthetic_and_not_evidence",
+        "file:examples/demo-bundle/bundle.json",
+        "doc:examples/demo-bundle/README.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C132",
+      "claim": "Three CI-tested alert-routing recipes (Slack/PagerDuty/Alertmanager) map agentwatch security events to each stack's payload and post them through the shipped WebhookSink.",
+      "source": "deploy/recipes/README.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_all_three_recipes_exist_and_reuse_the_shared_sink",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_slack_recipe_maps_events_to_incoming_webhook_payloads",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_pagerduty_recipe_maps_events_to_events_api_v2",
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_alertmanager_recipe_maps_events_to_the_v2_alerts_api",
+        "doc:deploy/recipes/README.md"
+      ],
+      "last_verified": "2026-10-07"
+    },
+    {
+      "id": "C133",
+      "claim": "agentwatch defines no alert rules, thresholds, or suppression: the recipes forward every security event and routing lives in the user's stack.",
+      "source": "docs/design/observability.md",
+      "evidence": [
+        "test:packages/python-sdk/tests/test_alert_recipes.py::test_recipes_forward_every_event_without_builtin_rules",
+        "doc:deploy/recipes/README.md",
+        "doc:docs/design/observability.md"
+      ],
+      "last_verified": "2026-10-07"
     }
   ]
 }

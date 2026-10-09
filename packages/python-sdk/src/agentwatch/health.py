@@ -234,11 +234,25 @@ class HealthSnapshot:
                     "mode": self.redaction_mode,
                     "self_test_passing": self.self_test_passing,
                 },
+                "signing": self._signing_payload(),
                 "hooks": {name: hook.to_dict() for name, hook in self.hooks.items()},
                 "gaps": list(self.gaps),
                 "drift": list(self.drift),
                 "clock_skew_s": self.clock_skew_s,
             }
+
+    def _signing_payload(self) -> dict[str, Any]:
+        """Whether this installation holds a signing key (no key material leaked)."""
+        from agentwatch.signing import KEY_FILENAME, SigningError, load_or_create_key
+
+        path = Path(self.store_path).parent / KEY_FILENAME
+        if not path.exists():
+            return {"configured": False, "key_id": None, "key_present": False}
+        try:
+            key = load_or_create_key(path)
+        except SigningError:
+            return {"configured": True, "key_id": None, "key_present": False}
+        return {"configured": True, "key_id": key.key_id, "key_present": True}
 
 
 def local_snapshot(

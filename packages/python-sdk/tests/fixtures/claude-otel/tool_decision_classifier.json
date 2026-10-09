@@ -1,0 +1,30 @@
+{
+  "input": {
+    "resourceLogs": [
+      {
+        "resource": {"attributes": []},
+        "scopeLogs": [
+          {
+            "scope": {"name": "claude-code"},
+            "logRecords": [
+              {
+                "timeUnixNano": "1767323045000000000",
+                "body": {"stringValue": "claude_code.tool_decision"},
+                "attributes": [
+                  {"key": "session.id", "value": {"stringValue": "s1"}},
+                  {"key": "tool_name", "value": {"stringValue": "Bash"}},
+                  {"key": "tool_use_id", "value": {"stringValue": "call-1"}},
+                  {"key": "decision", "value": {"stringValue": "allow"}},
+                  {"key": "decision_source", "value": {"stringValue": "classifier"}}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expected": [
+    {"tool": "Bash", "step_type": "observe"}
+  ]
+}

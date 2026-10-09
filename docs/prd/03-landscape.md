@@ -47,3 +47,44 @@ agent-exec-trace was a real, shipped OSS project. The migration path (see [09-ro
 
 Observability alone does not fix bad agents — it gives you the visibility needed to improve and govern
 them. agentwatch is deliberately the eyes, not the hands.
+
+## 2026 landscape update (v0.2.0-expanded)
+
+Three clusters moved around the record in 2026; none occupies it.
+
+- **LLM/agent observability platforms** (LangSmith — Trajectories, online evals, Insights/Engine, SmithDB; Langfuse —
+  observation-level evals, experiments, GitHub-Action regression gates, **CLI + MCP server + SKILL.md**; Phoenix;
+  Datadog, Braintrust, AgentOps): own the developer's attention and the "works with my stack" checklist, but have no open
+  security-event schema, tamper evidence, offline verification, or local-first posture.
+- **First-party harnesses** (Claude Code OTel stream + managed settings + auto mode; Cursor Blame; Claude Compliance
+  API): now emit authoritative telemetry and enforce permissions. **They are the data source** — the record layer should
+  consume their telemetry (PRD 51), model their authorization semantics truthfully (PRD 49), and deploy through their
+  enterprise mechanisms (PRD 50), not compete with them.
+- **Code-provenance** (Cursor **Agent Trace** open spec; git-ai Git-notes; Cursor Blame; Jules/Amp/OpenCode/Cline):
+  standardized "which lines came from AI, from which conversation". agentwatch should be the **evidence-grade source**
+  for this ecosystem (PRD 53), not a silo.
+
+**The moat, restated:** only agentwatch combines an open versioned security-event schema + tamper-evident chain with
+offline third-party verification + local-first/redaction-by-default + multi-harness capture + replay-as-code + agent
+identity/authorization provenance + code provenance + honest fidelity tiers and published effectiveness. Enforcement and
+attack/eval remain out by design (agentpolicy/agentdrill).
+
+## Doc-visible weaknesses closed by v0.2.0-expanded
+
+These were internal inconsistencies, independent of market trends:
+
+1. **Two products under one name** — CLI/chain store vs the 6-service Compose UI. Closed by the zero-Docker console and
+   embedded query tier (PRD 54); PG becomes the fleet/tenant tier.
+2. **Hook cost measured at the wrong layer** — in-process p99 published, per-tool-call process cost not. Closed by DEP-3.
+3. **Release-gate "partial" rows** (fresh-OS timing R2; second OTel backend R4) — closed by the expanded gate (PRD 07/40).
+4. **Recorder survivability unaddressed under managed policy** — closed by PRD 50 (install + attestation).
+5. **`approval` predates auto mode** — closed by PRD 49 (taxonomy v2).
+6. **Skills/plugins invisible** — closed by PRD 52 despite PRD 01 citing Plugin4Shell.
+7. **No non-local agent story** — addressed by PRD 58 (runner segments); Cursor cloud-agent hooks remain a declared gap.
+
+## Sources (2026-expanded)
+
+See `reference/v0.2.0-research-sources.md` §11–§19: Anthropic auto-mode/containment + Claude Code
+monitoring/managed-settings/permission-modes docs; CVE-2026-25725; Plugin4Shell; ToxicSkills/ClawHavoc;
+Agent Trace RFC + Cognition + git-ai; LangSmith/Langfuse; Google ADK/Strands/OpenInference; Microsoft least-privilege;
+OWASP ASI 2026 + Agentic Skills Top 10.

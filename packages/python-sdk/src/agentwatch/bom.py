@@ -18,6 +18,17 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
+from agentwatch.capabilities import (
+    CAP_KIND_COMMAND,
+    CAP_KIND_HOOK,
+    CAP_KIND_MCP,
+    CAP_KIND_MEMORY,
+    CAP_KIND_PLUGIN,
+    CAP_KIND_RULES,
+    CAP_KIND_SKILL,
+    CAP_KIND_SUBAGENT,
+    Capability,
+)
 from agentwatch.records import AgentRecord, effective_producer
 from agentwatch.store import RecordStore
 
@@ -30,6 +41,18 @@ _SERVICE = "service"
 _DATA = "data"
 _APPLICATION = "application"
 _LIBRARY = "library"
+
+# Capability kind -> CycloneDX component type (M30 CAP-1).
+_CAPABILITY_TYPES: dict[str, str] = {
+    CAP_KIND_SKILL: _DATA,
+    CAP_KIND_PLUGIN: _LIBRARY,
+    CAP_KIND_HOOK: _LIBRARY,
+    CAP_KIND_SUBAGENT: _APPLICATION,
+    CAP_KIND_COMMAND: _APPLICATION,
+    CAP_KIND_RULES: _DATA,
+    CAP_KIND_MCP: _SERVICE,
+    CAP_KIND_MEMORY: _DATA,
+}
 
 
 @dataclass(frozen=True)
@@ -107,13 +130,37 @@ def _selected(record: AgentRecord, *, session_id: str | None, project: str | Non
     )
 
 
+def _capability_components(capabilities: tuple[Capability, ...]) -> list[BomComponent]:
+    """Capabilities (M30 CAP-1) as CycloneDX components — digest, never content."""
+    components: list[BomComponent] = []
+    for capability in capabilities:
+        components.append(
+            BomComponent(
+                type=_CAPABILITY_TYPES.get(capability.kind, _DATA),
+                name=capability.name,
+                version=capability.declared_version,
+                properties=(
+                    ("agentwatch:capability-kind", capability.kind),
+                    ("agentwatch:capability-scope", capability.scope),
+                    ("agentwatch:capability-digest", capability.digest),
+                ),
+            )
+        )
+    return components
+
+
 def build_bom(
     store: RecordStore,
     *,
     session_id: str | None = None,
     project: str | None = None,
+    capabilities: tuple[Capability, ...] | None = None,
 ) -> Bom:
-    """Derive an observed BOM from the store (optionally one session/project)."""
+    """Derive an observed BOM from the store (optionally one session/project).
+
+    When ``capabilities`` is given (M30 CAP-1), each is added as a component
+    carrying its kind, origin scope and content digest — metadata only.
+    """
     records = [
         record
         for record in store.records()
@@ -169,6 +216,8 @@ def build_bom(
                 properties=(("agentwatch:producer-kinds", ",".join(sorted(harnesses[harness]))),),
             )
         )
+    if capabilities:
+        components.extend(_capability_components(tuple(capabilities)))
     components.append(BomComponent(type=_LIBRARY, name="agentwatch", version=_agentwatch_version()))
 
     coverage = BomCoverage(

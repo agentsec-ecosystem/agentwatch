@@ -1,0 +1,9 @@
+{
+  "id": "FT-CNC-1",
+  "status": "pass",
+  "class": "P/F|D",
+  "declared": false,
+  "run_id": "s13-investigation",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"concurrency-report","ok":true},{"name":"concurrency-semantics","ok":true}
+]
+}

@@ -2,11 +2,13 @@
 
 **BLUF:** One opt-in local proxy sits between any MCP-speaking harness and its MCP servers, forwarding
 traffic unchanged while recording every `tools/call` request/response as agentwatch records with full
-`tool.server` attribution. It reuses the shipped adapter, redaction, chain, and conformance boundaries;
+`tool.server` attribution. It speaks the **Streamable HTTP** transport (2026-07-28, stateless) and keeps the
+legacy HTTP/SSE relay verbatim. It reuses the shipped adapter, redaction, chain, and conformance boundaries;
 install is consent-first and uninstall restores the harness config byte-for-byte.
 
-Status: **accepted** (2026-10-03; Plan A + Plan B landed) · **Milestone:** M10 Phase 3 (WBS 10.5 / 10.N1) · **Issues:** #83 (M10 10.5),
-#212 (N1) · **Decision:** D-P · **PRDs:** [27](../prd/27-harness-expansion.md#n1-mcp-client-interposition-adapter-one-adapter-n-harnesses--m10-212),
+Status: **accepted** (2026-10-03; Plan A + Plan B landed) · **Milestone:** M10 Phase 3 (WBS 10.5 / 10.N1) ·
+**M27 MCP-1** (Streamable HTTP transport) · **Issues:** #83 (M10 10.5),
+#212 (N1), #333 (M27 MCP-1) · **Decision:** D-P · **PRDs:** [27](../prd/27-harness-expansion.md#n1-mcp-client-interposition-adapter-one-adapter-n-harnesses--m10-212),
 [11](../prd/11-decisions.md), [25](../prd/25-capture-fidelity.md), [23](../prd/23-event-interchange.md)
 
 ## Goal
@@ -19,8 +21,12 @@ not just tool names.
 
 - **In scope (v0.1.0):** stdio MCP servers and HTTP/SSE MCP servers; recording `tools/call` traffic; consent-first
   config re-pointing; byte-exact restore; conformance registration.
-- **Out of scope (declared gaps):** MCP `resources/read`, `prompts/get`, sampling, and elicitation are relayed
-  but **not** recorded (no record-model concept yet); non-MCP harnesses fall back to native/OTel (N2).
+- **In scope (v0.2.0 MCP-1):** the HTTP relay speaks the **Streamable HTTP** transport as its default
+  (`--transport streamable-http`); the legacy HTTP/SSE relay is kept verbatim (`--transport http-sse`,
+  deprecated-in-spec).
+- **Out of scope (declared gaps):** MCP Roots/Sampling/Logging are relayed but **not** recorded — retired by the
+  standard (SEP-2577), not by us; non-MCP harnesses fall back to native/OTel (N2). `resources/read` (MCP-2),
+  `prompts/get` (MCP-3), elicitation (MCP-4), and `tasks/*` (MCP-5) are recorded.
 
 ## Architecture
 
@@ -56,8 +62,9 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 `agentwatch.adapters.mcp_proxy`:
 
 - `HARNESS_ID = "mcp-proxy"`
-- `CAPABILITIES = frozenset({"mcp-tools"})`
-- `DOCUMENTED_GAPS = ("mcp-resources", "mcp-prompts", "mcp-sampling")`
+- `CAPABILITIES = frozenset({"mcp-tools", "mcp-resources", "mcp-prompts", "mcp-elicitation", "mcp-tasks"})`
+- `DOCUMENTED_GAPS = ("mcp-sampling", "mcp-roots", "mcp-logging")` — closed-by-spec (SEP-2577)
+- `CLOSED_BY_SPEC = frozenset({"sampling", "roots", "logging"})`
 - `class McpProxyAdapterError(ValueError)`
 - `normalize(message: Mapping[str, Any], *, redaction: RedactionConfig | None = None) -> list[AgentRecord]`
 
@@ -83,7 +90,12 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 - `server` (str, required) — the configured MCP server key; becomes `tool.server`.
 - `session_id` (str, required) — env-correlated or generated (see below).
 - `direction` (`"request"` | `"response"`, required).
-- `tool_name` (str) — required on **response** (a JSON-RPC response does not carry the method); ignored on request.
+- `tool_name` (str) — required on **response** (a JSON-RPC response does not carry the method); on a
+  `resources/read` request the proxy sets it to `resources/read`. Ignored on a `tools/call` request.
+- `resource` (str, optional) — the resource URI for a `resources/read` request/response or a `resources/link`
+  observation; kept as metadata (`tool.arguments['uri']`).
+- `prompt` (str, optional) — the prompt name for a `prompts/get` request/response; kept as metadata
+  (`tool.arguments['name']`).
 - `call_id` (str, optional) — a proxy-assigned id unique per call; the request and its response share it.
   Used for `span_id` correlation so a reused JSON-RPC id cannot collide in the daemon's dedup key.
 - `rpc` (object, required) — the verbatim JSON-RPC 2.0 message.
@@ -92,12 +104,22 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
 ### Normalization
 
 - **Reject, never drop.** `normalize` raises `McpProxyAdapterError` unless `phase == "mcp"`, `direction` is valid,
-  and the RPC is a valid `tools/call` shape. A declared gap or an unknown phase is rejected explicitly (satisfies
-  the conformance runner's gap/unknown probes with the default probe).
-- **Request** → intent record: `step_type=act`, `tool.name` from `params.name`, `tool.server` from `server`,
-  `tool.arguments` from `params.arguments` (redacted), `outcome=ok`, no end time.
+  and the RPC is a valid `tools/call`, `resources/read`, `prompts/get`, `elicitation/create`, or `tasks/*` shape. A
+  declared gap or an unknown phase is rejected explicitly (satisfies the conformance runner's gap/unknown probes
+  with the default probe).
+- **Request** → intent record: `step_type=act`, `tool.name` from `params.name` (or the method for
+  resources/prompts), `tool.server` from `server`, `tool.arguments` from `params.arguments` (redacted),
+  `outcome=ok`, no end time.
 - **Response** → outcome record: `step_type=observe`, `tool.name` from `event.tool_name`, `outcome=error` when
   `rpc.error` is present else `ok`, `tool.response` from `rpc.result` (redacted), end time = event time.
+- **Surface key** → metadata: a `resources/read` record keeps the URI in `tool.arguments['uri']` and a
+  `prompts/get` record keeps the prompt name in `tool.arguments['name']`, both with `privacy_mode=metadata-only`
+  (never the body unless a `RedactionConfig` captures it); the proxy emits a `resources/link` observation for every
+  `resource_link` in a `tools/call` result. `search --mcp-resource` matches the URI.
+- **Elicitation → approval (S14):** a server-issued `elicitation/create` and its answer are recorded; the answer
+  maps `accept`→`user`, `decline`→`denied`, and anything else (or no exposed action) to honest `unknown`.
+- **Tasks (SEP-2663):** a `tasks/*` request/response and a task-augmented tool result are recorded with the task
+  id as metadata (`tool.arguments['taskId']`). Roots/Sampling/Logging are closed-by-spec (SEP-2577) and rejected.
 - **Pairing:** `span_id = f"mcp:{server}:{call_id}"` when the proxy supplied a `call_id`, else
   `f"mcp:{server}:{rpc.id}"` when `id` is present, else `None` (request and response agree).
   `trace_id = event.trace_id or session_id`.
@@ -111,11 +133,16 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   spawns `command` as a subprocess and relays newline-delimited JSON-RPC in both directions on two threads.
   Lines are forwarded byte-for-byte; each line is parsed only to decide whether it is a recordable `tools/call`
   request/response. On harness or server EOF the other side is closed and the child reaped.
-- `serve_http(routes: Mapping[str, str], *, host: str = "127.0.0.1", port: int = 0, socket_path: str | None = None) -> int`
+- `serve_http(routes: Mapping[str, str], *, host: str = "127.0.0.1", port: int = 0, socket_path: str | None = None, transport: str = MCP_TRANSPORT_STREAMABLE) -> int`
   binds a loopback `ThreadingHTTPServer` serving one route per `server → upstream URL` pair. A request to
   `/<server>` is forwarded to that server's upstream with method/headers preserved (hop-by-hop headers dropped,
   `Host` rewritten; `Authorization`/OAuth untouched); the response is streamed back and parsed for a JSON-RPC
   reply to record. GET SSE streams are proxied verbatim. An unknown route returns 404.
+  - **Transport (`MCP_TRANSPORT_STREAMABLE`, default, 2026-07-28).** The proxy is **stateless** — sessions are
+    removed by the spec, so it neither requires, forwards, nor emits `Mcp-Session-Id` in either direction, and
+    `MCP-Protocol-Version` is relayed unchanged. Single-endpoint POST (JSON or SSE response) is the streamable shape.
+  - **Transport (`MCP_TRANSPORT_HTTP_SSE`, legacy, deprecated-in-spec).** The relay is byte-verbatim, including
+    `Mcp-Session-Id`, for servers still on the pre-2026 transport.
 - The **`init` install mode** runs one long-lived `agentwatch mcp-proxy --http --route NAME=URL …` process;
   each harness `url` points at `http://127.0.0.1:<port>/<server>`. Default port 8765, configurable; an occupied
   port fails closed.
@@ -125,7 +152,8 @@ detection, dedup, the hash chain, and the conformance runner are reused unchange
   `mcp-<12 hex>` (per process for stdio, per connection for HTTP). Correlates proxy records to the harness
   session for the WBS "cross-harness trace correlation" test.
 - `main(argv: Sequence[str] | None = None) -> int` — argparse: stdio mode `--server NAME -- <command> [args…]`;
-  HTTP mode `--http [--host H] [--port P] (--route NAME=URL)…`.
+  HTTP mode `--http [--host H] [--port P] [--transport T] (--route NAME=URL)…` (`T` defaults to
+  `streamable-http`).
 
 ### Error handling / fail-closed
 
@@ -187,8 +215,9 @@ Delivered as **two implementation plans** (each produces working, testable softw
 | # | Decision |
 |---|---|
 | D-M1 | Interpose on **both** stdio and HTTP/SSE MCP transports (user-elected scope). |
-| D-M2 | Record **`tools/call` only**; resources/prompts/sampling are relayed but declared gaps. |
+| D-M2 | ~~Record **`tools/call` only**; resources/prompts/sampling are relayed but declared gaps.~~ **Superseded (v0.2.0 MCP-2..MCP-5):** records `resources/read` + links, `prompts/get`, elicitation (approval-linked), and `tasks/*`; Roots/Sampling/Logging are closed-by-spec (SEP-2577). |
 | D-M3 | Correlate records to the harness session via `AGENTWATCH_SESSION_ID` / `CLAUDE_SESSION_ID`; else a generated `mcp-*` session. |
 | D-M4 | Manage **`.mcp.json` (project)** and **`~/.claude.json` (user)**; byte-exact backup + hash-guarded restore. |
 | D-M5 | Records reach the store via the **daemon socket** with a new `mcp` phase, reusing the single-writer path. |
 | D-M6 | One long-lived HTTP proxy process with a route manifest; default loopback port 8765, fail closed if taken. |
+| D-M7 | **Streamable HTTP is the default transport** (2026-07-28, stateless: `Mcp-Session-Id` is neither required, forwarded, nor emitted); `--transport http-sse` keeps the legacy relay verbatim, **deprecated-in-spec** (M27 MCP-1, ADR-0023). |

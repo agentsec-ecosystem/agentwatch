@@ -98,6 +98,8 @@ def test_check_order_and_names() -> None:
         "store-disk",
         "retention",
         "harness-drift",
+        "signing",
+        "distribution",
         "version",
     ]
 

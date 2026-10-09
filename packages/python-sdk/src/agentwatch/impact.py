@@ -14,6 +14,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from agentwatch.capabilities import (
+    CAPABILITY_LOADED_TOOL,
+    CapabilityLoad,
+    capability_loads,
+)
 from agentwatch.classify import (
     CLASSIFIER_VERSION,
     CMD_DESTRUCTIVE,
@@ -34,8 +39,10 @@ from agentwatch.classify import (
     classify_record,
 )
 from agentwatch.denials import DenialSequence, denial_sequences
+from agentwatch.identity import Attribution, attribution_for
+from agentwatch.permission_mode import ModeInterval, bypass_intervals
 from agentwatch.query import since_cutoff
-from agentwatch.records import AgentRecord
+from agentwatch.records import AgentRecord, Outcome
 from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
 
@@ -90,6 +97,7 @@ class ImpactReport:
     files: tuple[FileFootprint, ...] = ()
     commands: tuple[ImpactEntry, ...] = ()
     network: tuple[ImpactEntry, ...] = ()
+    blocked_network: tuple[ImpactEntry, ...] = ()
     vcs: tuple[ImpactEntry, ...] = ()
     credentials: tuple[ImpactEntry, ...] = ()
     unclassified: tuple[ImpactEntry, ...] = ()
@@ -97,6 +105,9 @@ class ImpactReport:
     widest_action: str = "-"
     records: int = 0
     denials: tuple[DenialSequence, ...] = ()
+    attribution: Attribution | None = None
+    bypass_intervals: tuple[ModeInterval, ...] = ()
+    capabilities: tuple[CapabilityLoad, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -105,6 +116,7 @@ class ImpactReport:
             "since": self.since,
             "arguments_captured": self.arguments_captured,
             "records": self.records,
+            "attribution": self.attribution.to_dict() if self.attribution else None,
             "counts": dict(self.counts),
             "widest_action": self.widest_action,
             "files": [
@@ -121,9 +133,12 @@ class ImpactReport:
             ],
             "commands": [self._entry(e) for e in self.commands],
             "network": [self._entry(e) for e in self.network],
+            "blocked_network": [self._entry(e) for e in self.blocked_network],
             "vcs": [self._entry(e) for e in self.vcs],
             "credentials": [self._entry(e) for e in self.credentials],
             "unclassified": [self._entry(e) for e in self.unclassified],
+            "bypass_intervals": [interval.to_dict() for interval in self.bypass_intervals],
+            "capabilities": [load.to_dict() for load in self.capabilities],
             "denials": [
                 {
                     "session_id": sequence.session_id,
@@ -190,12 +205,16 @@ def build_impact(
     files: dict[str, _FileAcc] = {}
     commands: list[tuple[ImpactEntry, AgentRecord]] = []
     network: list[tuple[ImpactEntry, AgentRecord]] = []
+    blocked_network: list[tuple[ImpactEntry, AgentRecord]] = []
     vcs: list[tuple[ImpactEntry, AgentRecord]] = []
     credentials: list[tuple[ImpactEntry, AgentRecord]] = []
     unclassified: list[tuple[ImpactEntry, AgentRecord]] = []
     arguments_captured = False
 
     for record in records:
+        if record.tool.name == CAPABILITY_LOADED_TOOL:
+            # A load is context, not a change fact; listed separately below.
+            continue
         if record.tool.arguments is not None:
             arguments_captured = True
         for fact in classify_record(record):
@@ -205,6 +224,7 @@ def build_impact(
                 files=files,
                 commands=commands,
                 network=network,
+                blocked_network=blocked_network,
                 vcs=vcs,
                 credentials=credentials,
                 unclassified=unclassified,
@@ -244,6 +264,7 @@ def build_impact(
         files=file_footprints,
         commands=_dedupe(commands),
         network=_dedupe(network),
+        blocked_network=_dedupe(blocked_network),
         vcs=_dedupe(vcs),
         credentials=_dedupe(credentials),
         unclassified=_dedupe(unclassified),
@@ -263,6 +284,9 @@ def build_impact(
         ),
         records=len(records),
         denials=denial_sequences(records),
+        attribution=attribution_for(records[-1]) if records else None,
+        bypass_intervals=bypass_intervals(records),
+        capabilities=tuple(capability_loads(records)),
     )
 
 
@@ -273,6 +297,7 @@ def _accumulate(
     files: dict[str, _FileAcc],
     commands: list[tuple[ImpactEntry, AgentRecord]],
     network: list[tuple[ImpactEntry, AgentRecord]],
+    blocked_network: list[tuple[ImpactEntry, AgentRecord]],
     vcs: list[tuple[ImpactEntry, AgentRecord]],
     credentials: list[tuple[ImpactEntry, AgentRecord]],
     unclassified: list[tuple[ImpactEntry, AgentRecord]],
@@ -296,7 +321,12 @@ def _accumulate(
     elif fact.category in _COMMAND_CATEGORIES:
         commands.append((entry, record))
     elif fact.category == NETWORK:
-        network.append((entry, record))
+        if record.outcome is Outcome.DENIED:
+            # Attempted but blocked at the boundary: kept apart from contacted
+            # destinations (M30 SBX-1).
+            blocked_network.append((entry, record))
+        else:
+            network.append((entry, record))
     elif fact.category == VCS:
         vcs.append((entry, record))
     elif fact.category == CREDENTIAL:
@@ -339,12 +369,23 @@ def _widest(
 def render_impact(report: ImpactReport) -> str:
     """Render a footprint as short human-readable text."""
     lines = [f"agentwatch impact {report.session_id} (classifier {report.classifier_version})"]
+    if report.attribution is not None:
+        lines.append(f"  attribution: {report.attribution.label()}")
     if not report.arguments_captured:
         lines.append(
             "  note: tool arguments were not captured (metadata-only); "
             "enable capture for a full footprint"
         )
     lines.append(f"  widest action: {report.widest_action}")
+    for interval in report.bypass_intervals:
+        lines.append(
+            f"  bypass interval: {interval.start.isoformat()} -> {interval.end.isoformat()} "
+            f"({interval.calls} call(s))"
+        )
+    if report.capabilities:
+        lines.append("  capabilities loaded:")
+        for load in report.capabilities:
+            lines.append(f"    {load.context_line()}")
     if report.files:
         lines.append("  files:")
         for footprint in report.files:
@@ -356,6 +397,7 @@ def render_impact(report: ImpactReport) -> str:
     for label, entries in (
         ("side effects", report.commands),
         ("network", report.network),
+        ("network (blocked attempts)", report.blocked_network),
         ("vcs", report.vcs),
         ("credential-adjacent", report.credentials),
         ("unclassified", report.unclassified),
@@ -366,7 +408,20 @@ def render_impact(report: ImpactReport) -> str:
         for entry in entries:
             target = f" {entry.target}" if entry.target else ""
             lines.append(f"    {entry.category}{target} ({entry.confidence})")
-    if len(lines) == 2:
+    if (
+        not report.files
+        and not report.capabilities
+        and not any(
+            (
+                report.commands,
+                report.network,
+                report.blocked_network,
+                report.vcs,
+                report.credentials,
+                report.unclassified,
+            )
+        )
+    ):
         lines.append("  no classifiable activity in the captured records")
     if report.denials:
         from agentwatch.denials import render_sequences

@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--endpoint", required=True, help="OTLP gRPC endpoint, e.g. http://jaeger:4317")
     parser.add_argument("--service", default="agentwatch")
     parser.add_argument("--spans", type=int, default=3)
+    parser.add_argument("--tree", type=int, default=0, help="emit a root agent span with N child spans")
+    parser.add_argument("--payload-bytes", type=int, default=0, help="attach an N-byte attribute per span")
     args = parser.parse_args(argv)
 
     config = SDKConfig(service_name=args.service, otlp_endpoint=args.endpoint)
@@ -38,10 +40,29 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     tracer = get_tracer("agentwatch.probe")
-    for index in range(args.spans):
-        with tracer.start_as_current_span(f"ft-probe-{index}") as span:
-            span.set_attribute("gen_ai.agent.name", "ft-probe")
-            span.set_attribute("agentwatch.seq", index)
+    filler = "x" * args.payload_bytes if args.payload_bytes > 0 else None
+
+    def _decorate(span, seq: int) -> None:
+        span.set_attribute("gen_ai.agent.name", "ft-probe")
+        span.set_attribute("agentwatch.seq", seq)
+        if filler is not None:
+            span.set_attribute("agentwatch.payload", filler)
+
+    emitted = 0
+    if args.tree > 0:
+        # A real agent-span tree: one root session span with N child tool spans.
+        with tracer.start_as_current_span("ft-agent-session") as root:
+            _decorate(root, -1)
+            emitted += 1
+            for index in range(args.tree):
+                with tracer.start_as_current_span(f"ft-tool-{index}") as span:
+                    _decorate(span, index)
+                    emitted += 1
+    else:
+        for index in range(args.spans):
+            with tracer.start_as_current_span(f"ft-probe-{index}") as span:
+                _decorate(span, index)
+                emitted += 1
 
     # Flush so a short-lived process does not lose the batch. Export errors are
     # swallowed by the SDK's exporter; the probe must not fail the agent.
@@ -50,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as exc:  # noqa: BLE001 - exporter failure must not break the agent
         print(f"otel-probe: flush raised (endpoint down?): {exc}", file=sys.stderr)
 
-    print(f"otel-probe: {args.spans} spans emitted to {args.endpoint} as {args.service}")
+    print(f"otel-probe: {emitted} spans emitted to {args.endpoint} as {args.service}")
     return 0
 
 

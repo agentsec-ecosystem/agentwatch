@@ -7,7 +7,9 @@
 | [Adapter conformance](adapter-conformance.md) | How harness/framework adapters are verified |
 | [Compatibility](compatibility.md) | Harness × version matrix |
 | [Known limitations](known-limitations.md) | Honest gaps, including inherited ones |
-| [Detector catalog](detector-catalog.md) | The 40 detectors by category |
+| [Detector catalog](detector-catalog.md) | The 39 detectors by category |
+| [Detector fixture provenance](detector-fixtures.md) | Cited, shape-synthesized benchmark fixtures + changelog |
+| [Identity mapping](identity-mapping.md) | agentwatch agent identity ↔ AIMS/WIMSE ↔ NCCoE |
 | [Record format spec](record-format-spec.md) | Normative record + security-event contract, versioning/deprecation |
 | [Store format](store-format.md) | Envelope, chain, tombstones, marker records, vectors |
 | [Evidence verifier](evidence-verifier.md) | Standalone, dependency-free bundle/store verifier (M15 S12) |
@@ -16,6 +18,8 @@
 | [Versioning policy](versioning-policy.md) | SemVer, support windows, backports |
 | [Backwards-compatibility policy](backwards-compatibility-policy.md) | Stable surfaces, deprecation cycles |
 | [Comparison](comparison.md) | vs adjacent tools |
+| [v0.2.0 research sources](v0.2.0-research-sources.md) | Raw provenance for the v0.2.0 PRDs (standards, OSS, vendor facts, papers) |
+| [Standards participation plan](standards-participation.md) | Target specs, owner, proposals, contributions ("submitted"), quarterly cadence |
 | [i18n & locale](i18n.md) | UTC timestamps; English-first; full i18n deferred |
 | [Resource cost](resource-cost.md) | CPU/memory/disk/network to the operator |
 | [Performance](performance.md) | Recording-path p99 latency vs NFR-1, generated from a run (Q4) |

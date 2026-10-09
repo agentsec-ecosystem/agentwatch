@@ -1,0 +1,40 @@
+{
+  "resourceLogs": [
+    {
+      "resource": {
+        "attributes": [
+          {"key": "service.name", "value": {"stringValue": "claude-agent-sdk"}},
+          {"key": "agentwatch.identity", "value": {"stringValue": "agent-sdk-worker"}}
+        ]
+      },
+      "scopeLogs": [
+        {
+          "scope": {"name": "claude-agent-sdk"},
+          "logRecords": [
+            {
+              "timeUnixNano": "1767323045000000000",
+              "body": {"stringValue": "claude_code.tool_decision"},
+              "attributes": [
+                {"key": "session.id", "value": {"stringValue": "sdk-1"}},
+                {"key": "tool_name", "value": {"stringValue": "Bash"}},
+                {"key": "tool_use_id", "value": {"stringValue": "sdk-call-1"}},
+                {"key": "decision_source", "value": {"stringValue": "classifier"}}
+              ]
+            },
+            {
+              "timeUnixNano": "1767323046000000000",
+              "body": {"stringValue": "claude_code.api_request"},
+              "attributes": [
+                {"key": "session.id", "value": {"stringValue": "sdk-1"}},
+                {"key": "model", "value": {"stringValue": "claude-sonnet-4"}},
+                {"key": "input_tokens", "value": {"intValue": 100}},
+                {"key": "output_tokens", "value": {"intValue": 50}},
+                {"key": "cost_usd", "value": {"doubleValue": 0.02}}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

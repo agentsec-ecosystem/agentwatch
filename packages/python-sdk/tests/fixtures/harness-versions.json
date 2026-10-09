@@ -1,5 +1,29 @@
 {
   "fixtures": {
+    "a2a-proxy/error-response.json": {
+      "fingerprint": "5ef4e6972ec8961a",
+      "version": "1.0"
+    },
+    "a2a-proxy/message-send-request.json": {
+      "fingerprint": "86c0fd7ec1feb473",
+      "version": "1.0"
+    },
+    "a2a-proxy/message-send-response.json": {
+      "fingerprint": "16842256ea64534f",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-cancel-request.json": {
+      "fingerprint": "3cb4c506fbcc6508",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-get-request.json": {
+      "fingerprint": "3cb4c506fbcc6508",
+      "version": "1.0"
+    },
+    "a2a-proxy/tasks-get-response.json": {
+      "fingerprint": "05f4fdc967fba92f",
+      "version": "1.0"
+    },
     "claude-code/mcp_tool.json": {
       "fingerprint": "811613fba75cc889",
       "version": "2.x"
@@ -54,15 +78,15 @@
     },
     "codex-cli/exec_begin.json": {
       "fingerprint": "d6cb1ef743ad3b72",
-      "version": "modeled"
+      "version": "0.x"
     },
     "codex-cli/exec_end_error.json": {
       "fingerprint": "53166c449d135e85",
-      "version": "modeled"
+      "version": "0.x"
     },
     "codex-cli/patch_apply.json": {
       "fingerprint": "2d2f3dba0fac7934",
-      "version": "modeled"
+      "version": "0.x"
     },
     "crewai/agent_end.json": {
       "fingerprint": "e867a8cdf462ea86",
@@ -84,13 +108,93 @@
       "fingerprint": "2df7496ca31edb5a",
       "version": "modeled"
     },
+    "cursor/after_agent_response.json": {
+      "fingerprint": "5e20dcf199e09792",
+      "version": "1.x"
+    },
+    "cursor/after_agent_thought.json": {
+      "fingerprint": "922d0d2f710a5c0e",
+      "version": "1.x"
+    },
     "cursor/after_edit_error.json": {
-      "fingerprint": "19588203ac3f8d0b",
-      "version": "modeled"
+      "fingerprint": "f980391c276dc54a",
+      "version": "1.x"
+    },
+    "cursor/after_mcp.json": {
+      "fingerprint": "497d27525a0e61a4",
+      "version": "1.x"
+    },
+    "cursor/after_shell_error.json": {
+      "fingerprint": "2f7fc14e6a65eb61",
+      "version": "1.x"
+    },
+    "cursor/before_mcp.json": {
+      "fingerprint": "80d41f5b7a833efd",
+      "version": "1.x"
+    },
+    "cursor/before_read_file.json": {
+      "fingerprint": "7d76ed492f7a6fdd",
+      "version": "1.x"
     },
     "cursor/before_shell.json": {
-      "fingerprint": "4fda09a55fb5c75b",
-      "version": "modeled"
+      "fingerprint": "47d939d81e864a18",
+      "version": "1.x"
+    },
+    "cursor/before_submit_prompt.json": {
+      "fingerprint": "a92d9fb9aa5405a7",
+      "version": "1.x"
+    },
+    "cursor/blocking_event.json": {
+      "fingerprint": "953705a250d27d86",
+      "version": "1.x"
+    },
+    "cursor/post_tool_use.json": {
+      "fingerprint": "03c20c0fcdb764a6",
+      "version": "1.x"
+    },
+    "cursor/post_tool_use_failure.json": {
+      "fingerprint": "0e54951a996d26cf",
+      "version": "1.x"
+    },
+    "cursor/pre_compact.json": {
+      "fingerprint": "9e2ca49a34fa2a26",
+      "version": "1.x"
+    },
+    "cursor/pre_tool_use.json": {
+      "fingerprint": "25de61d30b40fb51",
+      "version": "1.x"
+    },
+    "cursor/session_end.json": {
+      "fingerprint": "28d6f6d5dd3a5ef5",
+      "version": "1.x"
+    },
+    "cursor/session_start.json": {
+      "fingerprint": "a9736bc09b28f28a",
+      "version": "1.x"
+    },
+    "cursor/stop.json": {
+      "fingerprint": "e54d557f8c406a66",
+      "version": "1.x"
+    },
+    "cursor/subagent_start.json": {
+      "fingerprint": "45d2c2b58e7e639a",
+      "version": "1.x"
+    },
+    "cursor/subagent_stop.json": {
+      "fingerprint": "43ecaa79e825f5f6",
+      "version": "1.x"
+    },
+    "cursor/tab_after_edit.json": {
+      "fingerprint": "3d223d10920fd51b",
+      "version": "1.x"
+    },
+    "cursor/tab_before_read.json": {
+      "fingerprint": "1059c7431e79ad60",
+      "version": "1.x"
+    },
+    "cursor/workspace_open.json": {
+      "fingerprint": "5004d16f5f5a6d15",
+      "version": "1.x"
     },
     "gemini-cli/session_start.json": {
       "fingerprint": "3c59ff2b9fc43194",
@@ -104,13 +208,45 @@
       "fingerprint": "e661ccbeed2a3f75",
       "version": "modeled"
     },
+    "mcp-proxy/elicitation-request.json": {
+      "fingerprint": "189b0233fde45f71",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/elicitation-response.json": {
+      "fingerprint": "aff2e5c9f68d6d96",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/prompts-get-request.json": {
+      "fingerprint": "ac25d02627ae8076",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/prompts-get-response.json": {
+      "fingerprint": "f458e94c6fa2f752",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/resources-read-request.json": {
+      "fingerprint": "bcca7a10bf9556e6",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/resources-read-response.json": {
+      "fingerprint": "f6e84e0039d28b3f",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/tasks-get-request.json": {
+      "fingerprint": "1d57d31af343a53a",
+      "version": "2026-07-28"
+    },
+    "mcp-proxy/tasks-get-response.json": {
+      "fingerprint": "dc9ecaf85cbae1c1",
+      "version": "2026-07-28"
+    },
     "mcp-proxy/tools-call-request.json": {
       "fingerprint": "c6fb8a13de6e1cd8",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "mcp-proxy/tools-call-response.json": {
       "fingerprint": "461f5015038522c1",
-      "version": "2025-06-18"
+      "version": "2026-07-28"
     },
     "pydantic-ai/agent_run_end.json": {
       "fingerprint": "e867a8cdf462ea86",

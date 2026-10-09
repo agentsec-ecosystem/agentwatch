@@ -1,0 +1,11 @@
+{
+  "version": "v0",
+  "description": "Internal detector-eval corpus v0 (DET-1). Shape-synthesized; no real secrets/PII. Each case is a run summary + tool-call sequence and the detectors expected to fire.",
+  "cases": [
+    {"id": "loop-5-bash", "expect": ["loop"], "tools": ["Bash", "Bash", "Bash", "Bash", "Bash"]},
+    {"id": "loop-4-bash", "expect": [], "tools": ["Bash", "Bash", "Bash", "Bash"]},
+    {"id": "loop-5-read", "expect": ["loop"], "tools": ["Read", "Read", "Read", "Read", "Read"]},
+    {"id": "clean-mixed", "expect": [], "tools": ["Read", "Write", "Bash", "Edit", "Grep"]},
+    {"id": "clean-empty", "expect": [], "tools": []}
+  ]
+}

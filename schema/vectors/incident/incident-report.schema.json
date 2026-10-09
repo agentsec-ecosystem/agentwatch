@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/incident-report.schema.json",
+  "title": "agentwatch incident report",
+  "description": "A registry-shaped, redacted, voluntary export emitted alongside an evidence bundle (COR-3). Findings carry no tool arguments and no content.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "generated_at", "session_id", "submission", "findings", "annotations", "redaction"],
+  "properties": {
+    "schema": { "const": "agentwatch.incident-report/1" },
+    "generated_at": { "type": "string" },
+    "session_id": { "type": "string" },
+    "submission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "endpoint", "auto_egress"],
+      "properties": {
+        "mode": { "const": "manual-voluntary" },
+        "endpoint": { "type": ["string", "null"] },
+        "auto_egress": { "const": false }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["event", "at", "tool", "air", "gmf"],
+        "properties": {
+          "event": { "type": "string" },
+          "at": { "type": "string" },
+          "tool": { "type": ["string", "null"] },
+          "air": { "type": ["object", "null"] },
+          "gmf": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["at", "tag", "incident_tags"],
+        "properties": {
+          "at": { "type": "string" },
+          "tag": { "type": ["string", "null"] },
+          "incident_tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "content_included", "arguments_included", "principals_hashed", "receipts"],
+      "properties": {
+        "mode": { "type": "string" },
+        "content_included": { "const": false },
+        "arguments_included": { "const": false },
+        "principals_hashed": { "type": "boolean" },
+        "receipts": { "type": "object" }
+      }
+    }
+  }
+}

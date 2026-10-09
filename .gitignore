@@ -41,8 +41,10 @@ htmlcov/
 # OS
 .DS_Store
 
-# Local dev data
+# Local dev data (but keep the committed analytics detector corpora the CI eval reads)
 data/
+!services/analytics/data/
+!services/analytics/data/*.json
 
 # Ported predecessor agent examples — third-party, not part of the product source
 m13-agents/

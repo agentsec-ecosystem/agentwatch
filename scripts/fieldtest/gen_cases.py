@@ -14,6 +14,9 @@ fails. Step scripts source ``lib.sh``, run assertions with ``ft_assert`` /
 from __future__ import annotations
 
 import json
+import os
+import re
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -72,14 +75,127 @@ CASES: list[dict[str, str]] = [
     {"id": "CUJ-12", "title": "Erase and prove it", "kind": "erase", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUJ-12"},
     {"id": "CUJ-13", "title": "MCP surface drift", "kind": "cli_seed", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUJ-13", "cmd": "inventory --diff", "cmd2": "agentwatch inventory --diff | grep -qv 'no tool-surface changes'"},
     {"id": "CUJ-14", "title": "\"Did a human approve?\"", "kind": "cli_seed", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUJ-14", "cmd": "search --approval user"},
+    # S1 — install, deployability, attestation
+    {"id": "FT-ENV-0", "title": "Fresh install → first record on 3 OSes", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "python", "prd": "EXT-10,13 NFR-4,25 NAM-1", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert "first-run-timing" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/first_run_timing.py"\nft_assert "naming-guard" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/fieldtest/naming_guard.py"\n'},
+    # Windows is not supported; retired. Marked N/A and never run (filtered by the
+    # runners). Kept in the roster only so the report can render it as N/A.
+    {"id": "FT-WIN-1", "title": "Windows support (named-pipe daemon + service)", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "shell", "prd": "WIN-1", "class": "P/F|D", "suite": "s1-install", "unsupported": True, "steps": "ft_finalize\n"},
+    {"id": "FT-DEP-1", "title": "Managed-policy environment, honest doctor", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-1", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "doctor-effective" "python3 /ft/scripts/doctor_managed.py"\n'},
+    {"id": "FT-DEP-2", "title": "Hook-strip → recorder-config-changed + gap", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-2", "class": "P/F", "suite": "s1-install", "steps": 'ft_assert_recorder "attestation-config-changed" "python3 /ft/scripts/attestation_strip.py"\n'},
+    {"id": "FT-DEP-3", "title": "End-to-end hook wall-clock per OS + budget", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEP-3", "class": "P/F|D", "suite": "s1-install", "steps": 'ft_assert_recorder "hook-perf-gate" "python3 /ft/scripts/run-hook-perf.py"\n'},
+    # S2 — standards & interop
+    {"id": "FT-AAT-1", "title": "AAT export → third-party consumer round-trip", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-1/2/4", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-export" "agentwatch export-session ft04 --format aat --output /tmp/s.aat.json && test -s /tmp/s.aat.json"\nft_assert_recorder "aat-independent-consumer" "python3 /ft/schema-vectors/verify_aat.py /tmp/s.aat.json"\n'},
+    {"id": "FT-AAT-2", "title": "Foreign AAT ingest + quarantine", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-3", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-ingest" "agentwatch ingest --format aat /ft/fixtures/aat/foreign.aat.json"\nft_assert_recorder "quarantine" "test -s /data/agentwatch/quarantine.jsonl"\n'},
+    {"id": "FT-AAT-3", "title": "AAT draft pin + drift check", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AAT-5", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "aat-version-cited" "agentwatch --version | grep -qi aat"\nft_assert_recorder "aat-drift" "python3 /ft/scripts/aat_drift.py"\n'},
+    {"id": "FT-OTEL-1", "title": "Canonical OTel agent spans in ≥2 backends", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "OTEL-1", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch --tree 3"\nft_assert "span-tree-2-backends" python3 "$REPO_ROOT/scripts/fieldtest/otel_tree_check.py"\n'},
+    {"id": "FT-OTEL-2", "title": "OTLP/gRPC + protobuf, streaming", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-3", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "grpc-stream" "python3 /ft/scripts/otel_grpc_stream.py --endpoint http://otel-grpc:4317 --mb 100"\n'},
+    {"id": "FT-OTEL-3", "title": "Privacy-mode ↔ content-capture mapping", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-2", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "privacy-default" "grep -q \'privacy_mode.*metadata-only\' /data/agentwatch/records.jsonl"\nft_assert_recorder "privacy-property" "python3 /ft/scripts/privacy_property.py"\n'},
+    {"id": "FT-OTEL-4", "title": "Skill / command-execution agent-span mapping", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OTEL-4", "class": "P/F|D", "suite": "s2-interop", "steps": 'ft_assert_recorder "skill-spans" "python3 /ft/scripts/skill_spans.py"\n'},
+    {"id": "FT-TRACE-1", "title": "One causal chain across 3 hosts × 3 harnesses", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,fleet", "prd": "TRACE-1/2", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "fleet-chain" "python3 /ft/scripts/fleet-run.py --hosts fleet-h1,fleet-h2,fleet-h3"\n'},
+    {"id": "FT-TRACE-2", "title": "Cross-host clock skew ordering", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,fleet", "prd": "TRACE-2,F9", "class": "P/F", "suite": "s2-interop", "steps": 'ft_assert_recorder "fleet-skew" "python3 /ft/scripts/fleet-run.py --skew 3 --hosts fleet-h1,fleet-h2"\n'},
+    {"id": "FT-PG-1", "title": "Drop-Postgres mode + bit-for-bit rebuild", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PG-1", "class": "P/F|D", "suite": "s2-interop", "steps": 'ft_assert_recorder "pg-down-commands" "agentwatch sessions >/dev/null && agentwatch verify-store"\nft_assert_recorder "index-rebuild-bitfor-bit" "python3 /ft/scripts/pg_rebuild.py"\n'},
+    {"id": "FT-PG-2", "title": "Cross-tenant isolation + audit", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PG-2", "class": "P/F|D", "suite": "s2-interop", "steps": 'ft_assert_recorder "cross-tenant-empty" "python3 /ft/scripts/tenant_isolation.py"\n'},
+    {"id": "FT-PG-3", "title": "SDK spans in the unified store, chain-protected", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PG-3", "class": "P/F|D", "suite": "s2-interop", "steps": 'ft_assert_recorder "sdk-in-store" "python3 /ft/scripts/sdk_emit.py && agentwatch verify-store"\nft_assert_recorder "union-fallback" "agentwatch union --json"\n'},
+    # S3 — harness fidelity, real-time, test kit
+    {"id": "FT-CUR-1", "title": "Cursor full-fidelity golden-corpus audit", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUR-1/3", "class": "P/F|D", "suite": "s3-harness", "steps": 'ft_assert_recorder "cursor-corpus" "python3 /ft/scripts/ingest-fixture.py --kind cursor --corpus /ft/fixtures/cursor"\nft_assert_recorder "verify-store" "agentwatch verify-store"\n'},
+    {"id": "FT-CUR-2", "title": "Cursor blocking events + IDE/CLI/remote", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CUR-2", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "cursor-blocking" "python3 /ft/scripts/ingest-fixture.py --kind cursor-blocking --corpus /ft/fixtures/cursor"\n'},
+    {"id": "FT-GEM-1", "title": "Gemini native-OTel ingest + logPrompts redaction", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "GEM-1/2", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "gemini-ingest" "python3 /ft/scripts/ingest-fixture.py --kind gemini --corpus /ft/fixtures/gemini && agentwatch verify-store"\n'},
+    {"id": "FT-COD-1", "title": "Codex rollout reader (dedup, .zst, dangling)", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "COD-1", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "codex-rollout" "python3 /ft/scripts/codex_check.py && agentwatch verify-store"\n'},
+    {"id": "FT-MCP-1", "title": "MCP full surface across 3 protocol revisions", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "MCP-1..6", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "mcp-surface" "python3 /ft/scripts/ingest-fixture.py --kind mcp --corpus /ft/fixtures/mcp && agentwatch verify-store"\n'},
+    {"id": "FT-MCP-2", "title": "Closed-by-spec surfaces + malformed frames", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "MCP-5,B4", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "mcp-malformed-quarantine" "python3 /ft/scripts/ingest-fixture.py --kind mcp-malformed && test -s /data/agentwatch/quarantine.jsonl"\n'},
+    {"id": "FT-LOG-1", "title": "Long-tail coding-agent log readers, log-read tier", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "LOG-1", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "log-readers" "python3 /ft/scripts/ingest-fixture.py --kind logreaders --corpus /ft/fixtures/logreaders"\n'},
+    {"id": "FT-STR-1", "title": "Live view p99 ≤ 1 s", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "STR-1/2", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "stream-p99" "python3 /ft/scripts/stream-probe.py --mode p99 --budget-ms 1000"\n'},
+    {"id": "FT-STR-2", "title": "Drop-consumer reconciliation + 24 h soak", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "STR-2/3", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "stream-drop-reconcile" "python3 /ft/scripts/stream-probe.py --mode drop-consumer --bounded"\n'},
+    {"id": "FT-LG-1", "title": "LangGraph + raw-Python Tier-2 at full fidelity", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "LG-1/2", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "langgraph-instrument" "python3 /ft/scripts/drive-agent.py --session ft-lg && agentwatch verify-store"\n'},
+    {"id": "FT-XHT-1", "title": "Payload corpus replay + self-test", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-1", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "xht-replay-self-test" "python3 /ft/scripts/xht_replay.py --self-test"\n'},
+    {"id": "FT-XHT-2", "title": "Live soak on OpenCode (real agent)", "kind": "v020", "layer": "recorder", "llm": "yes", "requires": "docker,omlx", "prd": "XHT-2", "class": "P/F|D", "suite": "s3-harness", "steps": 'ft_declare "OpenCode binary is absent from the field-test recorder image; a hermetic OpenCode soak needs an external runner with a pinned model endpoint" "PRD 40 §5 XHT-2"\n'},
+    {"id": "FT-XHT-3", "title": "Cross-validate vs 2 independent OSS parsers", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-3", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "xht-cross-parser" "python3 /ft/scripts/xht_replay.py --cross-parser"\n'},
+    {"id": "FT-XHT-4", "title": "Honest fidelity tiers in the generated matrix", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4", "class": "P/F", "suite": "s3-harness", "steps": 'ft_assert_recorder "matrix-tiers" "python3 /ft/scripts/check-matrix-tiers.py"\n'},
+    # S4 — detectors & redaction
+    {"id": "FT-DET-1", "title": "One-command deterministic detector eval", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-1/2", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-tpr-fpr" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\nft_assert "detector-eval-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_detector_eval.py\n'},
+    {"id": "FT-DET-2", "title": "≥80% of rule detectors non-silent; catalog guard", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-3", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-nonsilent-80" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" --nonsilent-80 "$FT_CASE_DIR/artifacts/detector-results.json"\n'},
+    {"id": "FT-DET-3", "title": "LLM detectors in the same harness", "kind": "v020", "layer": "recorder", "llm": "yes", "requires": "docker,omlx", "prd": "DET-4", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix-llm" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -e OMLX_MODEL="${OMLX_MODEL:-Qwen3-4B-Instruct-2507-4bit}" analytics -m analytics.scenario_validation --all\nft_assert "llm-detectors-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_llm_eval.py services/analytics/tests/test_llm_detectors.py\n'},
+    {"id": "FT-DET-4", "title": "Injection + memory-surface observations", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-6/7", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-tpr-fpr" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\nft_assert "injection-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_injection_detector.py services/analytics/tests/test_detectors_gaps.py\n'},
+    {"id": "FT-DET-5", "title": "Detector telemetry (SIEM-feedable, content-free)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-5", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert_recorder "telemetry-content-free-bounded" "python3 /ft/scripts/detector_telemetry_check.py"\n'},
+    {"id": "FT-DET-6", "title": "New-class scenario depth", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-6", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-tpr-fpr" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\nft_assert "detector-catalog-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_detector_catalog.py\n'},
+    {"id": "FT-DET-7", "title": "Real-harness trace replay", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DET-7", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "detector-matrix" "${STACK_COMPOSE[@]}" run --rm --entrypoint python -v "$FT_CASE_DIR/artifacts":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert "detector-tpr-fpr" python3 "$REPO_ROOT/scripts/fieldtest/check-detector-results.py" "$FT_CASE_DIR/artifacts/detector-results.json"\nft_assert "real-traces-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_detector_real_traces.py\n'},
+    {"id": "FT-COR-1", "title": "Public corpus + second-corpus reproduction", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "COR-1", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert "second-corpus" "${STACK_COMPOSE[@]}" run --rm --entrypoint bash -v "$REPO_ROOT/data/traces":/traces:ro -v "$FT_DIR":/ft -v "$FT_CASE_DIR/artifacts":/artifacts analytics /ft/corpus.sh /traces/processed 2000 '' /artifacts\n\nft_assert "corpus-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/analytics/tests/test_detector_corpus.py\n'},
+    {"id": "FT-COR-2", "title": "Incident-registry export", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "COR-2/3", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "incident-export" "agentwatch evidence ft04 --include incident-report.json --out /tmp/inc.zip && test -s /tmp/inc.zip"\nft_assert_recorder "no-auto-submit" "! agentwatch evidence --help | grep -qi submit"\n'},
+    {"id": "FT-RED-1", "title": "Redaction quality benchmark", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "RED-1", "class": "P/F", "suite": "s4-detectors", "steps": 'ft_assert_recorder "redaction-benchmark" "agentwatch redact eval --json"\nft_assert "redact-eval-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_redact_eval.py\n'},
+    # S5 — identity, compliance, SIEM
+    {"id": "FT-IDN-1", "title": "Attribution end-to-end in one command", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,fleet", "prd": "IDN-1..4", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "idn-attribution" "python3 /ft/scripts/fleet-run.py --attribution"\n'},
+    {"id": "FT-IDN-2", "title": "Identity fields never contain secret material", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "IDN-1,DD-06", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "identity-no-secrets" "python3 /ft/scripts/privacy_property.py --what identity"\n'},
+    {"id": "FT-IDN-3", "title": "Ambient / shared credential hygiene observation", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "IDN-3,DD-07", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "credential-hygiene" "agentwatch search --identity user --json"\nft_assert "credential-hygiene-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_credential_hygiene.py\n'},
+    {"id": "FT-CMP-1", "title": "One-command offline compliance report", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CMP-1/2", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "compliance-report" "agentwatch compliance report --framework iso-42001 --period Q3-2026 --out /tmp/audit"\nft_assert "compliance-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_compliance.py packages/python-sdk/tests/test_compliance_docs.py\n'},
+    {"id": "FT-CMP-2", "title": "Retention profiles + signed default posture", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CMP-3/4", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "retention-apply" "agentwatch retention apply --profile general-6mo"\nft_assert_recorder "signed-default" "python3 /ft/scripts/signed_default.py"\nft_assert "signing-posture" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_signing_posture.py\n'},
+    {"id": "FT-CMP-3", "title": "All five compliance templates + key rotation", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CMP-3/4", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "all-templates" "python3 /ft/scripts/compliance_templates.py"\nft_assert_recorder "key-rotation" "python3 /ft/scripts/checkpoint_rotate.py"\nft_assert "rotation-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_signing_posture.py\n'},
+    {"id": "FT-SIEM-1", "title": "OCSF 1.5.0 + Syslog event stream", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "SIEM-1/2", "class": "P/F", "suite": "s5-identity", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "siem-conformance" "python3 /ft/scripts/siem_conformance.py"\nft_assert "siem-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_siem_consumers.py packages/python-sdk/tests/test_siem_syslog.py\n'},
+    {"id": "FT-ASI-1", "title": "OWASP ASI-2026 + AST10 report", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "ASI-1", "class": "P/F", "suite": "s5-identity", "steps": 'ft_assert_recorder "asi-report" "agentwatch compliance report --framework owasp-asi-2026 --out /tmp/asi"\nft_assert "asi-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_compliance_asi.py\n'},
+    # S6 — new capture surfaces
+    {"id": "FT-A2A-1", "title": "Cross-org delegation provable", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "A2A-1/2", "class": "P/F", "suite": "s6-surfaces", "steps": 'ft_assert_recorder "a2a-roundtrip" "python3 /ft/scripts/a2a_roundtrip.py"\n'},
+    {"id": "FT-GWY-1", "title": "Gateway OTel ingest + exact vs estimated cost", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "GWY-1/2", "class": "P/F", "suite": "s6-surfaces", "steps": 'ft_assert_recorder "gateway-ingest" "python3 /ft/scripts/ingest-fixture.py --kind gateway --corpus /ft/fixtures/gateway"\nft_assert_recorder "cost-exact-vs-estimated" "agentwatch cost --json | grep -Eq \'exact|estimated\'"\nft_assert "gateway-cost-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_gateway_cost.py\n'},
+    {"id": "FT-SYS-1", "title": "System-effects ingest join (Linux, opt-in)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,linux", "prd": "SYS-1", "class": "P/F|D", "suite": "s6-surfaces", "steps": 'ft_assert_recorder "system-ingest" "python3 /ft/scripts/ingest-fixture.py --kind system"\nft_assert "system-ingest-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_system_ingest.py\n'},
+    {"id": "FT-CCA-1", "title": "Claude Compliance API ingest (consent-first)", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CCA-1", "class": "P/F", "suite": "s6-surfaces", "steps": 'ft_assert_recorder "cca-consent" "python3 /ft/scripts/ingest-fixture.py --kind cca --corpus /ft/fixtures/cca"\n\nft_assert "cca-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_compliance_api.py\n'},
+    {"id": "FT-ACS-1", "title": "ACS Guardian audit-trail ingest (watch)", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "ACS-1", "class": "P/F|D", "suite": "s6-surfaces", "steps": 'ft_assert_recorder "acs-ingest" "python3 /ft/scripts/ingest-fixture.py --kind acs --corpus /ft/fixtures/acs && agentwatch verify-store"\nft_assert "acs-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_acs_ingest.py\n'},
+    # S7 — platform, SDK, interfaces, policy
+    {"id": "FT-SDK-1", "title": "Flush-on-exit, sampler determinism, no-op after shutdown", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "SDK-1..3", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "sdk-lifecycle" "python3 /ft/scripts/sdk_lifecycle.py"\n'},
+    {"id": "FT-API-1", "title": "OpenAPI publication + typed client drift", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "API-1", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert "openapi-present" bash -lc "curl -sf http://localhost:8100/openapi.json >/dev/null"\nft_assert "openapi-contract" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" services/api/tests/test_openapi_contract.py\n'},
+    {"id": "FT-EXA-1", "title": "Examples gallery recipes", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "EXA-1", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert "examples-gallery" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_examples_gallery.py\n'},
+    {"id": "FT-GOV-1", "title": "Community plugin API + codemod", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "GOV-1", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert "codemod" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" "$REPO_ROOT"/tests/test_codemod_*.py packages/python-sdk/tests/test_conformance_runner.py\n'},
+    {"id": "FT-AGI-1", "title": "Read-only MCP server safety", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AGI-1", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "mcp-no-write-tool" "python3 /ft/scripts/mcp_readonly.py"\n'},
+    {"id": "FT-AGI-2", "title": "Investigation skill + versioned CLI JSON", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "AGI-2", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "skill-answers" "python3 /ft/scripts/investigation_skill.py"\nft_assert "skill-contract" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_agent_interfaces.py\n'},
+    {"id": "FT-POL-1", "title": "suggest-policy + broad-rule lint", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "POL-1/2", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "suggest-policy-no-write" "cd /tmp && rm -f proposed.json && agentwatch suggest-policy --since 30d --target claude-settings --out /tmp/proposed.json && test -s /tmp/proposed.json"\nft_assert_recorder "what-if" "agentwatch what-if /tmp/proposed.json --since 30d --json"\nft_assert "policy-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_policy_suggest.py packages/python-sdk/tests/test_policy_whatif.py\n'},
+    {"id": "FT-FWK-1", "title": "Certified framework recipes (ADK/Strands/OpenAI/Claude SDK)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "FWK-1", "class": "P/F|D", "suite": "s7-platform", "steps": 'ft_assert_recorder "framework-recipes" "python3 /ft/scripts/framework_recipes.py"\nft_assert "framework-recipes-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_frameworks.py\n'},
+    {"id": "FT-FWK-2", "title": "instrument() auto-detect", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "FWK-2", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "instrument-detect" "python3 /ft/scripts/instrument_detect.py"\nft_assert "instrument-detect-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_autoinstrument.py\n'},
+    {"id": "FT-CCO-1", "title": "Claude Code native-OTel ingest + tool_use_id join", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CCO-1", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "native-otel-join" "python3 /ft/scripts/native-otel-join.py --corpus /ft/fixtures/cco"\nft_assert "otel-join-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_claude_otel.py\n'},
+    {"id": "FT-CCO-2", "title": "Claude Agent SDK / headless via same path", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CCO-2", "class": "P/F", "suite": "s7-platform", "steps": 'ft_assert_recorder "agent-sdk-native" "python3 /ft/scripts/ingest-fixture.py --kind cco"\nft_assert "agent-sdk-native-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_claude_agent_sdk.py\n'},
+    {"id": "FT-TSS-1", "title": "TS-SDK span-taxonomy spike", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "python", "prd": "TSS-1", "class": "P/F|D", "suite": "s7-platform", "steps": 'ft_assert "ts-spike-tracked" grep -q TSS-1 "$REPO_ROOT/docs/wbs/v0.2.0/wbs-v0.2.0-index.md"\n\nft_assert "ts-spike-deliverables" python3 "$REPO_ROOT/scripts/fieldtest/tss_spike.py"\nft_assert "ts-portability-contract" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" tests/test_ts_schema_portability.py\n'},
+    # S8 — authorization & oversight
+    {"id": "FT-APV-1", "title": "Classifier/bypass/user fidelity", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "APV-1", "class": "P/F", "suite": "s8-apv", "steps": 'ft_assert_recorder "approval-fidelity" "python3 /ft/scripts/oversight-corpus.py --fidelity"\nft_assert "authorization-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_authorization.py\n'},
+    {"id": "FT-APV-2", "title": "Oversight report on corpus", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "APV-3", "class": "P/F", "suite": "s8-apv", "steps": 'ft_assert_recorder "oversight-report" "python3 /ft/scripts/oversight-corpus.py --report"\nft_assert "permission-mode-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_permission_mode.py\n'},
+    {"id": "FT-APV-3", "title": "Permission-mode per call + transitions", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "APV-2", "class": "P/F", "suite": "s8-apv", "steps": 'ft_assert_recorder "permission-mode" "python3 /ft/scripts/oversight-corpus.py --modes"\nft_assert "oversight-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_oversight.py\n'},
+    # S9 — capability supply chain & memory
+    {"id": "FT-CAP-1", "title": "Plugin4Shell-shape drift", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CAP-1/2", "class": "P/F", "suite": "s9-capability", "steps": 'ft_assert_recorder "capability-drift" "python3 /ft/scripts/capability-drift.py --kind drift"\nft_assert "capability-drift-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_capability_drift.py\n'},
+    {"id": "FT-CAP-2", "title": "Capability load attribution", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CAP-3", "class": "P/F", "suite": "s9-capability", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "capability-load-attribution" "python3 /ft/scripts/capability-drift.py --kind load"\n'},
+    {"id": "FT-MEM-1", "title": "Out-of-band memory edit", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "MEM-1", "class": "P/F", "suite": "s9-capability", "steps": 'ft_assert_recorder "memory-oob-edit" "python3 /ft/scripts/capability-drift.py --kind memory"\nft_assert "memory-capability-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_memory_capability.py packages/python-sdk/tests/test_memory_surface.py\n'},
+    # S10 — code provenance
+    {"id": "FT-PRV-1", "title": "Commit → session", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PRV-1", "class": "P/F", "suite": "s10-provenance", "steps": 'ft_assert_recorder "commit-to-session" "python3 /ft/scripts/provenance-repo.py --commit-to-session"\nft_assert "provenance-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_provenance.py\n'},
+    {"id": "FT-PRV-2", "title": "Agent Trace export + content-free ranges", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PRV-2/3", "class": "P/F", "suite": "s10-provenance", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "agent-trace-export" "python3 /ft/scripts/provenance-repo.py --agent-trace"\n'},
+    {"id": "FT-PRV-3", "title": "Range + content-hash capture under every privacy mode", "kind": "v020_emit", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PRV-2", "class": "P/F", "suite": "s10-provenance", "steps": 'ft_assert_recorder "range-hash-capture" "python3 /ft/scripts/provenance-repo.py --range-hash"\nft_assert "range-hash-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_code_provenance.py\n'},
+    # S11 — console & query tier
+    {"id": "FT-LUI-1", "title": "Clean-machine console ≤60 s, no Docker", "kind": "v020_host", "layer": "analyst", "llm": "no", "requires": "python,node", "prd": "LUI-1", "class": "P/F", "suite": "s11-console", "steps": 'ft_assert "ui-console-check" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 -m agentwatch ui --check --host 127.0.0.1 --no-open\nft_assert "ui-module" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 -c "import agentwatch.ui"\nft_assert "console-playwright" python3 "$REPO_ROOT/scripts/fieldtest/console_playwright.py"\n\nft_assert "console-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_console.py packages/python-sdk/tests/test_accessibility.py\n'},
+    {"id": "FT-LUI-2", "title": "Embedded index rebuildable / deletable", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "LUI-2", "class": "P/F", "suite": "s11-console", "steps": 'ft_assert_recorder "index-rebuild-delete" "agentwatch index rebuild --json && agentwatch index drop --json && agentwatch sessions >/dev/null && agentwatch index rebuild --json"\n\nft_assert "index-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_query_index.py packages/python-sdk/tests/test_purge_propagation.py\n'},
+    # S12 — governance & retention
+    {"id": "FT-ACC-1", "title": "Role × data-class matrix + access log", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "ACC-1", "class": "P/F", "suite": "s12-governance", "steps": 'ft_assert_recorder "role-matrix" "python3 /ft/scripts/governance_matrix.py --roles"\nft_assert "access-model-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_access.py\n'},
+    {"id": "FT-ACC-2", "title": "Notice + DPIA from effective config", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "ACC-2", "class": "P/F", "suite": "s12-governance", "steps": 'ft_assert_recorder "governance-notice-backed" "python3 /ft/scripts/governance_notice_check.py"\n'},
+    {"id": "FT-HLD-1", "title": "Legal hold vs retention/purge/rebuild", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "HLD-1", "class": "P/F", "suite": "s12-governance", "steps": 'ft_assert_recorder "hold-survives" "python3 /ft/scripts/hold_lifecycle.py"\n'},
+    # S13 — investigation depth & verification
+    {"id": "FT-ENV-1", "title": "Seeded model-version change", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "ENV-1", "class": "P/F", "suite": "s13-investigation", "steps": 'ft_assert_recorder "env-delta" "python3 /ft/scripts/env_delta.py"\nft_assert "env-delta-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_environment_fingerprint.py\n'},
+    {"id": "FT-VFY-1", "title": "Browser verifier parity (offline)", "kind": "v020_host", "layer": "analyst", "llm": "no", "requires": "python", "prd": "VFY-1", "class": "P/F", "suite": "s13-investigation", "steps": 'ft_assert "verifier-artifact" bash -lc "test -f $REPO_ROOT/docs/release/verifier/agentwatch-verify.html"\nft_assert "verifier-checksum" bash -lc "cd $REPO_ROOT && python3 scripts/build_browser_verifier.py --check"\nft_assert "verifier-parity" python3 "$REPO_ROOT/scripts/fieldtest/vfy_parity.py"\n'},
+    {"id": "FT-IR-1", "title": "Multi-session incident case", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "IR-1", "class": "P/F", "suite": "s13-investigation", "steps": 'ft_assert_recorder "incident-case" "python3 /ft/scripts/case_incident.py"\nft_assert "incident-case-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_incident_cases.py\n'},
+    {"id": "FT-CNC-1", "title": "Concurrency report + ambiguous", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "CNC-1", "class": "P/F|D", "suite": "s13-investigation", "steps": 'ft_assert_recorder "concurrency-report" "python3 /ft/scripts/concurrency_probe.py"\nft_assert "concurrency-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_concurrency.py\n'},
+    {"id": "FT-SBX-1", "title": "Sandbox-boundary events", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "SBX-1", "class": "P/F|D", "suite": "s13-investigation", "steps": 'ft_assert_recorder "sandbox-events" "python3 /ft/scripts/oversight-corpus.py --sandbox"\nft_assert "sandbox-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_sandbox_events.py\n'},
+    # S14 — outcomes, ephemeral capture, growth
+    {"id": "FT-OUT-1", "title": "Outcome facts + cost per retained change", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OUT-1", "class": "P/F|D", "suite": "s14-outcomes", "steps": 'ft_assert_recorder "outcomes-facts" "python3 /ft/scripts/outcomes_check.py"\n'},
+    {"id": "FT-OUT-2", "title": "Recurring failure signatures", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "OUT-2", "class": "P/F|D", "suite": "s14-outcomes", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "digest-derived" "python3 /ft/scripts/digest_check.py"\n'},
+    {"id": "FT-RUN-1", "title": "Sealed runner segment", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "RUN-1", "class": "P/F", "suite": "s14-outcomes", "steps": 'ft_emit --corpus secrets\nft_assert_recorder "runner-segment" "python3 /ft/scripts/segment-runner.py"\nft_assert "runner-segment-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_runner_segments.py\n'},
+    {"id": "FT-DEMO-1", "title": "Static synthetic demo bundle", "kind": "v020_host", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "DEMO-1", "class": "P/F|D", "suite": "s14-outcomes", "steps": 'ft_assert "demo-bundle-synthetic-secretfree" python3 "$REPO_ROOT/scripts/fieldtest/demo_bundle_check.py"\n'},
+    {"id": "FT-NTF-1", "title": "Alert-routing recipes", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "NTF-1", "class": "P/F|D", "suite": "s14-outcomes", "steps": 'ft_assert_recorder "alert-recipes" "python3 /ft/scripts/alert_recipes.py --webhook-sink"\nft_assert "alert-recipes-semantics" python3 "$REPO_ROOT/scripts/fieldtest/shipped_tests.py" packages/python-sdk/tests/test_alert_recipes.py\n'},
+    # S15 — hostile data, claims ledger, closed gates
+    {"id": "FT-HOSTILE-1", "title": "Weaponized ingest containment", "kind": "v020_nodaemon", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "R5,ADR-0024,RSK-1", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert_recorder "hostile-contained" "python3 /ft/scripts/hostile-ingest.py --corpus /ft/fixtures/hostile"\nft_assert_recorder "quarantined" "test -s /data/agentwatch/quarantine.jsonl"\n'},
+    {"id": "FT-CLAIM-1", "title": "Claims ledger green + limitations shrink", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "PRD-48 §5", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert "claims-ledger-backed" python3 "$REPO_ROOT/scripts/fieldtest/claims_ledger_check.py"\n'},
+    {"id": "FT-MATRIX-1", "title": "Compatibility matrix honest tiers", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker", "prd": "XHT-4,PRD-40 §5.3", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert "matrix-file" bash -lc "test -f $REPO_ROOT/docs/reference/compatibility.md"\nft_assert "no-modeled-tier1" env PYTHONPATH="$REPO_ROOT/packages/python-sdk/src" python3 "$REPO_ROOT/scripts/fieldtest/check-matrix-tiers.py"\n'},
+    {"id": "FT-BACKEND-2", "title": "Second live OTLP backend (closes R4)", "kind": "v020", "layer": "recorder", "llm": "no", "requires": "docker,jaeger", "prd": "EXT-10,OTEL-1", "class": "P/F", "suite": "s15-hostile", "steps": 'ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"\nft_assert "jaeger" bash -lc "sleep 8 && curl -sf http://localhost:16686/api/services | grep -q agentwatch"\nft_assert "tempo" bash -lc "sleep 8 && curl -sf \'http://localhost:3200/api/search?tags=service.name%3Dagentwatch\' | grep -q traceID"\n'},
+
 ]
+
 
 SPEC_TEMPLATE = """# {id} — {title}
 
-**Layer:** {layer} · **LLM:** {llm} · **Requires:** {requires} · **PRD / claim:** {prd}
+**Layer:** {layer} · **LLM:** {llm} · **Requires:** {requires} · **PRD / claim:** {prd}{suite_line}
 
 ## Goal
-{title}. See `docs/field-test/v0.1.0/field-test-plan.md` for the rationale.
+{title}. See `docs/field-test/{doc_version}/field-test-plan.md` for the rationale.
 
 ## Steps
 Run by `cases/steps/{id}.sh` (generated from `gen_cases.py`); every command is
@@ -90,10 +206,11 @@ The case-specific assertions in `cases/steps/{id}.sh` (each recorded in
 `assertions.ndjson`). **Pass = all assertions true. There is no skip.**
 
 ## Artifacts
-`field-test/v0.1.0/results/<UTC-ts>/cases/{id}/artifacts/`.
+`field-test/{doc_version}/results/{results_token}/cases/{id}/artifacts/`.
 
 ## Cleanup
-`down -v` via the runner teardown trap (`STACK_KEEP=1` keeps the stack).
+Shared stack: reset in place between cases; `recycle` cases get a fresh `down -v`
++ boot. The stack is torn down once, at the end of the run.
 """
 
 _PRE = "ft_up_recorder\nft_start_daemon\n"
@@ -182,7 +299,8 @@ ft_capture_store
 ft_finalize
 """,
     "otel_export": """ft_record "compose up recorder jaeger otel-collector"
-"${STACK_COMPOSE[@]}" up -d --build recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+up_args=(-d); [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || up_args+=(--build)
+"${STACK_COMPOSE[@]}" up "${up_args[@]}" recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 ft_assert_recorder "emit-spans" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"
 sleep 5
 ft_assert_recorder "jaeger-services" "curl -sf http://jaeger:16686/api/services | grep -q agentwatch"
@@ -190,7 +308,8 @@ ft_capture_store_soft
 ft_finalize
 """,
     "otel_export_down": """ft_record "compose up recorder jaeger otel-collector"
-"${STACK_COMPOSE[@]}" up -d --build recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+up_args=(-d); [[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || up_args+=(--build)
+"${STACK_COMPOSE[@]}" up "${up_args[@]}" recorder jaeger otel-collector >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 # Endpoint down must not break the agent (exit 0), then recover to a live endpoint.
 ft_assert_recorder "endpoint-down-nonfatal" "python3 /ft/scripts/otel-probe.py --endpoint http://127.0.0.1:9 --service agentwatch"
 ft_assert_recorder "recover" "python3 /ft/scripts/otel-probe.py --endpoint http://otel-collector:4317 --service agentwatch"
@@ -259,7 +378,7 @@ ft_capture_store_soft
 ft_finalize
 """,
     "offline": """ft_record "build recorder image"
-"${STACK_COMPOSE[@]}" build recorder >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
+[[ "${FT_IMAGES_BUILT:-0}" == "1" ]] || "${STACK_COMPOSE[@]}" build recorder >> "$FT_CASE_DIR/stdout.log" 2>> "$FT_CASE_DIR/stderr.log"
 # No network namespace: the recorder must run record -> verify entirely offline.
 ft_assert "offline-record-verify" docker run --rm --network none agentwatch-fieldtest-recorder:local bash -lc 'agentwatch --set store.path=/data demo --json >/dev/null && agentwatch --set store.path=/data verify-store'
 ft_finalize
@@ -386,6 +505,17 @@ ft_finalize
     "health_selftest": _PRE + """ft_assert_recorder "self-test-in-health" "curl -sf http://127.0.0.1:9100/healthz | grep -q self_test_passing"
 ft_finalize
 """,
+    # --- v0.2.0 kinds (M31 31.3) ---------------------------------------------
+    # Boot the recorder stack (+ daemon), run the case's `{steps}` block, capture
+    # the store softly (v0.2.0 cases mostly assert on CLI output). A case that
+    # needs store contents asserts them inside `{steps}`.
+    "v020": _PRE + "{steps}ft_capture_store_soft\nft_finalize\n",
+    # Same, but without starting the daemon (ingest / fixture / CLI-only cases).
+    "v020_nodaemon": "ft_up_recorder\n{steps}ft_capture_store_soft\nft_finalize\n",
+    # Emit a real hook corpus first, then the `{steps}` block, then assert store.
+    "v020_emit": _PRE + "ft_emit --corpus secrets\n{steps}ft_capture_store\nft_finalize\n",
+    # Host-native / no-Docker cases (console, install timing, TS spike).
+    "v020_host": "{steps}ft_finalize\n",
 }
 
 
@@ -406,7 +536,51 @@ def _step(case: dict[str, str]) -> str:
         .replace("{min}", case.get("min", "1.0"))
         .replace("{interval}", case.get("interval", "0.002"))
         .replace("{cmd2_line}", cmd2_line)
+        .replace("{steps}", case.get("steps", ""))
     )
+
+
+_SERVICE_RE = re.compile(
+    r"\b(analytics|jaeger|otel-collector|otel-grpc|a2a-proxy|litellm|runner|"
+    r"managed-hooks|verifier|postgres|fleet|tempo|api|web)\b"
+)
+
+
+def _needs_recycle(step: str) -> bool:
+    """True when a case must get a genuinely fresh stack rather than the shared
+    one. A soft reset only wipes the recorder store and the read-model tables, so
+    any case that touches another service (or the OTLP/DB read path) is given a
+    real `down -v` + boot. Host-native cases never boot the stack, never recycle."""
+    if "ft_up_recorder" not in step:
+        return False
+    return bool(_SERVICE_RE.search(step))
+
+
+_WEAK_IMPORT_RE = re.compile(r"python3\s+-c\s+['\"]import ")
+_WEAK_DRIVER_RE = re.compile(r"python3\s+/ft/scripts/[\w.-]+\.py")
+
+
+def _weak_reasons(step: str) -> list[str]:
+    """Heuristic catalogue of assertions that prove plumbing, not the property.
+
+    The generator guard surfaces these so a weak step cannot ship silently; set
+    ``FT_STRICT_STEPS=1`` (e.g. in CI) to fail generation while any remain.
+    """
+    reasons: list[str] = []
+    for line in step.splitlines():
+        if "ft_assert" not in line:
+            continue
+        if _WEAK_IMPORT_RE.search(line):
+            reasons.append("import-only")
+        if "|| true" in line:
+            reasons.append("cannot-fail")
+        if "json.tool" in line:
+            reasons.append("json.tool")
+        if re.search(r"\btest -[fsn]\b", line) and "grep" not in line and "&&" not in line:
+            reasons.append("existence-only")
+        if _WEAK_DRIVER_RE.search(line) and "grep" not in line and "&&" not in line:
+            reasons.append("driver-only(verify-it-asserts)")
+    return reasons
 
 
 def _clean_generated() -> None:
@@ -422,13 +596,45 @@ def main() -> int:
     STEPS_DIR.mkdir(parents=True, exist_ok=True)
     _clean_generated()
     for case in CASES:
+        step = _step(case)
+        # `recycle`: needs a genuinely fresh stack (touches another service);
+        # everything else shares the stack and is reset in place.
+        case["recycle"] = _needs_recycle(step)
         slug = _slug(case["title"])
         if case.get("spec") != "custom":
-            (CASES_DIR / f"{case['id']}-{slug}.md").write_text(
-                SPEC_TEMPLATE.format(**case), encoding="utf-8"
+            fields = dict(case)
+            fields["doc_version"] = "v0.2.0" if case.get("suite") else "v0.1.0"
+            fields["results_token"] = "<run-id>" if case.get("suite") else "<UTC-ts>"
+            fields["suite_line"] = (
+                f" · **Suite:** {case['suite']} · **Class:** {case.get('class', 'P/F')}"
+                if case.get("suite")
+                else ""
             )
-        (STEPS_DIR / f"{case['id']}.sh").write_text(_step(case), encoding="utf-8")
+            (CASES_DIR / f"{case['id']}-{slug}.md").write_text(
+                SPEC_TEMPLATE.format(**fields), encoding="utf-8"
+            )
+        (STEPS_DIR / f"{case['id']}.sh").write_text(step, encoding="utf-8")
     (CASES_DIR / "registry.json").write_text(json.dumps(CASES, indent=2) + "\n", encoding="utf-8")
+
+    weak = [
+        (case["id"], sorted(set(_weak_reasons(_step(case)))))
+        for case in CASES
+        if case.get("suite") and _weak_reasons(_step(case))
+    ]
+    if weak:
+        print(
+            f"gen_cases: WEAK assertions in {len(weak)} v0.2.0 case(s) "
+            "(import-only / existence-only / cannot-fail / driver-only):"
+        )
+        for cid, reasons in weak:
+            print(f"  {cid}: {', '.join(reasons)}")
+        if os.environ.get("FT_STRICT_STEPS") == "1":
+            print(
+                "gen_cases: FT_STRICT_STEPS=1 -> failing; harden the flagged steps.",
+                file=sys.stderr,
+            )
+            return 1
+
     print(f"gen_cases: wrote {len(CASES)} specs + {len(CASES)} step scripts")
     return 0
 

@@ -30,6 +30,7 @@ import RunTimeline from "./pages/RunTimeline";
 import FleetHealth from "./pages/FleetHealth";
 import VersionCompare from "./pages/VersionCompare";
 import AnomalyInbox from "./pages/AnomalyInbox";
+import DetectorTelemetry from "./pages/DetectorTelemetry";
 import "./index.css";
 
 /** Application entry point. Renders the router with all page routes. */
@@ -43,6 +44,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/fleet" element={<FleetHealth />} />
         <Route path="/compare" element={<VersionCompare />} />
         <Route path="/anomalies" element={<AnomalyInbox />} />
+        <Route path="/operator" element={<DetectorTelemetry />} />
         {/* Catch-all: redirect unknown paths to the dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

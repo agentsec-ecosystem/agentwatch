@@ -17,7 +17,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-OUT="${SECURITY_SCAN_OUT:-docs/release/v0.1.0/security-scan}"
+OUT="${SECURITY_SCAN_OUT:-docs/release/v0.2.0/security-scan}"
 EXCLUDE="$ROOT/scripts/security/trufflehog-exclude.txt"
 PACKAGES=(packages/python-sdk services/api services/analytics)
 FIRST_PARTY_DIRS=(packages services apps scripts docs .github)

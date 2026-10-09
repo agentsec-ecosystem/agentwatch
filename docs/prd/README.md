@@ -1,9 +1,14 @@
-# agentwatch — Product Requirements (v0.1.0)
+# agentwatch — Product Requirements (v0.1.0 + v0.2.0)
 
-Requirements for **agentwatch v0.1.0** — the vendor-neutral telemetry and security-event layer for AI
+Requirements for **agentwatch** — the vendor-neutral telemetry and security-event layer for AI
 agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 
-> **Status: decisions accepted (2026-10-02); ready for the v0.1.0 build.** These PRDs are the v0.1.0 baseline. They supersede the retired
+> **Status: v0.1.0 decisions accepted (2026-10-02); v0.2.0 proposed (2026-10-05); v0.2.0-expanded
+> proposed (2026-10-05, PRD 49–59).** PRDs 00–39 are the shipped v0.1.0 baseline; PRDs 40–48 are the
+> v0.2.0 program (best-in-class record layer); PRDs 49–59 are the **v0.2.0-expanded** additions
+> (authorization/oversight, deployability, harness-native telemetry, capability supply chain, code
+> provenance, local console, agent interfaces, policy-from-history, governance/retention integrity,
+> investigation depth, OWASP Agentic coverage). They supersede the retired
 > `agent-exec-trace`/AgentObservatory (#102) and AgentWatch (#66) projects.
 
 ## Documents
@@ -49,6 +54,26 @@ agents. Part of the [agentsec-ecosystem](https://github.com/agentsec-ecosystem).
 | 37 | [Configuration, Profiles & Capture Hygiene](37-config-and-capture-hygiene.md) | `config explain`, install profiles, pathological-record guard, SDK/hook union, standalone redactor |
 | 38 | [Engineering Rigor](38-engineering-rigor.md) | Property/differential/mutation/fuzz testing, whole-repo CI, perf gate, conformance vectors, compat matrix, error contract, claims ledger, executable docs, WCAG level, time correctness, release pipeline |
 | 39 | [Standards & Compliance Acceptance](39-standards-and-compliance-acceptance.md) | EU AI Act mapping, ISO/NIST appendices, open artifact standards, OTel semconv pin, schema stewardship, forensic-soundness, checkpoint notarization/signing, OpenSSF/OSV |
+| 40 | [v0.2.0 Program](40-v0.2.0-program.md) | Best-in-class record layer: gaps, definition, PRD map, sequencing, release gate |
+| 41 | [Standards & Interop II](41-standards-and-interop-ii.md) | IETF AAT emit/ingest, OTel GenAI agent spans + OTLP/gRPC, W3C trace correlation, derived Postgres + SDK unification |
+| 42 | [Harness Fidelity & Real-Time](42-harness-fidelity-and-realtime.md) | Cursor native hooks, Gemini OTel, Codex rollouts, MCP 2026-07-28 surface, streaming, LangGraph/raw-Python |
+| 43 | [Detector Credibility & Evaluation](43-detector-credibility-and-evaluation.md) | Recall program, public eval corpus, published effectiveness, detector telemetry, injection/memory observations, incident-registry interop |
+| 44 | [Agent Identity, Enterprise & Compliance](44-identity-enterprise-and-compliance.md) | Agent identity + delegation (AIMS/WIMSE), one-command compliance reports, retention profiles, signed default, SIEM/OCSF sinks |
+| 45 | [New Capture Surfaces](45-new-capture-surfaces.md) | A2A, LLM-gateway ingest, system-effects layer, Claude Compliance API, long-tail log readers, ACS interop |
+| 46 | [Platform, SDK & Growth](46-platform-sdk-and-growth.md) | SDK lifecycle/sampler/provider, Windows, TS SDK spike, OpenAPI + client, examples gallery, field test, governance |
+| 47 | [Cross-Harness Test Kit](47-cross-harness-testkit.md) | Payload corpus + replay runner, OpenCode live soak, cross-parser validation, honest fidelity tiers |
+| 48 | [v0.2.0 Risk, Testing & Decision Register](48-v0.2.0-risks-testing-and-decisions.md) | v0.2.0 risk register, testing rigor, threat-model additions, ADR seeds 0016–0026, definition of done |
+| 49 | [Authorization & Oversight Provenance](49-authorization-and-oversight.md) | Authorization taxonomy v2 (human/rule/classifier/hook/bypass), permission mode per call, `oversight` report |
+| 50 | [Deployability & Recorder Attestation](50-deployability-and-recorder-attestation.md) | Managed-policy install, session-start recorder attestation, published end-to-end hook cost |
+| 51 | [Harness-Native Telemetry & Framework Reach](51-harness-native-telemetry-and-framework-reach.md) | Claude Code OTel ingest + join, Agent SDK, certified ADK/Strands/OpenAI-Agents recipes, `instrument()` |
+| 52 | [Capability Supply Chain & Memory](52-capability-supply-chain-and-memory.md) | Skills/plugins/hooks/rules/memory inventory + drift (`capability-changed`) + load attribution |
+| 53 | [Code Provenance & Attribution](53-code-provenance-and-attribution.md) | `provenance`, Agent Trace export/ingest, content-free range+hash capture |
+| 54 | [Local Console & Embedded Query Tier](54-local-console-and-query-tier.md) | `agentwatch ui` zero-Docker console, rebuildable embedded index, PG re-sequenced |
+| 55 | [Agent Interfaces & Policy-from-History](55-agent-interfaces-and-policy-from-history.md) | Read-only MCP server + skill + JSON contract; `suggest-policy`/`what-if` (advisory) |
+| 56 | [Governance, Retention Integrity & Redaction Quality](56-governance-retention-and-redaction-quality.md) | Fleet access model + access log (ACC), notice/DPIA, legal hold (HLD), redaction benchmark (RED) |
+| 57 | [Investigation Depth & Evidence Verification](57-investigation-depth-and-verification.md) | Environment fingerprint/delta, incident cases, concurrency, browser verifier, sandbox events |
+| 58 | [Outcomes, Ephemeral Capture & Growth](58-outcomes-ephemeral-capture-and-growth.md) | Outcome facts + cost-per-retained-change, runner segments, demo bundle, alert recipes |
+| 59 | [OWASP Agentic & Standards Coverage](59-owasp-agentic-and-standards-coverage.md) | OWASP ASI-2026 + Agentic Skills Top-10 coverage report; standards participation (DD-05) |
 
 ## Reviewers start here
 

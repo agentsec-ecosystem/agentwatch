@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from agentwatch.adapters import (
+    a2a_proxy,
     claude_code,
     codex_cli,
     crewai,
@@ -13,6 +14,7 @@ from agentwatch.adapters import (
 )
 
 __all__ = [
+    "a2a_proxy",
     "claude_code",
     "codex_cli",
     "crewai",

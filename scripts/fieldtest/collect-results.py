@@ -14,12 +14,17 @@ report is assembled from them, never the reverse.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RESULTS_ROOT = REPO_ROOT / "field-test" / "v0.1.0" / "results"
+# Version-scoped results root: FT_RESULTS_ROOT wins, else field-test/<FT_VERSION>/results.
+RESULTS_ROOT = Path(
+    os.environ.get("FT_RESULTS_ROOT")
+    or (REPO_ROOT / "field-test" / os.environ.get("FT_VERSION", "v0.1.0") / "results")
+)
 REGISTRY = Path(__file__).resolve().parent / "cases" / "registry.json"
 
 
@@ -63,10 +68,14 @@ def collect(run_dir: Path, expected: list[str] | None = None) -> dict[str, objec
             )
     cases.sort(key=lambda case: str(case.get("id")))
 
-    totals = {"pass": 0, "fail": 0}
+    totals = {"pass": 0, "fail": 0, "declared": 0}
     for case in cases:
-        if str(case.get("status")) == "pass":
+        status = str(case.get("status"))
+        if status == "pass":
             totals["pass"] += 1
+        elif status == "declared":
+            # Allowed only for P/F|D cases whose release gate says "or declared".
+            totals["declared"] += 1
         else:
             case["status"] = "fail"
             totals["fail"] += 1
@@ -93,14 +102,17 @@ def render_markdown(summary: dict[str, object]) -> str:
     lines = [f"# Field Test Run {summary['run_id']}", ""]
     totals = summary["totals"]
     lines.append(
-        f"**Totals:** {totals['pass']} pass · {totals['fail']} fail  →  "
+        f"**Totals:** {totals['pass']} pass · {totals['fail']} fail · "
+        f"{totals.get('declared', 0)} declared  →  "
         f"**{'GREEN' if summary['green'] else 'NOT GREEN'}**"
     )
     lines.append("")
-    lines.append("| Case | Status |")
-    lines.append("|---|---|")
+    lines.append("| Case | Class | Status |")
+    lines.append("|---|---|---|")
     for case in summary["cases"]:
-        lines.append(f"| {case.get('id')} | {case.get('status')} |")
+        lines.append(
+            f"| {case.get('id')} | {case.get('class', 'P/F')} | {case.get('status')} |"
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -123,8 +135,8 @@ def main(argv: list[str] | None = None) -> int:
     (run_dir / "summary.md").write_text(render_markdown(summary), encoding="utf-8")
     totals = summary["totals"]
     print(
-        f"collect-results: {totals['pass']} pass / {totals['fail']} fail "
-        f"-> {run_dir}/summary.{{json,md}}"
+        f"collect-results: {totals['pass']} pass / {totals['fail']} fail / "
+        f"{totals.get('declared', 0)} declared -> {run_dir}/summary.{{json,md}}"
     )
     return 0 if summary["green"] else 1
 

@@ -1,0 +1,10 @@
+{
+  "description": "Pinned Agent Trace RFC revision and the fields agentwatch maps; see docs/design/code-provenance.md. When upstream moves, update this snapshot and re-pin AGENT_TRACE_SPEC_REVISION (which fails the drift check and opens an issue until handled).",
+  "fields": [
+    "conversation",
+    "contributor",
+    "vcs",
+    "files"
+  ],
+  "revision": "agent-trace-rfc-0.1"
+}

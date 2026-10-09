@@ -1,0 +1,2 @@
+DO
+ok: no store loss on consumer crash: 5000/5000 reconciled; gaps classified=4405, reconnects=0, degraded_polls=100, size=2.305MB

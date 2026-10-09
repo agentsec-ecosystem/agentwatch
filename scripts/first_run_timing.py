@@ -43,8 +43,12 @@ def main() -> int:
             store.append(record)
         ok = store.verify().ok and run_redaction_self_test().passed
     elapsed_ms = (time.perf_counter() - started) * 1000.0
-    print(f"first-run record path: {elapsed_ms:.1f} ms (ok={ok})")
-    return 0 if ok else 1
+    # R2/NFR-4: the zero-code-change first-run path must fit the 15-minute budget.
+    budget_ms = 900_000.0
+    within_budget = elapsed_ms <= budget_ms
+    print(f"first-run record path: {elapsed_ms:.1f} ms (ok={ok}, budget={budget_ms / 1000:.0f}s, "
+          f"within_budget={within_budget})")
+    return 0 if (ok and within_budget) else 1
 
 
 if __name__ == "__main__":

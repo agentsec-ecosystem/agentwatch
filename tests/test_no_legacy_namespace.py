@@ -14,11 +14,14 @@ from pathlib import Path
 LEGACY = "agent_exec_trace"
 ROOT = Path(__file__).resolve().parents[1]
 
-# DD-12 allowlist: the shim itself and the test that exercises it.
+# DD-12 allowlist: the shim itself, the test that exercises it, and the codemod
+# (GOV-1) that rewrites the legacy identifier, with its test.
 ALLOWLIST = {
     "packages/python-sdk/src/agent_exec_trace/__init__.py",
     "packages/python-sdk/tests/test_legacy_shim.py",
     "tests/test_no_legacy_namespace.py",
+    "scripts/codemod_agent_exec_trace.py",
+    "tests/test_codemod_agent_exec_trace.py",
 }
 
 # Scan implementation + tests + configs, not historical/migration docs.

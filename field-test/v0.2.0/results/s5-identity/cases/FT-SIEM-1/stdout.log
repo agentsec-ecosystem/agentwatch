@@ -1,0 +1,6 @@
+DO
+emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
+ok: OCSF/Syslog conformance green; redaction gate blocks unconfigured sinks
+......                                                                   [100%]
+6 passed in 0.10s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_siem_consumers.py packages/python-sdk/tests/test_siem_syslog.py

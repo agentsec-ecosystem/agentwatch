@@ -19,7 +19,9 @@ from agentwatch.notarize import (
 from agentwatch.records import AgentIdentity, AgentRecord, Outcome, StepType, ToolCall
 from agentwatch.signing import (
     KEY_FILENAME,
+    SigningError,
     generate_key,
+    key_from_private,
     load_or_create_key,
     sign_digest,
     verify_digest,
@@ -57,6 +59,28 @@ def test_tampered_digest_fails() -> None:
     key = generate_key()
     signature = sign_digest(key, "abc123")
     assert verify_digest(key.public_bytes, "abc124", signature) is False
+
+
+def test_load_key_preserves_raw_whitespace_bytes(tmp_path: Path) -> None:
+    # Regression: raw key bytes must not be stripped. 32 bytes that both start
+    # and end with ASCII whitespace would be truncated by ``.strip()`` and fail
+    # with "An Ed25519 private key is 32 bytes long".
+    raw = b"\n" + bytes(range(30)) + b" "
+    path = tmp_path / KEY_FILENAME
+    path.write_bytes(raw)
+
+    key = load_or_create_key(path)
+
+    assert key.private_bytes == raw
+    assert key.key_id == key_from_private(raw).key_id
+
+
+def test_malformed_key_file_fails_closed(tmp_path: Path) -> None:
+    path = tmp_path / KEY_FILENAME
+    path.write_bytes(b"too-short")
+
+    with pytest.raises(SigningError):
+        load_or_create_key(path)
 
 
 # --------------------------------------------------------------------------- W7 notarize

@@ -1,0 +1,2 @@
+DO
+ok: xht replay across 8 adapters; broken adapter fails

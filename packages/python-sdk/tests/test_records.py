@@ -15,15 +15,20 @@ import pytest
 from agentwatch.records import (
     EVENT_VERSION,
     SCHEMA_VERSION,
+    SUPPORTED_EVENT_VERSIONS,
+    SUPPORTED_SCHEMA_VERSIONS,
     AgentIdentity,
     AgentRecord,
+    CredentialClass,
     Outcome,
+    RecordPhase,
     RecordPrivacyMode,
     RecordValidationError,
     SecurityEvent,
     SecurityEventType,
     StepType,
     ToolCall,
+    effective_record_phase,
     validate_event,
     validate_record,
 )
@@ -60,6 +65,8 @@ def _record(**overrides: object) -> AgentRecord:
 def test_version_constants() -> None:
     assert SCHEMA_VERSION == "0.1.0"
     assert EVENT_VERSION == "0.1.0"
+    assert SUPPORTED_SCHEMA_VERSIONS == ("0.1.0", "0.2.0")
+    assert SUPPORTED_EVENT_VERSIONS == ("0.1.0", "0.2.0")
 
 
 def test_enums_match_the_schema() -> None:
@@ -71,6 +78,17 @@ def test_enums_match_the_schema() -> None:
         "hashed",
         "full",
     ]
+    assert [p.value for p in RecordPhase] == [
+        "pre_execution",
+        "post_execution",
+        "unknown",
+    ]
+    assert [c.value for c in CredentialClass] == [
+        "api-key",
+        "oauth",
+        "svid",
+        "ambient/shared",
+    ]
     assert [e.value for e in SecurityEventType] == [
         "denied",
         "policy-fired",
@@ -79,6 +97,11 @@ def test_enums_match_the_schema() -> None:
         "halted",
         "drift-detected",
         "tool-surface-changed",
+        "agent-delegation",
+        "recorder-config-changed",
+        "mode-transition",
+        "sandbox-boundary",
+        "capability-changed",
     ]
 
 
@@ -123,6 +146,8 @@ def test_unset_optionals_are_omitted() -> None:
     assert "ended_at" not in data
     assert "duration_ms" not in data
     assert "step_type" not in data
+    assert "record_phase" not in data
+    assert "traceparent" not in data
     assert "security_event" not in data
 
 
@@ -423,3 +448,116 @@ def test_drift_detected_event_validates() -> None:
         }
     )
     assert event.type is SecurityEventType.DRIFT_DETECTED
+
+
+# ---------------------------------------------------------------------------
+# v0.2.0 SCHEMA-1: additive AAT/identity fields + supported version range
+# ---------------------------------------------------------------------------
+
+
+def test_record_phase_and_traceparent_round_trip() -> None:
+    record = _record(
+        record_phase=RecordPhase.PRE_EXECUTION,
+        traceparent="00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+    )
+    data = record.to_dict()
+
+    assert data["record_phase"] == "pre_execution"
+    assert data["traceparent"] == "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+    assert AgentRecord.from_dict(data) == record
+    assert validate_record(data) == record
+
+
+def test_legacy_record_reads_as_unknown_phase() -> None:
+    record = _record()
+    assert record.record_phase is None
+    assert effective_record_phase(record) is RecordPhase.UNKNOWN
+    assert effective_record_phase(_record(record_phase=RecordPhase.POST_EXECUTION)) is (
+        RecordPhase.POST_EXECUTION
+    )
+
+
+def test_agent_identity_dimension_round_trips() -> None:
+    agent = AgentIdentity(
+        identity="agent-1",
+        name="triage",
+        workload_identity="spiffe://corp.example/agent/triage",
+        credential_class=CredentialClass.SVID,
+        principal="sha256:abc123",
+        delegation_chain=("sha256:user", "sha256:agent"),
+    )
+    record = _record(agent=agent)
+    data = record.to_dict()
+
+    assert data["agent"]["workload_identity"] == "spiffe://corp.example/agent/triage"
+    assert data["agent"]["credential_class"] == "svid"
+    assert data["agent"]["principal"] == "sha256:abc123"
+    assert data["agent"]["delegation_chain"] == ["sha256:user", "sha256:agent"]
+    assert AgentRecord.from_dict(data) == record
+    assert validate_record(data) == record
+
+
+def test_identity_dimension_defaults_omitted() -> None:
+    data = _record().to_dict()
+    assert "workload_identity" not in data["agent"]
+    assert "credential_class" not in data["agent"]
+    assert "principal" not in data["agent"]
+    assert "delegation_chain" not in data["agent"]
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("record_phase", "during"),
+        ("traceparent", 5),
+    ],
+)
+def test_bad_new_record_fields_are_rejected(field: str, value: object) -> None:
+    data = _valid_dict()
+    data[field] = value
+    with pytest.raises(RecordValidationError, match=field):
+        validate_record(data)
+
+
+def test_bad_identity_fields_are_rejected() -> None:
+    data = _valid_dict()
+    data["agent"]["credential_class"] = "magic"
+    with pytest.raises(RecordValidationError, match="credential_class"):
+        validate_record(data)
+
+    data = _valid_dict()
+    data["agent"]["delegation_chain"] = "not-a-list"
+    with pytest.raises(RecordValidationError, match="delegation_chain"):
+        validate_record(data)
+
+    data = _valid_dict()
+    data["agent"]["delegation_chain"] = ["ok", 5]
+    with pytest.raises(RecordValidationError, match="delegation_chain"):
+        validate_record(data)
+
+
+def test_supported_schema_versions_are_accepted() -> None:
+    for version in SUPPORTED_SCHEMA_VERSIONS:
+        data = _valid_dict()
+        data["schema_version"] = version
+        assert validate_record(data).schema_version == version
+
+
+def test_unsupported_schema_version_names_the_range() -> None:
+    data = _valid_dict()
+    data["schema_version"] = "9.9.9"
+    with pytest.raises(RecordValidationError, match="0.2.0"):
+        validate_record(data)
+
+
+def test_agent_delegation_event_validates() -> None:
+    event = validate_event(
+        {
+            "event_version": EVENT_VERSION,
+            "type": "agent-delegation",
+            "emitted_at": "2026-01-02T03:04:05+00:00",
+            "emitter": "agentwatch",
+            "evidence": {"from": "agent-a", "to": "agent-b"},
+        }
+    )
+    assert event.type is SecurityEventType.AGENT_DELEGATION

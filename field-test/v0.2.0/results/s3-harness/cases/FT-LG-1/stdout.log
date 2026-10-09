@@ -1,0 +1,4 @@
+DO
+drive-agent: mode=omlx calls=1 delivered=1
+agentwatch: chain ok (5 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

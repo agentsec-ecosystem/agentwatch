@@ -33,6 +33,17 @@ from agentwatch.spool import Spool
 # JSON-RPC server-error code used for a request the server never answered.
 _SERVER_EXIT_CODE = -32000
 
+# MCP transports (M27 MCP-1, ADR-0023). The 2026-07-28 revision makes Streamable
+# HTTP the primary transport and **removes sessions**; the legacy HTTP/SSE relay
+# is kept verbatim and marked deprecated-in-spec.
+MCP_TRANSPORT_STREAMABLE = "streamable-http"
+MCP_TRANSPORT_HTTP_SSE = "http-sse"
+MCP_TRANSPORTS = frozenset({MCP_TRANSPORT_STREAMABLE, MCP_TRANSPORT_HTTP_SSE})
+
+# The session header the 2026-07-28 spec removes; the streamable transport is
+# stateless and never forwards it in either direction.
+_SESSION_HEADER = "mcp-session-id"
+
 # Headers never forwarded verbatim: hop-by-hop (RFC 7230 §6.1) plus the framing
 # headers we recompute for the proxied request/response.
 _HOP_BY_HOP = frozenset(
@@ -47,6 +58,14 @@ _HOP_BY_HOP = frozenset(
         "upgrade",
     }
 )
+
+
+def parse_transport(value: str) -> str:
+    """Validate a transport selector; raise ``ValueError`` when it is unknown."""
+    if value not in MCP_TRANSPORTS:
+        expected = ", ".join(sorted(MCP_TRANSPORTS))
+        raise ValueError(f"invalid transport {value!r}; expected one of {expected}")
+    return value
 
 
 def resolve_session_id(env: Mapping[str, str] | None = None) -> str:
@@ -72,6 +91,9 @@ def _frame(
     *,
     tool_name: str | None = None,
     call_id: str | None = None,
+    resource: str | None = None,
+    prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
@@ -85,6 +107,12 @@ def _frame(
         event["tool_name"] = tool_name
     if call_id is not None:
         event["call_id"] = call_id
+    if resource is not None:
+        event["resource"] = resource
+    if prompt is not None:
+        event["prompt"] = prompt
+    if task is not None:
+        event["task"] = task
     if timestamp is not None:
         event["timestamp"] = timestamp
     if cwd is not None:
@@ -97,12 +125,28 @@ def request_frame(
     session_id: str,
     rpc: Mapping[str, Any],
     *,
+    tool_name: str | None = None,
     call_id: str | None = None,
+    resource: str | None = None,
+    prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
     """Frame a harness -> server JSON-RPC request."""
-    return _frame(server, session_id, "request", rpc, call_id=call_id, timestamp=timestamp, cwd=cwd)
+    return _frame(
+        server,
+        session_id,
+        "request",
+        rpc,
+        tool_name=tool_name,
+        call_id=call_id,
+        resource=resource,
+        prompt=prompt,
+        task=task,
+        timestamp=timestamp,
+        cwd=cwd,
+    )
 
 
 def response_frame(
@@ -112,10 +156,13 @@ def response_frame(
     *,
     tool_name: str,
     call_id: str | None = None,
+    resource: str | None = None,
+    prompt: str | None = None,
+    task: str | None = None,
     timestamp: str | None = None,
     cwd: str | None = None,
 ) -> dict[str, Any]:
-    """Frame a server -> harness JSON-RPC response (carries the tool name)."""
+    """Frame a server -> harness JSON-RPC response (carries the surface name)."""
     return _frame(
         server,
         session_id,
@@ -123,6 +170,9 @@ def response_frame(
         rpc,
         tool_name=tool_name,
         call_id=call_id,
+        resource=resource,
+        prompt=prompt,
+        task=task,
         timestamp=timestamp,
         cwd=cwd,
     )
@@ -141,6 +191,79 @@ def is_tools_call_request(message: Any) -> bool:
     return isinstance(name, str) and bool(name)
 
 
+def is_resources_read_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``resources/read`` request with a URI."""
+    if not isinstance(message, Mapping):
+        return False
+    if message.get("method") != "resources/read":
+        return False
+    params = message.get("params")
+    if not isinstance(params, Mapping):
+        return False
+    uri = params.get("uri")
+    return isinstance(uri, str) and bool(uri)
+
+
+def is_prompts_get_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``prompts/get`` request with a name."""
+    if not isinstance(message, Mapping):
+        return False
+    if message.get("method") != "prompts/get":
+        return False
+    params = message.get("params")
+    if not isinstance(params, Mapping):
+        return False
+    name = params.get("name")
+    return isinstance(name, str) and bool(name)
+
+
+def is_recordable_request(message: Any) -> bool:
+    """Whether a harness request belongs to a recorded MCP surface."""
+    return (
+        is_tools_call_request(message)
+        or is_resources_read_request(message)
+        or is_prompts_get_request(message)
+        or is_tasks_request(message)
+    )
+
+
+def is_elicitation_request(message: Any) -> bool:
+    """Whether ``message`` is a server-issued ``elicitation/create`` request (S14)."""
+    return isinstance(message, Mapping) and message.get("method") == "elicitation/create"
+
+
+def is_tasks_request(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC ``tasks/*`` request (SEP-2663)."""
+    if not isinstance(message, Mapping):
+        return False
+    method = message.get("method")
+    return isinstance(method, str) and method.startswith("tasks/")
+
+
+def is_jsonrpc_response(message: Any) -> bool:
+    """Whether ``message`` is a JSON-RPC response (no method, has an id)."""
+    return isinstance(message, Mapping) and "method" not in message and "id" in message
+
+
+def resource_links(result: Any) -> list[str]:
+    """Resource-link URIs carried by an MCP tool result (``content[].resource_link``)."""
+    if not isinstance(result, Mapping):
+        return []
+    content = result.get("content")
+    if not isinstance(content, list):
+        return []
+    links: list[str] = []
+    for item in content:
+        if (
+            isinstance(item, Mapping)
+            and item.get("type") == "resource_link"
+            and isinstance(item.get("uri"), str)
+            and item["uri"]
+        ):
+            links.append(item["uri"])
+    return links
+
+
 class Recorder:
     """Pairs MCP requests with their responses and emits frames to the daemon."""
 
@@ -156,29 +279,96 @@ class Recorder:
         self.session_id = session_id
         self.socket_path = socket_path
         self.cwd = cwd
-        self._pending: dict[Any, tuple[str, str]] = {}
+        self._pending: dict[Any, tuple[str, str, str | None, str | None, str | None]] = {}
+        # Server-issued requests (elicitation/create) awaiting the harness answer.
+        self._pending_elicit: dict[Any, tuple[str, str]] = {}
 
     def observe_from_harness(self, message: Any) -> None:
-        """Record a harness -> server frame; non-``tools/call`` is relay-only."""
-        if not is_tools_call_request(message):
+        """Record a harness -> server frame; other methods are relay-only."""
+        if is_jsonrpc_response(message):
+            # The harness answering a server-issued elicitation request.
+            try:
+                elicit_name, elicit_call_id = self._pending_elicit.pop(message.get("id"))
+            except (KeyError, TypeError):
+                return
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    message,
+                    tool_name=elicit_name,
+                    call_id=elicit_call_id,
+                    cwd=self.cwd,
+                )
+            )
             return
-        params = message.get("params")
-        name = params.get("name") if isinstance(params, Mapping) else None
+        params = message.get("params") if isinstance(message, Mapping) else None
+        task: str | None = None
+        if is_tools_call_request(message):
+            name = params.get("name") if isinstance(params, Mapping) else None
+            resource: str | None = None
+            prompt: str | None = None
+            request_tool_name: str | None = None
+        elif is_resources_read_request(message):
+            name = "resources/read"
+            resource = params.get("uri") if isinstance(params, Mapping) else None
+            prompt = None
+            request_tool_name = "resources/read"
+        elif is_prompts_get_request(message):
+            name = "prompts/get"
+            resource = None
+            prompt = params.get("name") if isinstance(params, Mapping) else None
+            request_tool_name = "prompts/get"
+        elif is_tasks_request(message):
+            method = message.get("method")
+            name = method if isinstance(method, str) else "tasks"
+            resource = None
+            prompt = None
+            request_tool_name = name
+            raw_task = params.get("taskId") if isinstance(params, Mapping) else None
+            task = raw_task if isinstance(raw_task, str) and raw_task else None
+        else:
+            return
         # A fresh id per call: a JSON-RPC id may be reused across calls, but the
         # daemon's dedup key must stay unique so no record is silently dropped.
         call_id = uuid.uuid4().hex
         with contextlib.suppress(TypeError):  # an unhashable JSON-RPC id cannot be paired
-            self._pending[message.get("id")] = (str(name), call_id)
+            self._pending[message.get("id")] = (str(name), call_id, resource, prompt, task)
         self._emit(
-            request_frame(self.server, self.session_id, message, call_id=call_id, cwd=self.cwd)
+            request_frame(
+                self.server,
+                self.session_id,
+                message,
+                tool_name=request_tool_name,
+                call_id=call_id,
+                resource=resource,
+                prompt=prompt,
+                task=task,
+                cwd=self.cwd,
+            )
         )
 
     def observe_from_server(self, message: Any) -> None:
-        """Record a server -> harness frame when it answers a seen request."""
+        """Record a server -> harness frame (elicitation request or a response)."""
+        if is_elicitation_request(message):
+            call_id = uuid.uuid4().hex
+            with contextlib.suppress(TypeError):
+                self._pending_elicit[message.get("id")] = ("elicitation/create", call_id)
+            self._emit(
+                request_frame(
+                    self.server,
+                    self.session_id,
+                    message,
+                    tool_name="elicitation/create",
+                    call_id=call_id,
+                    cwd=self.cwd,
+                )
+            )
+            return
         if not isinstance(message, Mapping):
             return
         try:
-            tool_name, call_id = self._pending.pop(message.get("id"))
+            tool_name, call_id, resource, prompt, task = self._pending.pop(message.get("id"))
         except (KeyError, TypeError):
             return
         self._emit(
@@ -188,14 +378,52 @@ class Recorder:
                 message,
                 tool_name=tool_name,
                 call_id=call_id,
+                resource=resource,
+                prompt=prompt,
+                task=task,
                 cwd=self.cwd,
             )
         )
+        # A tool result may surface resource links; record each as its own
+        # observation so the referenced resource is searchable.
+        for index, uri in enumerate(resource_links(message.get("result"))):
+            link_call_id = f"{call_id}-link-{index}" if call_id else None
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    {"jsonrpc": "2.0", "id": message.get("id"), "result": {"uri": uri}},
+                    tool_name="resources/link",
+                    call_id=link_call_id,
+                    resource=uri,
+                    cwd=self.cwd,
+                )
+            )
 
     def flush_pending(self, reason: str = "server exited") -> None:
         """Record an error response for every request the server never answered."""
         for rpc_id in list(self._pending):
-            tool_name, call_id = self._pending.pop(rpc_id)
+            tool_name, call_id, resource, prompt, task = self._pending.pop(rpc_id)
+            rpc = {
+                "jsonrpc": "2.0",
+                "id": rpc_id,
+                "error": {"code": _SERVER_EXIT_CODE, "message": reason},
+            }
+            self._emit(
+                response_frame(
+                    self.server,
+                    self.session_id,
+                    rpc,
+                    tool_name=tool_name,
+                    call_id=call_id,
+                    resource=resource,
+                    prompt=prompt,
+                    task=task,
+                    cwd=self.cwd,
+                )
+            )
+        for rpc_id in list(self._pending_elicit):
+            tool_name, call_id = self._pending_elicit.pop(rpc_id)
             rpc = {
                 "jsonrpc": "2.0",
                 "id": rpc_id,
@@ -352,6 +580,7 @@ class _ProxyHandler(BaseHTTPRequestHandler):
     def _proxy(self, method: str) -> None:
         server = self.server
         assert isinstance(server, _ProxyServer)
+        stateless = server.transport == MCP_TRANSPORT_STREAMABLE
         server_name = self._server_name()
         if server_name is None:
             self.send_error(404, "unknown MCP route")
@@ -387,6 +616,12 @@ class _ProxyHandler(BaseHTTPRequestHandler):
             for key, value in self.headers.items()
             if key.lower() not in _HOP_BY_HOP and key.lower() not in ("host", "content-length")
         }
+        if stateless:
+            # Sessions removed (2026-07-28): never couple the proxy to a server
+            # session, in either direction.
+            headers = {
+                key: value for key, value in headers.items() if key.lower() != _SESSION_HEADER
+            }
         headers["Host"] = parts.netloc
         try:
             connection.request(
@@ -406,6 +641,8 @@ class _ProxyHandler(BaseHTTPRequestHandler):
         self.send_response(response.status)
         for key, value in response.getheaders():
             if key.lower() in _HOP_BY_HOP or key.lower() == "content-length":
+                continue
+            if stateless and key.lower() == _SESSION_HEADER:
                 continue
             self.send_header(key, value)
         self.send_header("Connection", "close")
@@ -440,7 +677,7 @@ class _ProxyHandler(BaseHTTPRequestHandler):
     ) -> None:
         """Relay a transport failure as a 502 and record it as an error outcome."""
         for message in request_messages:
-            if is_tools_call_request(message):
+            if is_recordable_request(message):
                 recorder.observe_from_server(
                     {
                         "jsonrpc": "2.0",
@@ -463,10 +700,13 @@ class _ProxyServer(ThreadingHTTPServer):
         address: tuple[str, int],
         routes: Mapping[str, str],
         recorders: Mapping[str, Recorder],
+        *,
+        transport: str = MCP_TRANSPORT_STREAMABLE,
     ) -> None:
         super().__init__(address, _ProxyHandler)
         self.routes = dict(routes)
         self.recorders = dict(recorders)
+        self.transport = parse_transport(transport)
 
 
 def create_http_proxy(
@@ -475,12 +715,16 @@ def create_http_proxy(
     host: str = "127.0.0.1",
     port: int = 0,
     socket_path: str | None = None,
-) -> ThreadingHTTPServer:
-    """Bind a loopback MCP HTTP/SSE proxy, one route per ``server -> upstream URL``.
+    transport: str = MCP_TRANSPORT_STREAMABLE,
+) -> _ProxyServer:
+    """Bind a loopback MCP proxy, one route per ``server -> upstream URL``.
 
-    The returned server is bound but not serving; call ``serve_forever()`` to run
-    it, or ``shutdown()`` from another thread. An occupied port raises ``OSError``
-    (fail closed, D-M6).
+    The default ``transport`` is Streamable HTTP (2026-07-28): the proxy is
+    stateless and strips ``Mcp-Session-Id`` in both directions. Pass
+    ``MCP_TRANSPORT_HTTP_SSE`` to keep the legacy relay verbatim
+    (deprecated-in-spec). The returned server is bound but not serving; call
+    ``serve_forever()`` to run it, or ``shutdown()`` from another thread. An
+    occupied port raises ``OSError`` (fail closed, D-M6).
     """
     if not routes:
         raise ValueError("create_http_proxy requires at least one route")
@@ -489,7 +733,7 @@ def create_http_proxy(
     recorders = {
         name: Recorder(name, session_id, socket_path=socket_path, cwd=cwd) for name in routes
     }
-    return _ProxyServer((host, port), routes, recorders)
+    return _ProxyServer((host, port), routes, recorders, transport=transport)
 
 
 def serve_http(
@@ -498,9 +742,12 @@ def serve_http(
     host: str = "127.0.0.1",
     port: int = 0,
     socket_path: str | None = None,
+    transport: str = MCP_TRANSPORT_STREAMABLE,
 ) -> int:
-    """Serve the HTTP/SSE MCP proxy until interrupted; returns an exit code."""
-    server = create_http_proxy(routes, host=host, port=port, socket_path=socket_path)
+    """Serve the MCP proxy until interrupted; returns an exit code."""
+    server = create_http_proxy(
+        routes, host=host, port=port, socket_path=socket_path, transport=transport
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:  # pragma: no cover - interactive shutdown
@@ -534,10 +781,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="agentwatch-mcp-proxy")
     parser.add_argument("--server", default=None, help="stdio mode: MCP server name")
     parser.add_argument("--socket", default=None, help="daemon socket path override")
-    parser.add_argument("--http", action="store_true", help="serve HTTP/SSE routes")
+    parser.add_argument("--http", action="store_true", help="serve HTTP routes (Streamable HTTP)")
     parser.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
     parser.add_argument(
         "--port", type=int, default=8765, help="HTTP bind port (default 8765; 0 = ephemeral)"
+    )
+    parser.add_argument(
+        "--transport",
+        default=MCP_TRANSPORT_STREAMABLE,
+        help="HTTP transport: streamable-http (default) or http-sse (legacy, deprecated-in-spec)",
     )
     parser.add_argument(
         "--route", action="append", default=[], metavar="NAME=URL", help="HTTP route (repeatable)"
@@ -548,6 +800,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.http:
         try:
             routes = parse_routes(args.route)
+            transport = parse_transport(args.transport)
         except ValueError as exc:
             print(f"agentwatch-mcp-proxy: {exc}", file=sys.stderr)
             return 2
@@ -557,7 +810,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+        return serve_http(
+            routes, host=args.host, port=args.port, socket_path=args.socket, transport=transport
+        )
 
     command: list[str] = list(args.command)
     if command and command[0] == "--":

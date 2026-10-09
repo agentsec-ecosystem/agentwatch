@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from agentwatch.classify import Fact, classify_record
+from agentwatch.identity import Attribution, attribution_for
 from agentwatch.query import since_cutoff
 from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
@@ -33,6 +34,7 @@ class BlameHit:
     action: str
     at: datetime
     seq: int
+    attribution: Attribution = Attribution(agent="unknown")
 
 
 @dataclass(frozen=True)
@@ -69,6 +71,7 @@ class BlameReport:
                     "confidence": hit.confidence,
                     "action": hit.action,
                     "at": hit.at.isoformat(),
+                    "attribution": hit.attribution.to_dict(),
                 }
                 for hit in self.hits
             ],
@@ -130,6 +133,7 @@ def build_blame(
                     action=fact.category,
                     at=record.started_at,
                     seq=entry.seq,
+                    attribution=attribution_for(record),
                 )
             )
     hits.sort(key=lambda hit: (hit.at, hit.seq), reverse=True)
@@ -154,9 +158,10 @@ def render_blame(report: BlameReport) -> str:
         return "\n".join(lines)
     for hit in report.hits:
         lines.append(
-            f"  {hit.at.isoformat()} {hit.session_id} {hit.agent} {hit.tool} "
+            f"  {hit.at.isoformat()} {hit.session_id} {hit.tool} "
             f"{hit.outcome} {hit.action.split(':')[1]} ({hit.confidence})"
         )
+        lines.append(f"    attribution: {hit.attribution.label()}")
     return "\n".join(lines)
 
 

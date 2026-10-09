@@ -1,0 +1,9 @@
+{
+  "id": "FT-PG-1",
+  "status": "pass",
+  "class": "P/F|D",
+  "declared": false,
+  "run_id": "s2-interop",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"pg-down-commands","ok":true},{"name":"index-rebuild-bitfor-bit","ok":true}
+]
+}

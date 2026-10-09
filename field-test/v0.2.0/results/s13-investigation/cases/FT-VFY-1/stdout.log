@@ -1,0 +1,4 @@
+browser verifier checksum OK: b578c506eb6e003f9ae4a60515621e1ee953edd444f0e2cd19ea2369d09b8576
+.......                                                                  [100%]
+7 passed in 0.36s
+ok: browser verifier: offline, zero-network; verdicts equal CLI; tampered bundle names the first broken link

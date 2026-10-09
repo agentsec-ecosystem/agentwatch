@@ -1,0 +1,311 @@
+{
+  "processes": {
+    "p1": {
+      "serviceName": "agentwatch-m25-evidence",
+      "tags": [
+        {
+          "key": "otel.library.name",
+          "type": "string",
+          "value": "agentwatch"
+        },
+        {
+          "key": "service.instance.id",
+          "type": "string",
+          "value": "07e4a451-4d82-49b6-b5a1-725b87f6965c"
+        },
+        {
+          "key": "telemetry.sdk.language",
+          "type": "string",
+          "value": "python"
+        },
+        {
+          "key": "telemetry.sdk.name",
+          "type": "string",
+          "value": "opentelemetry"
+        },
+        {
+          "key": "telemetry.sdk.version",
+          "type": "string",
+          "value": "1.44.0"
+        }
+      ]
+    }
+  },
+  "spans": [
+    {
+      "duration": 4,
+      "logs": [],
+      "operationName": "execute_tool",
+      "processID": "p1",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "spanID": "5e52800bc9368f88",
+          "traceID": "c8f563d588fb2574ad239bfceef38b32"
+        }
+      ],
+      "spanID": "d78abd5328917236",
+      "startTime": 1791238636583543,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "execute_tool"
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "type": "string",
+          "value": "lookup_account"
+        },
+        {
+          "key": "gen_ai.usage.total_tokens",
+          "type": "int64",
+          "value": 120
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    },
+    {
+      "duration": 6,
+      "logs": [],
+      "operationName": "plan",
+      "processID": "p1",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "spanID": "5e52800bc9368f88",
+          "traceID": "c8f563d588fb2574ad239bfceef38b32"
+        }
+      ],
+      "spanID": "236f444e14cd5f2e",
+      "startTime": 1791238636583522,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "plan"
+        },
+        {
+          "key": "gen_ai.request.model",
+          "type": "string",
+          "value": "claude-opus-4-7"
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    },
+    {
+      "duration": 3,
+      "logs": [],
+      "operationName": "execute_tool",
+      "processID": "p1",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "spanID": "5e52800bc9368f88",
+          "traceID": "c8f563d588fb2574ad239bfceef38b32"
+        }
+      ],
+      "spanID": "22574e2d9a0cadb0",
+      "startTime": 1791238636583557,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "execute_tool"
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "type": "string",
+          "value": "search_kb"
+        },
+        {
+          "key": "gen_ai.usage.total_tokens",
+          "type": "int64",
+          "value": 87
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    },
+    {
+      "duration": 14,
+      "logs": [],
+      "operationName": "create_agent",
+      "processID": "p1",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "spanID": "5e52800bc9368f88",
+          "traceID": "c8f563d588fb2574ad239bfceef38b32"
+        }
+      ],
+      "spanID": "d9ce953aa6162883",
+      "startTime": 1791238636583567,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "create_agent"
+        },
+        {
+          "key": "gen_ai.agent.name",
+          "type": "string",
+          "value": "triage-subagent"
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    },
+    {
+      "duration": 6,
+      "logs": [],
+      "operationName": "execute_tool",
+      "processID": "p1",
+      "references": [
+        {
+          "refType": "CHILD_OF",
+          "spanID": "d9ce953aa6162883",
+          "traceID": "c8f563d588fb2574ad239bfceef38b32"
+        }
+      ],
+      "spanID": "c4428d90dde4c415",
+      "startTime": 1791238636583573,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "execute_tool"
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "type": "string",
+          "value": "escalate"
+        },
+        {
+          "key": "gen_ai.usage.total_tokens",
+          "type": "int64",
+          "value": 41
+        },
+        {
+          "key": "error.type",
+          "type": "string",
+          "value": "tool_error"
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "otel.status_code",
+          "type": "string",
+          "value": "ERROR"
+        },
+        {
+          "key": "error",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "key": "otel.status_description",
+          "type": "string",
+          "value": "tool failed"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    },
+    {
+      "duration": 87,
+      "logs": [],
+      "operationName": "invoke_agent",
+      "processID": "p1",
+      "references": [],
+      "spanID": "5e52800bc9368f88",
+      "startTime": 1791238636583495,
+      "tags": [
+        {
+          "key": "gen_ai.operation.name",
+          "type": "string",
+          "value": "invoke_agent"
+        },
+        {
+          "key": "gen_ai.agent.name",
+          "type": "string",
+          "value": "request_triage"
+        },
+        {
+          "key": "gen_ai.agent.version",
+          "type": "string",
+          "value": "v1.0"
+        },
+        {
+          "key": "gen_ai.conversation.id",
+          "type": "string",
+          "value": "conv-m25-evidence"
+        },
+        {
+          "key": "span.kind",
+          "type": "string",
+          "value": "internal"
+        },
+        {
+          "key": "internal.span.format",
+          "type": "string",
+          "value": "otlp"
+        }
+      ],
+      "traceID": "c8f563d588fb2574ad239bfceef38b32",
+      "warnings": null
+    }
+  ],
+  "traceID": "c8f563d588fb2574ad239bfceef38b32",
+  "warnings": null
+}

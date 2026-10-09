@@ -30,6 +30,14 @@ its public home.
   the zero-infrastructure options (commit the digest to git, email it to
   yourself).
 - **Signed checkpoints** (W9) add attributability to this installation.
+  Signing is a **supported posture**, not an experiment: `agentwatch checkpoint
+  export --sign` signs a digest with the installation key, and
+  `agentwatch checkpoint rotate` replaces that key and records the change as a
+  metadata-only `key-rotation` chain event (previous → new key id). A signature
+  is tied to its **epoch**; a verifier who does not hold the epoch key reports
+  *"signed by key id X, key unavailable"* rather than silently passing. The
+  posture is surfaced by `agentwatch verify-store`, `agentwatch evidence`,
+  AAT export, `agentwatch doctor`, and `/healthz`.
 - **Coverage windows** (S5) reconcile the store against an independent
   transcript.
 

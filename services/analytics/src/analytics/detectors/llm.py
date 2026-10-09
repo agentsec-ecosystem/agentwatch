@@ -164,6 +164,7 @@ class EmbeddingDriftDetector(BaseDetector):
         current_vector = await self._client.embed(output_text)
         baseline = self._baselines.get(baseline_key)
 
+        sim: float | None
         if current_vector is not None and baseline is not None:
             sim = cosine_similarity(current_vector, baseline)
         elif current_vector is not None and baseline is None:
@@ -191,7 +192,11 @@ class EmbeddingDriftDetector(BaseDetector):
                     f"Output drift detected: cosine distance {distance:.2f} "
                     f"from baseline (threshold {self._threshold})"
                 ),
-                evidence={"cosine_distance": distance, "baseline_key": baseline_key, "method": "chat-fallback"},
+                evidence={
+                    "cosine_distance": distance,
+                    "baseline_key": baseline_key,
+                    "method": "chat-fallback",
+                },
             )
         return None
 

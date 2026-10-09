@@ -1,0 +1,41 @@
+# Streaming soak — a bounded, starved, reconnecting consumer must end with zero
+# store loss (M26 STR-3, PRD 42). The 24 h target runs on the dedicated soak
+# runner via workflow_dispatch; the nightly hosted run is bounded (GitHub-hosted
+# jobs cap at 6 h).
+name: Streaming soak
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "Seconds to pace the soak over (default 1800)"
+        default: "1800"
+      count:
+        description: "Records to append"
+        default: "50000"
+
+permissions:
+  contents: read
+
+jobs:
+  soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (make setup)
+        run: make setup
+      - name: Streaming soak
+        run: |
+          python scripts/streaming_soak.py \
+            --count "${{ inputs.count || '50000' }}" \
+            --duration "${{ inputs.duration || '1800' }}" \
+            --hub-size 8 \
+            --poll-every 100 \
+            --reconnect-every 10000

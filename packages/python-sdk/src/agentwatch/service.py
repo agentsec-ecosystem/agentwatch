@@ -8,6 +8,7 @@ default) generates a launchd user agent (macOS) or a systemd user unit (Linux);
 
 from __future__ import annotations
 
+import os
 import plistlib
 import sys
 from dataclasses import dataclass
@@ -18,6 +19,7 @@ from agentwatch import posture
 LABEL = "com.agentsec.agentwatch"
 SYSTEMD_UNIT_NAME = "agentwatch.service"
 LAUNCHD_UNIT_NAME = f"{LABEL}.plist"
+WINDOWS_TASK_NAME = "agentwatch-task.xml"
 
 
 @dataclass(frozen=True)
@@ -39,11 +41,46 @@ def default_unit_path(platform: str) -> Path:
         return Path.home() / "Library" / "LaunchAgents" / LAUNCHD_UNIT_NAME
     if platform == "linux":
         return Path.home() / ".config" / "systemd" / "user" / SYSTEMD_UNIT_NAME
-    raise ValueError(f"unsupported service platform {platform!r}; expected 'darwin' or 'linux'")
+    if platform == "win32":
+        base = os.environ.get("APPDATA")
+        root = Path(base) if base else Path.home()
+        return root / "agentwatch" / WINDOWS_TASK_NAME
+    raise ValueError(
+        f"unsupported service platform {platform!r}; expected 'darwin', 'linux', or 'win32'"
+    )
+
+
+def _render_windows_task(python: str | None) -> str:
+    """A Task Scheduler XML that runs the daemon at logon (least privilege, restarts)."""
+    interpreter, arguments = _program(python)
+    args = " ".join(arguments[1:])  # drop the interpreter; Command carries it
+    return (
+        '<?xml version="1.0" encoding="UTF-16"?>\n'
+        '<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">\n'
+        "  <Triggers><LogonTrigger><Enabled>true</Enabled></LogonTrigger></Triggers>\n"
+        "  <Principals><Principal id=\"Author\">\n"
+        "    <LogonType>InteractiveToken</LogonType>\n"
+        "    <RunLevel>LeastPrivilege</RunLevel>\n"
+        "  </Principal></Principals>\n"
+        "  <Settings>\n"
+        "    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>\n"
+        "    <RestartOnFailure><Interval>PT1M</Interval><Count>3</Count></RestartOnFailure>\n"
+        "    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>\n"
+        "  </Settings>\n"
+        "  <Actions Context=\"Author\"><Exec>\n"
+        f"    <Command>{interpreter}</Command>\n"
+        f"    <Arguments>{args}</Arguments>\n"
+        "  </Exec></Actions>\n"
+        "</Task>\n"
+    )
 
 
 def render_unit(platform: str, *, python: str | None = None) -> ServiceUnit:
-    """Render the service unit for ``darwin`` or ``linux``."""
+    """Render the service unit for ``darwin``/``linux``/``win32``.
+
+    macOS uses launchd, Linux uses systemd, and Windows uses a Task Scheduler
+    XML that runs the daemon at logon.
+    """
     if platform == "darwin":
         interpreter, arguments = _program(python)
         plist = {
@@ -76,7 +113,12 @@ def render_unit(platform: str, *, python: str | None = None) -> ServiceUnit:
         )
         return ServiceUnit(platform, default_unit_path(platform), content)
 
-    raise ValueError(f"unsupported service platform {platform!r}; expected 'darwin' or 'linux'")
+    if platform == "win32":
+        return ServiceUnit(platform, default_unit_path(platform), _render_windows_task(python))
+
+    raise ValueError(
+        f"unsupported service platform {platform!r}; expected 'darwin', 'linux', or 'win32'"
+    )
 
 
 def install_service(unit: ServiceUnit, *, path: Path | None = None) -> Path:

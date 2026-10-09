@@ -14,19 +14,60 @@ import io
 import json
 import os
 import sys
+import urllib.request
 from collections.abc import Iterable, Sequence
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any
 
-from agentwatch import errors, hook
+from agentwatch import errors, hook, naming
+from agentwatch.aat import aat_version_line, export_aat, to_aat_json, write_aat
+from agentwatch.access import (
+    DataClass,
+    Role,
+    access_log,
+    access_log_to_json,
+    evaluate_access,
+    matrix_to_json,
+    record_access_decision,
+    render_access_log,
+    render_matrix,
+)
+from agentwatch.agent_trace import (
+    agent_trace_record,
+    cross_validate,
+    export_agent_trace,
+    read_agent_trace,
+    read_agent_trace_notes,
+    to_agent_trace_json,
+    write_agent_trace,
+    write_agent_trace_notes,
+)
 from agentwatch.annotate import AnnotateError, annotate_session, tagged_sessions
 from agentwatch.archive import archive_store, combined_records, verify_archives
+from agentwatch.attestation import attest_session
 from agentwatch.blame import blame_sessions, build_blame, render_blame
 from agentwatch.bom import build_bom, to_agentwatch_json, to_cyclonedx
+from agentwatch.capabilities import (
+    capabilities_to_json,
+    capability_loads,
+    detect_capability_changes,
+    discover_capabilities,
+    record_capability_snapshot,
+    render_capabilities,
+    render_capability_changes,
+)
+from agentwatch.compliance import FRAMEWORKS, build_report, render_report
+from agentwatch.concurrency import build_concurrency, render_concurrency
 from agentwatch.config_explain import explain_config, render_explanations
 from agentwatch.configuration import AgentwatchConfig, ConfigError, default_paths, load_config
 from agentwatch.cost import BY_OPTIONS, build_cost, render_cost
-from agentwatch.coverage import build_coverage, default_transcript_base, discover_transcripts
+from agentwatch.coverage import (
+    build_coverage,
+    default_transcript_base,
+    discover_cursor_transcripts,
+    discover_transcripts,
+)
 from agentwatch.demo import purge_demo, render_demo, run_demo
 from agentwatch.diff import diff_sessions
 from agentwatch.digest import build_digest, render_digest
@@ -38,6 +79,13 @@ from agentwatch.drift import (
     load_deployments,
     metric_series,
     signal_to_json,
+)
+from agentwatch.env_fingerprint import (
+    annotate_environment,
+    environment_changes,
+    group_sessions_by_env,
+    render_env_groups,
+    session_environments,
 )
 from agentwatch.evidence import build_bundle, verify_bundle
 from agentwatch.explain import explain_session
@@ -51,9 +99,28 @@ from agentwatch.flow import (
     record_flow_observations,
     render_flows,
 )
+from agentwatch.governance import build_notice, render_notice
 from agentwatch.health import fetch_health, local_snapshot
+from agentwatch.holds import (
+    active_holds,
+    held_skips,
+    parse_scope,
+    record_hold_add,
+    record_hold_release,
+    render_holds,
+)
 from agentwatch.impact import build_impact, render_impact
 from agentwatch.importer import import_transcripts, resolve_paths
+from agentwatch.incident_cases import (
+    active_cases,
+    build_case_bundle,
+    case_timeline,
+    record_case_add,
+    record_case_create,
+    record_case_remove,
+    render_case_timeline,
+    verify_case_bundle,
+)
 from agentwatch.ingest import resolve_ingest_paths, run_ingest
 from agentwatch.install import (
     EVENT_PHASES,
@@ -72,18 +139,21 @@ from agentwatch.install import (
     uninstall_hooks,
 )
 from agentwatch.inventory import build_inventory, inventory_to_json, render_inventory
+from agentwatch.managed_policy import detect_managed_policy, install_guidance
 from agentwatch.mcp_config import (
     install_mcp_proxy,
     resolve_mcp_proxy_command,
     resolve_mcp_scope,
     uninstall_mcp_proxy,
 )
+from agentwatch.mcp_server import RateLimiter, serve_stdio
 from agentwatch.mcp_surface import (
     detect_surface_changes,
     render_changes,
     render_snapshots,
     survey,
 )
+from agentwatch.memory import discover_memory_stores, render_memory_stores
 from agentwatch.notarize import (
     CheckpointExport,
     dumps,
@@ -93,7 +163,22 @@ from agentwatch.notarize import (
     verify_checkpoint,
 )
 from agentwatch.ocsf import session_cloudevents, session_ocsf
+from agentwatch.outcomes import build_outcomes, render_outcomes
+from agentwatch.oversight import BY_OPTIONS as OVERSIGHT_BY_OPTIONS
+from agentwatch.oversight import build_oversight, render_oversight
+from agentwatch.policy_suggest import (
+    TARGETS,
+    PolicyParseError,
+    load_policy,
+    render_policy_suggestion,
+    render_whatif,
+    simulate_policy,
+    suggest_policy,
+    suggestion_to_dict,
+    whatif_to_dict,
+)
 from agentwatch.profiles import PROFILE_NAMES, apply_profile, render_profile
+from agentwatch.provenance import build_provenance, render_provenance
 from agentwatch.quarantine import (
     QuarantineError,
     QuarantineLog,
@@ -103,30 +188,60 @@ from agentwatch.quarantine import (
     requeue_entries,
 )
 from agentwatch.query import search, since_cutoff
+from agentwatch.query_index import (
+    ParquetUnavailableError,
+    QueryIndex,
+    index_path_for_store,
+)
 from agentwatch.receipts import record_receipt, redact_preview
 from agentwatch.recorder_state import (
     close_coverage_window,
+    last_state,
     open_coverage_window,
     reconcile_config,
     record_recorder_installed,
     record_recorder_uninstalled,
+    record_retention_changed,
 )
 from agentwatch.records import EVENT_VERSION, SecurityEvent, SecurityEventType, validate_event
-from agentwatch.redact import redaction_config_from_mode
+from agentwatch.redact import (
+    evaluate_corpus,
+    load_corpus,
+    redaction_config_from_mode,
+    render_report_table,
+)
 from agentwatch.redactor import findings_to_dict
 from agentwatch.redactor import redact as redact_value
 from agentwatch.release_verify import verify_release
 from agentwatch.replay import replay_session
+from agentwatch.retention import profile_names, resolve_retention_profile
+from agentwatch.runner_segments import (
+    anchor_records,
+    custody_rows,
+    import_segment,
+    render_custody,
+    seal_segment,
+    verify_segment,
+)
 from agentwatch.secret_trace import render_secrets, trace_secrets
 from agentwatch.semconv import version_line
 from agentwatch.service import install_service, render_unit, uninstall_service
 from agentwatch.session_export import SessionExport, export_session, to_ndjson, write_ndjson
 from agentwatch.session_state import session_states
-from agentwatch.signing import KEY_FILENAME, SigningError, load_or_create_key
+from agentwatch.signing import (
+    KEY_FILENAME,
+    SigningError,
+    load_or_create_key,
+    record_key_rotation,
+    rotate_key,
+    signing_status,
+)
 from agentwatch.store import RecordStore, repair_store
 from agentwatch.store_access import DestinationKind, record_store_access
 from agentwatch.tail import Tail, TailLine, follow, render_record
+from agentwatch.trace import build_trace, render_trace, replay_trace, trace_to_json
 from agentwatch.tree import build_tree, render_tree, sort_by_cost
+from agentwatch.ui import ConsoleServer, open_console_url
 from agentwatch.union import render_union, union
 from agentwatch.verify_privacy import verify_privacy
 from agentwatch.view import list_sessions, render_session
@@ -155,14 +270,39 @@ def _version() -> str:
         return "0.1.0"
 
 
+def _version_string() -> str:
+    """The ``--version`` banner, plus the namesake-distribution warning when detected."""
+    banner = f"agentwatch {_version()} ({version_line()}; {aat_version_line()})"
+    warning = naming.distribution_warning()
+    return f"{banner}\n{warning}" if warning else banner
+
+
+class _VersionAction(argparse.Action):
+    """Print the version banner verbatim (no help-formatter line wrapping)."""
+
+    def __init__(
+        self, option_strings: Sequence[str], dest: str, *, version: str = "", **kwargs: Any
+    ) -> None:
+        super().__init__(option_strings, dest, nargs=0, **kwargs)
+        self.version = version
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace | None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        print(self.version)
+        parser.exit()
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="agentwatch",
         description="Local-first execution observability for AI agents.",
     )
-    parser.add_argument(
-        "--version", action="version", version=f"agentwatch {_version()} ({version_line()})"
-    )
+    parser.add_argument("--version", action=_VersionAction, version=_version_string())
     parser.add_argument(
         "--config",
         action="append",
@@ -255,6 +395,132 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     config_explain.add_argument("--json", action="store_true", help="emit the explanation as JSON")
 
+    access_cmd = sub.add_parser(
+        "access", help="fleet role x data-class read-access model (M29 ACC-1)"
+    )
+    access_sub = access_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    access_log_p = access_sub.add_parser(
+        "log", help="self-visible access log: who read my records, and when"
+    )
+    access_log_p.add_argument("--owner", required=True, help="whose records to report on")
+    access_log_p.add_argument("--json", action="store_true", help="emit the log as JSON")
+    access_check_p = access_sub.add_parser(
+        "check", help="evaluate a role x data-class read; record it; deny -> nonzero"
+    )
+    access_check_p.add_argument("--role", choices=[role.value for role in Role], required=True)
+    access_check_p.add_argument(
+        "--data-class",
+        dest="data_class",
+        choices=[data.value for data in DataClass],
+        required=True,
+    )
+    access_check_p.add_argument("--owner", required=True, help="whose record is read")
+    access_check_p.add_argument("--reader", default=None, help="the reader (default: the owner)")
+    access_check_p.add_argument(
+        "--same-team", dest="same_team", action="store_true", help="reader is on the owner's team"
+    )
+    access_check_p.add_argument(
+        "--content", dest="content_available", action="store_true", help="content is stored"
+    )
+    access_check_p.add_argument("--json", action="store_true", help="emit the decision as JSON")
+    access_matrix_p = access_sub.add_parser("matrix", help="print the role x data-class matrix")
+    access_matrix_p.add_argument("--json", action="store_true", help="emit the matrix as JSON")
+
+    governance_cmd = sub.add_parser(
+        "governance", help="governance artifacts from the effective config (M29 ACC-2)"
+    )
+    governance_sub = governance_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    governance_notice = governance_sub.add_parser(
+        "notice",
+        help="what is recorded/not, who can see it, retention, erasure (not legal advice)",
+    )
+    governance_notice.add_argument("--json", action="store_true", help="emit the notice as JSON")
+
+    hold_cmd = sub.add_parser(
+        "hold", help="legal holds that suspend retention/purge (M29 HLD-1)"
+    )
+    hold_sub = hold_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    hold_add = hold_sub.add_parser("add", help="place a hold on a scope")
+    hold_add.add_argument(
+        "--scope",
+        required=True,
+        help="session:<id> | project:<path> | principal:<id> | time:<start>..<end>",
+    )
+    hold_add.add_argument("--reason", required=True, help="why the hold exists (recorded)")
+    hold_add.add_argument("--ref", default=None, help="external reference, e.g. CASE-123")
+    hold_add.add_argument("--json", action="store_true", help="emit the hold as JSON")
+    hold_list = hold_sub.add_parser("list", help="list active holds")
+    hold_list.add_argument("--json", action="store_true", help="emit the holds as JSON")
+    hold_release = hold_sub.add_parser("release", help="release an active hold")
+    hold_release.add_argument("hold_id", help="the hold id, e.g. H17")
+    hold_release.add_argument("--reason", default=None, help="why the hold is released")
+    hold_release.add_argument("--json", action="store_true", help="emit the result as JSON")
+
+    case_cmd = sub.add_parser(
+        "case", help="incident cases: merged timeline + offline bundle (M30 IR-1)"
+    )
+    case_sub = case_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    case_create = case_sub.add_parser("create", help="create a case (chain-recorded)")
+    case_create.add_argument("--title", required=True, help="human-readable case title")
+    case_create.add_argument("--severity", default="medium", help="severity label (default medium)")
+    case_create.add_argument("--ref", default=None, help="external reference, e.g. INC-123")
+    case_create.add_argument("--json", action="store_true", help="emit the case as JSON")
+    case_add = case_sub.add_parser("add", help="add a session to a case (chain-recorded)")
+    case_add.add_argument("case_id", help="the case id, e.g. C1")
+    case_add.add_argument("--session", dest="session", required=True, help="session id to add")
+    case_add.add_argument("--json", action="store_true", help="emit the marker as JSON")
+    case_remove = case_sub.add_parser("remove", help="remove a session from a case")
+    case_remove.add_argument("case_id", help="the case id, e.g. C1")
+    case_remove.add_argument(
+        "--session", dest="session", required=True, help="session id to remove"
+    )
+    case_remove.add_argument("--json", action="store_true", help="emit the marker as JSON")
+    case_list = case_sub.add_parser("list", help="list cases and their membership")
+    case_list.add_argument("--json", action="store_true", help="emit the cases as JSON")
+    case_show = case_sub.add_parser("show", help="show a case's merged, gap-annotated timeline")
+    case_show.add_argument("case_id", help="the case id, e.g. C1")
+    case_show.add_argument("--json", action="store_true", help="emit the timeline as JSON")
+    case_export = case_sub.add_parser("export", help="export a case bundle (local, no egress)")
+    case_export.add_argument("case_id", help="the case id, e.g. C1")
+    case_export.add_argument(
+        "--out", default=None, help="write the bundle here (default: <case>.zip)"
+    )
+    case_export.add_argument("--json", action="store_true", help="emit the result as JSON")
+    case_verify = case_sub.add_parser("verify", help="verify a case bundle offline")
+    case_verify.add_argument("bundle", help="case bundle zip path")
+    case_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+
+    segment_cmd = sub.add_parser(
+        "segment", help="sealed runner segments: export/verify/custody (M30 RUN-1)"
+    )
+    segment_sub = segment_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    segment_export = segment_sub.add_parser(
+        "export", help="seal a session's records into a self-verifying segment"
+    )
+    segment_export.add_argument("--session", dest="session", required=True, help="session id")
+    segment_export.add_argument("--runner", required=True, help="runner identity, e.g. ci-runner-7")
+    segment_export.add_argument("--run-id", dest="run_id", required=True, help="runner run id")
+    segment_export.add_argument(
+        "--traceparent", default=None, help="W3C traceparent for the originating session"
+    )
+    segment_export.add_argument(
+        "--out", default=None, help="write the segment here (default: <session>.segment.zip)"
+    )
+    segment_export.add_argument("--json", action="store_true", help="emit the result as JSON")
+    segment_verify = segment_sub.add_parser("verify", help="verify a sealed segment offline")
+    segment_verify.add_argument("bundle", help="segment zip path")
+    segment_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+    segment_custody = segment_sub.add_parser(
+        "custody", help="label records local-witnessed vs imported runner"
+    )
+    segment_custody.add_argument("--json", action="store_true", help="emit the rows as JSON")
+
+    import_segment_cmd = sub.add_parser(
+        "import-segment", help="verify and anchor a sealed runner segment (M30 RUN-1)"
+    )
+    import_segment_cmd.add_argument("bundle", help="segment zip path")
+    import_segment_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
+
     union_cmd = sub.add_parser(
         "union", help="read-time union of hook records and SDK spans (M21 S11)"
     )
@@ -289,6 +555,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--public-key", required=True, help="path to the raw ed25519 public key"
     )
     checkpoint_verify.add_argument("--json", action="store_true", help="emit the verdict as JSON")
+    checkpoint_rotate = checkpoint_sub.add_parser(
+        "rotate", help="rotate this installation's signing key (recorded as a chain event)"
+    )
+    checkpoint_rotate.add_argument("--json", action="store_true", help="emit the result as JSON")
     sessions = sub.add_parser("sessions", help="list recorded sessions (M3)")
     sessions.add_argument("--project", default=None, help="only sessions in this project (cwd)")
     sessions.add_argument(
@@ -299,6 +569,12 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="group_by_behavior",
         action="store_true",
         help="group sessions by their behavior fingerprint (M17 S7)",
+    )
+    sessions.add_argument(
+        "--group-by-env",
+        dest="group_by_env",
+        action="store_true",
+        help="group sessions by their environment fingerprint (M30 ENV-1)",
     )
     sub.add_parser("verify-privacy", help="verify redaction and scan the store for leaks (M5)")
     completions = sub.add_parser("completions", help="print a shell completion script (M5)")
@@ -334,6 +610,11 @@ def _build_parser() -> argparse.ArgumentParser:
     replay.add_argument(
         "--receipts", action="store_true", help="show what redaction did per record (M15 S32)"
     )
+    replay.add_argument(
+        "--trace",
+        action="store_true",
+        help="follow traceparent across hosts/sessions (M26 TRACE-2)",
+    )
     replay.add_argument("--json", action="store_true", help="emit records + receipts as JSON")
 
     redact = sub.add_parser("redact", help="preview or filter redaction (M15 S32; filter M21 S13)")
@@ -350,6 +631,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="privacy mode for the filter (default: active config)",
     )
     redact.add_argument("--json", action="store_true", help="emit findings as JSON")
+    redact.add_argument(
+        "target",
+        nargs="?",
+        default=None,
+        help="'eval' to run the public redaction corpus and print per-class numbers",
+    )
+    redact.add_argument(
+        "--corpus",
+        default=None,
+        metavar="VERSION",
+        help="redaction corpus version for 'redact eval' (default: v1)",
+    )
 
     export_session_cmd = sub.add_parser(
         "export-session", help="export one session as NDJSON with its chain segment (M13 J2)"
@@ -357,12 +650,25 @@ def _build_parser() -> argparse.ArgumentParser:
     export_session_cmd.add_argument("session_id", help="session id to export")
     export_session_cmd.add_argument(
         "--format",
-        choices=("ndjson", "ocsf", "cloudevents"),
+        choices=("ndjson", "ocsf", "cloudevents", "aat", "agent-trace"),
         default="ndjson",
-        help="export format (default: ndjson; ocsf/cloudevents map security events)",
+        help=(
+            "export format (default: ndjson; ocsf/cloudevents map events; aat is IETF AAT; "
+            "agent-trace is the pinned Agent Trace RFC)"
+        ),
     )
     export_session_cmd.add_argument(
         "--output", default=None, help="write to a file instead of stdout"
+    )
+    export_session_cmd.add_argument(
+        "--write-notes",
+        dest="write_notes",
+        default=None,
+        metavar="REPO",
+        help=(
+            "explicitly write Agent Trace notes into REPO (requires --format agent-trace); "
+            "the default export never writes to a repository"
+        ),
     )
 
     view = sub.add_parser("view", help="terminal timeline of a session (M7)")
@@ -387,12 +693,46 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     blame.add_argument("--json", action="store_true", help="emit the hits as JSON")
 
+    provenance = sub.add_parser(
+        "provenance",
+        help="which sessions produced a commit/range/PR/file (M30 PRV-1)",
+    )
+    provenance.add_argument(
+        "target", help="<commit|range|PR|file[:lines]>, e.g. abc1234, a..b, PR42, src/app.py:3-5"
+    )
+    provenance.add_argument("--repo", default=None, help="git repository root (default: cwd)")
+    provenance.add_argument("--project", default=None, help="project root for relative paths")
+    provenance.add_argument(
+        "--window",
+        default="7d",
+        help="how far back to look for a session (default 7d)",
+    )
+    provenance.add_argument(
+        "--notes",
+        default=None,
+        metavar="REPO",
+        help="cross-validate against existing Agent Trace / git-ai notes in REPO",
+    )
+
+    concurrency = sub.add_parser(
+        "concurrency",
+        help="sessions overlapping in time on the same paths (M30 CNC-1)",
+    )
+    concurrency.add_argument("--project", default=None, help="project root to scope the report")
+    concurrency.add_argument("--since", default=None, help="relative (7d/12h) or ISO timestamp")
+    concurrency.add_argument("--json", action="store_true", help="emit the report as JSON")
+    provenance.add_argument("--json", action="store_true", help="emit the report as JSON")
+
     tree_cmd = sub.add_parser("tree", help="the subagent fan-out of a session (M17 S17)")
     tree_cmd.add_argument("session_id", help="session id to render as a tree")
     tree_cmd.add_argument(
         "--by-cost", dest="by_cost", action="store_true", help="order siblings by cost"
     )
     tree_cmd.add_argument("--json", action="store_true", help="emit the tree as JSON")
+
+    trace_cmd = sub.add_parser("trace", help="reconstruct a cross-host causal trace (M26 TRACE-2)")
+    trace_cmd.add_argument("trace_id", help="W3C trace id to reconstruct")
+    trace_cmd.add_argument("--json", action="store_true", help="emit the trace as JSON")
 
     at_cmd = sub.add_parser("at", help="every record in a cross-session time window (M17 S24)")
     at_cmd.add_argument("moment", help='moment, e.g. "2026-10-02 14:00" (local) or an ISO offset')
@@ -439,11 +779,106 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument(
         "--approval",
         default=None,
-        choices=("user", "auto", "not-required", "denied", "unknown"),
-        help="only records with this authorization decision (M19 S14)",
+        choices=(
+            # legacy S14 values
+            "user",
+            "auto",
+            "not-required",
+            "denied",
+            "unknown",
+            # authorization v2 sources (M29 APV-1)
+            "human-once",
+            "human-remembered",
+            "rule",
+            "classifier",
+            "hook",
+            "bypass",
+        ),
+        help="only records with this authorization decision/source (M19 S14, M29 APV-1)",
+    )
+    search.add_argument(
+        "--mode",
+        dest="permission_mode",
+        default=None,
+        choices=(
+            "default",
+            "acceptEdits",
+            "plan",
+            "auto",
+            "dontAsk",
+            "bypassPermissions",
+            "unknown",
+        ),
+        help="only records with this permission mode in force (M29 APV-2)",
     )
     search.add_argument("--since", default=None, help="relative (2d/12h/30m) or ISO timestamp")
+    search.add_argument(
+        "--identity",
+        default=None,
+        help="only records whose agent/principal/workload/delegation handle matches (IDN-2)",
+    )
+    search.add_argument(
+        "--mcp-resource",
+        default=None,
+        help="only records that read or link this MCP resource URI (MCP-2)",
+    )
+    search.add_argument(
+        "--memory",
+        dest="memory",
+        action="store_true",
+        help="only agent memory read/write/delete records (DET-7)",
+    )
+    search.add_argument(
+        "--capability",
+        default=None,
+        help="loads of this capability plus calls after the load (M30 CAP-3)",
+    )
+    search.add_argument(
+        "--memory-store",
+        dest="memory_store",
+        default=None,
+        help="writes to this memory store plus calls after the write (M30 MEM-1)",
+    )
     search.add_argument("--json", action="store_true", help="emit one JSON object per record")
+
+    index_cmd = sub.add_parser(
+        "index", help="embedded rebuildable query index (M30 LUI-2, ADR-0035)"
+    )
+    index_sub = index_cmd.add_subparsers(dest="action", metavar="ACTION", required=True)
+    index_rebuild = index_sub.add_parser(
+        "rebuild", help="rebuild the derived index from the chain store (bit-for-bit)"
+    )
+    index_status = index_sub.add_parser("status", help="show index presence and freshness")
+    index_drop = index_sub.add_parser("drop", help="delete the derived index (chain untouched)")
+    index_export = index_sub.add_parser(
+        "export-parquet", help="columnar export for notebooks (optional parquet extra)"
+    )
+    index_export.add_argument("output", help="destination .parquet path")
+    index_export.add_argument(
+        "--session", dest="session_id", default=None, help="only this session"
+    )
+    for _index_parser in (index_rebuild, index_status, index_drop, index_export):
+        _index_parser.add_argument("--json", action="store_true", help="emit the result as JSON")
+
+    ui_cmd = sub.add_parser(
+        "ui", help="read-only loopback console over the store (M30 LUI-1, ADR-0036)"
+    )
+    ui_cmd.add_argument(
+        "--host", default="127.0.0.1", help="loopback bind host (non-loopback is refused)"
+    )
+    ui_cmd.add_argument("--port", type=int, default=0, help="bind port (0 = ephemeral)")
+    ui_cmd.add_argument(
+        "--no-open",
+        dest="open_browser",
+        action="store_false",
+        default=True,
+        help="do not open a browser window",
+    )
+    ui_cmd.add_argument(
+        "--check",
+        action="store_true",
+        help="start, verify readiness on loopback, and exit (CI smoke / <=60s gate)",
+    )
 
     diff = sub.add_parser("diff", help="behavioral diff of two sessions (M8 H2)")
     diff.add_argument("a", help="first session id")
@@ -460,13 +895,41 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     import_cmd.add_argument("--json", action="store_true", help="emit the import stats as JSON")
 
-    ingest = sub.add_parser("ingest", help="ingest foreign OTel/NDJSON traces (M10 N2)")
+    ingest = sub.add_parser(
+        "ingest", help="ingest foreign OTel/NDJSON/AAT traces (M10 N2, M26 AAT-3)"
+    )
     ingest.add_argument("path", help="source file or directory")
     ingest.add_argument(
         "--format",
-        choices=("otel", "ndjson"),
+        choices=(
+            "otel",
+            "otlp-grpc",
+            "ndjson",
+            "aat",
+            "claude-compliance",
+            "claude-otel",
+            "system-ingest",
+            "acs",
+        ),
         default="otel",
-        help="foreign trace format (default: otel)",
+        help="foreign trace format (default: otel; aat is IETF Agent Audit Trail; "
+        "claude-otel is Claude Code native OTel (CCO-1); claude-compliance is an "
+        "Anthropic Compliance API export, requires --consent; system-ingest is the "
+        "Linux-only opt-in system-effects layer (SYS-1), requires --consent; acs is "
+        "an ACS Guardian audit trail (ACS-1))",
+    )
+    ingest.add_argument(
+        "--consent",
+        action="store_true",
+        help="explicit opt-in for the egress-adjacent claude-compliance pull (M27 CCA-1) "
+        "and the Linux-only system-effects layer (M29 SYS-1)",
+    )
+    ingest.add_argument(
+        "--agent",
+        choices=("codex", "opencode"),
+        default=None,
+        help="read a harness's native logs instead of --format "
+        "(codex = rollout JSONL / .jsonl.zst; opencode = storage tree, M27 COD-1/LOG-1)",
     )
     ingest.add_argument(
         "--capture",
@@ -542,6 +1005,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="MCP tool-surface changes over time (M20 S4)",
     )
     inventory.add_argument("--server", default=None, help="only this MCP server (with --diff)")
+    inventory.add_argument(
+        "--capabilities",
+        action="store_true",
+        help="list loadable capabilities with content digests (M30 CAP-1)",
+    )
+    inventory.add_argument(
+        "--since",
+        default=None,
+        help="only capability changes at/after this window (with --capabilities --diff)",
+    )
+    inventory.add_argument(
+        "--memory",
+        action="store_true",
+        help="list memory stores with digest/size/last-changed (M30 MEM-1)",
+    )
 
     coverage_cmd = sub.add_parser(
         "coverage", help="reconcile the store against transcript ground truth (M16 S2)"
@@ -558,7 +1036,47 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="transcript directory to use as ground truth (default: ~/.claude/projects)",
     )
+    coverage_cmd.add_argument(
+        "--harness",
+        choices=("claude-code", "cursor"),
+        default="claude-code",
+        help="ground-truth source for reconciliation (default: claude-code)",
+    )
     coverage_cmd.add_argument("--json", action="store_true", help="emit the coverage as JSON")
+
+    oversight_cmd = sub.add_parser(
+        "oversight", help="authorization + human-oversight facts (M29 APV-3)"
+    )
+    oversight_cmd.add_argument(
+        "--since", default=None, help="relative (2d/12h/30m) or ISO timestamp"
+    )
+    oversight_cmd.add_argument(
+        "--project", default=None, help="only records for this project (cwd)"
+    )
+    oversight_cmd.add_argument(
+        "--by",
+        choices=OVERSIGHT_BY_OPTIONS,
+        default="source",
+        help="group the authorization mix by this dimension (default: source)",
+    )
+    oversight_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
+
+    compliance_cmd = sub.add_parser("compliance", help="offline compliance reports (M26 CMP-1)")
+    compliance_sub = compliance_cmd.add_subparsers(dest="compliance_command", required=True)
+    compliance_report = compliance_sub.add_parser(
+        "report", help="render control -> evidence -> verdict rows for a framework"
+    )
+    compliance_report.add_argument(
+        "--framework",
+        choices=FRAMEWORKS,
+        default="generic",
+        help="framework template (default: generic)",
+    )
+    compliance_report.add_argument(
+        "--period", default=None, help="reporting window label (informational)"
+    )
+    compliance_report.add_argument("--out", default=None, help="write the report to this file")
+    compliance_report.add_argument("--json", action="store_true", help="emit the report as JSON")
 
     cost_cmd = sub.add_parser("cost", help="roll up captured token usage to cost (M17 S6)")
     cost_cmd.add_argument(
@@ -568,7 +1086,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="rollup dimension (default: session)",
     )
     cost_cmd.add_argument("--since", default=None, help="relative (30d/12h/30m) or ISO timestamp")
+    cost_cmd.add_argument(
+        "--per",
+        choices=("retained-change",),
+        default=None,
+        help="report a per-unit ratio (--per retained-change; OUT-1)",
+    )
+    cost_cmd.add_argument(
+        "--repo", default=None, help="git repository root for --per retained-change"
+    )
     cost_cmd.add_argument("--json", action="store_true", help="emit the rollup as JSON")
+
+    outcomes_cmd = sub.add_parser(
+        "outcomes",
+        help="deterministic outcome facts: test/build/lint, retained, retries (M30 OUT-1)",
+    )
+    outcomes_cmd.add_argument(
+        "--by",
+        choices=("session", "project", "model", "harness"),
+        default="project",
+        help="rollup dimension (default: project)",
+    )
+    outcomes_cmd.add_argument(
+        "--since", default=None, help="relative (30d/12h/30m) or ISO timestamp"
+    )
+    outcomes_cmd.add_argument(
+        "--repo", default=None, help="git repository root to compute retained changes"
+    )
+    outcomes_cmd.add_argument("--json", action="store_true", help="emit the facts as JSON")
 
     bom = sub.add_parser("bom", help="Agent Bill of Materials, CycloneDX (M15 S9)")
     bom_scope = bom.add_mutually_exclusive_group()
@@ -587,7 +1132,19 @@ def _build_parser() -> argparse.ArgumentParser:
     retention = sub.add_parser("retention", help="store retention controls (M9 R11)")
     retention_sub = retention.add_subparsers(dest="action", metavar="ACTION", required=True)
     retention_apply = retention_sub.add_parser(
-        "apply", help="tombstone records older than store.retention_days"
+        "apply", help="tombstone records older than the retention window (profile)"
+    )
+    retention_apply.add_argument(
+        "--profile",
+        choices=profile_names(),
+        default=None,
+        help="retention profile: high-risk-12mo (365d, AAT §9), general-6mo (180d), "
+        "or custom (store.retention_days; default)",
+    )
+    retention_apply.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="report what would be tombstoned (and which records a hold skips); change nothing",
     )
     retention_apply.add_argument(
         "--json", action="store_true", help="emit the retention report as JSON"
@@ -598,6 +1155,12 @@ def _build_parser() -> argparse.ArgumentParser:
     purge.add_argument("--yes", action="store_true", help="confirm irreversible tombstoning")
     purge.add_argument(
         "--reason", default=None, help="metadata-only reason recorded with the purge"
+    )
+    purge.add_argument(
+        "--override-reason",
+        dest="override_reason",
+        default=None,
+        help="proceed despite an active legal hold; the stated reason is recorded (conspicuous)",
     )
 
     quarantine_cmd = sub.add_parser(
@@ -635,6 +1198,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--note", required=True, help="operator note text (redacted before storage)"
     )
     annotate.add_argument("--tag", default=None, help="optional tag for filtering (sessions --tag)")
+    annotate.add_argument(
+        "--incident-tag",
+        action="append",
+        default=None,
+        metavar="TAG",
+        help="optional incident-registry tag (repeatable; metadata-only, M27 COR-2)",
+    )
 
     export = sub.add_parser("export", help="opt-in OTLP export (M5)")
     export_sub = export.add_subparsers(dest="action", metavar="ACTION", required=True)
@@ -672,6 +1242,14 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     evidence.add_argument(
         "--include-bom", dest="include_bom", action="store_true", help="include bom.cdx.json (S9)"
+    )
+    evidence.add_argument(
+        "--include",
+        dest="include",
+        action="append",
+        default=None,
+        metavar="MEMBER",
+        help="extra bundle member: incident-report.json (COR-3)",
     )
     evidence.add_argument(
         "--redact-paths", dest="redact_paths", action="store_true", help="mask filesystem paths"
@@ -716,10 +1294,15 @@ def _build_parser() -> argparse.ArgumentParser:
     mcp = sub.add_parser("mcp-proxy", help="run the MCP interposition proxy (M10 N1)")
     mcp.add_argument("--server", default=None, help="stdio mode: MCP server name (tool.server)")
     mcp.add_argument("--socket", default=None, help="daemon socket path override")
-    mcp.add_argument("--http", action="store_true", help="serve HTTP/SSE routes instead of stdio")
+    mcp.add_argument("--http", action="store_true", help="serve HTTP routes instead of stdio")
     mcp.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
     mcp.add_argument(
         "--port", type=int, default=8765, help="HTTP bind port (default 8765; 0 = ephemeral)"
+    )
+    mcp.add_argument(
+        "--transport",
+        default="streamable-http",
+        help="HTTP transport: streamable-http (default) or http-sse (legacy, deprecated-in-spec)",
     )
     mcp.add_argument(
         "--route",
@@ -731,6 +1314,69 @@ def _build_parser() -> argparse.ArgumentParser:
     mcp.add_argument(
         "server_command", nargs=argparse.REMAINDER, help="-- <server command> [args...]"
     )
+
+    a2a = sub.add_parser("a2a-proxy", help="run the A2A interposition proxy (M29 A2A-1)")
+    a2a.add_argument("--agent", default=None, help="stdio mode: A2A agent name (tool.server)")
+    a2a.add_argument("--socket", default=None, help="daemon socket path override")
+    a2a.add_argument("--remote-org", default=None, help="remote organization (delegation)")
+    a2a.add_argument("--http", action="store_true", help="serve HTTP routes instead of stdio")
+    a2a.add_argument("--host", default="127.0.0.1", help="HTTP bind host (default loopback)")
+    a2a.add_argument(
+        "--port", type=int, default=8766, help="HTTP bind port (default 8766; 0 = ephemeral)"
+    )
+    a2a.add_argument(
+        "--route",
+        action="append",
+        default=[],
+        metavar="NAME=URL",
+        help="HTTP route (repeatable): A2A agent name to upstream URL",
+    )
+    a2a.add_argument(
+        "agent_command", nargs=argparse.REMAINDER, help="-- <agent command> [args...]"
+    )
+
+    mcp_serve = sub.add_parser(
+        "mcp-serve", help="read-only MCP server over the record (M30 AGI-1; off by default)"
+    )
+    mcp_serve.add_argument(
+        "--enable",
+        action="store_true",
+        help="consent-first opt-in; required because the server is off by default",
+    )
+    mcp_serve.add_argument(
+        "--rate-limit",
+        type=int,
+        default=240,
+        help="max tool calls per minute (default 240)",
+    )
+
+    suggest_policy_p = sub.add_parser(
+        "suggest-policy",
+        help="advisory least-privilege permission candidates from history (M30 POL-1)",
+    )
+    suggest_policy_p.add_argument("--since", default="30d", help="window (default 30d)")
+    suggest_policy_p.add_argument("--project", default=None, help="only records for this project")
+    suggest_policy_p.add_argument(
+        "--target", choices=TARGETS, default="claude-settings", help="output target"
+    )
+    suggest_policy_p.add_argument(
+        "--include",
+        action="store_true",
+        help="allow destructive/network/credential-adjacent rules (still annotated)",
+    )
+    suggest_policy_p.add_argument(
+        "--out", default=None, help="write the artifact here (nothing else is written)"
+    )
+    suggest_policy_p.add_argument("--json", action="store_true", help="emit the artifact as JSON")
+
+    what_if = sub.add_parser(
+        "what-if",
+        help="replay a candidate policy over history (M30 POL-2; simulation only)",
+    )
+    what_if.add_argument("policy_file", help="path to a policy JSON file")
+    what_if.add_argument("--since", default="30d", help="window (default 30d)")
+    what_if.add_argument("--project", default=None, help="only records for this project")
+    what_if.add_argument("--json", action="store_true", help="emit the simulation as JSON")
 
     return parser
 
@@ -829,6 +1475,7 @@ def _run_status(args: argparse.Namespace) -> int:
 
 
 def _run_init(args: argparse.Namespace) -> int:
+    naming.install_guard(lambda message: print(message, file=sys.stderr))
     target = resolve_scope(args.scope)
     command = resolve_hook_command()
 
@@ -873,6 +1520,10 @@ def _run_init(args: argparse.Namespace) -> int:
     for warning in preflight(detect_claude_version()):
         print(f"agentwatch: warning: {warning}", file=sys.stderr)
 
+    guidance = install_guidance(detect_managed_policy())
+    if guidance is not None:
+        print(f"agentwatch: warning: {guidance}", file=sys.stderr)
+
     try:
         install_hooks(target.settings_path, command, async_hooks=not args.sync_hooks)
     except InstallError as exc:
@@ -884,6 +1535,17 @@ def _run_init(args: argparse.Namespace) -> int:
     record_recorder_installed(store, scope=target.scope, harness=cfg.harness)
     reconcile_config(store, cfg)
     open_coverage_window(store, reason=f"init:{target.scope}")
+    # DEP-2: a session-start recorder attestation (effective hook sources + a
+    # keyed config digest) so recording-active is a fact, not an assumption.
+    policy = detect_managed_policy()
+    attest_session(
+        store,
+        managed=policy.managed_agentwatch,
+        user=hooks_installed(resolve_scope("user").settings_path),
+        project=hooks_installed(target.settings_path),
+        plugin=bool(policy.force_enabled_plugins),
+        managed_policy=policy.blocks_user_hooks,
+    )
 
     print(f"agentwatch: hooks installed ({target.scope}: {target.settings_path})")
     if args.no_daemon:
@@ -1000,17 +1662,20 @@ def _run_uninstall(args: argparse.Namespace) -> int:
 
 def _run_mcp_proxy(args: argparse.Namespace) -> int:
     if args.http:
-        from agentwatch.mcp_proxy import parse_routes, serve_http
+        from agentwatch.mcp_proxy import parse_routes, parse_transport, serve_http
 
         try:
             routes = parse_routes(args.route)
+            transport = parse_transport(args.transport)
         except ValueError as exc:
             print(f"agentwatch: {exc}", file=sys.stderr)
             return _EXIT_USAGE_ERROR
         if not routes:
             print("agentwatch: mcp-proxy --http requires --route NAME=URL", file=sys.stderr)
             return _EXIT_USAGE_ERROR
-        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+        return serve_http(
+            routes, host=args.host, port=args.port, socket_path=args.socket, transport=transport
+        )
 
     from agentwatch.mcp_proxy import run_stdio
 
@@ -1024,6 +1689,112 @@ def _run_mcp_proxy(args: argparse.Namespace) -> int:
         )
         return _EXIT_USAGE_ERROR
     return run_stdio(args.server, command, socket_path=args.socket)
+
+
+def _run_mcp_serve(args: argparse.Namespace) -> int:
+    if not args.enable:
+        print(
+            "agentwatch: mcp-serve is off by default; pass --enable to opt in "
+            "(read-only server over the record)",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    limiter = RateLimiter(max_queries=max(1, args.rate_limit))
+    return serve_stdio(store, stdin=sys.stdin, stdout=sys.stdout, limiter=limiter)
+
+
+def _run_what_if(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        policy = load_policy(args.policy_file)
+    except PolicyParseError as exc:
+        print(f"agentwatch: policy error: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    report = simulate_policy(store, policy, since=args.since, project=args.project)
+    print(json.dumps(whatif_to_dict(report), indent=2) if args.json else render_whatif(report))
+    return 0
+
+
+def _run_suggest_policy(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        suggestion = suggest_policy(
+            store,
+            since=args.since,
+            target=args.target,
+            project=args.project,
+            include=args.include,
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+
+    if args.out is not None:
+        out_path = Path(args.out).expanduser()
+        if not out_path.parent.is_dir():
+            print(
+                f"agentwatch: --out directory does not exist: {out_path.parent}",
+                file=sys.stderr,
+            )
+            return _EXIT_USAGE_ERROR
+        out_path.write_text(
+            json.dumps(suggestion_to_dict(suggestion), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"agentwatch: wrote advisory policy suggestion to {out_path}")
+        return 0
+
+    if args.json:
+        print(json.dumps(suggestion_to_dict(suggestion), indent=2))
+    else:
+        print(render_policy_suggestion(suggestion))
+    return 0
+
+
+def _run_a2a_proxy(args: argparse.Namespace) -> int:
+    if args.http:
+        from agentwatch.a2a_proxy import parse_routes, serve_http
+
+        try:
+            routes = parse_routes(args.route)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        if not routes:
+            print("agentwatch: a2a-proxy --http requires --route NAME=URL", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        return serve_http(routes, host=args.host, port=args.port, socket_path=args.socket)
+
+    from agentwatch.a2a_proxy import run_stdio
+
+    command: list[str] = list(args.agent_command)
+    if command and command[0] == "--":
+        command = command[1:]
+    if not command or args.agent is None:
+        print(
+            "agentwatch: a2a-proxy requires --agent NAME -- <command> [args...]",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    return run_stdio(
+        args.agent, command, socket_path=args.socket, remote_org=args.remote_org
+    )
 
 
 def _run_archive(args: argparse.Namespace) -> int:
@@ -1075,6 +1846,8 @@ def _run_verify_store(args: argparse.Namespace) -> int:
     status = store.verify()
     if status.ok:
         print(f"agentwatch: chain ok ({status.checked} entries)")
+        posture = signing_status(store, store_path.parent)
+        print(f"  signing: {posture.summary}")
         broken_archive = False
         for verdict in verify_archives(store, store_path.parent):
             if verdict.ok:
@@ -1136,6 +1909,7 @@ def _run_evidence(args: argparse.Namespace) -> int:
             args.target,
             include_bom=args.include_bom,
             redact_paths=args.redact_paths,
+            includes=tuple(args.include or ()),
         )
     except ValueError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
@@ -1194,6 +1968,13 @@ def _run_sessions(args: argparse.Namespace) -> int:
             print("agentwatch: no sessions recorded")
             return 0
         print(render_behavior_groups(groups))
+        return 0
+    if args.group_by_env:
+        env_groups = group_sessions_by_env(store)
+        if not env_groups:
+            print("agentwatch: no sessions recorded")
+            return 0
+        print(render_env_groups(env_groups))
         return 0
     allowed = tagged_sessions(store, args.tag) if args.tag is not None else None
     counts: dict[str, int] = {}
@@ -1331,7 +2112,11 @@ def _run_replay(args: argparse.Namespace) -> int:
             + ", ".join(combined.unavailable),
             file=sys.stderr,
         )
-    records = replay_session(store, args.session_id, records=combined.records)
+    records = (
+        replay_trace(combined.records, args.session_id)
+        if args.trace
+        else replay_session(store, args.session_id, records=combined.records)
+    )
     if not records:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
@@ -1349,6 +2134,9 @@ def _run_replay(args: argparse.Namespace) -> int:
         return 0
     for record in records:
         print(render_record(record))
+        loads = capability_loads([record])
+        if loads:
+            print(f"    {loads[0].context_line()}")
         if args.receipts:
             receipt = record_receipt(record, seq=seq_by_id.get(id(record), 0))
             rules = ",".join(receipt.rules) if receipt.rules else "none"
@@ -1367,6 +2155,18 @@ def _run_replay(args: argparse.Namespace) -> int:
 
 
 def _run_redact(args: argparse.Namespace) -> int:
+    if args.target == "eval":
+        try:
+            report = evaluate_corpus(load_corpus(args.corpus or "v1"))
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        if args.json:
+            print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+        else:
+            print(render_report_table(report))
+        return 0
+
     try:
         cfg = _load(args)
     except ConfigError as exc:
@@ -1411,8 +2211,10 @@ _COMMANDS_FOR_COMPLETION = (
     "init status sessions replay export verify-store verify-release "
     "verify-privacy event doctor tail "
     "completions uninstall inventory search diff view explain import ingest fleet drift retention "
-    "purge export-session mcp-proxy annotate redact bom evidence coverage quarantine archive "
-    "impact blame cost tree at digest flow secrets demo config union checkpoint"
+    "purge export-session mcp-proxy a2a-proxy annotate redact bom evidence coverage "
+    "quarantine archive "
+    "impact blame cost tree trace at digest flow secrets demo config union checkpoint compliance "
+    "case segment import-segment"
 )
 
 
@@ -1473,7 +2275,42 @@ def _run_export_session(args: argparse.Namespace) -> int:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     destination = DestinationKind.FILE if args.output else DestinationKind.STDOUT
-    if args.format in ("ocsf", "cloudevents"):
+    if args.write_notes and args.format != "agent-trace":
+        print(
+            "agentwatch: --write-notes requires --format agent-trace",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    if args.format == "aat":
+        bundle = export_aat(
+            export,
+            privacy_mode=cfg.privacy.mode,
+            signing=signing_status(store, Path(cfg.store.path).expanduser()).to_dict(),
+        )
+        text = to_aat_json(bundle)
+        if args.output:
+            path = Path(args.output).expanduser()
+            write_aat(bundle, path)
+            print(f"agentwatch: exported {export.count} AAT record(s) to {path}")
+        else:
+            sys.stdout.write(text)
+    elif args.format == "agent-trace":
+        bundle = export_agent_trace(export, privacy_mode=cfg.privacy.mode)
+        if args.write_notes:
+            written = write_agent_trace_notes(
+                str(Path(args.write_notes).expanduser()), read_agent_trace(bundle)
+            )
+            print(
+                f"agentwatch: wrote Agent Trace notes for {written} revision(s) into "
+                f"{args.write_notes}"
+            )
+        elif args.output:
+            path = Path(args.output).expanduser()
+            write_agent_trace(bundle, path)
+            print(f"agentwatch: exported {export.count} Agent Trace record(s) to {path}")
+        else:
+            sys.stdout.write(to_agent_trace_json(bundle))
+    elif args.format in ("ocsf", "cloudevents"):
         text = _render_standard_export(export, args.format)
         if args.output:
             path = Path(args.output).expanduser()
@@ -1495,7 +2332,7 @@ def _run_export_session(args: argparse.Namespace) -> int:
         command="export-session",
         sessions=[args.session_id],
         records=export.count,
-        destination_kind=destination,
+        destination_kind=DestinationKind.BUNDLE if args.write_notes else destination,
     )
     return 0
 
@@ -1592,6 +2429,51 @@ def _run_blame(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_provenance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    repo = args.repo or os.getcwd()
+    report = build_provenance(
+        store,
+        args.target,
+        repo=repo,
+        project=args.project,
+        window=args.window,
+    )
+    if args.notes:
+        from dataclasses import replace as _replace
+
+        ours = tuple(agent_trace_record(record) for record in store.records())
+        theirs = read_agent_trace_notes(str(Path(args.notes).expanduser()))
+        report = _replace(
+            report, cross_validation=cross_validate(ours, theirs).to_dict()
+        )
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_provenance(report))
+    return 0
+
+
+def _run_concurrency(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = build_concurrency(store, project=args.project, since=args.since)
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_concurrency(report))
+    return 0
+
+
 def _run_tree(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -1606,6 +2488,26 @@ def _run_tree(args: argparse.Namespace) -> int:
         print(json.dumps(root.to_dict(), indent=2))
     else:
         print(render_tree(root))
+    return 0
+
+
+def _run_trace(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store_dir = Path(cfg.store.path).expanduser()
+    store = RecordStore(store_dir / "records.jsonl")
+    combined = combined_records(store, store_dir)
+    tree = build_trace(combined.records, args.trace_id)
+    if tree.records == 0:
+        print(f"agentwatch: no records for trace {args.trace_id}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(trace_to_json(tree), indent=2))
+    else:
+        print(render_trace(tree))
     return 0
 
 
@@ -1736,6 +2638,288 @@ def _run_config(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_access(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+
+    if args.action == "matrix":
+        print(json.dumps(matrix_to_json()) if args.json else render_matrix())
+        return 0
+
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.action == "log":
+        entries = access_log(store, owner=args.owner)
+        if args.json:
+            print(json.dumps(access_log_to_json(args.owner, entries)))
+        else:
+            print(render_access_log(args.owner, entries))
+        return 0
+
+    reader = args.reader or args.owner
+    decision = evaluate_access(
+        Role(args.role),
+        DataClass(args.data_class),
+        owner=args.owner,
+        reader=reader,
+        same_team=args.same_team,
+        content_available=args.content_available,
+    )
+    record_access_decision(store, decision)
+    if args.json:
+        print(json.dumps(decision.to_dict()))
+    else:
+        verdict = "allowed" if decision.allowed else "DENIED"
+        print(f"agentwatch: access {verdict}: {decision.reason}")
+    return 0 if decision.allowed else _EXIT_INSTALL_ERROR
+
+
+def _run_governance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    notice = build_notice(cfg)
+    if args.json:
+        print(json.dumps(notice.to_dict(), indent=2))
+    else:
+        print(render_notice(notice))
+    return 0
+
+
+def _run_hold(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "list":
+        holds = active_holds(store)
+        if args.json:
+            print(json.dumps({"holds": [hold.to_dict() for hold in holds]}))
+        else:
+            print(render_holds(holds))
+        return 0
+
+    if args.action == "release":
+        released = record_hold_release(store, args.hold_id, reason=args.reason)
+        if released is None:
+            print(f"agentwatch: no active hold {args.hold_id}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps({"released": released}))
+        else:
+            print(f"agentwatch: released hold {released}")
+        return 0
+
+    try:
+        scope = parse_scope(args.scope)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    hold = record_hold_add(store, scope, reason=args.reason, ref=args.ref)
+    if args.json:
+        print(json.dumps(hold.to_dict()))
+    else:
+        ref = f" (ref {hold.ref})" if hold.ref else ""
+        print(f"agentwatch: placed hold {hold.hold_id} on {hold.scope.label()}{ref}")
+    return 0
+
+
+def _run_case(args: argparse.Namespace) -> int:
+    if args.action == "verify":
+        verification = verify_case_bundle(args.bundle)
+        if args.json:
+            print(json.dumps(verification.to_dict()))
+        else:
+            print(f"agentwatch: case bundle {verification.bundle_format or 'unknown'}")
+            print(f"  intact: {verification.intact}")
+            for problem in verification.problems:
+                print(f"  problem: {problem}", file=sys.stderr)
+        return 0 if verification.ok else _EXIT_INSTALL_ERROR
+
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "list":
+        cases = active_cases(store)
+        if args.json:
+            print(json.dumps({"cases": [case.to_dict() for case in cases]}))
+        else:
+            print(f"agentwatch case list: {len(cases)} case(s)")
+            for case in cases:
+                members = ",".join(member.session_id for member in case.members) or "-"
+                print(f"{case.case_id}\t{case.severity}\t{case.title}\t{members}")
+        return 0
+
+    if args.action == "create":
+        case = record_case_create(
+            store, title=args.title, severity=args.severity, ref=args.ref
+        )
+        if args.json:
+            print(json.dumps(case.to_dict()))
+        else:
+            print(f"agentwatch: created case {case.case_id} ({case.title})")
+        return 0
+
+    if args.action == "add":
+        try:
+            marker = record_case_add(store, args.case_id, args.session)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps(marker.to_dict()))
+        else:
+            print(f"agentwatch: added {args.session} to case {args.case_id}")
+        return 0
+
+    if args.action == "remove":
+        try:
+            marker = record_case_remove(store, args.case_id, args.session)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        if args.json:
+            print(json.dumps(marker.to_dict()))
+        else:
+            print(f"agentwatch: removed {args.session} from case {args.case_id}")
+        return 0
+
+    if args.action == "export":
+        try:
+            bundle = build_case_bundle(store, args.case_id)
+        except ValueError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_INSTALL_ERROR
+        out = Path(args.out).expanduser() if args.out else Path.cwd() / f"{args.case_id}.case.zip"
+        bundle.write(out)
+        if args.json:
+            print(json.dumps({"case_id": bundle.case_id, "path": str(out)}))
+        else:
+            print(f"agentwatch: wrote case bundle to {out}")
+            print("  handling: local only; no registry egress.")
+        return 0
+
+    # show
+    try:
+        timeline = case_timeline(store, args.case_id)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(timeline.to_dict()))
+    else:
+        print(render_case_timeline(timeline))
+    return 0
+
+
+def _run_import_segment(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = import_segment(store, args.bundle)
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict()))
+    else:
+        print(
+            f"agentwatch: imported segment from {report.runner} "
+            f"({report.records} record(s), {len(report.sessions)} session(s))"
+        )
+        print("  custody: source: runner; chain-protected locally but NOT locally witnessed")
+        if report.joined_sessions:
+            print(f"  joined to: {', '.join(report.joined_sessions)}")
+    return 0
+
+
+def _run_segment(args: argparse.Namespace) -> int:
+    if args.action == "verify":
+        verification = verify_segment(args.bundle)
+        if args.json:
+            print(json.dumps(verification.to_dict()))
+        else:
+            print(f"agentwatch: segment {verification.bundle_format or 'unknown'}")
+            print(f"  intact      : {verification.intact}")
+            print(f"  attestation : {verification.attestation}")
+            for problem in verification.problems:
+                print(f"  problem: {problem}", file=sys.stderr)
+        return 0 if verification.ok else _EXIT_INSTALL_ERROR
+
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+
+    if args.action == "custody":
+        rows = custody_rows(store)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "anchors": [anchor.to_dict() for anchor in anchor_records(store)],
+                        "rows": [row.to_dict() for row in rows],
+                    }
+                )
+            )
+        else:
+            print(render_custody(store))
+        return 0
+
+    # export
+    records = [record for record in store.records() if record.session_id == args.session]
+    if not records:
+        print(f"agentwatch: no records for session {args.session}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    started = min(record.started_at for record in records)
+    ended = max(record.ended_at or record.started_at for record in records)
+    try:
+        segment = seal_segment(
+            records,
+            runner=args.runner,
+            run_id=args.run_id,
+            started_at=started,
+            ended_at=ended,
+            traceparent=args.traceparent,
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_INSTALL_ERROR
+    out = (
+        Path(args.out).expanduser()
+        if args.out
+        else Path.cwd() / f"{args.session}.segment.zip"
+    )
+    segment.write(out)
+    if args.json:
+        print(
+            json.dumps(
+                {"runner": segment.runner, "run_id": segment.run_id, "path": str(out)}
+            )
+        )
+    else:
+        print(f"agentwatch: wrote sealed segment to {out}")
+        print("  handling: upload it yourself; agentwatch performs no egress.")
+    return 0
+
+
 def _run_union(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -1752,6 +2936,37 @@ def _run_union(args: argparse.Namespace) -> int:
 
 
 def _run_checkpoint(args: argparse.Namespace) -> int:
+    if args.action == "rotate":
+        try:
+            cfg = _load(args)
+        except ConfigError as exc:
+            print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        store_dir = Path(cfg.store.path).expanduser()
+        store = RecordStore(store_dir / "records.jsonl")
+        try:
+            result = rotate_key(store_dir / KEY_FILENAME)
+        except SigningError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_CONFIG_ERROR
+        seq = record_key_rotation(store, result.previous_key_id, result.key.key_id)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "previous_key_id": result.previous_key_id,
+                        "key_id": result.key.key_id,
+                        "seq": seq,
+                    }
+                )
+            )
+        else:
+            previous = result.previous_key_id or "(none)"
+            print(
+                f"agentwatch: rotated signing key {previous} -> {result.key.key_id} "
+                f"(recorded at seq {seq})"
+            )
+        return 0
     if args.action == "verify":
         try:
             data = json.loads(Path(args.file).read_text(encoding="utf-8"))
@@ -1823,10 +3038,96 @@ def _run_search(args: argparse.Namespace) -> int:
         project=args.project,
         producer=args.producer,
         approval=args.approval,
+        identity=args.identity,
+        mcp_resource=args.mcp_resource,
+        memory_only=args.memory,
+        permission_mode=args.permission_mode,
+        capability=args.capability,
+        memory_store=args.memory_store,
         records=combined.records,
     )
     for record in records:
         print(json.dumps(record.to_dict()) if args.json else render_record(record))
+    return 0
+
+
+def _run_index(args: argparse.Namespace) -> int:
+    """Manage the embedded, rebuildable query index (M30 LUI-2, ADR-0035)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    index = QueryIndex(index_path_for_store(store.path))
+    if args.action == "drop":
+        index.drop()
+        if args.json:
+            print(json.dumps({"dropped": True, "path": str(index.path)}))
+        else:
+            print(f"agentwatch: dropped index {index.path} (chain untouched)")
+        return 0
+    if args.action == "export-parquet":
+        index.ensure(store)
+        try:
+            count = index.export_parquet(args.output, session_id=args.session_id)
+        except ParquetUnavailableError as exc:
+            print(f"agentwatch: {exc}", file=sys.stderr)
+            return _EXIT_USAGE_ERROR
+        if args.json:
+            print(json.dumps({"exported": count, "path": str(Path(args.output).expanduser())}))
+        else:
+            print(f"agentwatch: exported {count} record(s) to {args.output}")
+        return 0
+    status = index.rebuild(store) if args.action == "rebuild" else index.status()
+    fresh = index.is_fresh(store)
+    payload = {
+        "path": str(status.path),
+        "present": status.present,
+        "fresh": fresh,
+        "records": status.records,
+        "format_version": status.format_version,
+    }
+    if args.json:
+        print(json.dumps(payload))
+    else:
+        state = "fresh" if fresh else ("stale" if status.present else "absent")
+        print(f"agentwatch: index {state} ({status.records} record(s)) at {status.path}")
+    return 0
+
+
+def _run_ui(args: argparse.Namespace) -> int:
+    """Open the read-only loopback console (M30 LUI-1, ADR-0036)."""
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    server = ConsoleServer(store, host=args.host, port=args.port)
+    server.start()
+    url = f"{server.url}/?token={server.token}"
+    print(f"agentwatch: console {url} (read-only, loopback only)")
+    if args.check:
+        try:
+            request = urllib.request.Request(
+                server.url + "/api/health",
+                headers={"X-Agentwatch-Token": server.token},
+            )
+            with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310 - loopback
+                health = json.loads(response.read().decode("utf-8"))
+        finally:
+            server.stop()
+        print(f"agentwatch: readiness ok (chain_ok={health['chain_ok']})")
+        return 0
+    if args.open_browser:
+        open_console_url(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.stop()
     return 0
 
 
@@ -1840,11 +3141,29 @@ def _run_purge(args: argparse.Namespace) -> int:
         print("agentwatch: refusing to purge without --yes", file=sys.stderr)
         return _EXIT_USAGE_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
-    report = store.purge_session(args.session_id, reason=args.reason)
+    report = store.purge_session(
+        args.session_id,
+        reason=args.reason,
+        override_reason=args.override_reason,
+    )
+    if report.blocked_by_hold is not None:
+        print(
+            f"agentwatch: refusing to purge session {args.session_id}: active legal hold "
+            f"{report.blocked_by_hold}; pass --override-reason with a recorded reason to proceed",
+            file=sys.stderr,
+        )
+        return _EXIT_INSTALL_ERROR
     if not report.found:
         print(f"agentwatch: no records for session {args.session_id}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
     print(f"agentwatch: purged {report.purged} record(s) for session {args.session_id}")
+    if report.override_reason:
+        print(f"agentwatch: legal hold override recorded: {report.override_reason}")
+    if report.leftovers:
+        print(
+            "agentwatch: leftover derived artifact(s) may still retain data: "
+            + ", ".join(report.leftovers)
+        )
     return 0
 
 
@@ -1856,7 +3175,13 @@ def _run_annotate(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     try:
-        report = annotate_session(store, args.session_id, args.note, tag=args.tag)
+        report = annotate_session(
+            store,
+            args.session_id,
+            args.note,
+            tag=args.tag,
+            incident_tags=args.incident_tag,
+        )
     except AnnotateError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
@@ -1878,25 +3203,45 @@ def _run_retention(args: argparse.Namespace) -> int:
     store = RecordStore(
         Path(cfg.store.path).expanduser() / "records.jsonl", max_size_mb=cfg.store.max_size_mb
     )
-    report = store.apply_retention(retention_days=cfg.store.retention_days)
-    status = store.verify()
-    if args.json:
-        print(
-            json.dumps(
-                {
-                    "purged": report.purged,
-                    "kept": report.kept,
-                    "chain_ok": status.ok,
-                    "broken_at": status.broken_at,
-                    "retention_days": cfg.store.retention_days,
-                }
-            )
+    profile = resolve_retention_profile(args.profile, retention_days=cfg.store.retention_days)
+    previous = last_state(store).retention_days
+    report = store.apply_retention(retention_days=profile.retention_days, dry_run=args.dry_run)
+    # Record the policy change *after* the run so the report's counts describe the
+    # records the window applied to, not the marker we add to explain it (S5).
+    if not args.dry_run:
+        record_retention_changed(
+            store, old=previous, new=profile.retention_days, profile=profile.name
         )
+    status = store.verify()
+    payload: dict[str, Any] = {
+        "purged": report.purged,
+        "kept": report.kept,
+        "chain_ok": status.ok,
+        "broken_at": status.broken_at,
+        "retention_days": profile.retention_days,
+        "profile": profile.name,
+    }
+    if report.leftovers:
+        payload["leftovers"] = list(report.leftovers)
+    if report.held:
+        payload["held"] = report.held
+    if args.dry_run:
+        payload["dry_run"] = True
+        cutoff = datetime.now(timezone.utc) - timedelta(days=profile.retention_days)
+        payload["skipped"] = [skip.to_dict() for skip in held_skips(store, cutoff)]
+    if args.json:
+        print(json.dumps(payload))
     else:
         print(
-            f"agentwatch: retention purged {report.purged}, kept {report.kept} "
-            f"({cfg.store.retention_days} day window)"
+            f"agentwatch: retention ({profile.name}) purged {report.purged}, "
+            f"kept {report.kept} ({profile.retention_days} day window)"
         )
+        if report.held:
+            print(f"  {report.held} record(s) skipped by an active legal hold")
+        if args.dry_run:
+            print("  dry run: nothing was tombstoned")
+        if report.leftovers:
+            print(f"  leftover derived artifact(s): {', '.join(report.leftovers)}")
         if not status.ok:
             print(f"agentwatch: chain broken at seq {status.broken_at}", file=sys.stderr)
     return 0 if status.ok else _EXIT_INSTALL_ERROR
@@ -1911,12 +3256,23 @@ def _run_coverage(args: argparse.Namespace) -> int:
 
     store_dir = Path(cfg.store.path).expanduser()
     store = RecordStore(store_dir / "records.jsonl")
-    base = Path(args.transcripts).expanduser() if args.transcripts else default_transcript_base()
     cutoff = since_cutoff(args.since) if args.since else None
-    transcripts, present = discover_transcripts(base, since=cutoff)
-    hooks_any = any(
-        hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
-    )
+    if args.harness == "cursor":
+        base = (
+            Path(args.transcripts).expanduser()
+            if args.transcripts
+            else Path.home() / ".cursor" / "traces"
+        )
+        transcripts, present = discover_cursor_transcripts(base, since=cutoff)
+        hooks_any = True
+    else:
+        base = (
+            Path(args.transcripts).expanduser() if args.transcripts else default_transcript_base()
+        )
+        transcripts, present = discover_transcripts(base, since=cutoff)
+        hooks_any = any(
+            hooks_installed(resolve_scope(scope).settings_path) for scope in ("project", "user")
+        )
     report = build_coverage(
         store,
         transcripts=transcripts,
@@ -1931,6 +3287,43 @@ def _run_coverage(args: argparse.Namespace) -> int:
         print(json.dumps(report.to_dict(), indent=2))
     else:
         print(report.render())
+    return 0
+
+
+def _run_compliance(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    report = build_report(store, args.framework, config=cfg)
+    text = json.dumps(report.to_dict(), indent=2) if args.json else render_report(report)
+    if args.out:
+        out = Path(args.out).expanduser()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text + "\n", encoding="utf-8")
+        print(f"agentwatch: wrote compliance report to {out}", file=sys.stderr)
+    else:
+        print(text)
+    return 0
+
+
+def _run_oversight(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_oversight(
+            store, since=args.since, project=args.project, by=args.by
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    print(json.dumps(report.to_dict(), indent=2) if args.json else render_oversight(report))
     return 0
 
 
@@ -2045,7 +3438,7 @@ def _run_cost(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
     try:
-        report = build_cost(store, by=args.by, since=args.since)
+        report = build_cost(store, by=args.by, since=args.since, per=args.per, repo=args.repo)
     except ValueError as exc:
         print(f"agentwatch: {exc}", file=sys.stderr)
         return _EXIT_USAGE_ERROR
@@ -2056,6 +3449,27 @@ def _run_cost(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_outcomes(args: argparse.Namespace) -> int:
+    try:
+        cfg = _load(args)
+    except ConfigError as exc:
+        print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
+        return _EXIT_CONFIG_ERROR
+    store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    try:
+        report = build_outcomes(
+            store, by=args.by, since=args.since, repo=args.repo
+        )
+    except ValueError as exc:
+        print(f"agentwatch: {exc}", file=sys.stderr)
+        return _EXIT_USAGE_ERROR
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2))
+    else:
+        print(render_outcomes(report))
+    return 0
+
+
 def _run_inventory(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2063,6 +3477,40 @@ def _run_inventory(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
+    if args.memory:
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        stores = discover_memory_stores(project=project, home=Path.home())
+        if args.json:
+            print(json.dumps([store.to_dict() for store in stores], indent=2))
+        else:
+            print(render_memory_stores(stores))
+        return 0
+    if args.capabilities:
+        if args.diff:
+            cutoff = since_cutoff(args.since) if args.since else None
+            changes = detect_capability_changes(store.records(), since=cutoff)
+            if args.json:
+                print(json.dumps([change.to_dict() for change in changes]))
+            else:
+                print(render_capability_changes(changes))
+            return 0
+        project = Path(args.project).expanduser() if args.project else Path.cwd()
+        inventory = discover_capabilities(project=project, home=Path.home())
+        if args.snapshot:
+            session_id = args.session_id or "inventory"
+            changes = record_capability_snapshot(store, session_id, inventory.capabilities)
+            message = f"recorded {len(inventory.capabilities)} capabilities in {session_id}"
+            if args.json:
+                print(json.dumps({"recorded": len(inventory.capabilities),
+                                  "changes": [change.to_dict() for change in changes]}))
+            else:
+                print(message)
+            return 0
+        if args.json:
+            print(json.dumps(capabilities_to_json(inventory), indent=2))
+        else:
+            print(render_capabilities(inventory))
+        return 0
     if args.snapshot or args.diff:
         records = store.records()
         if args.snapshot:
@@ -2076,17 +3524,17 @@ def _run_inventory(args: argparse.Namespace) -> int:
             else:
                 print(render_snapshots(states))
         else:
-            changes = detect_surface_changes(records, server=args.server)
+            surface_changes = detect_surface_changes(records, server=args.server)
             if args.json:
-                print(json.dumps([change.to_dict() for change in changes]))
+                print(json.dumps([change.to_dict() for change in surface_changes]))
             else:
-                print(render_changes(changes))
+                print(render_changes(surface_changes))
         return 0
-    inventory = build_inventory(store, session_id=args.session_id, project=args.project)
+    record_inventory = build_inventory(store, session_id=args.session_id, project=args.project)
     if args.json:
-        print(json.dumps(inventory_to_json(inventory)))
+        print(json.dumps(inventory_to_json(record_inventory)))
     else:
-        print(render_inventory(inventory))
+        print(render_inventory(record_inventory))
     return 0
 
 
@@ -2097,7 +3545,10 @@ def _run_bom(args: argparse.Namespace) -> int:
         print(f"agentwatch: configuration error: {exc}", file=sys.stderr)
         return _EXIT_CONFIG_ERROR
     store = RecordStore(Path(cfg.store.path).expanduser() / "records.jsonl")
-    bom = build_bom(store, session_id=args.session_id, project=args.project)
+    capabilities = discover_capabilities(project=Path.cwd(), home=Path.home()).capabilities
+    bom = build_bom(
+        store, session_id=args.session_id, project=args.project, capabilities=capabilities
+    )
     document = to_cyclonedx(bom) if args.format == "cyclonedx" else to_agentwatch_json(bom)
     print(json.dumps(document, indent=2, sort_keys=True))
     record_store_access(
@@ -2132,6 +3583,11 @@ def _run_diff(args: argparse.Namespace) -> int:
                     "removed_tools": list(result.removed_tools),
                     "state_a": result.state_a,
                     "state_b": result.state_b,
+                    "environment_a": result.environment_a.to_dict(),
+                    "environment_b": result.environment_b.to_dict(),
+                    "environment_changes": [
+                        change.to_dict() for change in result.environment_changes
+                    ],
                 }
             )
         )
@@ -2180,11 +3636,61 @@ def _run_ingest(args: argparse.Namespace) -> int:
         return _EXIT_CONFIG_ERROR
     store_dir = Path(cfg.store.path).expanduser()
     store = RecordStore(store_dir / "records.jsonl")
+    redaction = redaction_config_from_mode(args.capture)
+    if args.agent == "opencode":
+        from agentwatch.opencode_reader import ingest_storage
+
+        opencode_stats = ingest_storage(Path(args.path).expanduser(), store, redaction=redaction)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "records": opencode_stats.records,
+                        "sessions": opencode_stats.sessions,
+                        "skipped": opencode_stats.skipped,
+                        "duplicates": opencode_stats.duplicates,
+                        "dangling": opencode_stats.dangling,
+                    }
+                )
+            )
+        else:
+            print(
+                f"ingested {opencode_stats.records} records from {opencode_stats.sessions} "
+                f"session(s); {opencode_stats.skipped} skipped; "
+                f"{opencode_stats.duplicates} duplicate(s); {opencode_stats.dangling} dangling"
+            )
+        return 0
     paths = resolve_ingest_paths(Path(args.path).expanduser())
     if not paths:
         print("agentwatch: no sources found", file=sys.stderr)
         return _EXIT_INSTALL_ERROR
-    redaction = redaction_config_from_mode(args.capture)
+    if args.agent == "codex":
+        from agentwatch.codex_rollout import ingest_rollouts
+
+        rollout_stats = ingest_rollouts(paths, store, redaction=redaction)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "files": rollout_stats.files,
+                        "records": rollout_stats.records,
+                        "skipped": rollout_stats.skipped,
+                        "duplicates": rollout_stats.duplicates,
+                        "dangling": rollout_stats.dangling,
+                    }
+                )
+            )
+        else:
+            print(
+                f"ingested {rollout_stats.records} records from {rollout_stats.files} file(s); "
+                f"{rollout_stats.skipped} skipped; {rollout_stats.duplicates} duplicate(s); "
+                f"{rollout_stats.dangling} dangling session(s)"
+            )
+        return 0
+    if args.format == "claude-compliance":
+        return _run_ingest_claude_compliance(args, store, paths, redaction)
+    if args.format == "system-ingest":
+        return _run_ingest_system(args, store, store_dir, paths, redaction)
     stats = run_ingest(
         paths,
         store,
@@ -2213,6 +3719,116 @@ def _run_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_ingest_system(
+    args: argparse.Namespace,
+    store: RecordStore,
+    store_dir: Path,
+    paths: list[Path],
+    redaction: Any,
+) -> int:
+    """Opt-in Linux system-effects ingest (M29 SYS-1)."""
+    from agentwatch.quarantine import QuarantineLog
+    from agentwatch.system_ingest import SessionIndex, run_system_ingest
+
+    if not args.consent:
+        print(
+            "agentwatch: --format system-ingest is Linux-only and requires --consent",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    sessions = SessionIndex.from_records(store.records())
+    stats = run_system_ingest(
+        paths,
+        store,
+        opted_in=True,
+        sessions=sessions,
+        quarantine=QuarantineLog(store_dir / "quarantine.jsonl"),
+        redaction=redaction,
+    )
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "files": stats.files,
+                    "records": stats.records,
+                    "skipped": stats.skipped,
+                    "duplicates": stats.duplicates,
+                    "problems": [
+                        {"source": p.source, "reason": p.reason} for p in stats.problems
+                    ],
+                }
+            )
+        )
+    else:
+        print(
+            f"ingested {stats.records} system record(s) from {stats.files} file(s); "
+            f"{stats.skipped} skipped; {stats.duplicates} already present; "
+            f"{len(stats.problems)} problem(s)"
+        )
+    return 0
+
+
+def _run_ingest_claude_compliance(
+    args: argparse.Namespace,
+    store: RecordStore,
+    paths: list[Path],
+    redaction: Any,
+) -> int:
+    """Consent-first Claude Compliance API ingest (M27 CCA-1)."""
+    from agentwatch.compliance_api import classify_discrepancies, read_compliance_export
+    from agentwatch.store_access import DestinationKind, record_store_access
+
+    if not args.consent:
+        print(
+            "agentwatch: --format claude-compliance requires explicit --consent",
+            file=sys.stderr,
+        )
+        return _EXIT_USAGE_ERROR
+    record_store_access(
+        store, command="claude-compliance", destination_kind=DestinationKind.COMPLIANCE_API
+    )
+    feed: list[Any] = []
+    skipped = 0
+    problems: list[dict[str, str]] = []
+    for path in paths:
+        try:
+            read = read_compliance_export(path, redaction=redaction)
+        except (OSError, ValueError) as exc:
+            problems.append({"source": path.name, "reason": str(exc)})
+            skipped += 1
+            continue
+        feed.extend(read.records)
+        skipped += read.skipped
+    observations, notes = classify_discrepancies(feed, store)
+    appended = 0
+    for record in [*feed, *observations]:
+        try:
+            store.append(record)
+        except ValueError:
+            skipped += 1
+        else:
+            appended += 1
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "records": appended,
+                    "skipped": skipped,
+                    "discrepancies": notes,
+                    "problems": problems,
+                }
+            )
+        )
+    else:
+        print(
+            f"ingested {appended} compliance record(s); {skipped} skipped; "
+            f"{len(notes)} discrepancy(ies)"
+        )
+        for note in notes:
+            print(f"  discrepancy: {note}")
+    return 0
+
+
 def _run_drift(args: argparse.Namespace) -> int:
     try:
         cfg = _load(args)
@@ -2236,6 +3852,7 @@ def _run_drift(args: argparse.Namespace) -> int:
     deployments = load_deployments(Path(args.deploys).expanduser()) if args.deploys else []
     correlated = correlate_deployments(signals, deployments, window_seconds=args.deploy_window)
     emitted = emit_signals(signals) if args.emit else 0
+    dated_env = environment_changes(session_environments(store))
 
     if args.json:
         print(
@@ -2247,6 +3864,14 @@ def _run_drift(args: argparse.Namespace) -> int:
                         {
                             **signal_to_json(item.signal),
                             "deployments": [deployment.label for deployment in item.deployments],
+                            "environment_coincides": [
+                                change.to_dict()
+                                for change in annotate_environment(
+                                    signal_at=item.signal.at,
+                                    changes=dated_env,
+                                    window_seconds=args.deploy_window,
+                                )
+                            ],
                         }
                         for item in correlated
                     ],
@@ -2266,6 +3891,13 @@ def _run_drift(args: argparse.Namespace) -> int:
         for deployment in item.deployments:
             suffix = f" {deployment.version}" if deployment.version else ""
             print(f"    deploy: {deployment.label}{suffix} at {deployment.at.isoformat()}")
+        for change in annotate_environment(
+            signal_at=signal.at, changes=dated_env, window_seconds=args.deploy_window
+        ):
+            print(
+                f"    coincides with environment change: "
+                f"{change.field} {change.a} -> {change.b}"
+            )
     if args.emit:
         print(f"  emitted {emitted} drift-detected event(s)")
     return 0
@@ -2318,6 +3950,18 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_status(args)
     if args.command == "config":
         return _run_config(args)
+    if args.command == "access":
+        return _run_access(args)
+    if args.command == "governance":
+        return _run_governance(args)
+    if args.command == "hold":
+        return _run_hold(args)
+    if args.command == "case":
+        return _run_case(args)
+    if args.command == "segment":
+        return _run_segment(args)
+    if args.command == "import-segment":
+        return _run_import_segment(args)
     if args.command == "union":
         return _run_union(args)
     if args.command == "checkpoint":
@@ -2328,6 +3972,14 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_uninstall(args)
     if args.command == "mcp-proxy":
         return _run_mcp_proxy(args)
+    if args.command == "mcp-serve":
+        return _run_mcp_serve(args)
+    if args.command == "suggest-policy":
+        return _run_suggest_policy(args)
+    if args.command == "what-if":
+        return _run_what_if(args)
+    if args.command == "a2a-proxy":
+        return _run_a2a_proxy(args)
     if args.command == "sessions":
         return _run_sessions(args)
     if args.command == "verify-store":
@@ -2362,8 +4014,14 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_impact(args)
     if args.command == "blame":
         return _run_blame(args)
+    if args.command == "provenance":
+        return _run_provenance(args)
+    if args.command == "concurrency":
+        return _run_concurrency(args)
     if args.command == "tree":
         return _run_tree(args)
+    if args.command == "trace":
+        return _run_trace(args)
     if args.command == "at":
         return _run_at(args)
     if args.command == "digest":
@@ -2376,6 +4034,10 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_demo(args)
     if args.command == "search":
         return _run_search(args)
+    if args.command == "index":
+        return _run_index(args)
+    if args.command == "ui":
+        return _run_ui(args)
     if args.command == "diff":
         return _run_diff(args)
     if args.command == "import":
@@ -2390,8 +4052,14 @@ def _dispatch(args: argparse.Namespace) -> int:
         return _run_inventory(args)
     if args.command == "cost":
         return _run_cost(args)
+    if args.command == "outcomes":
+        return _run_outcomes(args)
     if args.command == "coverage":
         return _run_coverage(args)
+    if args.command == "compliance":
+        return _run_compliance(args)
+    if args.command == "oversight":
+        return _run_oversight(args)
     if args.command == "bom":
         return _run_bom(args)
     if args.command == "retention":

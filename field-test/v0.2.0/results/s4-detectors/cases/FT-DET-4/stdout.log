@@ -1,0 +1,9 @@
+detector-scenarios [full-enumeration]: 234/234 ok; 0 failed
+wrote /artifacts/detector-results.json
+detector-results: mode=full-enumeration total=234 failed=0 detectors=45
+  detectors with TPR<95 or FPR>5: none
+........................................................................ [ 43%]
+........................................................................ [ 87%]
+....................                                                     [100%]
+164 passed in 0.17s
+ok: shipped test(s) passed: services/analytics/tests/test_injection_detector.py services/analytics/tests/test_detectors_gaps.py

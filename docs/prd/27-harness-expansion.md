@@ -10,6 +10,14 @@ generated compatibility matrix.
 > carrier per server/session and the `tool-surface-changed` security event, feeding `inventory
 > --snapshot`/`--diff`. See [PRD 36](36-standards-and-interop.md).
 
+> **Extended in v0.2.0 (PRD 42, PRD 45, PRD 47).** The N1/N2 horizontals reach real harnesses: Cursor via its
+> native hooks, Gemini CLI via its built-in OTel telemetry, Codex via documented rollout logs, the long tail via a
+> `log-read` tier, the MCP proxy brought to the 2026-07-28 spec (Streamable HTTP; sampling/roots/logging
+> closed-by-spec), plus **A2A**, gateway, system-effects, and Claude Compliance API capture. Conformance gains a
+> **cross-harness test kit** and honest fidelity tiers (`live-verified | fixture-verified | modeled`). See
+> [PRD 42](42-harness-fidelity-and-realtime.md), [PRD 45](45-new-capture-surfaces.md),
+> [PRD 47](47-cross-harness-testkit.md).
+
 > Cross-cutting rules (PRD 19–29): fail closed and never silent (PRD 17); redaction before
 > storage (DD-06); the trust boundary stays deterministic — no LLM in redaction, validation, or
 > chain verification (PRD 14/18); monitor-only, every hook exits 0 (R2); local-first, no egress

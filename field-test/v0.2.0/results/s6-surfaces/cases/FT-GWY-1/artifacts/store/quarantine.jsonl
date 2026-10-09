@@ -1,0 +1,1 @@
+{"id": "43757786834a", "at": "2026-10-09T04:04:13.750745+00:00", "reason": "no OTel spans found", "raw": "{\n  \"kind\": \"gateway\",\n  \"version\": \"v0.2.0\",\n  \"source\": \"tests/fixtures/ingest/litellm_otlp.json\",\n  \"synthesized\": false,\n  \"secret_scanned\": true,\n  \"files\": [\n    \"litellm_otlp.json\"\n  ]\n}\n"}

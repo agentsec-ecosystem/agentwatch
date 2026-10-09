@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentsec-agentwatch"
-version = "0.1.0"
+version = "0.2.0"
 description = "Execution traces for agent behavior - OpenTelemetry-style observability for AI agent workflows"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,6 +35,11 @@ dependencies = [
 langgraph = [
     "langgraph>=1.0",
 ]
+codex = [
+    # Codex rollout logs may be ``.jsonl.zst``. Python 3.14+ has ``compression.zstd``
+    # in the stdlib; older interpreters need this extra (M27 COD-1).
+    "zstandard>=0.22; python_version < '3.14'",
+]
 signing = [
     "cryptography>=41",
 ]
@@ -51,6 +56,7 @@ dev = [
     "tomli>=2",
     "opentelemetry-exporter-otlp-proto-grpc>=1.24",
     "hypothesis>=6.100",
+    "zstandard>=0.22",
 ]
 
 # Optional: deep, tool-driven mutation runs (PRD 38 Q2). Not installed by
@@ -64,6 +70,7 @@ agentwatch = "agentwatch.cli:main"
 agentwatch-hook = "agentwatch.hook:main"
 agentwatch-daemon = "agentwatch.daemon:main"
 agentwatch-mcp-proxy = "agentwatch.mcp_proxy:main"
+agentwatch-a2a-proxy = "agentwatch.a2a_proxy:main"
 
 [project.urls]
 Homepage = "https://github.com/agentsec-ecosystem/agentwatch"

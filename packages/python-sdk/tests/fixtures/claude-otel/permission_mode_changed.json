@@ -1,0 +1,28 @@
+{
+  "input": {
+    "resourceLogs": [
+      {
+        "resource": {"attributes": []},
+        "scopeLogs": [
+          {
+            "scope": {"name": "claude-code"},
+            "logRecords": [
+              {
+                "timeUnixNano": "1767323045000000000",
+                "body": {"stringValue": "claude_code.permission_mode_changed"},
+                "attributes": [
+                  {"key": "session.id", "value": {"stringValue": "s1"}},
+                  {"key": "from_mode", "value": {"stringValue": "default"}},
+                  {"key": "to_mode", "value": {"stringValue": "bypassPermissions"}}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expected": [
+    {"tool": "permission-mode-changed", "step_type": null}
+  ]
+}

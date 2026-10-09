@@ -1,0 +1,24 @@
+{
+  "traces_processed": 2000,
+  "traces_skipped_resume": 0,
+  "traces_with_anomalies": 4,
+  "anomaly_count": 4,
+  "anomaly_by_type": {
+    "injection-shape": 4
+  },
+  "anomaly_by_severity": {
+    "warning": 4
+  },
+  "detector_fire_rate": {
+    "injection-shape": 0.2
+  },
+  "suspicious_patterns": {},
+  "cross_detector_correlation": {
+    "top_co_fires": [],
+    "type_counts": {
+      "injection-shape": 4
+    }
+  },
+  "skipped_detectors": {},
+  "detector_errors": {}
+}

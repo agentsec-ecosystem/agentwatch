@@ -1,0 +1,11 @@
+{
+  "kind": "system",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/system-ingest",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "conformance/process-tree.json",
+    "lineage-corpus.json"
+  ]
+}

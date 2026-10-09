@@ -1,0 +1,9 @@
+{
+  "id": "FT-ACC-2",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s12-governance",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"governance-notice-backed","ok":true}
+]
+}

@@ -1,0 +1,6 @@
++ reset: restart recorder; wipe store+socket; truncate read-model
++ compose exec recorder bash -lc shopt -s dotglob; rm -rf /data/agentwatch/* /run/agentwatch/* 2>/dev/null; mkdir -p /data/agentwatch /run/agentwatch; true
++ compose exec recorder bash -lc mkdir -p /run/agentwatch; (agentwatch-daemon >/tmp/daemon.log 2>&1 &) ; \
+       for i in $(seq 1 50); do [ -S "$AGENTWATCH_SOCKET" ] && exit 0; sleep 0.2; done; \
+       echo "daemon socket did not appear" >&2; tail -20 /tmp/daemon.log >&2; exit 1
++ compose exec recorder bash -lc mkdir -p /data/agentwatch; pgrep -f "[a]gentwatch-daemon" | head -1 > /data/agentwatch/daemon.pid

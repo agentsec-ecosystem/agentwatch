@@ -33,6 +33,9 @@ CHECK_REPLAY = "fixture-replay"
 CHECK_GAP_REJECTION = "declared-gap-rejection"
 CHECK_UNKNOWN_REJECTION = "unknown-phase-rejection"
 CHECK_DEDUP = "dedup-idempotency"
+CHECK_SDK_FIXTURES = "sdk-fixtures-populated"
+CHECK_SDK_REPLAY = "sdk-fixture-replay"
+CHECK_SDK_DEDUP = "sdk-replay-idempotency"
 
 
 @dataclass(frozen=True)
@@ -271,6 +274,93 @@ def assert_registered_conform() -> None:
         raise ConformanceError("\n".join(report.summary() for report in failed))
 
 
+# ---------------------------------------------------------------------------
+# SDK conformance packs (M27 LG-1)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class SdkSpec:
+    """An SDK/framework instrumentation pack held to the O1 bar.
+
+    Unlike an adapter (JSON-RPC frames in), an SDK pack replays an
+    *instrumentation input* (callback events, a span tree) and must produce valid
+    records. Fixtures define ``input`` and ``expected`` (the ``(tool, step_type)``
+    sequence), so a drift in the instrumentation→record mapping fails CI.
+    """
+
+    name: str
+    replay: Callable[[Any], list[AgentRecord]]
+    fixtures_dir: Path
+    error_cls: type[Exception]
+
+
+_SDK_REGISTRY: dict[str, SdkSpec] = {}
+
+
+def register_sdk(spec: SdkSpec, *, replace: bool = False) -> None:
+    """Register an SDK pack; a duplicate name fails closed unless ``replace``."""
+    if spec.name in _SDK_REGISTRY and not replace:
+        raise ValueError(f"SDK pack {spec.name!r} is already registered")
+    _SDK_REGISTRY[spec.name] = spec
+
+
+def registered_sdks() -> list[SdkSpec]:
+    """Every registered SDK pack, deterministically ordered."""
+    return [_SDK_REGISTRY[name] for name in sorted(_SDK_REGISTRY)]
+
+
+def _observed_shape(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {"tool": record["tool"]["name"], "step_type": record.get("step_type")}
+        for record in records
+    ]
+
+
+def run_sdk(spec: SdkSpec) -> ConformanceReport:
+    """Run the SDK-pack contract against one pack; never raises for a failure."""
+    report = ConformanceReport(adapter=spec.name)
+    report.checks += 2
+    if not spec.name:
+        report.failures.append(f"{CHECK_REGISTRATION}: SDK pack name must not be empty")
+
+    loaded, load_failures = _load_fixtures(spec.fixtures_dir)
+    report.checks += 1
+    report.failures.extend(load_failures)
+    for path, fixture in loaded:
+        if not isinstance(fixture, dict) or "input" not in fixture or "expected" not in fixture:
+            report.failures.append(
+                f"{CHECK_SDK_FIXTURES}: {path.name} must define 'input' and 'expected'"
+            )
+            continue
+        try:
+            first = _record_dicts(spec.replay(copy.deepcopy(fixture["input"])))
+            second = _record_dicts(spec.replay(copy.deepcopy(fixture["input"])))
+        except (TypeError, ValueError, KeyError) as exc:
+            report.failures.append(f"{CHECK_SDK_REPLAY}: {path.name}: {exc}")
+            continue
+        observed = _observed_shape(first)
+        if observed != fixture["expected"]:
+            report.failures.append(
+                f"{CHECK_SDK_REPLAY}: {path.name}: {observed} != {fixture['expected']}"
+            )
+        if observed != _observed_shape(second):
+            report.failures.append(
+                f"{CHECK_SDK_DEDUP}: {path.name}: replaying twice is not idempotent"
+            )
+    return report
+
+
+def assert_sdk_conform() -> None:
+    """Block CI when no SDK pack is registered or any registered pack fails."""
+    specs = registered_sdks()
+    if not specs:
+        raise ConformanceError("no SDK packs registered for conformance")
+    failed = [report for report in (run_sdk(spec) for spec in specs) if not report.ok]
+    if failed:
+        raise ConformanceError("\n".join(report.summary() for report in failed))
+
+
 def assert_packs_populated() -> None:
     """Block CI when a registered adapter lacks a well-formed conformance pack.
 
@@ -293,3 +383,25 @@ def assert_packs_populated() -> None:
                 problems.append(f"{spec.name}: {path.name} must define 'message' and 'expected'")
     if problems:
         raise ConformanceError("\n".join(problems))
+
+
+def self_test() -> bool:
+    """XHT-1: prove the runner rejects a deliberately broken adapter.
+
+    A self-test is a *negative* control: a broker/normalizer that returns the wrong
+    output must fail the same checks a shipped adapter passes. Returns ``True`` when
+    the broken adapter fails and at least one shipped adapter passes.
+    """
+    specs = registered()
+    if not specs:
+        return False
+    base = specs[0]
+    broken = AdapterSpec(
+        name="__xht-self-test-broken__",
+        normalize=lambda message: [],  # never reproduces the expected records
+        capabilities=base.capabilities,
+        documented_gaps=base.documented_gaps,
+        error_cls=ValueError,
+        fixtures_dir=base.fixtures_dir,
+    )
+    return (not run(broken).ok) and run(base).ok

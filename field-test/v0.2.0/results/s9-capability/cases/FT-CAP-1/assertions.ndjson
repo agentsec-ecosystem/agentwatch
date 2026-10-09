@@ -1,0 +1,5 @@
+{"name":"reset-recorder-restart","ok":true}
+{"name":"state-reset","ok":true}
+{"name":"stack-reused","ok":true}
+{"name":"capability-drift","ok":true}
+{"name":"capability-drift-semantics","ok":true}

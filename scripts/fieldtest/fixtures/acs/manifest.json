@@ -1,0 +1,10 @@
+{
+  "kind": "acs",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/acs",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "trail.json"
+  ]
+}

@@ -1,0 +1,8 @@
+{"type":"custom-title","customTitle":"my-project","sessionId":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
+{"uuid":"u1","type":"user","timestamp":"2026-07-01T10:00:00Z","isSidechain":false,"isMeta":false,"cwd":"/Users/x/Code/my-project","message":{"role":"user","content":"hello"}}
+{"uuid":"a1","type":"assistant","timestamp":"2026-07-01T10:00:01Z","isSidechain":false,"isMeta":false,"cwd":"/Users/x/Code/my-project","message":{"role":"assistant","content":[{"type":"text","text":"hi"}],"model":"claude-opus-4-6","stop_reason":"end_turn","usage":{"input_tokens":10,"output_tokens":5}}}
+{"type":"custom-title","customTitle":"my-project","sessionId":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
+{"type":"custom-title","customTitle":"dependabot-manager-okr","sessionId":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
+{"uuid":"u2","type":"user","timestamp":"2026-07-01T10:05:00Z","isSidechain":false,"isMeta":false,"cwd":"/Users/x/Code/my-project","message":{"role":"user","content":"keep going"}}
+{"uuid":"a2","type":"assistant","timestamp":"2026-07-01T10:05:01Z","isSidechain":false,"isMeta":false,"cwd":"/Users/x/Code/my-project","message":{"role":"assistant","content":[{"type":"text","text":"ok"}],"model":"claude-opus-4-6","stop_reason":"end_turn","usage":{"input_tokens":12,"output_tokens":4}}}
+{"type":"custom-title","customTitle":"my-project","sessionId":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}

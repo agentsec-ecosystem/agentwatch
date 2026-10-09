@@ -1,0 +1,9 @@
+{
+  "id": "FT-TSS-1",
+  "status": "pass",
+  "class": "P/F|D",
+  "declared": false,
+  "run_id": "s7-platform",
+  "assertions": [{"name":"ts-spike-tracked","ok":true},{"name":"ts-spike-deliverables","ok":true},{"name":"ts-portability-contract","ok":true}
+]
+}

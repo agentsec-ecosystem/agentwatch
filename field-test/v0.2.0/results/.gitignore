@@ -1,0 +1,7 @@
+# Field-test results are committed as evidence, but never secret key material
+# or throwaway virtualenvs produced by the cases.
+*.key
+**/venv/
+**/site-packages/
+__pycache__/
+*.pyc

@@ -59,6 +59,7 @@ def test_retention_apply_tombstones_and_reports(
         "chain_ok": True,
         "broken_at": None,
         "retention_days": 30,
+        "profile": "custom",
     }
 
 
@@ -75,4 +76,5 @@ def test_apply_retention_keeps_chain_green(
     store = RecordStore(directory / "records.jsonl")
     assert store.verify().ok
     assert any(entry.tombstone for entry in store.entries())
-    assert {record.tool.name for record in store.records()} == {"new"}
+    # The retention *change* is recorded (S5), so the marker joins the survivors.
+    assert {record.tool.name for record in store.records()} == {"new", "retention-changed"}

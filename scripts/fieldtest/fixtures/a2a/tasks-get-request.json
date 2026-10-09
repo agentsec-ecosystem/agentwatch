@@ -1,0 +1,49 @@
+{
+  "message": {
+    "phase": "a2a",
+    "harness": "a2a-proxy",
+    "event": {
+      "agent": "remote-scheduler",
+      "direction": "request",
+      "rpc": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "method": "tasks/get",
+        "params": {
+          "id": "t-9"
+        }
+      },
+      "timestamp": "2026-01-02T03:04:05+00:00",
+      "session_id": "s-1",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "s-1",
+      "agent": {
+        "identity": "remote-scheduler"
+      },
+      "tool": {
+        "name": "tasks/get",
+        "server": "remote-scheduler",
+        "arguments": {
+          "task_id": "t-9"
+        },
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:05+00:00",
+      "trace_id": "s-1",
+      "span_id": "a2a:remote-scheduler:8",
+      "harness": "a2a-proxy",
+      "project": "/repo",
+      "producer": {
+        "kind": "proxy",
+        "name": "a2a-proxy"
+      },
+      "step_type": "act"
+    }
+  ]
+}

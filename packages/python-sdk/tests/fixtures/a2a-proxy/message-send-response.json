@@ -1,0 +1,89 @@
+{
+  "message": {
+    "phase": "a2a",
+    "harness": "a2a-proxy",
+    "event": {
+      "agent": "remote-scheduler",
+      "direction": "response",
+      "tool_name": "message/send",
+      "rpc": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "result": {
+          "kind": "task",
+          "id": "t-1",
+          "status": {
+            "state": "completed"
+          },
+          "artifacts": [
+            {
+              "artifactId": "a-1",
+              "name": "report"
+            }
+          ]
+        }
+      },
+      "timestamp": "2026-01-02T03:04:06+00:00",
+      "session_id": "s-1",
+      "cwd": "/repo"
+    }
+  },
+  "expected": [
+    {
+      "schema_version": "0.1.0",
+      "session_id": "s-1",
+      "agent": {
+        "identity": "remote-scheduler"
+      },
+      "tool": {
+        "name": "message/send",
+        "server": "remote-scheduler",
+        "arguments": {
+          "task_id": "t-1",
+          "state": "completed"
+        },
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "trace_id": "s-1",
+      "span_id": "a2a:remote-scheduler:7",
+      "harness": "a2a-proxy",
+      "project": "/repo",
+      "producer": {
+        "kind": "proxy",
+        "name": "a2a-proxy"
+      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe"
+    },
+    {
+      "schema_version": "0.1.0",
+      "session_id": "s-1",
+      "agent": {
+        "identity": "remote-scheduler"
+      },
+      "tool": {
+        "name": "a2a/artifact",
+        "server": "remote-scheduler",
+        "arguments": {
+          "artifact_id": "a-1",
+          "name": "report"
+        },
+        "privacy_mode": "metadata-only"
+      },
+      "outcome": "ok",
+      "started_at": "2026-01-02T03:04:06+00:00",
+      "trace_id": "s-1",
+      "span_id": "a2a:remote-scheduler:7-artifact-0",
+      "harness": "a2a-proxy",
+      "project": "/repo",
+      "producer": {
+        "kind": "proxy",
+        "name": "a2a-proxy"
+      },
+      "ended_at": "2026-01-02T03:04:06+00:00",
+      "step_type": "observe"
+    }
+  ]
+}

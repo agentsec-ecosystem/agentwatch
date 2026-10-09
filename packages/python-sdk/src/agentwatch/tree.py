@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from agentwatch.identity import Attribution, attribution_for
 from agentwatch.records import AgentRecord
 from agentwatch.replay import replay_session
 from agentwatch.store import RecordStore
@@ -26,6 +27,7 @@ _INTERNAL_TOOLS = frozenset(
         "session-purge",
         "operator-note",
         "store-access",
+        "key-rotation",
         "harness-drift",
         "session-usage",
         "external-event",
@@ -50,6 +52,7 @@ class TreeNode:
     orphan: bool = False
     truncated: bool = False
     children: tuple[TreeNode, ...] = ()
+    attribution: Attribution = Attribution(agent="unknown")
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -63,6 +66,7 @@ class TreeNode:
             "last_at": self.last_at.isoformat() if self.last_at else None,
             "orphan": self.orphan,
             "truncated": self.truncated,
+            "attribution": self.attribution.to_dict(),
             "children": [child.to_dict() for child in self.children],
         }
 
@@ -145,7 +149,8 @@ def build_tree(store: RecordStore, session_id: str) -> TreeNode:
 
     def build(key: str, depth: int) -> TreeNode:
         accumulator = _Acc(key)
-        for record in by_key.get(key, []):
+        agent_records = by_key.get(key, [])
+        for record in agent_records:
             accumulator.add(record)
         child_nodes: list[TreeNode] = []
         if depth < MAX_DEPTH:
@@ -163,6 +168,9 @@ def build_tree(store: RecordStore, session_id: str) -> TreeNode:
             orphan=orphan_of.get(key, False),
             truncated=depth >= MAX_DEPTH,
             children=tuple(child_nodes),
+            attribution=(
+                attribution_for(agent_records[0]) if agent_records else Attribution(agent="unknown")
+            ),
         )
 
     root = build(root_key, 0)
@@ -184,6 +192,7 @@ def build_tree(store: RecordStore, session_id: str) -> TreeNode:
             orphan=root.orphan,
             truncated=root.truncated,
             children=(*root.children, *attached),
+            attribution=root.attribution,
         )
     return root
 
@@ -211,6 +220,7 @@ def sort_by_cost(root: TreeNode) -> TreeNode:
         orphan=root.orphan,
         truncated=root.truncated,
         children=ordered,
+        attribution=root.attribution,
     )
 
 
@@ -231,6 +241,7 @@ def render_tree(root: TreeNode) -> str:
             f"{'  ' * (depth + 1)}- {node.key}: tools={node.tools} {outcome} "
             f"duration={node.duration_ms or 0:.0f}ms tokens={node.tokens} cost={cost}{suffix}"
         )
+        lines.append(f"{'  ' * (depth + 2)}attribution: {node.attribution.label()}")
         for child in node.children:
             walk(child, depth + 1)
 

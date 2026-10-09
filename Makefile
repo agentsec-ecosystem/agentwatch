@@ -1,4 +1,4 @@
-.PHONY: help setup format lint typecheck test security-scan release-dry-run stack-up stack-down clean migrate api seed-e2e migrate-db web-install web-typecheck web-test e2e stack-smoke fieldtest fieldtest-gen fieldtest-case fieldtest-clean
+.PHONY: help setup format lint typecheck test security-scan release-dry-run stack-up stack-down clean migrate api seed-e2e migrate-db web-install web-typecheck web-test e2e stack-smoke fieldtest fieldtest-gen fieldtest-fixtures fieldtest-case fieldtest-v020 fieldtest-suite fieldtest-check fieldtest-clean
 
 PYTHON ?= python3
 PACKAGES := packages/python-sdk services/api services/analytics
@@ -20,12 +20,12 @@ format: ## Auto-format Python (ruff).
 
 lint: ## Lint Python (ruff).
 	@for pkg in $(PACKAGES); do \
-		(cd $$pkg && ruff check .); \
+		(cd $$pkg && ruff check .) || exit 1; \
 	done
 
 typecheck: ## Type-check Python (mypy strict).
 	@for pkg in $(PACKAGES); do \
-		(cd $$pkg && mypy --strict .); \
+		(cd $$pkg && mypy --strict .) || exit 1; \
 	done
 
 test: ## Run all unit tests + coverage gate + repo guard.
@@ -80,6 +80,12 @@ stack-smoke: ## Boot the stack and check that the API and web app answer.
 fieldtest-gen: ## Regenerate field-test case specs + steps from the registry.
 	python3 scripts/fieldtest/gen_cases.py
 
+fieldtest-fixtures: ## Rebuild the v0.2.0 field-test fixtures from repo sources.
+	python3 scripts/fieldtest/build_fixtures.py
+
+fieldtest-check: ## Validate every field-test invocation against the shipped CLI.
+	python3 scripts/fieldtest/check_cli_usage.py
+
 fieldtest: ## Run the Docker-backed field-test suite (results under field-test/v0.1.0/results/).
 	bash scripts/fieldtest/run-all.sh
 
@@ -87,8 +93,15 @@ fieldtest-case: ## Run one field-test case: make fieldtest-case ID=FT-04
 	@test -n "$(ID)" || (echo "usage: make fieldtest-case ID=FT-04" >&2 && exit 2)
 	bash scripts/fieldtest/run-case.sh "$(ID)"
 
+fieldtest-v020: ## Run the v0.2.0 field-test suite (results under field-test/v0.2.0/results/).
+	FT_VERSION=v0.2.0 bash scripts/fieldtest/run-all.sh
+
+fieldtest-suite: ## Run one v0.2.0 suite: make fieldtest-suite SUITE=s1-install
+	@test -n "$(SUITE)" || (echo "usage: make fieldtest-suite SUITE=s1-install" >&2 && exit 2)
+	FT_VERSION=v0.2.0 bash scripts/fieldtest/run-suite.sh "$(SUITE)"
+
 fieldtest-clean: ## Remove field-test run artifacts (keeps the results .gitkeep).
-	find field-test/v0.1.0/results -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} + 2>/dev/null || true
+	find field-test/v0.1.0/results field-test/v0.2.0/results -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} + 2>/dev/null || true
 
 clean: ## Remove generated artifacts.
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true

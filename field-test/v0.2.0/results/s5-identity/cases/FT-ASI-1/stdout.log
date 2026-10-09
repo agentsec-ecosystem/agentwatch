@@ -1,0 +1,4 @@
+DO
+........                                                                 [100%]
+8 passed in 0.55s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_compliance_asi.py

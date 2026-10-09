@@ -1,0 +1,13 @@
+agentwatch: console http://127.0.0.1:53635/?token=bdElph8rhTu0xy7oFPWHO-VNFzmTXC0W2msq6TO2GNc (read-only, loopback only)
+agentwatch: readiness ok (chain_ok=True)
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/console.spec.ts:43:3 › Local console (agentwatch ui) › console-overview renders and is captured (690ms)
+  ✓  2 [chromium] › tests/e2e/console.spec.ts:51:3 › Local console (agentwatch ui) › console-signatures captured (581ms)
+  ✓  3 [chromium] › tests/e2e/console.spec.ts:56:3 › Local console (agentwatch ui) › console has no axe violations (incl. contrast) (128ms)
+
+  3 passed (1.8s)
+......................                                                   [100%]
+22 passed in 9.29s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_console.py packages/python-sdk/tests/test_accessibility.py

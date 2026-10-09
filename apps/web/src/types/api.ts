@@ -241,3 +241,45 @@ export interface ApiError {
   /** Human-readable error message. */
   message: string;
 }
+
+/** One content-free detector-telemetry marker (M27 DET-5 / UI-2). */
+export interface DetectorTelemetryMarker {
+  /** Always `detector-telemetry`. */
+  kind: string;
+  /** The detector that produced the marker. */
+  detector: string;
+  /** `fired` | `suppressed` | `false-positive`. */
+  outcome: string;
+  /** Optional severity for a fired marker. */
+  severity?: string;
+  /** ISO-8601 timestamp. */
+  at: string;
+}
+
+/** Response shape for `GET /api/v1/detector-telemetry`. */
+export interface DetectorTelemetryResponse {
+  items: DetectorTelemetryMarker[];
+}
+
+/** One session's identity/attribution (M27 UI-2; IDN-1/S14). */
+export interface AttributionItem {
+  session_id: string;
+  identity?: string | null;
+  principal?: string | null;
+  workload_identity?: string | null;
+  credential_class?: string | null;
+  delegation_chain?: string[] | null;
+  approval?: string | null;
+}
+
+/** Response shape for `GET /api/v1/attribution`. */
+export interface AttributionResponse {
+  items: AttributionItem[];
+}
+
+/** SIEM sink health snapshot (M27 UI-2; S10). */
+export interface SiemHealth {
+  targets: string[];
+  degraded: boolean;
+  last_error?: string | null;
+}

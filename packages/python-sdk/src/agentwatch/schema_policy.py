@@ -12,14 +12,29 @@ import json
 from pathlib import Path
 from typing import cast
 
-from agentwatch.records import EVENT_VERSION, SCHEMA_VERSION, SecurityEventType
+from agentwatch.records import (
+    EVENT_VERSION,
+    SCHEMA_VERSION,
+    SecurityEventType,
+)
 
 SCHEMA_CHANGELOG = "CHANGELOG.md"
 SECURITY_EVENT_SCHEMA = "security-event.schema.json"
+AGENT_RECORD_SCHEMA = "agent-record.schema.json"
 
 
 def _load(path: Path) -> dict[str, object]:
     return cast("dict[str, object]", json.loads(path.read_text(encoding="utf-8")))
+
+
+def _declares_version(prop: object, version: str) -> bool:
+    """Whether a schema version property declares ``version`` (const or enum)."""
+    if not isinstance(prop, dict):
+        return False
+    if prop.get("const") == version:
+        return True
+    enum = prop.get("enum")
+    return isinstance(enum, list) and version in enum
 
 
 def check_schema_policy(schema_dir: Path | str) -> list[str]:
@@ -64,13 +79,34 @@ def check_schema_policy(schema_dir: Path | str) -> list[str]:
                             f"only-in-code={sorted(actual - declared)})"
                         )
             version_prop = properties.get("event_version")
-            if isinstance(version_prop, dict) and version_prop.get("const") != EVENT_VERSION:
+            if isinstance(version_prop, dict) and not _declares_version(
+                version_prop, EVENT_VERSION
+            ):
                 problems.append(
-                    f"{SECURITY_EVENT_SCHEMA}: event_version const "
-                    f"{version_prop.get('const')!r} != {EVENT_VERSION!r}"
+                    f"{SECURITY_EVENT_SCHEMA}: event_version must declare "
+                    f"{EVENT_VERSION!r} (const or enum)"
+                )
+
+    record_schema = root / AGENT_RECORD_SCHEMA
+    if record_schema.exists():
+        document = _load(record_schema)
+        properties = document.get("properties")
+        if isinstance(properties, dict):
+            version_prop = properties.get("schema_version")
+            if isinstance(version_prop, dict) and not _declares_version(
+                version_prop, SCHEMA_VERSION
+            ):
+                problems.append(
+                    f"{AGENT_RECORD_SCHEMA}: schema_version must declare "
+                    f"{SCHEMA_VERSION!r} (const or enum)"
                 )
 
     return problems
 
 
-__all__ = ["SCHEMA_CHANGELOG", "SECURITY_EVENT_SCHEMA", "check_schema_policy"]
+__all__ = [
+    "AGENT_RECORD_SCHEMA",
+    "SCHEMA_CHANGELOG",
+    "SECURITY_EVENT_SCHEMA",
+    "check_schema_policy",
+]

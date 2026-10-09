@@ -47,3 +47,27 @@ and the mapping is published in [ocsf-mapping.md](ocsf-mapping.md).
 
 The event says "surface changed". It does not score trust, block a server, or
 call it malicious (PRD 14/36 S4 risk). Consumers such as agentpolicy decide.
+
+## v0.2.0 — protocol revision and full surface
+
+The MCP spec revised to **2026-07-28** ([PRD 42](../prd/42-harness-fidelity-and-realtime.md) MCP-1..6,
+[ADR-0023](../adr/0023-mcp-2026-07-28-posture.md)): sessions removed from Streamable HTTP (the proxy gets simpler
+and stateless), **Roots/Sampling/Logging deprecated** (SEP-2577), **MRTR** reworks server-initiated requests,
+**Tasks** added, **HTTP+SSE deprecated**.
+
+The proxy migrates to **Streamable HTTP** and records the previously-relayed surfaces — `resources/read` (incl.
+resource links in tool results), `prompts/get`, **elicitation** (linked to approval provenance S14), and **tasks**
+lifecycle — with the same redaction/chain/attribution pipeline. A `resources/read` record and each `resources/link`
+observation keep the resource URI in `tool.arguments['uri']`; a `prompts/get` record keeps the prompt name in
+`tool.arguments['name']` — all metadata (never the body unless captured). `search --mcp-resource <uri>` finds every
+resource access. **Elicitation** is recorded and its answer linked to approval provenance (S14): `accept`→`user`,
+`decline`→`denied`, otherwise honest `unknown`. **Tasks** (SEP-2663) are recorded with the task id as metadata;
+Roots/Sampling/Logging are **closed-by-spec** (SEP-2577). The streamable transport is **stateless**: because
+2026-07-28 removed sessions, the proxy neither requires, forwards, nor emits `Mcp-Session-Id` in either direction,
+and `MCP-Protocol-Version` is relayed unchanged. The pre-2026 HTTP/SSE relay is kept for legacy servers
+(`agentwatch mcp-proxy --http --transport http-sse`) and is **deprecated-in-spec**. `sampling`/`roots`/`logging` are
+marked **closed-by-spec** in `known-limitations.md` (retired by the standard, not by us). Conformance fixtures are
+versioned per protocol revision (2025-06-18 / 2025-11-25 / 2026-07-28); `agentwatch.mcp_protocol` is the single
+source for the revision→surface matrix, the proxy's tested range tracks the newest revision (protocol drift fails
+CI), and the compatibility table carries a **Protocol** column. An unknown method is quarantined and surfaced as
+harness-drift (S19).

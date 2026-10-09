@@ -23,6 +23,29 @@ from typing import Any
 _BEGIN = "<!-- BEGIN GENERATED HARNESS MATRIX -->"
 _END = "<!-- END GENERATED HARNESS MATRIX -->"
 
+# Fidelity tiers (XHT-4, PRD 47): how an adapter's support was established, so a
+# "modeled" adapter is never mistaken for a captured one.
+#   live-verified    — real captures from the running harness, kept current
+#   fixture-verified — real captures committed as fixtures, not continuously re-captured
+#   modeled          — the event shape is assumed, not captured
+FIDELITY_LIVE = "live-verified"
+FIDELITY_FIXTURE = "fixture-verified"
+FIDELITY_MODELED = "modeled"
+FIDELITY_TIERS: tuple[str, ...] = (FIDELITY_LIVE, FIDELITY_FIXTURE, FIDELITY_MODELED)
+
+# Managed-policy status (M29 EXT-7): the honest state of a hook-based recorder
+# under Claude Code managed settings (`allowManagedHooksOnly`, etc.).
+MANAGED_EFFECTIVE = "effective"
+MANAGED_BLOCKED = "blocked"
+MANAGED_UNKNOWN = "unknown"
+MANAGED_NA = "n/a"
+MANAGED_POLICY_STATUSES: tuple[str, ...] = (
+    MANAGED_EFFECTIVE,
+    MANAGED_BLOCKED,
+    MANAGED_UNKNOWN,
+    MANAGED_NA,
+)
+
 
 @dataclass(frozen=True)
 class HarnessRange:
@@ -47,6 +70,12 @@ class HarnessInfo:
     fidelity: str
     invocation: str
     notes: str = ""
+    protocol: str = ""
+    managed_policy: str = MANAGED_NA
+    # A declared tier: support is provisional/modeled and *declared* as such, so it
+    # is not a full-fidelity Tier-1 claim (PRD 40 §5.3 "real captures or declared
+    # tiers"). Declared rows are exempt from the "no modeled Tier-1 row" gate.
+    declared: bool = False
 
 
 # Adapter metadata registry: the generated table's single source of truth. Every
@@ -56,59 +85,141 @@ SHIPPED: dict[str, HarnessInfo] = {
         harness="claude-code",
         tier="Tier-1",
         tested=HarnessRange("2.0", "2.x"),
-        fidelity="full",
+        fidelity=FIDELITY_LIVE,
         invocation="native hooks (`agentwatch init`)",
-        notes="PreToolUse/PostToolUse + local daemon",
+        notes=(
+            "PreToolUse/PostToolUse + local daemon; under `allowManagedHooksOnly` a "
+            "user/project install is blocked — managed hook/plugin path (DEP-1)"
+        ),
+        managed_policy=MANAGED_BLOCKED,
     ),
     "cursor": HarnessInfo(
         harness="cursor",
         tier="Tier-1",
-        tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
-        invocation="native adapter (modeled)",
-        notes="replace modeled fixtures with real captures (M14/N4)",
+        tested=HarnessRange("1.7", "1.x"),
+        fidelity=FIDELITY_FIXTURE,
+        invocation="native hooks (`hooks.json`)",
+        notes=(
+            "full loop; vendor+MIT fixture corpus (25.CUR-1); live capture pending"
+        ),
+        managed_policy=MANAGED_UNKNOWN,
     ),
     "codex-cli": HarnessInfo(
         harness="codex-cli",
         tier="Tier-1",
-        tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
-        invocation="native adapter (modeled)",
+        tested=HarnessRange("0.65", "0.x"),
+        fidelity=FIDELITY_FIXTURE,
+        invocation="log-reader (`ingest --agent codex`)",
+        notes=(
+            "rollout JSONL / .jsonl.zst; format-derived + cross-parser validated "
+            "(COD-1/XHT-3); live capture pending"
+        ),
     ),
     "gemini-cli": HarnessInfo(
         harness="gemini-cli",
         tier="Tier-1",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
-        invocation="native adapter (modeled)",
+        fidelity=FIDELITY_MODELED,
+        invocation="native OTel telemetry (`ingest --format otel`)",
+        notes=(
+            "declared: provisional/modeled shapes (harness-adapters-plan M10 #82); "
+            "native approval/principal mapping (GEM-2); real capture pending (v0.3.0 target)"
+        ),
+        declared=True,
     ),
     "mcp-proxy": HarnessInfo(
         harness="mcp-proxy",
         tier="proxy",
-        tested=HarnessRange("2025-06-18", "2025-06-18"),
-        fidelity="full",
+        tested=HarnessRange("2026-07-28", "2026-07-28"),
+        fidelity=FIDELITY_LIVE,
         invocation="`agentwatch mcp-proxy` / `init --mcp-proxy`",
-        notes="MCP JSON-RPC `tools/call`, stdio + HTTP/SSE",
+        notes=(
+            "MCP JSON-RPC full surface (tools/resources/prompts/elicitation/tasks), Streamable HTTP"
+        ),
+        protocol="2026-07-28",
+    ),
+    "a2a-proxy": HarnessInfo(
+        harness="a2a-proxy",
+        tier="proxy",
+        tested=HarnessRange("1.0", "1.0"),
+        fidelity=FIDELITY_FIXTURE,
+        invocation="`agentwatch a2a-proxy` / `a2aAgents` install",
+        notes=(
+            "A2A tasks/messages/artifacts + signed agent cards; deterministic card "
+            "provenance; agent-delegation observation; declared gaps relayed"
+        ),
+        protocol="1.0",
     ),
     "crewai": HarnessInfo(
         harness="crewai",
         tier="Tier-2",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
     "pydantic-ai": HarnessInfo(
         harness="pydantic-ai",
         tier="Tier-2",
         tested=HarnessRange("modeled", "modeled"),
-        fidelity="provisional",
+        fidelity=FIDELITY_MODELED,
         invocation="native adapter (modeled)",
     ),
 }
 
+# Instrumentation-framework rows (input for WS-D / FWK-1, #446). These are not
+# shipped harness adapters, so they stay out of ``SHIPPED``; the generator
+# renders them alongside adapter rows once WS-D fills in recipes + mappings.
+FRAMEWORKS: dict[str, HarnessInfo] = {
+    "adk": HarnessInfo(
+        harness="adk",
+        tier="Tier-2",
+        tested=HarnessRange("1.5.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Google ADK native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "strands": HarnessInfo(
+        harness="strands",
+        tier="Tier-2",
+        tested=HarnessRange("1.0.0", "1.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OTel GenAI over OTLP (`agentwatch ingest --format otel`)",
+        notes="Strands native spans; fixture-driven, live run BLOCKED (not installable here)",
+    ),
+    "openai-agents": HarnessInfo(
+        harness="openai-agents",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="OpenInference → OTLP (`agentwatch ingest --format otel`)",
+        notes=(
+            "OpenAI Agents SDK via OpenInference; fixture-driven, live run BLOCKED "
+            "(not installable here)"
+        ),
+    ),
+    "claude-agent-sdk": HarnessInfo(
+        harness="claude-agent-sdk",
+        tier="Tier-2",
+        tested=HarnessRange("0.1.0", "0.x"),
+        fidelity=FIDELITY_MODELED,
+        invocation="shared Claude Code OTel (`ingest --format claude-otel`, `sdk-native`)",
+        notes="Routes through 29.CCO-1 (WS-A); tool_use_id join owned by CCO-1, live run BLOCKED",
+    ),
+}
+
+# Every row the generated table renders: shipped adapters + framework recipes.
+ALL_ROWS: dict[str, HarnessInfo] = {**SHIPPED, **FRAMEWORKS}
+
 _TABLE_HEADER = (
-    "| Harness | Tier | Tested range | Fidelity | Invocation | Notes |\n|---|---|---|---|---|---|"
+    "| Harness | Tier | Tested range | Protocol | Fidelity | Managed policy | Invocation "
+    "| Notes |\n"
+    "|---|---|---|---|---|---|---|---|"
 )
+
+
+def framework(name: str) -> HarnessInfo:
+    """Return one certified framework recipe's matrix row (KeyError if unknown)."""
+    return FRAMEWORKS[name]
 
 
 def range_for(harness: str) -> HarnessRange:
@@ -119,11 +230,13 @@ def range_for(harness: str) -> HarnessRange:
 def render_table() -> str:
     """Render the deterministic compatibility table (sorted by harness id)."""
     lines = [_TABLE_HEADER]
-    for harness in sorted(SHIPPED):
-        info = SHIPPED[harness]
+    for harness in sorted(ALL_ROWS):
+        info = ALL_ROWS[harness]
+        tier = f"{info.tier} (declared)" if info.declared else info.tier
         lines.append(
-            f"| `{info.harness}` | {info.tier} | {info.tested.render()} | "
-            f"{info.fidelity} | {info.invocation} | {info.notes} |"
+            f"| `{info.harness}` | {tier} | {info.tested.render()} | "
+            f"{info.protocol or '—'} | {info.fidelity} | {info.managed_policy} | "
+            f"{info.invocation} | {info.notes} |"
         )
     return "\n".join(lines)
 

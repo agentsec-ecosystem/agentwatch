@@ -1,0 +1,4 @@
+DO
+ok: codex rollout: 4 records (files=11, duplicates=0, dangling=0); dedup ok; crashed end-state=False
+agentwatch: chain ok (4 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

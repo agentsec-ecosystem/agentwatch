@@ -6,15 +6,35 @@ import pytest
 
 from agentwatch.cli.main import main
 from agentwatch.semconv import (
+    AGENT_SPAN_OPERATIONS,
     PINNED_ATTRIBUTES,
     SEMCONV_VERSION,
     check_drift,
+    check_operation_drift,
     version_line,
 )
 
 
 def test_version_line_names_the_pin() -> None:
     assert SEMCONV_VERSION in version_line()
+
+
+def test_canonical_agent_span_operations_are_the_v0_2_0_vocabulary() -> None:
+    assert set(AGENT_SPAN_OPERATIONS) == {
+        "create_agent",
+        "invoke_agent",
+        "invoke_workflow",
+        "plan",
+        "execute_tool",
+    }
+
+
+def test_operation_drift_on_a_simulated_upstream_bump() -> None:
+    upstream = [op for op in AGENT_SPAN_OPERATIONS if op != "invoke_workflow"]
+    report = check_operation_drift(upstream)
+    assert report.drifted is True
+    assert "invoke_workflow" in report.missing
+    assert check_operation_drift(AGENT_SPAN_OPERATIONS).drifted is False
 
 
 def test_no_drift_when_upstream_matches() -> None:

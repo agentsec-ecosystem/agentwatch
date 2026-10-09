@@ -1,0 +1,7 @@
+DO
+{"path": "/data/agentwatch/index.sqlite3", "present": true, "fresh": true, "records": 3, "format_version": 1}
+{"dropped": true, "path": "/data/agentwatch/index.sqlite3"}
+{"path": "/data/agentwatch/index.sqlite3", "present": true, "fresh": true, "records": 3, "format_version": 1}
+...................                                                      [100%]
+19 passed in 5.98s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_query_index.py packages/python-sdk/tests/test_purge_propagation.py

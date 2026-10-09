@@ -1,0 +1,32 @@
+{
+  "input": [
+    {
+      "type": "chain_start",
+      "run_id": "r-planner",
+      "tags": ["graph:step:1"],
+      "metadata": {"langgraph_node": "planner"},
+      "inputs": {}
+    },
+    {
+      "type": "chain_end",
+      "run_id": "r-planner",
+      "outputs": {"plan": "search the knowledge base"}
+    },
+    {
+      "type": "chain_start",
+      "run_id": "r-tool",
+      "tags": ["graph:step:2"],
+      "metadata": {"langgraph_node": "run_tool"},
+      "inputs": {"plan": "search_kb", "query": "retention"}
+    },
+    {
+      "type": "chain_end",
+      "run_id": "r-tool",
+      "outputs": {"result": "ok"}
+    }
+  ],
+  "expected": [
+    {"tool": "plan", "step_type": "observe"},
+    {"tool": "search_kb", "step_type": "observe"}
+  ]
+}

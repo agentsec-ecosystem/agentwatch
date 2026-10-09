@@ -1,0 +1,5 @@
+DO
+ok: native OTel joined to hook records by tool_use_id (0 joined, 0 hook-only, 2 otel-only, 0 discrepancies (classified))
+..................................                                       [100%]
+34 passed in 0.12s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_claude_otel.py

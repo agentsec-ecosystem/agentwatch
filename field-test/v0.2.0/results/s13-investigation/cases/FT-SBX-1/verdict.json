@@ -1,0 +1,9 @@
+{
+  "id": "FT-SBX-1",
+  "status": "pass",
+  "class": "P/F|D",
+  "declared": false,
+  "run_id": "s13-investigation",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"sandbox-events","ok":true},{"name":"sandbox-semantics","ok":true}
+]
+}

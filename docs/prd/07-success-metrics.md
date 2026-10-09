@@ -15,6 +15,12 @@ whether teams keep recording on and can answer "what did that agent do?" quickly
 | Fresh machine → first recorded tool call | **≤15 min** | The setup promise (R2) |
 | Security-event schema adopted by ≥1 non-ecosystem tool | within 12 months | The convention-setting goal (stretch) |
 | Replay fidelity (automated) | replay matches raw transcript | R8 evidence |
+| Time to first browser view of own record | ≤60 s after `ui`; ≤15 min from a fresh machine | Onboarding truth (CUJ-24) |
+| Share of calls with non-`unknown` authorization (native telemetry on) | ≥95% | Oversight claim is real (CUJ-21) |
+| Managed-fleet sessions with attestation | ≥99% or explicitly classified | "Was it on?" (CUJ-25) |
+| End-to-end hook overhead p99 | within the published budget on macOS/Linux/Windows | Developer trust (CUJ-1) |
+| Commits resolvable to a session (corpus) | target set in PRD 53 | Provenance usefulness (CUJ-22) |
+| Non-ecosystem consumers of each export (AAT, Agent Trace, OCSF) | ≥1 each | Standards-native moat |
 
 ## Release gate (v0.1.0)
 
@@ -27,6 +33,21 @@ The v0.1.0 release is not ready until **all** of the following are true:
 - [ ] Export loads into ≥2 standard OTel backends unmodified.
 - [ ] The security-event schema is published and emitted by ≥1 other ecosystem tool.
 - [ ] Field test report, release notes, and security audit published (see [release/](../release/)).
+
+## Release gate — v0.2.0-expanded additions (PRD 49–59)
+
+In addition to the v0.1.0 gate and PRD 40 §5:
+
+- [ ] Clean-machine timing published for macOS, Linux, Windows (closes R2 "partial").
+- [ ] Two OTel backends proven (closes R4 "partial").
+- [ ] No Claude Code call under auto/bypass reported as `user`; `approval` v2 live (CUJ-21).
+- [ ] `agentwatch ui` demonstrated from a clean install with no Docker (CUJ-24).
+- [ ] Managed-policy install verified on a real managed config, or declared unverified in the matrix (CUJ-25).
+- [ ] Plugin4Shell-shape capability drift detected (CUJ-23).
+- [ ] A commit resolves to a session on the field-test corpus; Agent Trace export validates (CUJ-22).
+- [ ] `suggest-policy`/`what-if` produce no write outside `--out`; measured prompt reduction (CUJ-27).
+- [ ] `owasp-asi-2026` report: every row's command runs; no prevention claims (CUJ-18 ext.).
+- [ ] Held records survive retention, purge and index rebuild (CUJ-32).
 
 ## Anti-metrics (do not optimize)
 

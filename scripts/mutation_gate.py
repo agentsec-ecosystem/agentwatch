@@ -117,6 +117,57 @@ MUTATIONS: tuple[Mutation, ...] = (
         tests=("tests/test_records.py", "tests/test_schema_contract.py"),
         rationale="Skipping strict validation must let a malformed record through, never coerce.",
     ),
+    Mutation(
+        id="cursor.reject-unknown-phase",
+        module="agentwatch/adapters/cursor.py",
+        old="    if phase not in CAPABILITIES:\n",
+        new="    if False:  # MUTANT\n",
+        tests=("tests/test_cursor_adapter.py",),
+        rationale="Accepting an unsupported Cursor phase must drop it silently, not reject it.",
+    ),
+    Mutation(
+        id="cursor.split-mcp-server",
+        module="agentwatch/adapters/cursor.py",
+        old='    if len(parts) >= 3 and parts[0] == "mcp" and parts[1] and "__".join(parts[2:]):\n',
+        new="    if False:  # MUTANT\n",
+        tests=("tests/test_cursor_adapter.py",),
+        rationale="Never splitting an MCP tool id must lose the server attribution.",
+    ),
+    Mutation(
+        id="aat.verify-chain-hash",
+        module="agentwatch/aat.py",
+        old='        if expected != chain.get("hash"):\n',
+        new="        if False:  # MUTANT\n",
+        tests=("tests/test_aat.py", "tests/test_aat_fuzz.py"),
+        rationale="Disabling the AAT chain-hash check must let a tampered bundle verify.",
+    ),
+    Mutation(
+        id="aat.lossless-unmapped",
+        module="agentwatch/aat.py",
+        old='        "unmapped": dict(_UNMAPPED_FIELDS),\n',
+        new='        "unmapped": {},  # MUTANT\n',
+        tests=("tests/test_aat.py",),
+        rationale="Dropping the explicit unmapped block must hide a lossless-or-explicit gap.",
+    ),
+    Mutation(
+        id="sampling.never-sample-security",
+        module="agentwatch/sampling.py",
+        old="        if is_security_relevant(record):\n",
+        new="        if False:  # MUTANT\n",
+        tests=("tests/test_sampling.py",),
+        rationale="Ratio-sampling security-relevant records must discard evidence.",
+    ),
+    Mutation(
+        id="streaming.drop-on-overflow",
+        module="agentwatch/streaming.py",
+        old=(
+            "            if self._queue.maxlen is not None and len(self._queue) "
+            ">= self._queue.maxlen:\n"
+        ),
+        new="            if False:  # MUTANT\n",
+        tests=("tests/test_streaming.py",),
+        rationale="Never dropping on overflow must let a bounded queue grow unbounded.",
+    ),
 )
 
 # Equivalent mutants: survivors that are provably behaviour-preserving. Each must

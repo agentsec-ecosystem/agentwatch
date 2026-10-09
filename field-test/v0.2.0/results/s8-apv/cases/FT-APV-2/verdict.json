@@ -1,0 +1,9 @@
+{
+  "id": "FT-APV-2",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s8-apv",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"oversight-report","ok":true},{"name":"permission-mode-semantics","ok":true}
+]
+}

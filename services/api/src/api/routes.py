@@ -14,13 +14,16 @@ injection system.
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from asyncpg import Pool  # type: ignore[import-untyped]
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from api.config import settings
 from api.db import get_pool
 from api.db import health_check as db_health
 from api.models import PaginationMeta
@@ -55,7 +58,7 @@ async def _get_pool() -> Pool:
 # ── Health ─────────────────────────────────────────────────────────────────────
 
 
-@router.get("/health")
+@router.get("/health", operation_id="health")
 async def health() -> dict[str, str]:
     """Health check: returns 200 when the database is reachable, 503 otherwise.
 
@@ -78,10 +81,111 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# ── Detector telemetry (M27 DET-5/UI-2) ────────────────────────────────────────
+
+
+@router.get("/detector-telemetry", operation_id="get_detector_telemetry")
+async def get_detector_telemetry() -> dict[str, Any]:
+    """Return content-free detector-telemetry markers (read-only, local file).
+
+    Reads the NDJSON written by ``agentwatch.detector_telemetry`` (DET-5). A
+    marker carries only the detector name, its verdict, an optional severity, and
+    a timestamp — never trace/argument/prompt content. An absent file is an empty
+    list, not an error. Unreadable/malformed lines are skipped, never fatal.
+    """
+    path = Path(settings.detector_telemetry_path)
+    items: list[dict[str, Any]] = []
+    if path.is_file():
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            text = ""
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(item, dict):
+                items.append(item)
+    return {"data": {"items": items}}
+
+
+# ── Attribution + SIEM health (M27 UI-2) ───────────────────────────────────────
+
+
+@router.get("/attribution", operation_id="get_attribution")
+async def get_attribution() -> dict[str, Any]:
+    """Return per-session identity/attribution from the agentwatch record store.
+
+    Reads the local record store read-only and surfaces the identity dimension
+    (IDN-1) plus the approval decision (S14) per session. An absent store is an
+    empty list; malformed lines are skipped, never fatal.
+    """
+    path = Path(settings.record_store_path)
+    sessions: dict[str, dict[str, Any]] = {}
+    if path.is_file():
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            text = ""
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(item, dict):
+                continue
+            session = item.get("session_id")
+            agent = item.get("agent")
+            agent = agent if isinstance(agent, dict) else {}
+            if isinstance(session, str) and session:
+                sessions.setdefault(
+                    session,
+                    {
+                        "session_id": session,
+                        "identity": agent.get("identity"),
+                        "principal": agent.get("principal"),
+                        "workload_identity": agent.get("workload_identity"),
+                        "credential_class": agent.get("credential_class"),
+                        "delegation_chain": agent.get("delegation_chain"),
+                        "approval": item.get("approval"),
+                    },
+                )
+    return {"data": {"items": list(sessions.values())}}
+
+
+@router.get("/siem-health", operation_id="get_siem_health")
+async def get_siem_health() -> dict[str, Any]:
+    """Return the SIEM sink health snapshot (targets + visible ``degraded``).
+
+    Reads an optional local snapshot written by the forwarding process. An absent
+    file is a neutral state (no targets, not degraded) — never an error.
+    """
+    path = Path(settings.siem_state_path)
+    state: dict[str, Any] = {"targets": [], "degraded": False, "last_error": None}
+    if path.is_file():
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            loaded = None
+        if isinstance(loaded, dict):
+            targets = loaded.get("targets")
+            state = {
+                "targets": targets if isinstance(targets, list) else [],
+                "degraded": bool(loaded.get("degraded", False)),
+                "last_error": loaded.get("last_error"),
+            }
+    return {"data": state}
+
+
 # ── Run Timeline ───────────────────────────────────────────────────────────────
 
 
-@router.get("/runs/{run_id}")
+@router.get("/runs/{run_id}", operation_id="get_run_timeline")
 async def get_run_timeline(
     run_id: str,
     pool: Pool = Depends(_get_pool),  # noqa: B008
@@ -131,7 +235,7 @@ async def get_run_timeline(
 # ── Fleet Health ───────────────────────────────────────────────────────────────
 
 
-@router.get("/fleet")
+@router.get("/fleet", operation_id="get_fleet")
 async def get_fleet(
     agent_name: str | None = Query(None),  # noqa: B008
     version: str | None = Query(None, alias="agent_version"),  # noqa: B008
@@ -193,7 +297,7 @@ async def get_fleet(
 # ── Version Compare ────────────────────────────────────────────────────────────
 
 
-@router.get("/compare")
+@router.get("/compare", operation_id="get_compare")
 async def get_compare(
     agent_name: str = Query(...),  # noqa: B008
     version_a: str = Query(...),  # noqa: B008
@@ -244,7 +348,7 @@ async def get_compare(
 # ── Anomaly Inbox ──────────────────────────────────────────────────────────────
 
 
-@router.get("/anomalies")
+@router.get("/anomalies", operation_id="get_anomalies")
 async def get_anomalies_endpoint(
     severity: str | None = Query(None),  # noqa: B008
     anomaly_type: str | None = Query(None),  # noqa: B008

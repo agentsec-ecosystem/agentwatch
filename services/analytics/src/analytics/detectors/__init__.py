@@ -47,11 +47,21 @@ from analytics.detectors.cross_run import (
     FirstRunHeuristicDetector,
     RunFrequencyAnomalyDetector,
 )
+from analytics.detectors.identity import CredentialHygieneDetector
+from analytics.detectors.injection import InjectionShapeDetector
 from analytics.detectors.interaction import (
     ApprovalLatencyDetector,
     EscalationRateDetector,
     InterventionFrequencyDetector,
     InterventionRejectionDetector,
+)
+from analytics.detectors.llm import (
+    ConfusionPatternDetector,
+    EmbeddingDriftDetector,
+    GoalDriftDetector,
+    HallucinationDetector,
+    QualityDegradationDetector,
+    SemanticLoopDetector,
 )
 from analytics.detectors.output import (
     EmptyResponseDetector,
@@ -83,6 +93,7 @@ from analytics.detectors.tool import (
     ToolLatencyDetector,
     ToolTimeoutDetector,
 )
+from analytics.llm_client import LLMClient
 
 
 def create_all_detectors() -> list[BaseDetector]:
@@ -142,6 +153,27 @@ def create_all_detectors() -> list[BaseDetector]:
         WriteStormDetector(),
         DeniedClusterDetector(),
         NetworkToolDetector(),
+        # Identity / credential hygiene (1, M28 IDN-4)
+        CredentialHygieneDetector(),
+        # Injection-shaped content (1, M28 DET-6)
+        InjectionShapeDetector(),
+    ]
+
+
+def create_llm_detectors(client: LLMClient) -> list[BaseDetector]:
+    """Factory: the 6 LLM-augmented detectors bound to a local-first client (DET-4).
+
+    Kept separate from :func:`create_all_detectors` so the deterministic rule-based
+    trust path never depends on a model: the LLM layer is strictly additive and
+    degrades to no-op when the local endpoint is unavailable.
+    """
+    return [
+        EmbeddingDriftDetector(client),
+        SemanticLoopDetector(client),
+        HallucinationDetector(client),
+        GoalDriftDetector(client),
+        QualityDegradationDetector(client),
+        ConfusionPatternDetector(client),
     ]
 
 
@@ -185,5 +217,8 @@ __all__ = [
     "WriteStormDetector",
     "DeniedClusterDetector",
     "NetworkToolDetector",
+    "CredentialHygieneDetector",
+    "InjectionShapeDetector",
     "create_all_detectors",
+    "create_llm_detectors",
 ]

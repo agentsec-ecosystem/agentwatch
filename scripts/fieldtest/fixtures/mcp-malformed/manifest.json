@@ -1,0 +1,13 @@
+{
+  "kind": "mcp-malformed",
+  "version": "v0.2.0",
+  "source": "synthesized (closed-by-spec + malformed MCP frames)",
+  "synthesized": true,
+  "secret_scanned": true,
+  "files": [
+    "tools-call-request.json",
+    "unknown-method.json",
+    "missing-params.json",
+    "missing-rpc.json"
+  ]
+}

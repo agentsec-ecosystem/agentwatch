@@ -1,0 +1,5 @@
+detector-scenarios [full-enumeration]: 234/234 ok; 0 failed
+........................................................................ [ 84%]
+.............                                                            [100%]
+85 passed in 0.60s
+ok: shipped test(s) passed: services/analytics/tests/test_llm_eval.py services/analytics/tests/test_llm_detectors.py

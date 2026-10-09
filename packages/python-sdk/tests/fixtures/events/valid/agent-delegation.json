@@ -1,0 +1,8 @@
+{
+  "event_version": "0.2.0",
+  "type": "agent-delegation",
+  "emitted_at": "2026-01-02T03:04:05+00:00",
+  "emitter": "agentwatch",
+  "reason": "cross-agent delegation observed",
+  "evidence": { "from": "agent-a", "to": "agent-b", "card": "unverified" }
+}

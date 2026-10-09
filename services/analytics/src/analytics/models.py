@@ -88,6 +88,10 @@ class AnomalyType(str, Enum):
     write_storm = "write-storm"
     denied_cluster = "denied-cluster"
     network_tool = "network-tool"
+    # Identity / credential hygiene (M28 IDN-4)
+    credential_hygiene = "credential-hygiene"
+    # Injection-shaped content (M28 DET-6)
+    injection_shape = "injection-shape"
 
 
 class RunSummary(BaseModel):

@@ -12,15 +12,196 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
+from agentwatch.classify import WIDEST_ORDER, classify_record
 from agentwatch.cost import build_cost
 from agentwatch.denials import DenialSequence, denial_sequences
+from agentwatch.fingerprint import action_tuple, session_behavior_digest
 from agentwatch.inventory import build_inventory
+from agentwatch.oversight import build_oversight
 from agentwatch.query import since_cutoff
 from agentwatch.recorder_state import coverage_windows
+from agentwatch.records import AgentRecord
 from agentwatch.store import RecordStore
 
 DEFAULT_DIGEST_WINDOW = "7d"
 TOP_TOOLS = 10
+
+# Recurring failure signatures (OUT-2). The grouping rules are versioned so a
+# later tightening never silently redefines an old readout. Signature components:
+# tool, error class, cls1 class, and the session behavior fingerprint (``bd1``).
+SIGNATURES_VERSION = "sg1"
+TOP_SIGNATURES = 5
+SIGNATURE_COMPONENTS: tuple[str, ...] = ("tool", "error_class", "cls1_class", "fingerprint")
+
+# Internal/marker tools are never agent behavior (mirrors ``bd1`` filtering).
+_ANOMALY_EXCLUDED = frozenset({"agentwatch", "external"})
+
+
+@dataclass(frozen=True)
+class FailureSignature:
+    """The versioned grouping key for one recurring failure pattern."""
+
+    tool: str
+    error_class: str
+    cls1_class: str
+    fingerprint: str
+
+    def key(self) -> tuple[str, str, str, str]:
+        return (self.tool, self.error_class, self.cls1_class, self.fingerprint)
+
+
+@dataclass(frozen=True)
+class FailurePattern:
+    """One ranked, evidence-linked recurring failure signature."""
+
+    signature: FailureSignature
+    count: int
+    previous_count: int
+    first_seen: datetime
+    last_seen: datetime
+    sessions: tuple[str, ...] = ()
+
+    @property
+    def tool(self) -> str:
+        return self.signature.tool
+
+    @property
+    def error_class(self) -> str:
+        return self.signature.error_class
+
+    @property
+    def cls1_class(self) -> str:
+        return self.signature.cls1_class
+
+    @property
+    def fingerprint(self) -> str:
+        return self.signature.fingerprint
+
+    @property
+    def trend(self) -> str:
+        if self.previous_count == 0:
+            return "new"
+        if self.count > self.previous_count:
+            return "up"
+        if self.count < self.previous_count:
+            return "down"
+        return "flat"
+
+    def evidence(self) -> tuple[str, ...]:
+        """Deterministic links to ``replay`` (per session) and ``diff`` (a pair)."""
+        links = [f"replay {session}" for session in self.sessions]
+        if len(self.sessions) >= 2:
+            links.append(f"diff {self.sessions[0]} {self.sessions[1]}")
+        return tuple(links)
+
+    def render(self) -> str:
+        return (
+            f"{self.tool}/{self.error_class}/{self.cls1_class}"
+            f" (trend {self.trend}; n={self.count}, prior={self.previous_count};"
+            f" first {self.first_seen.isoformat()}; last {self.last_seen.isoformat()})"
+        )
+
+
+def signature_rules() -> tuple[str, ...]:
+    """The published grouping-rule components, in signature order."""
+    return SIGNATURE_COMPONENTS
+
+
+def _normalize_error(raw: str) -> str:
+    text = " ".join(raw.split()).lower()
+    return text[:80] if text else "error"
+
+
+def _error_class(record: AgentRecord) -> str:
+    """The record's failure/anomaly class (a fact, never a verdict)."""
+    if record.outcome.value == "denied":
+        return "denied"
+    response = record.tool.response or {}
+    for field in ("error", "message"):
+        value = response.get(field)
+        if isinstance(value, str) and value.strip():
+            return _normalize_error(value)
+    if record.outcome.value == "error":
+        return "error"
+    if record.security_event is not None:
+        return f"event:{record.security_event.type.value}"
+    return "anomaly"
+
+
+def _cls1_class(record: AgentRecord) -> str:
+    """The record's most consequential ``cls1`` category (blast-radius order)."""
+    facts = classify_record(record)
+    if not facts:
+        return "unclassified"
+    return min(
+        facts,
+        key=lambda fact: WIDEST_ORDER.index(fact.category)
+        if fact.category in WIDEST_ORDER
+        else len(WIDEST_ORDER),
+    ).category
+
+
+def _is_failure(record: AgentRecord) -> bool:
+    if action_tuple(record) is None:  # internal/marker tools are not behavior
+        return False
+    return record.outcome.value != "ok" or record.security_event is not None
+
+
+def build_failure_patterns(
+    store: RecordStore,
+    *,
+    cutoff: datetime,
+    now: datetime,
+    top: int = TOP_SIGNATURES,
+) -> tuple[FailurePattern, ...]:
+    """Group failed calls / anomalies by the versioned signature (deterministic)."""
+    span = now - cutoff
+    previous_cutoff = cutoff - span
+    records = [
+        record
+        for record in store.records()
+        if record.session_id not in _ANOMALY_EXCLUDED and _is_failure(record)
+    ]
+    fingerprints: dict[str, str] = {}
+
+    def fingerprint_of(session: str) -> str:
+        if session not in fingerprints:
+            fingerprints[session] = session_behavior_digest(store, session)
+        return fingerprints[session]
+
+    current: dict[tuple[str, str, str, str], list[AgentRecord]] = {}
+    previous: Counter[tuple[str, str, str, str]] = Counter()
+    for record in records:
+        signature = FailureSignature(
+            tool=record.tool.name,
+            error_class=_error_class(record),
+            cls1_class=_cls1_class(record),
+            fingerprint=fingerprint_of(record.session_id),
+        ).key()
+        if record.started_at >= cutoff:
+            current.setdefault(signature, []).append(record)
+        elif record.started_at >= previous_cutoff:
+            previous[signature] += 1
+
+    patterns: list[FailurePattern] = []
+    for signature, group in current.items():
+        ordered = sorted(group, key=lambda record: record.started_at)
+        sessions: list[str] = []
+        for record in ordered:
+            if record.session_id not in sessions:
+                sessions.append(record.session_id)
+        patterns.append(
+            FailurePattern(
+                signature=FailureSignature(*signature),
+                count=len(group),
+                previous_count=previous[signature],
+                first_seen=ordered[0].started_at,
+                last_seen=ordered[-1].started_at,
+                sessions=tuple(sessions),
+            )
+        )
+    patterns.sort(key=lambda pattern: (-pattern.count, pattern.first_seen, pattern.signature.key()))
+    return tuple(patterns[:top])
 
 
 @dataclass(frozen=True)
@@ -42,6 +223,11 @@ class DigestReport:
     coverage_active: bool | None
     agents_seen: tuple[str, ...]
     servers_seen: tuple[str, ...]
+    oversight_calls: int = 0
+    oversight_sources: tuple[tuple[str, int], ...] = ()
+    oversight_human: tuple[int, int] = (0, 0)
+    signatures: tuple[FailurePattern, ...] = ()
+    signatures_version: str = SIGNATURES_VERSION
 
     @property
     def empty(self) -> bool:
@@ -85,6 +271,8 @@ def build_digest(
     servers_seen = tuple(
         sorted(server.server for server in inventory.servers if server.last_seen >= cutoff)
     )
+    oversight = build_oversight(store, since=since, now=moment)
+    signatures = build_failure_patterns(store, cutoff=cutoff, now=moment)
     return DigestReport(
         since=since,
         start_utc=cutoff,
@@ -101,6 +289,16 @@ def build_digest(
         coverage_active=coverage_active,
         agents_seen=agents_seen,
         servers_seen=servers_seen,
+        oversight_calls=oversight.total_calls,
+        oversight_sources=tuple(
+            (row.source, row.calls) for row in oversight.sources
+        ),
+        oversight_human=(
+            oversight.human.approved if oversight.human else 0,
+            oversight.human.prompted if oversight.human else 0,
+        ),
+        signatures=signatures,
+        signatures_version=SIGNATURES_VERSION,
     )
 
 
@@ -147,10 +345,31 @@ def render_digest(report: DigestReport) -> str:
     if report.security_events:
         lines.extend(["", "## Security events", ""])
         lines.extend(f"- {kind}: {count}" for kind, count in report.security_events.items())
+    if report.signatures:
+        lines.extend(
+            ["", f"## Recurring failure signatures ({report.signatures_version})", ""]
+        )
+        for pattern in report.signatures:
+            lines.append(f"- {pattern.render()}")
+            links = "; ".join(f"`{link}`" for link in pattern.evidence())
+            if links:
+                lines.append(f"  - evidence: {links}")
     if report.agents_seen or report.servers_seen:
         lines.extend(["", "## Inventory seen this window", ""])
         lines.extend(f"- agent: `{agent}`" for agent in report.agents_seen)
         lines.extend(f"- MCP server: `{server}`" for server in report.servers_seen)
+    lines.extend(["", "## Oversight", ""])
+    lines.append(f"- calls with an authorization source: {report.oversight_calls}")
+    if report.oversight_sources:
+        mix = ", ".join(
+            f"{source}={count}" for source, count in report.oversight_sources
+        )
+        lines.append(f"- authorization mix: {mix}")
+    if report.oversight_human[1]:
+        lines.append(
+            f"- human-prompted approvals: {report.oversight_human[0]}/"
+            f"{report.oversight_human[1]}"
+        )
     lines.extend(
         [
             "",
@@ -162,7 +381,14 @@ def render_digest(report: DigestReport) -> str:
 
 __all__ = [
     "DEFAULT_DIGEST_WINDOW",
+    "SIGNATURES_VERSION",
+    "SIGNATURE_COMPONENTS",
+    "TOP_SIGNATURES",
     "DigestReport",
+    "FailurePattern",
+    "FailureSignature",
     "build_digest",
+    "build_failure_patterns",
     "render_digest",
+    "signature_rules",
 ]

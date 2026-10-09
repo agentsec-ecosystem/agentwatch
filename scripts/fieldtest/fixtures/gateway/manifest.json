@@ -1,0 +1,10 @@
+{
+  "kind": "gateway",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/ingest/litellm_otlp.json",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "litellm_otlp.json"
+  ]
+}

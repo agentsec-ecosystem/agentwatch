@@ -1,0 +1,31 @@
+{
+  "input": {
+    "acs_version": "0.1.0",
+    "messages": [
+      {
+        "jsonrpc": "2.0",
+        "method": "steps/toolCallRequest",
+        "id": "req-001",
+        "params": {
+          "acs_version": "0.1.0",
+          "request_id": "550e8400-e29b-41d4-a716-446655440000",
+          "timestamp": "2026-04-30T10:30:00Z",
+          "metadata": { "agent_id": "cursor-agent-01", "session_id": "s1" },
+          "payload": { "tool": { "name": "email.send" } }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": "req-001",
+        "result": {
+          "type": "final",
+          "acs_version": "0.1.0",
+          "request_id": "550e8400-e29b-41d4-a716-446655440000",
+          "decision": "deny",
+          "reasoning": "Outbound email derives from untrusted retrieval."
+        }
+      }
+    ]
+  },
+  "expected": [{ "tool": "email.send", "step_type": "observe" }]
+}

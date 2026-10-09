@@ -25,6 +25,9 @@ packs against the agent, no evals.
 | **Move the store** | No | **No** — the old path verifies as a clean, empty chain | `coverage` (`gap:*`) compares transcript ground truth to the empty store | S2 coverage + S5 windows; the chain alone cannot tell |
 | **Skew the clock** (future-dated events) | No | **Yes** | F9 flag; `doctor`; `/healthz` `clock_skew_s` and `degraded` | — |
 | **Replay stale frames** | No | **Partial** — deduplicated within one daemon session; a restart re-appends | `verify-store` proves append order, not origin | S1 evidence bundle timestamps; cross-restart replay is *neither* |
+| **Stream divergence** (drop/backpressure on the live view) | No; a bounded queue drops under backpressure | **Yes** | the view shows `degraded`; the consumer back-fills from the store and classifies each gap (`stream-drop`/`purged`/`rotated`) — `agentwatch tail -f`, `agentwatch.live` | The store is authoritative; the stream only notifies, so a dropped view never loses a record |
+| **Poison a foreign dump** (ingest a crafted transcript/rollout/gateway stream) | No; the bytes are attacker-controlled | **Yes** | unmappable/tampered records are quarantined with a reason; `agentwatch quarantine list`; foreign AAT chains are verified before storage | Untrusted-data rule (no shell/eval on any reader path); redaction before storage |
+| **Identity surveillance** (read plaintext principals on-box) | **Partial** — same-user can read the store; hashing raises the cost of a leaked store | **Yes** | `agentwatch search --identity` shows only keyed handles in metadata-only; `config explain` shows the mode | Hashed-by-default policy ([ADR-0020](../adr/0020-agent-identity-dimension.md)); plaintext only under `full` consent |
 
 ## How to read a row
 

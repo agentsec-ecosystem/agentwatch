@@ -1,0 +1,8 @@
+{
+  "event_version": "0.2.0",
+  "type": "capability-changed",
+  "emitted_at": "2026-01-02T03:04:05+00:00",
+  "emitter": "agentwatch",
+  "reason": "capability inventory digest changed (M30 CAP-2)",
+  "evidence": { "old_digest": "1111111111111111", "new_digest": "2222222222222222" }
+}

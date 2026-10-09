@@ -1,0 +1,5 @@
+{"name":"reset-recorder-restart","ok":true}
+{"name":"state-reset","ok":true}
+{"name":"stack-reused","ok":true}
+{"name":"memory-oob-edit","ok":true}
+{"name":"memory-capability-semantics","ok":true}

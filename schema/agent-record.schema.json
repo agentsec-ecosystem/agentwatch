@@ -6,11 +6,15 @@
   "type": "object",
   "required": ["schema_version", "session_id", "agent", "tool", "outcome", "started_at"],
   "properties": {
-    "schema_version": { "type": "string", "const": "0.1.0" },
+    "schema_version": { "type": "string", "enum": ["0.1.0", "0.2.0"] },
     "session_id": { "type": "string" },
     "trace_id": { "type": "string" },
     "span_id": { "type": "string" },
     "parent_span_id": { "type": ["string", "null"] },
+    "traceparent": {
+      "type": ["string", "null"],
+      "description": "W3C Trace Context traceparent (TRACE-1). Additive in schema 0.2.0; absent on legacy records."
+    },
     "harness": { "type": "string", "examples": ["claude-code", "cursor", "langgraph", "python"] },
     "project": { "type": ["string", "null"], "description": "Project working directory (M9 per-project filtering)" },
     "host": { "type": ["string", "null"], "description": "Originating host tag for fleet aggregation (M11 R13)" },
@@ -36,7 +40,24 @@
         "prompt_version": { "type": "string" },
         "model_version": { "type": "string" },
         "tool_schema_version": { "type": "string" },
-        "workload_type": { "type": "string" }
+        "workload_type": { "type": "string" },
+        "workload_identity": {
+          "type": ["string", "null"],
+          "description": "SPIFFE/WIMSE workload-identity URI when the harness exposes one (IDN-1). A URI, never a secret."
+        },
+        "credential_class": {
+          "enum": ["api-key", "oauth", "svid", "ambient/shared", null],
+          "description": "What kind of credential the agent acted under (IDN-1); a classification, never a value."
+        },
+        "principal": {
+          "type": ["string", "null"],
+          "description": "On-behalf-of principal (IDN-1); hashed by default in metadata-only. Never secret material."
+        },
+        "delegation_chain": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "On-behalf-of chain (IDN-1); principals hashed by default. Absent when not exposed."
+        }
       }
     },
     "tool": {
@@ -57,9 +78,44 @@
     "tokens": { "type": ["integer", "null"] },
     "cost_usd": { "type": ["number", "null"] },
     "step_type": { "enum": ["reason", "act", "observe", "verify", null] },
+    "record_phase": {
+      "enum": ["pre_execution", "post_execution", "unknown", null],
+      "description": "Pre/post-execution provenance for AAT (AAT-1). Additive in schema 0.2.0; absent on legacy records and read as 'unknown' — never inferred."
+    },
     "approval": {
       "enum": ["user", "auto", "not-required", "denied", "unknown", null],
-      "description": "Who authorized the call (M19 S14). Absent on legacy records and read as 'unknown'."
+      "description": "Who authorized the call (M19 S14, legacy). Absent on legacy records and read as 'unknown'."
+    },
+    "authorization": {
+      "type": ["object", "null"],
+      "description": "Authorization provenance v2 (M29 APV-1, PRD 49). Additive in schema 0.2.0; absent on legacy records and read from `approval` at read time (never written back).",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "enum": [
+            "human-once",
+            "human-remembered",
+            "rule",
+            "classifier",
+            "hook",
+            "bypass",
+            "not-required",
+            "denied",
+            "unknown"
+          ]
+        },
+        "deny": { "enum": ["human", "rule", "classifier", "hook", "unknown", null] },
+        "evidence": { "enum": ["harness-native", "inferred", "session-mode", null] }
+      },
+      "additionalProperties": false
+    },
+    "permission_mode": {
+      "enum": ["default", "acceptEdits", "plan", "auto", "dontAsk", "bypassPermissions", "unknown", null],
+      "description": "Permission mode in force at the call (M29 APV-2). Additive in schema 0.2.0; absent on legacy records and read as 'unknown' — never inferred."
+    },
+    "sandbox": {
+      "type": ["boolean", "null"],
+      "description": "Whether the call ran inside the harness sandbox (M30 SBX-1). Additive in schema 0.2.0; null/absent means the harness exposed no signal — never inferred from absence."
     },
     "environment": {
       "type": ["object", "null"],

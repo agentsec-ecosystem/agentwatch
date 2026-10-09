@@ -69,13 +69,18 @@ from opentelemetry import trace
 from opentelemetry.trace import Span, SpanKind
 
 from agentwatch.attrs import (
+    AGENTWATCH_SKILL_NAME,
+    AGENTWATCH_SKILL_RESOURCE,
     GEN_AI_OPERATION_NAME,
     GEN_AI_TOOL_ARGS,
     GEN_AI_TOOL_NAME,
     GEN_AI_TOOL_RESULT,
     SPAN_KIND_APPROVAL,
+    SPAN_KIND_EXECUTE_COMMAND,
+    SPAN_KIND_LOAD_SKILL,
     SPAN_KIND_MEMORY,
     SPAN_KIND_PLAN,
+    SPAN_KIND_READ_SKILL_RESOURCE,
     SPAN_KIND_RETRIEVAL,
     SPAN_KIND_TOOL,
 )
@@ -245,6 +250,63 @@ def execute_tool_span(
         if redacted is not None:
             span.set_attribute(GEN_AI_TOOL_RESULT, redacted)
 
+    with trace.use_span(span, end_on_exit=True):
+        yield span
+
+
+@contextmanager
+def skill_span(
+    skill_name: str,
+    *,
+    resource: str | None = None,
+    attributes: dict[str, _Value] | None = None,
+    tracer: trace.Tracer | None = None,
+) -> Iterator[Span]:
+    """Create a skill span (OTEL-4): ``load_skill`` or ``read_skill_resource``.
+
+    A skill is loaded by name; reading one of its bundled resources is a distinct
+    operation. Only the skill name and resource path are recorded — never the
+    skill's contents. These are provisional agentwatch operation names (see
+    ``agentwatch.attrs.AGENTWATCH_EXTENSION_OPERATIONS``).
+    """
+    operation = SPAN_KIND_READ_SKILL_RESOURCE if resource is not None else SPAN_KIND_LOAD_SKILL
+    merged: dict[str, _Value] = {**(attributes or {}), AGENTWATCH_SKILL_NAME: skill_name}
+    if resource is not None:
+        merged[AGENTWATCH_SKILL_RESOURCE] = resource
+    span = _start_span(
+        skill_name, kind=SpanKind.INTERNAL, kind_name=operation, attributes=merged, tracer=tracer
+    )
+    with trace.use_span(span, end_on_exit=True):
+        yield span
+
+
+@contextmanager
+def command_span(
+    command_name: str,
+    *,
+    attributes: dict[str, _Value] | None = None,
+    redaction: RedactionConfig | None = None,
+    command_args: str | None = None,
+    tracer: trace.Tracer | None = None,
+) -> Iterator[Span]:
+    """Create an ``execute_command`` span (OTEL-4) for a shell/command execution.
+
+    The command's identity goes on ``gen_ai.tool.name`` (so it participates in
+    tool-name rollups), and its arguments are captured only when a ``redaction``
+    config opts them in — exactly like :func:`execute_tool_span`.
+    """
+    merged: dict[str, _Value] = {**(attributes or {}), GEN_AI_TOOL_NAME: command_name}
+    span = _start_span(
+        command_name,
+        kind=SpanKind.CLIENT,
+        kind_name=SPAN_KIND_EXECUTE_COMMAND,
+        attributes=merged,
+        tracer=tracer,
+    )
+    if redaction is not None and command_args is not None:
+        redacted = redaction.apply(command_args, allowed=redaction.capture_tool_args)
+        if redacted is not None:
+            span.set_attribute(GEN_AI_TOOL_ARGS, redacted)
     with trace.use_span(span, end_on_exit=True):
         yield span
 

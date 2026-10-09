@@ -23,7 +23,16 @@ import FleetHealthPage from "../pages/FleetHealth";
 import RunTimelinePage from "../pages/RunTimeline";
 import VersionComparePage from "../pages/VersionCompare";
 import AnomalyInboxPage from "../pages/AnomalyInbox";
-import { anomaliesResponse, compareResponse, fleetResponse, timelineResponse } from "./fixtures";
+import DetectorTelemetryPage from "../pages/DetectorTelemetry";
+import {
+  anomaliesResponse,
+  attributionResponse,
+  compareResponse,
+  detectorTelemetryResponse,
+  fleetResponse,
+  siemHealthResponse,
+  timelineResponse,
+} from "./fixtures";
 
 // Mock the network boundary (the API client) so pages render their data state.
 vi.mock("../api/client", () => ({
@@ -33,6 +42,9 @@ vi.mock("../api/client", () => ({
     getCompare: vi.fn(),
     getAnomalies: vi.fn(),
     getHealth: vi.fn(),
+    getDetectorTelemetry: vi.fn(),
+    getAttribution: vi.fn(),
+    getSiemHealth: vi.fn(),
   },
 }));
 
@@ -75,6 +87,9 @@ beforeEach(() => {
   vi.mocked(api.getRunTimeline).mockResolvedValue(timelineResponse);
   vi.mocked(api.getCompare).mockResolvedValue(compareResponse);
   vi.mocked(api.getAnomalies).mockResolvedValue(anomaliesResponse);
+  vi.mocked(api.getDetectorTelemetry).mockResolvedValue(detectorTelemetryResponse);
+  vi.mocked(api.getAttribution).mockResolvedValue(attributionResponse);
+  vi.mocked(api.getSiemHealth).mockResolvedValue(siemHealthResponse);
 });
 
 describe("operator UI accessibility", () => {
@@ -117,6 +132,20 @@ describe("operator UI accessibility", () => {
     const { container } = renderPage(<AnomalyInboxPage />);
     await screen.findByText("Repeated tool call detected.");
     await expectNoA11yViolations(container);
+  });
+
+  it("Operator Console has no a11y violations", async () => {
+    const { container } = renderPage(<DetectorTelemetryPage />, "/operator");
+    await screen.findByText("Operator Console");
+    await screen.findByText("research_crew");
+    await expectNoA11yViolations(container);
+  });
+
+  it("Operator Console renders outcomes as text, not colour alone", async () => {
+    renderPage(<DetectorTelemetryPage />, "/operator");
+    await screen.findByText("loop");
+    expect(screen.getByText("fired")).toBeInTheDocument();
+    expect(screen.getByText("suppressed")).toBeInTheDocument();
   });
 
   it("Version Compare inputs expose accessible names", async () => {

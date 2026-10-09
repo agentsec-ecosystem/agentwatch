@@ -93,6 +93,9 @@ class RetentionReport:
 
     purged: int
     kept: int
+    held: int = 0
+    dry_run: bool = False
+    leftovers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -102,6 +105,14 @@ class PurgeReport:
     purged: int
     found: bool
     marker_seq: int | None
+    blocked_by_hold: str | None = None
+    override_reason: str | None = None
+    leftovers: tuple[str, ...] = ()
+
+    @property
+    def override_required(self) -> bool:
+        """Whether an active hold refused the purge (an override is needed)."""
+        return self.blocked_by_hold is not None
 
 
 @dataclass(frozen=True)
@@ -411,62 +422,96 @@ class RecordStore:
             return handle.read(1) != b"\n"
 
     def apply_retention(
-        self, *, retention_days: int, now: datetime | None = None
+        self,
+        *,
+        retention_days: int,
+        now: datetime | None = None,
+        dry_run: bool = False,
     ) -> RetentionReport:
         """Tombstone entries older than the window; never remove a line silently.
 
         Tombstones keep ``seq``/``prev_hash``/``hash`` so the chain links still
         verify; only the record payload is dropped. Future-dated entries (clock
-        skew) are kept (Review Focus 3).
+        skew) are kept (Review Focus 3). Records protected by an active legal hold
+        are **skipped** (HLD-1) and counted in ``held``; ``dry_run`` computes the
+        same report without rewriting the store.
         """
+        # Deferred import: holds reads this store; importing at module load would cycle.
+        from agentwatch import holds as holds_module
+
         with self._lock:
             moment = now or datetime.now(timezone.utc)
             cutoff = moment - timedelta(days=retention_days)
+            active = holds_module.active_holds(self)
             lines: list[str] = []
             purged = 0
             kept = 0
+            held = 0
             for entry in self._entries:
-                if (
-                    not entry.tombstone
-                    and entry.record is not None
-                    and entry.record.started_at < cutoff
-                ):
+                record = entry.record
+                if not entry.tombstone and record is not None and record.started_at < cutoff:
+                    if active and holds_module.record_is_held(record, active):
+                        held += 1
+                        kept += 1
+                        if not dry_run:
+                            lines.append(
+                                json.dumps(
+                                    {
+                                        "seq": entry.seq,
+                                        "prev_hash": entry.prev_hash,
+                                        "hash": entry.hash,
+                                        "tombstone": False,
+                                        "record": record.to_dict(),
+                                    },
+                                    ensure_ascii=False,
+                                )
+                            )
+                        continue
                     purged += 1
+                    if not dry_run:
+                        lines.append(
+                            json.dumps(
+                                {
+                                    "seq": entry.seq,
+                                    "prev_hash": entry.prev_hash,
+                                    "hash": entry.hash,
+                                    "tombstone": True,
+                                    "purged_at": moment.isoformat(),
+                                },
+                                ensure_ascii=False,
+                            )
+                        )
+                    continue
+                kept += 1
+                if not dry_run:
+                    payload = record.to_dict() if record is not None else None
                     lines.append(
                         json.dumps(
                             {
                                 "seq": entry.seq,
                                 "prev_hash": entry.prev_hash,
                                 "hash": entry.hash,
-                                "tombstone": True,
-                                "purged_at": moment.isoformat(),
+                                "tombstone": entry.tombstone,
+                                "record": payload,
                             },
                             ensure_ascii=False,
                         )
                     )
-                    continue
-                kept += 1
-                payload = entry.record.to_dict() if entry.record is not None else None
-                lines.append(
-                    json.dumps(
-                        {
-                            "seq": entry.seq,
-                            "prev_hash": entry.prev_hash,
-                            "hash": entry.hash,
-                            "tombstone": entry.tombstone,
-                            "record": payload,
-                        },
-                        ensure_ascii=False,
-                    )
-                )
-            if purged:
+            if purged and not dry_run:
                 # Atomic rewrite under the append lock; a no-op pass leaves the file byte-identical.
                 self.path.parent.mkdir(parents=True, exist_ok=True)
                 tmp = self.path.with_name(self.path.name + ".tmp")
                 tmp.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
                 os.replace(tmp, self.path)
                 self._entries = self._load()
-            return RetentionReport(purged=purged, kept=kept)
+                self._propagate_retention()
+            return RetentionReport(
+                purged=purged,
+                kept=kept,
+                held=held,
+                dry_run=dry_run,
+                leftovers=() if dry_run else self._leftovers(),
+            )
 
     def purge_session(
         self,
@@ -474,13 +519,21 @@ class RecordStore:
         *,
         now: datetime | None = None,
         reason: str | None = None,
+        override_reason: str | None = None,
     ) -> PurgeReport:
         """Tombstone every live record of one session; append a purge marker.
 
         Chain links are preserved (D-K: tombstone, never hard delete). The
         marker is a metadata-only record so the erasure is auditable. A session
         with no live records is a no-op (no marker written).
+
+        An active legal hold (HLD-1) makes purge **fail closed**: nothing is
+        tombstoned, the refusal is recorded, and ``blocked_by_hold`` names the
+        hold. An explicit ``override_reason`` records the override and proceeds.
         """
+        # Deferred import: holds reads this store; importing at module load would cycle.
+        from agentwatch import holds as holds_module
+
         with self._lock:
             moment = now or datetime.now(timezone.utc)
             matched = [
@@ -492,6 +545,24 @@ class RecordStore:
             ]
             if not matched:
                 return PurgeReport(purged=0, found=False, marker_seq=None)
+
+            active = holds_module.active_holds(self)
+            blocking = sorted(
+                {
+                    hold_id
+                    for entry in matched
+                    if entry.record is not None
+                    for hold_id in holds_module.held_hold_ids(entry.record, active)
+                }
+            )
+            if blocking and not override_reason:
+                holds_module.record_purge_blocked(self, session_id, blocking[0], now=moment)
+                return PurgeReport(
+                    purged=0,
+                    found=True,
+                    marker_seq=None,
+                    blocked_by_hold=blocking[0],
+                )
 
             lines: list[str] = []
             for entry in self._entries:
@@ -532,10 +603,25 @@ class RecordStore:
             os.replace(tmp, self.path)
             self._entries = self._load()
 
+            if blocking and override_reason:
+                holds_module.record_purge_override(
+                    self,
+                    session_id,
+                    reason=override_reason,
+                    hold_ids=tuple(blocking),
+                    now=moment,
+                )
             entry = self.append(
                 self._purge_marker(session_id, moment, reason),
             )
-            return PurgeReport(purged=len(matched), found=True, marker_seq=entry.seq)
+            self._propagate_purge(session_id)
+            return PurgeReport(
+                purged=len(matched),
+                found=True,
+                marker_seq=entry.seq,
+                override_reason=override_reason,
+                leftovers=self._leftovers(),
+            )
 
     @staticmethod
     def _purge_marker(session_id: str, moment: datetime, reason: str | None) -> AgentRecord:
@@ -553,6 +639,38 @@ class RecordStore:
             outcome=Outcome.OK,
             started_at=moment,
             producer=MARKER_PRODUCER,
+        )
+
+    # -- derived-artifact propagation (M30 EXT-5) --------------------------
+
+    def _propagate_purge(self, session_id: str) -> None:
+        """Drop one session's rows from the derived index (never touches the chain).
+
+        Deferred import: ``query_index`` reads this store, so importing it at
+        module load would cycle. The chain remains authoritative; the index is
+        only ever a projection.
+        """
+        from agentwatch import query_index
+
+        index = query_index.QueryIndex(query_index.index_path_for_store(self.path))
+        if index.exists:
+            index.purge_session(session_id)
+
+    def _propagate_retention(self) -> None:
+        """Rebuild the derived index from the now-tombstoned chain (EXT-5)."""
+        from agentwatch import query_index
+
+        index = query_index.QueryIndex(query_index.index_path_for_store(self.path))
+        if index.exists:
+            index.rebuild(self)
+
+    def _leftovers(self) -> tuple[str, ...]:
+        """Known derived artifacts beside the store that may still retain data."""
+        from agentwatch import query_index
+
+        return tuple(
+            f"{artifact.kind}:{artifact.path}"
+            for artifact in query_index.derived_artifacts(self.path.parent)
         )
 
 

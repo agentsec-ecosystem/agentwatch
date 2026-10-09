@@ -14,6 +14,7 @@ bundle state *"recording was active from T1 to T2, configured as X."*
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -27,6 +28,7 @@ from agentwatch.records import (
     ToolCall,
 )
 from agentwatch.secrets import redact_secrets
+from agentwatch.signing import KEY_ROTATION_TOOL
 from agentwatch.store import MARKER_PRODUCER, ChainEntry, RecordStore
 
 RECORDER_INSTALLED_TOOL = "recorder-installed"
@@ -37,6 +39,9 @@ RETENTION_CHANGED_TOOL = "retention-changed"
 EXPORT_CONFIGURED_TOOL = "export-configured"
 COVERAGE_WINDOW_OPEN_TOOL = "coverage-window-open"
 COVERAGE_WINDOW_CLOSE_TOOL = "coverage-window-close"
+# M29 DEP-2: a session-start attestation fact + a config-change observation.
+RECORDER_ATTESTED_TOOL = "recorder-attested"
+RECORDER_CONFIG_CHANGED_TOOL = "recorder-config-changed"
 
 MARKER_TOOLS = frozenset(
     {
@@ -48,6 +53,9 @@ MARKER_TOOLS = frozenset(
         EXPORT_CONFIGURED_TOOL,
         COVERAGE_WINDOW_OPEN_TOOL,
         COVERAGE_WINDOW_CLOSE_TOOL,
+        RECORDER_ATTESTED_TOOL,
+        RECORDER_CONFIG_CHANGED_TOOL,
+        KEY_ROTATION_TOOL,
     }
 )
 
@@ -76,6 +84,7 @@ class RecorderState:
     installed: bool | None = None
     privacy_mode: str | None = None
     retention_days: int | None = None
+    retention_profile: str | None = None
     export_enabled: bool | None = None
     export_format: str | None = None
 
@@ -208,16 +217,18 @@ def record_privacy_mode_changed(
 
 
 def record_retention_changed(
-    store: RecordStore, *, old: int | None, new: int, now: datetime | None = None
+    store: RecordStore,
+    *,
+    old: int | None,
+    new: int,
+    profile: str | None = None,
+    now: datetime | None = None,
 ) -> MarkerReport:
     """Append a ``retention-changed`` marker (coalesced when unchanged)."""
-    return _record_transition(
-        store,
-        RETENTION_CHANGED_TOOL,
-        {"old": UNKNOWN if old is None else str(old), "new": str(new)},
-        new,
-        now=now,
-    )
+    arguments: dict[str, Any] = {"old": UNKNOWN if old is None else str(old), "new": str(new)}
+    if profile is not None:
+        arguments["profile"] = _clean(profile)
+    return _record_transition(store, RETENTION_CHANGED_TOOL, arguments, new, now=now)
 
 
 def record_export_configured(
@@ -251,6 +262,42 @@ def _record_transition(
         return MarkerReport(tool, None, coalesced=True)
     entry = _append_marker(store, tool, arguments, now=now)
     return MarkerReport(tool, entry.seq)
+
+
+def record_attestation(
+    store: RecordStore,
+    arguments: dict[str, Any],
+    *,
+    now: datetime | None = None,
+) -> MarkerReport:
+    """Append one ``recorder-attested`` marker (coalesced when identical to the last).
+
+    ``arguments`` carry booleans and digests only; callers never pass config
+    values (M29 DEP-2, PRD 50).
+    """
+    last = _marker_arguments(store, RECORDER_ATTESTED_TOOL)
+    if last and last[-1] == arguments:
+        return MarkerReport(RECORDER_ATTESTED_TOOL, None, coalesced=True)
+    entry = _append_marker(store, RECORDER_ATTESTED_TOOL, arguments, now=now)
+    return MarkerReport(RECORDER_ATTESTED_TOOL, entry.seq)
+
+
+def record_recorder_config_changed(
+    store: RecordStore,
+    *,
+    old_digest: str,
+    new_digest: str,
+    changed: Mapping[str, bool],
+    now: datetime | None = None,
+) -> MarkerReport:
+    """Append a ``recorder-config-changed`` observation (digests plus changed flags)."""
+    arguments: dict[str, Any] = {
+        "old_digest": _clean(old_digest),
+        "new_digest": _clean(new_digest),
+        "changed": {str(key): bool(value) for key, value in changed.items()},
+    }
+    entry = _append_marker(store, RECORDER_CONFIG_CHANGED_TOOL, arguments, now=now)
+    return MarkerReport(RECORDER_CONFIG_CHANGED_TOOL, entry.seq)
 
 
 def open_coverage_window(
@@ -348,6 +395,7 @@ def last_state(store: RecordStore) -> RecorderState:
     installed: bool | None = None
     privacy_mode: str | None = None
     retention_days: int | None = None
+    retention_profile: str | None = None
     export_enabled: bool | None = None
     export_format: str | None = None
     for marker in reversed(recorder_markers(store)):
@@ -362,6 +410,7 @@ def last_state(store: RecordStore) -> RecorderState:
             retention_days = (
                 int(raw) if isinstance(raw, (int, str)) and str(raw).isdigit() else None
             )
+            retention_profile = _optional_str(marker.arguments.get("profile"))
         elif marker.tool == EXPORT_CONFIGURED_TOOL and export_enabled is None:
             export_enabled = bool(marker.arguments.get("enabled", False))
             export_format = _optional_str(marker.arguments.get("format"))
@@ -369,6 +418,7 @@ def last_state(store: RecordStore) -> RecorderState:
         installed=installed,
         privacy_mode=privacy_mode,
         retention_days=retention_days,
+        retention_profile=retention_profile,
         export_enabled=export_enabled,
         export_format=export_format,
     )

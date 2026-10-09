@@ -231,3 +231,8 @@ def test_runner_rejects_an_empty_adapter_name(tmp_path: Path) -> None:
     )
     report = conformance.run(spec)
     assert any(failure.startswith("registration") for failure in report.failures)
+
+
+def test_self_test_proves_a_broken_adapter_fails() -> None:
+    # XHT-1 negative control: a deliberately broken adapter must fail the runner.
+    assert conformance.self_test() is True

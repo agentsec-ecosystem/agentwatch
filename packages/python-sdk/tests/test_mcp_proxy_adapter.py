@@ -90,7 +90,7 @@ def test_unsupported_phase_is_rejected(phase: str) -> None:
 
 
 def test_non_tools_call_method_is_rejected() -> None:
-    message = _request(rpc={"jsonrpc": "2.0", "id": 1, "method": "resources/read", "params": {}})
+    message = _request(rpc={"jsonrpc": "2.0", "id": 1, "method": "prompts/get", "params": {}})
     with pytest.raises(mcp_proxy.McpProxyAdapterError):
         mcp_proxy.normalize(message)
 

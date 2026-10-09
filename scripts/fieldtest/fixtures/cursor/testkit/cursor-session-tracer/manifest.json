@@ -1,0 +1,14 @@
+{
+  "captured_from_real_harness": true,
+  "files": [
+    "traces/092435_implement_adr0001_resilient_idempotent_outbound.json",
+    "traces/143201_resilient_idempotent_checkout.json"
+  ],
+  "harness": "cursor",
+  "kind": "trace",
+  "license": "MIT",
+  "source": "https://github.com/indranildchandra/cursor-session-tracer",
+  "source_commit": "78219cea67e92d03bc9b5d96798adfac0636cbc9",
+  "upstream_path": ".cursor/traces",
+  "version": "cursor-session-tracer-78219ce"
+}

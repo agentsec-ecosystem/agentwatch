@@ -1,0 +1,4 @@
+ok: TSS-1: ADR-0049 (ship deferred to v0.3.0) + round-trip contract test + WBS ticket present
+....                                                                     [100%]
+4 passed in 0.10s
+ok: shipped test(s) passed: tests/test_ts_schema_portability.py

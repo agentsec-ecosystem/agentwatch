@@ -299,6 +299,36 @@ class ApiClient {
   getHealth() {
     return this.request<{ status: string }>("/api/v1/health");
   }
+
+  /**
+   * Content-free detector telemetry markers (M27 DET-5 / UI-2).
+   *
+   * @returns `{ items }` — detector name, verdict, severity, timestamp only;
+   *   never trace/argument/prompt content.
+   */
+  getDetectorTelemetry() {
+    return this.request<{ data: { items: import("../types/api").DetectorTelemetryMarker[] } }>(
+      "/api/v1/detector-telemetry"
+    ).then((data) => ({ items: data.data.items }));
+  }
+
+  /**
+   * Per-session identity/attribution (M27 UI-2; IDN-1/S14).
+   */
+  getAttribution() {
+    return this.request<{ data: { items: import("../types/api").AttributionItem[] } }>(
+      "/api/v1/attribution"
+    ).then((data) => ({ items: data.data.items }));
+  }
+
+  /**
+   * SIEM sink health snapshot (M27 UI-2; S10).
+   */
+  getSiemHealth() {
+    return this.request<{ data: import("../types/api").SiemHealth }>(
+      "/api/v1/siem-health"
+    ).then((data) => data.data);
+  }
 }
 
 export const api = new ApiClient(BASE_URL);

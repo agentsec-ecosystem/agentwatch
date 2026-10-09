@@ -1,0 +1,34 @@
+{
+  "description": "AAT bundle conformance vectors; see schema/vectors/README.md.",
+  "schema": "agentwatch.aat-vectors/0.1.0",
+  "vectors": [
+    {
+      "failed_entries": [],
+      "file": "valid.json",
+      "id": "valid",
+      "ok": true
+    },
+    {
+      "failed_entries": [
+        1
+      ],
+      "file": "tampered.json",
+      "id": "tampered",
+      "ok": false
+    },
+    {
+      "failed_entries": [],
+      "file": "unmapped.json",
+      "id": "unmapped",
+      "ok": true
+    },
+    {
+      "failed_entries": [
+        -1
+      ],
+      "file": "unsupported-revision.json",
+      "id": "unsupported-revision",
+      "ok": false
+    }
+  ]
+}

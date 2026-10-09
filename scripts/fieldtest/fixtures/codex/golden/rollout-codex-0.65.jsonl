@@ -1,0 +1,9 @@
+{"timestamp": "2025-12-08T00:37:46.102Z", "type": "session_meta", "payload": {"id": "rollout-2025-12-08T00-37-46-abc123", "cwd": "/home/user/project", "cli_version": "0.65.0", "source": "cli"}}
+{"timestamp": "2025-12-08T00:38:00.000Z", "type": "turn_context", "payload": {"model": "o4-mini"}}
+{"timestamp": "2025-12-08T00:39:54.852Z", "type": "response_item", "payload": {"type": "message", "role": "user", "content": [{"type": "input_text", "text": "List the files and patch."}]}}
+{"timestamp": "2025-12-08T00:39:59.538Z", "type": "response_item", "payload": {"type": "function_call", "name": "shell", "arguments": "{\"command\": \"ls -la\"}", "call_id": "call_abc123"}}
+{"timestamp": "2025-12-08T00:40:00.000Z", "type": "response_item", "payload": {"type": "function_call_output", "call_id": "call_abc123", "output": "total 0\ndrwxr-xr-x  2 user user 40 Jan 15 10:00 ."}}
+{"timestamp": "2025-12-08T00:40:01.000Z", "type": "response_item", "payload": {"type": "custom_tool_call", "name": "apply_patch", "arguments": "{\"patch\": \"*** Begin Patch\"}", "call_id": "call_def456"}}
+{"timestamp": "2025-12-08T00:40:02.000Z", "type": "response_item", "payload": {"type": "custom_tool_call_output", "call_id": "call_def456", "output": "Done!"}}
+{"timestamp": "2025-12-08T00:40:03.000Z", "type": "event_msg", "payload": {"type": "token_count", "info": {"total_token_usage": {"input_tokens": 124314, "output_tokens": 552, "total_tokens": 124866}}}}
+{"timestamp": "2025-12-08T00:40:05.000Z", "type": "response_item", "payload": {"type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "Done."}]}}

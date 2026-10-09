@@ -24,6 +24,7 @@ _INTERNAL_TOOLS = frozenset(
         "hook-error",
         "operator-note",
         "store-access",
+        "key-rotation",
         "harness-drift",
         "external-event",
         "archive-anchor",

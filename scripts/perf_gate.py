@@ -94,11 +94,111 @@ def _measure_daemon(iterations: int) -> float:
     return time_call(step, iterations=iterations).p99_ms
 
 
+def _measure_otlp_protobuf(iterations: int) -> float:
+    """One bare OTLP protobuf message -> records (M26 OTEL-3)."""
+    from agentwatch.ingest import transcode_otlp_protobuf
+    from agentwatch.perf import time_call
+    from opentelemetry.proto.collector.trace.v1 import trace_service_pb2
+    from opentelemetry.proto.common.v1 import common_pb2
+    from opentelemetry.proto.trace.v1 import trace_pb2
+
+    request = trace_service_pb2.ExportTraceServiceRequest(
+        resource_spans=[
+            trace_pb2.ResourceSpans(
+                scope_spans=[
+                    trace_pb2.ScopeSpans(
+                        spans=[
+                            trace_pb2.Span(
+                                trace_id=bytes.fromhex("11" * 16),
+                                span_id=bytes.fromhex("22" * 8),
+                                name="execute_tool",
+                                start_time_unix_nano=1_767_000_000_000_000_000,
+                                end_time_unix_nano=1_767_000_001_000_000_000,
+                                attributes=[
+                                    common_pb2.KeyValue(
+                                        key="gen_ai.tool.name",
+                                        value=common_pb2.AnyValue(string_value="execute_tool"),
+                                    )
+                                ],
+                            )
+                        ]
+                    )
+                ]
+            )
+        ]
+    )
+    data = request.SerializeToString()
+    return time_call(lambda: transcode_otlp_protobuf(data), iterations=iterations).p99_ms
+
+
+def _measure_live_tail(iterations: int) -> float:
+    """One live-tail reconciliation poll (M26 STR-2)."""
+    from agentwatch.live import LiveTail
+    from agentwatch.perf import time_call
+    from agentwatch.records import AgentIdentity, AgentRecord, Outcome, ToolCall
+    from agentwatch.store import RecordStore
+
+    root = Path(tempfile.mkdtemp(prefix="agentwatch-perf-live-"))
+    path = root / "records.jsonl"
+    store = RecordStore(path, durability="none")
+    for index in range(50):
+        store.append(
+            AgentRecord(
+                session_id="perf",
+                agent=AgentIdentity(identity="perf"),
+                tool=ToolCall(name="Bash"),
+                outcome=Outcome.OK,
+                started_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+                span_id=f"sp{index}",
+            )
+        )
+    return time_call(lambda: LiveTail(path).poll(), iterations=iterations).p99_ms
+
+
+def _measure_detector_eval(iterations: int) -> float:
+    """One run of the rule-detector field-test matrix (M26 DET-2)."""
+    from agentwatch.perf import time_call
+
+    analytics_src = str(REPO / "services" / "analytics" / "src")
+    # Force *this* checkout's analytics package to the front and drop any cached
+    # modules, so a same-named install on the path cannot shadow it.
+    for name in [m for m in list(sys.modules) if m == "analytics" or m.startswith("analytics.")]:
+        del sys.modules[name]
+    if analytics_src in sys.path:
+        sys.path.remove(analytics_src)
+    sys.path.insert(0, analytics_src)
+    import asyncio
+
+    from analytics.scenario_validation import run_rule_matrix
+
+    calls = max(1, min(iterations, 3))
+    return time_call(lambda: asyncio.run(run_rule_matrix()), iterations=calls).p99_ms
+
+
 SCENARIOS: dict[str, Callable[[int], float]] = {
     "normalize": _measure_normalize,
     "redaction": _measure_redaction,
     "daemon_handle_message": _measure_daemon,
+    "otlp_protobuf": _measure_otlp_protobuf,
+    "live_tail_poll": _measure_live_tail,
+    "detector_eval": _measure_detector_eval,
 }
+
+# Per-scenario budgets (NFR-1 for the recording path; the new M26 paths get
+# their own absolute cap derived from the design contract).
+SCENARIO_BUDGETS_MS: dict[str, float] = {
+    "normalize": NFR_BUDGET_MS,
+    "redaction": NFR_BUDGET_MS,
+    "daemon_handle_message": NFR_BUDGET_MS,
+    "otlp_protobuf": 10.0,
+    "live_tail_poll": 25.0,
+    "detector_eval": 8000.0,
+}
+
+
+def scenario_budget(name: str) -> float:
+    """The absolute cap (ms) for a scenario."""
+    return SCENARIO_BUDGETS_MS.get(name, NFR_BUDGET_MS)
 
 
 def measure(iterations: int) -> dict[str, float]:
@@ -116,8 +216,9 @@ def evaluate(
     """Return (exit_code, violations) comparing measured p99 to cap and baseline."""
     violations: list[str] = []
     for name, p99 in sorted(measured.items()):
-        if p99 > budget_ms:
-            violations.append(f"{name}: p99 {p99:.3f} ms > NFR budget {budget_ms:.3f} ms")
+        cap = scenario_budget(name)
+        if p99 > cap:
+            violations.append(f"{name}: p99 {p99:.3f} ms > budget {cap:.3f} ms")
         committed = baseline.get(name)
         if committed is not None:
             threshold = max(committed * tolerance, DRIFT_FLOOR_MS)
@@ -131,21 +232,22 @@ def evaluate(
 
 def _render_doc(measured: dict[str, float], generated_at: str) -> str:
     rows = "\n".join(
-        f"| `{name}` | {p99:.3f} | {NFR_BUDGET_MS:.1f} | {baseline.get(name, float('nan')):.3f} |"
+        f"| `{name}` | {p99:.3f} | {scenario_budget(name):.1f} | {baseline.get(name, float('nan')):.3f} |"
         for name, p99 in sorted(measured.items())
     )
     return (
         "# Reference — Performance\n\n"
         "**BLUF:** The recording path's p99 latency, measured by `scripts/perf_gate.py` "
         "and generated from a run — not written by hand.\n\n"
-        f"Generated: {generated_at} · budget: **≤{NFR_BUDGET_MS:.0f} ms per step** (NFR-1) · drift "
-        f"tolerance: **{DRIFT_TOLERANCE:.1f}×** above a **{DRIFT_FLOOR_MS:.1f} ms** floor\n\n"
-        "| Stage | measured p99 (ms) | NFR cap (ms) | committed baseline p99 (ms) |\n"
+        f"Generated: {generated_at} · recording stages budget **≤{NFR_BUDGET_MS:.0f} ms per step** (NFR-1); "
+        f"new M26 paths carry their own per-scenario caps · drift tolerance: **{DRIFT_TOLERANCE:.1f}×** above a "
+        f"**{DRIFT_FLOOR_MS:.1f} ms** floor\n\n"
+        "| Stage | measured p99 (ms) | budget (ms) | committed baseline p99 (ms) |\n"
         "|---|---|---|---|\n"
         f"{rows}\n\n"
         "> Regenerate with `python scripts/perf_gate.py --update-baseline --write-doc` on the "
-        "reference runner class. The NFR cap is absolute; the drift tolerance absorbs machine "
-        "variance. See [performance-budget](../design/performance-budget.md).\n"
+        "reference runner class. Recording budgets are absolute (NFR-1); the new-path caps and the "
+        "drift tolerance absorb machine variance. See [performance-budget](../design/performance-budget.md).\n"
     )
 
 

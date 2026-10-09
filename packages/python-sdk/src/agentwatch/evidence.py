@@ -30,9 +30,11 @@ from agentwatch.annotate import operator_notes
 from agentwatch.bom import build_bom, to_cyclonedx
 from agentwatch.denials import denial_sequences
 from agentwatch.forensic import statement
+from agentwatch.incident_report import INCIDENT_REPORT_FILENAME, build_incident_report
 from agentwatch.inventory import build_inventory, inventory_to_json
 from agentwatch.records import effective_producer, validate_record
 from agentwatch.session_export import export_session
+from agentwatch.signing import signing_status
 from agentwatch.store import RecordStore
 from agentwatch.verify_privacy import verify_privacy
 
@@ -166,6 +168,8 @@ def _coverage(store: RecordStore, session_id: str, entries: list[Any]) -> dict[s
             purges.append(entry.seq)
     # Chain-level parse errors are gaps too.
     gaps.extend(store.parse_error_lines)
+    from agentwatch.attestation import attestation_status
+
     return {
         "session_id": session_id,
         "records": sum(1 for e in entries if e.record is not None),
@@ -174,6 +178,7 @@ def _coverage(store: RecordStore, session_id: str, entries: list[Any]) -> dict[s
         "tombstones": sorted(tombstones),
         "tombstone_attribution": "unavailable (payload dropped); store-level list",
         "purges": sorted(purges),
+        "attestation": attestation_status(store),
         "complete": not gaps,
     }
 
@@ -185,6 +190,7 @@ def build_bundle(
     *,
     include_bom: bool = False,
     redact_paths: bool = False,
+    includes: tuple[str, ...] = (),
     now: datetime | None = None,
 ) -> EvidenceBundle:
     """Assemble a self-contained evidence bundle for one session."""
@@ -266,6 +272,7 @@ def build_bundle(
         ),
         "verify.json": _json_bytes(verify_json),
         "verify.txt": (verify_txt + "\n").encode("utf-8"),
+        "signing.json": _json_bytes(signing_status(store, Path(store_path).parent).to_dict()),
         "privacy.json": _json_bytes(
             {
                 "leak_free": privacy.passed,
@@ -296,6 +303,11 @@ def build_bundle(
             }
         ),
     }
+    for include in includes:
+        if include == INCIDENT_REPORT_FILENAME:
+            members[include] = _json_bytes(build_incident_report(store, session_id, now=moment))
+        else:
+            raise ValueError(f"unknown include {include!r}")
     if include_bom:
         members["bom.cdx.json"] = _json_bytes(to_cyclonedx(build_bom(store, session_id=session_id)))
     schema_dir = _schema_dir()

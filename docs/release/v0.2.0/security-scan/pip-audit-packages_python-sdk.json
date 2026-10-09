@@ -1,0 +1,1 @@
+{"dependencies": [{"name": "opentelemetry-api", "version": "1.45.1", "vulns": []}, {"name": "opentelemetry-sdk", "version": "1.45.1", "vulns": []}, {"name": "opentelemetry-semantic-conventions", "version": "0.66b1", "vulns": []}, {"name": "typing-extensions", "version": "4.16.0", "vulns": []}], "fixes": []}

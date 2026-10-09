@@ -122,6 +122,34 @@ GEN_AI_TOOL_RESULT = "gen_ai.tool.result"
 GEN_AI_RESPONSE_CONTENT = "gen_ai.response.content"
 GEN_AI_AGENT_OUTPUT = "gen_ai.agent.output"
 
+# Every attribute key that carries *content* (never metadata). Exported only when
+# the active privacy mode allows it; used by the OTEL-2 content-leak guard.
+CONTENT_ATTRIBUTE_KEYS: frozenset[str] = frozenset(
+    {
+        GEN_AI_TOOL_ARGS,
+        GEN_AI_TOOL_RESULT,
+        GEN_AI_RESPONSE_CONTENT,
+        GEN_AI_AGENT_OUTPUT,
+        "gen_ai.plan.content",
+        "gen_ai.node.output",
+        "gen_ai.memory.content",
+    }
+)
+
+# ---------------------------------------------------------------------------
+# agentwatch extension attributes.
+# ---------------------------------------------------------------------------
+# Namespaced under ``agentwatch.*`` because they are agentwatch semantics, not
+# (yet) part of the upstream OTel GenAI conventions. Keep them here so the SDK,
+# the collector, and the analytics detectors agree on the exact string.
+# ---------------------------------------------------------------------------
+
+# What kind of credential the agent acted under (IDN-1/IDN-4): one of
+# ``api-key``, ``oauth``, ``svid``, ``ambient/shared``. A classification, never
+# a secret. Exported so the analytics credential-hygiene detector can flag
+# shared/ambient credentials over a run.
+AGENTWATCH_CREDENTIAL_CLASS = "agentwatch.credential_class"
+
 # ---------------------------------------------------------------------------
 # Span operation names.
 # ---------------------------------------------------------------------------
@@ -148,3 +176,37 @@ SPAN_KIND_APPROVAL = "approval"
 # The root span that contains the entire agent run.  This is the outermost
 # container; all other behavior spans are children of this span.
 SPAN_KIND_INVOKE_AGENT = "invoke_agent"
+
+# Agent construction (OTEL-1, semconv 1.37+): the span for creating/initializing
+# an agent, distinct from invoking it.
+SPAN_KIND_CREATE_AGENT = "create_agent"
+
+# Workflow-level container (OTEL-1): a span that wraps a multi-agent/graph run.
+SPAN_KIND_INVOKE_WORKFLOW = "invoke_workflow"
+
+# The canonical agent-span operation vocabulary agentwatch aligns to (OTEL-1).
+AGENT_SPAN_OPERATIONS: tuple[str, ...] = (
+    SPAN_KIND_CREATE_AGENT,
+    SPAN_KIND_INVOKE_AGENT,
+    SPAN_KIND_INVOKE_WORKFLOW,
+    SPAN_KIND_PLAN,
+    SPAN_KIND_TOOL,
+)
+
+# Skills + command execution (OTEL-4). These are **provisional agentwatch
+# extensions**: the GenAI semconv describes the behaviors but has not pinned
+# operation names upstream, so they are kept out of ``AGENT_SPAN_OPERATIONS``
+# (the pinned set the drift check guards) until upstream adopts them.
+SPAN_KIND_LOAD_SKILL = "load_skill"
+SPAN_KIND_READ_SKILL_RESOURCE = "read_skill_resource"
+SPAN_KIND_EXECUTE_COMMAND = "execute_command"
+
+AGENTWATCH_EXTENSION_OPERATIONS: tuple[str, ...] = (
+    SPAN_KIND_LOAD_SKILL,
+    SPAN_KIND_READ_SKILL_RESOURCE,
+    SPAN_KIND_EXECUTE_COMMAND,
+)
+
+# Skill / command attributes (agentwatch namespaced; never content).
+AGENTWATCH_SKILL_NAME = "agentwatch.skill.name"
+AGENTWATCH_SKILL_RESOURCE = "agentwatch.skill.resource"

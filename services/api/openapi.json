@@ -1,0 +1,512 @@
+{
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "agentwatch API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/anomalies": {
+      "get": {
+        "description": "Return paginated anomalies, optionally filtered by severity/type/agent.\n\nQuery parameters (all optional):\n    severity: Filter by anomaly severity (``\"warning\"``, ``\"critical\"``).\n    anomaly_type: Filter by anomaly type string (e.g. ``\"loop\"``,\n        ``\"cost_spike\"``).  Must match values in ``AnomalyType`` enum.\n    agent_name: Filter to anomalies detected for a specific agent.\n    limit: Items per page (default 20, range 1-100).\n    offset: 0-based offset for pagination (default 0).\n\nResponse shape (200):\n    {\n        \"data\": {\n            \"items\": [\n                { \"anomaly_id\", \"type\", \"severity\", \"agent_name\",\n                  \"run_id\", \"summary\", \"explanation\", \"created_at\" }\n            ]\n        },\n        \"meta\": { \"total\": <int>, \"page\": <int>, \"page_size\": <int> }\n    }\n\nError cases:\n    - 422: When constraint violations occur (limit < 1, limit > 100,\n      offset < 0).",
+        "operationId": "get_anomalies",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "severity",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Severity"
+            }
+          },
+          {
+            "in": "query",
+            "name": "anomaly_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Anomaly Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agent_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Anomalies",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Anomalies Endpoint"
+      }
+    },
+    "/api/v1/attribution": {
+      "get": {
+        "description": "Return per-session identity/attribution from the agentwatch record store.\n\nReads the local record store read-only and surfaces the identity dimension\n(IDN-1) plus the approval decision (S14) per session. An absent store is an\nempty list; malformed lines are skipped, never fatal.",
+        "operationId": "get_attribution",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Attribution",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Attribution"
+      }
+    },
+    "/api/v1/compare": {
+      "get": {
+        "description": "Compare two version cohorts side by side, returning deltas and tool usage.\n\nQuery parameters:\n    agent_name (required): The agent whose versions to compare.\n    version_a (required): The \"left\" (baseline) version string.\n    version_b (required): The \"right\" (candidate) version string.\n    workload_type (optional): Further filter by workload.\n\nResponse shape (200):\n    {\n        \"left\": { \"version\": \"<vA>\", \"run_count\": <int> },\n        \"right\": { \"version\": \"<vB>\", \"run_count\": <int> },\n        \"deltas\": {\n            \"avg_cost_usd\": <float|None>,\n            \"retry_rate\": <float|None>,\n            \"success_rate\": <float|None>\n        },\n        \"tool_deltas\": [\n            { \"tool_name\", \"left_count\", \"right_count\", \"delta\" }\n        ],\n        \"warning\": <str|None>,\n        \"note\": <str|None>\n    }\n\nEdge cases:\n    - If either version cohort is missing, the response includes a\n      ``warning: \"sparse_cohorts\"`` and a descriptive ``note``.\n    - If both cohorts have fewer than 5 runs, ``sparse_cohorts`` warning\n      is added because deltas may not be statistically meaningful.\n    - If neither version is found (both None), a note is returned.\n    - ``tool_deltas`` is empty when tool data is unavailable (JSON parse\n      failure or missing ``top_tools`` column).\n    - The ``workload_type`` parameter is accepted but not yet wired into\n      the version_cohort lookup; it is reserved for future use.",
+        "operationId": "get_compare",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "agent_name",
+            "required": true,
+            "schema": {
+              "title": "Agent Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version_a",
+            "required": true,
+            "schema": {
+              "title": "Version A",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version_b",
+            "required": true,
+            "schema": {
+              "title": "Version B",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "workload_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Workload Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Compare",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Compare"
+      }
+    },
+    "/api/v1/detector-telemetry": {
+      "get": {
+        "description": "Return content-free detector-telemetry markers (read-only, local file).\n\nReads the NDJSON written by ``agentwatch.detector_telemetry`` (DET-5). A\nmarker carries only the detector name, its verdict, an optional severity, and\na timestamp \u2014 never trace/argument/prompt content. An absent file is an empty\nlist, not an error. Unreadable/malformed lines are skipped, never fatal.",
+        "operationId": "get_detector_telemetry",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Detector Telemetry",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Detector Telemetry"
+      }
+    },
+    "/api/v1/fleet": {
+      "get": {
+        "description": "Return paginated fleet health rollups, optionally filtered by agent/version/workload.\n\nQuery parameters (all optional):\n    agent_name: Filter to a specific agent.\n    agent_version: Filter to a specific agent version.\n    workload_type: Filter to a specific workload category.\n    period_start: ISO-8601 datetime; lower bound for the rollup period.\n    period_end: ISO-8601 datetime; upper bound for the rollup period.\n    page: 1-based page number (default 1, minimum 1).\n    page_size: Items per page (default 20, range 1-100).\n\nResponse shape (200):\n    {\n        \"data\": {\n            \"rows\": [\n                { \"agent_name\", \"agent_version\", \"run_count\",\n                  \"success_rate\", \"avg_cost_usd\", \"anomaly_count\" }\n            ]\n        },\n        \"meta\": { \"total\": <int>, \"page\": <int>, \"page_size\": <int> }\n    }\n\nError cases:\n    - 422: When query parameter types/constraints are violated (FastAPI\n      auto-validates: page < 1, page_size > 100, invalid datetime format).",
+        "operationId": "get_fleet",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "agent_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agent_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agent Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "workload_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Workload Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "period_start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Period Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "period_end",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Period End"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Fleet",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Fleet"
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Health check: returns 200 when the database is reachable, 503 otherwise.\n\nResponse shape (200):\n    {\"status\": \"ok\"}\n\nResponse shape (503):\n    HTTPException detail \"Database unavailable\"\n\nThis endpoint is consumed by Docker health checks, Kubernetes liveness\nprobes, and load balancers.  It does NOT accept query parameters.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/v1/runs/{run_id}": {
+      "get": {
+        "description": "Return the full timeline for a single run: summary, stats, spans, anomalies.\n\nPath parameters:\n    run_id: The unique run identifier (UUID or tracing run ID).\n\nResponse shape (200):\n    ``RunTimelineResponse`` serialized with frontend-friendly aliases:\n    {\n        \"run\": { \"run_id\", \"agent_name\", \"estimated_cost_usd\", ... },\n        \"summary\": { \"tool_call_count\", \"loop_detected\", \"duration_ms\" },\n        \"spans\": [ { \"span_id\", \"parent_span_id\", \"operation_name\", ... } ],\n        \"anomalies\": [ { \"anomaly_id\", \"type\", \"severity\", ... } ]\n    }\n\nError case (404):\n    When no run with this ID exists in ``run_summaries``.  Returns a\n    JSON body with ``detail`` and ``code`` keys for structured frontend\n    error handling:\n    {\n        \"detail\": \"No run with this ID exists in the system\",\n        \"code\": \"run_not_found\"\n    }\n\nNote:\n    The ``spans`` list is currently empty; span-tree reconstruction from\n    telemetry data is planned for a future milestone.",
+        "operationId": "get_run_timeline",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Run Timeline",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Timeline"
+      }
+    },
+    "/api/v1/siem-health": {
+      "get": {
+        "description": "Return the SIEM sink health snapshot (targets + visible ``degraded``).\n\nReads an optional local snapshot written by the forwarding process. An absent\nfile is a neutral state (no targets, not degraded) \u2014 never an error.",
+        "operationId": "get_siem_health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Siem Health",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Siem Health"
+      }
+    }
+  }
+}

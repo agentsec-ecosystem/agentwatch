@@ -43,7 +43,8 @@
         "kind": "hook",
         "name": "claude-code"
       },
-      "step_type": "act"
+      "step_type": "act",
+      "permission_mode": "default"
     }
   ]
 }

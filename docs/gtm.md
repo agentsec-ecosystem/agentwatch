@@ -10,3 +10,54 @@
 
 **agentwatch-specific ask:** three demo sessions reproducible from the README, and a fresh-machine
 ≤15-minute recording proof.
+
+## v0.2.0 GTM (proposed)
+
+Positioning (one line): **agentwatch is the open, tamper-evident record layer for AI agents —
+standards-native (OTel GenAI, IETF AAT, OCSF), local-first, and forensic-grade. Enforcement tools act; agentwatch
+proves.**
+
+Timing: EU AI Act Art. 12 procurement is live (staged Dec 2027/Aug 2028); SOCs are being rebuilt around agent
+telemetry (Microsoft ISOC, Exabeam ABA, Menlo→Google SecOps); agent identity is a named national priority; and the
+big clouds validated the category in Sept 2026 while leaving the tamper-evident/open-evidence/local-first gaps open.
+
+Three launch stories (each demos <5 min, offline):
+
+| Story | Features | CUJ | Buyer |
+|---|---|---|---|
+| "Your auditor accepts your agent logs" | AAT export + compliance reports + signed chain | CUJ-15/18 | Compliance |
+| "Follow one action across every agent, host, and company" | trace correlation + identity + A2A | CUJ-16/20 | Security |
+| "Every coding agent on the team, one honest record" | Cursor/Gemini/Codex fidelity + live watching | CUJ-17 | Platform engineering |
+
+Adoption funnel: **try** (log-readers need no install) → **adopt** (Cursor hooks + Gemini recipe + `coverage`) →
+**expand** (fleet + streaming + gateway spend) → **anchor** (AAT export, evidence bundles, compliance reports,
+published detector numbers).
+
+Ecosystem sequencing (wave-0): agentpolicy (events + ACS interop + streaming; AAT `record_phase` makes denials
+provable) · agentdrill (export stability + unified SDK store + Cursor/Codex corpora) · agentcomply (provide
+verifiable primitives, let it own the workflow).
+
+Content plan: AAT implementation write-up (first-mover); "13M Cursor events, now with a hash chain" (vs Elastic's
+datapoint); the Codex #36937 HOME-deletion postmortem as the untrusted-data case study; the detector-honesty post;
+comparison-page refresh.
+
+Metrics (opt-in/voluntary only; no silent telemetry — anti-metric unchanged): installs, reader-tier usage,
+evidence/AAT exports, external adapter/reader PRs, detector reproduction rate.
+
+Launch gate: the three stories demo offline; no "modeled" Tier-1 rows; AAT verified by an external third-party
+consumer; claims ledger green; field-test report published; articles drafted.
+
+### v0.2.0-expanded GTM additions (PRD 49–59)
+
+**Fourth launch story — "Who approved it, and what code did it write?"** (demo <5 min, offline): authorization/oversight
+(`oversight`, CUJ-21) + code provenance (Agent Trace/git-ai interop, CUJ-22) + capability supply chain
+(`capability-changed`, CUJ-23). Buyer: security engineering + reviewers.
+
+Content plan additions: "Auto mode is the default; here's what your audit trail says about it" (data-driven via
+`oversight`); a Plugin4Shell-shape capability-drift demo; an Agent Trace / git-ai interoperability write-up; a
+zero-Docker console walkthrough ("<60 s, local-first, no services"). Positioning line unchanged; the fourth story
+strengthens "Enforcement tools act; agentwatch proves."
+
+**Try-before-install:** the static, synthetic [`examples/demo-bundle/`](../examples/demo-bundle/) opens offline
+(zero network, no account) and shows replay/impact/oversight/provenance — so an evaluator sees the value before
+wiring any hooks (DEMO-1).

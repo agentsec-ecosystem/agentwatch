@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentwatch.dev/schema/cli/v0.1.0/diff.schema.json",
+  "title": "agentwatch diff --json",
+  "description": "The behavioral diff of two sessions from `agentwatch diff <a> <b> --json`.",
+  "x-agentwatch-command": "diff",
+  "x-agentwatch-cli-version": "v0.1.0",
+  "type": "object",
+  "properties": {
+    "a": {
+      "type": "string"
+    },
+    "b": {
+      "type": "string"
+    },
+    "records_a": {
+      "type": "integer"
+    },
+    "records_b": {
+      "type": "integer"
+    },
+    "added_tools": {
+      "type": "array"
+    },
+    "removed_tools": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "a",
+    "b"
+  ]
+}

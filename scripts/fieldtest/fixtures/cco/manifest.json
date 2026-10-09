@@ -1,0 +1,12 @@
+{
+  "kind": "cco",
+  "version": "v0.2.0",
+  "source": "tests/fixtures/claude-otel + examples/fixtures",
+  "synthesized": false,
+  "secret_scanned": true,
+  "files": [
+    "agent_sdk_otel.json",
+    "permission_mode_changed.json",
+    "tool_decision_classifier.json"
+  ]
+}

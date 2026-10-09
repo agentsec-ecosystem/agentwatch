@@ -16,5 +16,6 @@ m13-agents/
 \.git/
 # Committed scan output (contains the fixture matches it reports on).
 docs/release/v0\.1\.0/security-scan/
+docs/release/v0\.2\.0/security-scan/
 # Public redaction corpus — synthetic, fabricated secret-shaped values (M30 RED-1).
 schema/vectors/redaction/

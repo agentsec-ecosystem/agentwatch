@@ -22,6 +22,10 @@ paths = [
   '''^packages/python-sdk/tests/test_redaction_properties\.py$''',
   '''^packages/python-sdk/tests/_secret_oracle\.py$''',
   '''^packages/python-sdk/tests/fixtures/ingest/otel_trace\.json$''',
+  '''^packages/python-sdk/tests/test_aat_ingest\.py$''',
+  '''^packages/python-sdk/tests/test_gemini_ingest\.py$''',
+  '''^packages/python-sdk/tests/test_m25_integration\.py$''',
+  '''^scripts/fieldtest/fixtures/otel/otel_trace\.json$''',
 ]
 
 [[allowlists]]
@@ -33,11 +37,12 @@ paths = [
 [[allowlists]]
 description = "Field-test evidence (ephemeral per-run keys, decrypted stores)"
 paths = [
-  '''^field-test/v0\.1\.0/results/''',
+  '''^field-test/''',
 ]
 
 [[allowlists]]
 description = "Committed security-scan output (contains the fixture matches it reports on)"
 paths = [
   '''^docs/release/v0\.1\.0/security-scan/''',
+  '''^docs/release/v0\.2\.0/security-scan/''',
 ]

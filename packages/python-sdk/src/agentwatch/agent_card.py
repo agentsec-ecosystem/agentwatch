@@ -23,8 +23,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from cryptography.exceptions import InvalidSignature
-
 KEYS_ENV = "AGENTWATCH_A2A_JWKS"
 
 _SUPPORTED_ALGS = frozenset({"EdDSA", "ES256", "RS256"})
@@ -147,6 +145,7 @@ def _public_key(spec: Any, alg: str) -> Any:
 
 
 def _verify_signature(public: Any, alg: str, signing_input: bytes, signature: bytes) -> bool:
+    from cryptography.exceptions import InvalidSignature
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding, rsa
 

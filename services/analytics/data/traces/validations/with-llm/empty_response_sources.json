@@ -1,0 +1,12 @@
+{
+  "count_by_source_file": {
+    "/var/folders/1y/8cvcsmv53m7c2gzqb6gp09p40000gn/T/tmpppkna66w/traces-0001.parquet": 1
+  },
+  "examples": [
+    {
+      "trace_id": "t1",
+      "run_id": "t1",
+      "source_file": "/var/folders/1y/8cvcsmv53m7c2gzqb6gp09p40000gn/T/tmpppkna66w/traces-0001.parquet"
+    }
+  ]
+}

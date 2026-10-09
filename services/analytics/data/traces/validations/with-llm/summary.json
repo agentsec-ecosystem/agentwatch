@@ -1,0 +1,80 @@
+{
+  "traces_processed": 1,
+  "traces_skipped_resume": 0,
+  "traces_with_anomalies": 1,
+  "anomaly_count": 2,
+  "anomaly_by_type": {
+    "empty_response": 1,
+    "hallucination": 1
+  },
+  "anomaly_by_severity": {
+    "warning": 1,
+    "critical": 1
+  },
+  "detector_fire_rate": {
+    "empty_response": 100.0,
+    "hallucination": 100.0
+  },
+  "suspicious_patterns": {
+    "empty_response": 100.0,
+    "hallucination": 100.0
+  },
+  "cross_detector_correlation": {
+    "top_co_fires": [
+      {
+        "pair": [
+          "empty_response",
+          "hallucination"
+        ],
+        "count": 1,
+        "pct": 100.0
+      },
+      {
+        "pair": [
+          "hallucination",
+          "empty_response"
+        ],
+        "count": 1,
+        "pct": 100.0
+      }
+    ],
+    "type_counts": {
+      "empty_response": 1,
+      "hallucination": 1
+    }
+  },
+  "skipped_detectors": {},
+  "detector_errors": {},
+  "llm_stats": {
+    "chat_calls": 1,
+    "embed_calls": 1,
+    "errors": 1,
+    "total_latency_ms": 5960.150290999081,
+    "cache_hits": 0,
+    "cache_misses": 1,
+    "prompt_tokens": 87,
+    "completion_tokens": 14,
+    "total_tokens": 101,
+    "json_parse_success": 1,
+    "json_parse_fail": 0
+  },
+  "llm_telemetry_summary": {
+    "total_calls": 1,
+    "latency_ms_p50": 5947.96,
+    "latency_ms_p95": 5947.96,
+    "latency_ms_p99": 5947.96,
+    "latency_ms_mean": 5947.96,
+    "latency_ms_min": 5947.96,
+    "latency_ms_max": 5947.96,
+    "total_prompt_tokens": 87,
+    "total_completion_tokens": 14,
+    "total_tokens": 101,
+    "avg_prompt_chars": 131.0,
+    "avg_completion_chars": 43.0,
+    "finish_reasons": {
+      "stop": null
+    },
+    "cache_hit_rate": 0.0,
+    "json_parse_rate": 1.0
+  }
+}

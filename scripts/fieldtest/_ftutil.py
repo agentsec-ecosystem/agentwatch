@@ -35,9 +35,14 @@ def records() -> list[dict]:
         if not line:
             continue
         try:
-            out.append(json.loads(line))
+            obj = json.loads(line)
         except json.JSONDecodeError:
-            pass
+            continue
+        # The store wraps each fact as {"seq","prev_hash","hash","record":{...}}.
+        if isinstance(obj, dict) and isinstance(obj.get("record"), dict):
+            out.append(obj["record"])
+        elif isinstance(obj, dict) and "tool" in obj:
+            out.append(obj)
     return out
 
 

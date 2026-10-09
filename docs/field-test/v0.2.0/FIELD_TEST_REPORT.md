@@ -1,9 +1,9 @@
 # agentwatch v0.2.0 — Field Test Report
 
 > **Generated:** 2026-10-08 — **partial run in progress** from `field-test/v0.2.0/results/` (batches 1–2 + the fixed defects).
-> **Overall:** 30 PASS · 2 FAIL · 61 not run · 1 N/A (94 v0.2.0 cases). Of the 30 PASS, deep analysis counts
-> **25 grounded · 5 over-claimed** — a `PASS` here means the case ran green, **not** that the claim is proven (see the
-> `Notes` column and the journal). The 2 FAIL are **hardening-in-progress** (FT-OTEL-4, FT-COD-1). Full S1–S15 re-run **not** finished.
+> **Overall:** 32 PASS · 0 FAIL · 61 not run · 1 N/A (94 v0.2.0 cases). Of the 32 PASS, deep analysis counts
+> **27 grounded · 5 over-claimed** — a `PASS` here means the case ran green, **not** that the claim is proven (see the
+> `Notes` column and the journal). Full S1–S15 re-run **not** finished.
 > **Structure:** mirrors the [v0.1.0 report](../v0.1.0/FIELD_TEST_REPORT.md) and the plan's §13 template,
 > extended for the v0.2.0 suites and the `P/F|D` declare class.
 
@@ -11,11 +11,11 @@
 
 ## BLUF + Release Gate Verdict
 
-**30 PASS · 2 FAIL · 61 not run · 1 N/A** — a **partial** run (batch 1, batch 2, and the fixed defects), not the
+**32 PASS · 0 FAIL · 61 not run · 1 N/A** — a **partial** run (batch 1, batch 2, and the fixed defects), not the
 final gate. This report is a **journal**: the Master Table `Status` is the raw verdict, while the `Notes` column and
-the journal record whether a PASS is *grounded* or *over-claimed*. Current tally: **25 grounded · 5 over-claimed**;
-the 2 FAIL are hardening-in-progress. The release-gate rows below are marked **provisional** and **must not be read
-as a green release** until every suite is run and every step strengthened.
+the journal record whether a PASS is *grounded* or *over-claimed*. Current tally: **27 grounded · 5 over-claimed**.
+The release-gate rows below are marked **provisional** and **must not be read as a green release** until every suite
+is run and every step strengthened.
 
 Two genuine release-gate defects were found by hardening and **fixed**: the missing Tempo second OTLP backend (R4) and
 the `gemini-cli` `modeled` Tier-1 matrix row. `FT-WIN-1` is retired (N/A — Windows unsupported).
@@ -24,10 +24,10 @@ the `gemini-cli` `modeled` Tier-1 matrix row. `FT-WIN-1` is retired (N/A — Win
 
 | | Count |
 |---|---|
-| PASS (raw verdict) | 30 |
-| — of which grounded | 25 |
+| PASS (raw verdict) | 32 |
+| — of which grounded | 27 |
 | — of which over-claimed (not yet hardened) | 5 |
-| FAIL (hardening in progress) | 2 |
+| FAIL | 0 |
 | not run | 61 |
 | N/A (retired) | 1 |
 
@@ -105,7 +105,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-CMP-2 | s5-identity | P/F | not run | fixed F-1a: `retention apply --profile general-6mo` enum |
 | FT-CMP-3 | s5-identity | P/F | not run | — |
 | FT-CNC-1 | s13-investigation | P/F\|D | not run | fixed F-1a: incident via case_incident.py (auto case id) |
-| FT-COD-1 | s3-harness | P/F | FAIL | ⚠ HARDENING IN PROGRESS (currently FAIL): `codex_check.py` failed on a dedup-key mismatch; corrected to `(session_id, span_id, step_type)` — re-run pending |
+| FT-COD-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): `codex_check.py` asserts dedup on the reader's `(session_id, span_id, step_type)` key + no duplicate signatures (after fixing the store-unwrap bug) |
 | FT-COR-1 | s4-detectors | P/F | not run | — |
 | FT-COR-2 | s4-detectors | P/F | not run | — |
 | FT-CUR-1 | s3-harness | P/F\|D | PASS | HARDENED (confirmed PASS): `ingest-fixture` now compares every event to the fixture's `expected` canonical record (per-event fidelity) |
@@ -146,8 +146,8 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-NTF-1 | s14-outcomes | P/F\|D | not run | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
 | FT-OTEL-1 | s2-interop | P/F | PASS | HARDENED: `otel-probe --tree` emits a real parent/child agent-span tree; `otel_tree_check.py` asserts the CHILD_OF tree in Jaeger AND Tempo → PASS |
 | FT-OTEL-2 | s2-interop | P/F | PASS | HARDENED: `otel_grpc_stream.py` honors `--mb`; streamed 102400 spans (~100 MiB), peak child RSS 51 MiB → PASS |
-| FT-OTEL-3 | s2-interop | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py` now asserts no content fields on metadata-only records (+ `verify-privacy`) |
-| FT-OTEL-4 | s2-interop | P/F\|D | FAIL | ⚠ HARDENING IN PROGRESS (currently FAIL): `skill_spans.py` found no OTLP span mapped (store `tools=[None]`); driver rewritten to assert spanId/traceId mapping from the OTLP fixture — re-run pending |
+| FT-OTEL-3 | s2-interop | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py` asserts no content on metadata-only *tool calls* (`step_type` set; control-plane markers excluded) + `verify-privacy` |
+| FT-OTEL-4 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `skill_spans.py` asserts OTLP spans map from the fixture by spanId/traceId (after fixing the store-unwrap bug) |
 | FT-OUT-1 | s14-outcomes | P/F\|D | not run | — |
 | FT-OUT-2 | s14-outcomes | P/F\|D | not run | — |
 | FT-PG-1 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `pg_rebuild.py` runs `index rebuild` twice and asserts byte-identical output + sha256 |
@@ -175,7 +175,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): `--cross-parser` still asserts only ≥2 adapters |
 | FT-XHT-4 | s3-harness | P/F | PASS | FIXED: same declared row; re-run PASS (fresh stack) |
 
-**Totals:** 30 PASS · 2 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
+**Totals:** 32 PASS · 0 FAIL · 61 not run · 1 N/A  (of 94 v0.2.0 cases).
 
 ## Per-Suite Results
 
@@ -185,11 +185,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 ### s2-interop
 
-12 case(s): 11 PASS · 1 FAIL · 0 not run · 0 N/A
+12 case(s): 12 PASS · 0 FAIL · 0 not run · 0 N/A
 
 ### s3-harness
 
-14 case(s): 13 PASS · 1 FAIL · 0 not run · 0 N/A
+14 case(s): 14 PASS · 0 FAIL · 0 not run · 0 N/A
 
 ### s4-detectors
 
@@ -295,44 +295,13 @@ under `docs/assets/screenshots`. Fixing the harness (host CLI invocation, buffer
 
 ## Root Cause Analysis
 
-### FT-COD-1 — Codex rollout reader (dedup, .zst, dangling)
-
-- **Suite:** s3-harness · **Class:** P/F
-- **Failed assertions:** codex-rollout
-- **Evidence:** `field-test/v0.2.0/results/s3-harness/cases/FT-COD-1`
-- **stderr (tail):**
-
-```
- Container agentwatch-recorder-1 Restarting 
- Container agentwatch-recorder-1 Started 
-fail: 4 duplicate record(s) survived dedup
-```
-
-- **Cause:** TBD (from the evidence above)
-- **Fix / regression:** TBD
-
-### FT-OTEL-4 — Skill / command-execution agent-span mapping
-
-- **Suite:** s2-interop · **Class:** P/F|D
-- **Failed assertions:** skill-spans
-- **Evidence:** `field-test/v0.2.0/results/s2-interop/cases/FT-OTEL-4`
-- **stderr (tail):**
-
-```
- Container agentwatch-recorder-1 Restarting 
- Container agentwatch-recorder-1 Started 
-fail: no OTLP fixture span mapped into the store (store tools=[None], ops=['execute_tool', 'invoke_agent'])
-```
-
-- **Cause:** TBD (from the evidence above)
-- **Fix / regression:** TBD
+No failures recorded.
 
 ## Defect Catalogue
 
 | Case | Suite | Failed assertions | Evidence |
 |---|---|---|---|
-| FT-COD-1 | s3-harness | codex-rollout | `field-test/v0.2.0/results/s3-harness/cases/FT-COD-1` |
-| FT-OTEL-4 | s2-interop | skill-spans | `field-test/v0.2.0/results/s2-interop/cases/FT-OTEL-4` |
+| — | — | — | — |
 
 ## Deep Analysis Notes — Final Re-run (journal)
 
@@ -452,9 +421,9 @@ captured artifact gives the split below.
 | FT-XHT-2 | `xht_replay --opencode` — flag ignored; generic replay | ⚠ over-claimed |
 | FT-XHT-3 | `xht_replay --cross-parser` — asserts ≥2 registered adapters only | ⚠ over-claimed |
 
-**Summary:** 5 grounded (FT-TRACE-1/2, FT-PG-2, FT-MCP-2, FT-XHT-1), 2 partial (FT-OTEL-3, FT-LOG-1), and
-**13 over-claimed** run-only (FT-OTEL-4, FT-PG-1, FT-PG-3, FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1,
-FT-STR-1/2, FT-LG-1, FT-XHT-2/3).
+**Summary (pre-hardening):** 5 grounded (FT-TRACE-1/2, FT-PG-2, FT-MCP-2, FT-XHT-1), 2 partial (FT-OTEL-3, FT-LOG-1),
+and **13 over-claimed** run-only (FT-OTEL-4, FT-PG-1, FT-PG-3, FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1,
+FT-STR-1/2, FT-LG-1, FT-XHT-2/3). See *Batch 2 — hardening status* below for the post-hardening outcome.
 
 **Sharpest findings:**
 - **FT-XHT-2 / FT-XHT-3 are near-vacuous:** `xht_replay.py` handles only `--self-test` and `--cross-parser`;
@@ -476,9 +445,15 @@ Outcome of hardening the 20 batch-2 cases:
 | Group | Cases | Count |
 |---|---|---|
 | Grounded (no change needed) | FT-TRACE-1, FT-TRACE-2, FT-PG-2, FT-MCP-2, FT-XHT-1 | 5 |
-| **Hardened + re-run GREEN (confirmed)** | FT-CUR-1, FT-CUR-2, FT-GEM-1, FT-MCP-1, FT-OTEL-3, FT-PG-1, FT-PG-3, FT-LOG-1 | 8 |
-| Hardened but **STILL FAILING** (fix not yet re-run/confirmed) | FT-OTEL-4, FT-COD-1 | 2 |
+| **Hardened + re-run GREEN (confirmed)** | FT-CUR-1, FT-CUR-2, FT-GEM-1, FT-MCP-1, FT-OTEL-3, FT-OTEL-4, FT-PG-1, FT-PG-3, FT-COD-1, FT-LOG-1 | 10 |
 | **NOT hardened (still over-claimed)** | FT-STR-1, FT-STR-2, FT-LG-1, FT-XHT-2, FT-XHT-3 | 5 |
+
+**A harness bug found only by hardening the drivers:** the store JSONL wraps each fact as
+`{"seq","prev_hash","hash","record":{…}}`, but `_ftutil.records()` returned the outer wrapper — so any driver
+reading `tool`/`span_id`/`step_type` saw `None` and asserted nothing. This silently made FT-OTEL-3 vacuous on the
+first attempt and broke FT-OTEL-4/FT-COD-1. `_ftutil.records()` now unwraps `record`, and the affected cases
+(FT-OTEL-3/4, FT-COD-1) were re-run to green. **Lesson: a driver that reads the store is only trustworthy once it
+has been shown to read a non-empty field.**
 
 What the 8 confirmed fixes now assert: per-event `expected` fidelity (CUR-1/2, GEM-1, MCP-1); no content on
 metadata-only records (OTEL-3); byte-identical index rebuild + sha256 (PG-1); the union integrity distinction
@@ -734,8 +709,16 @@ Product suite: `packages/python-sdk/tests/test_compatibility.py` — 9 passed af
   `(session_id, span_id, step_type)`; FT-OTEL-4 asserted on `operationName` when the ingest maps span attributes.
 - **Some drivers silently ignore their own flags** (`--opencode`, `--budget-ms`) — a reliable tell that the case
   is over-claimed; still true for FT-STR-1/2, FT-LG-1, FT-XHT-2/3.
-- **Hardening is not done until it is re-run and green:** of the batch-2 hardening, **8/20 are confirmed**,
-  **2/20** (FT-OTEL-4, FT-COD-1) were still red at last run, and **5/20** are not yet hardened.
+- **Store-wrapper bug made drivers vacuous.** The store wraps each fact as `{"seq","record":{…}}`; `_ftutil.records()`
+  returned the wrapper, so drivers reading `tool`/`span_id`/`step_type` saw `None`. This made the first FT-OTEL-3
+  "confirmation" hollow and broke FT-OTEL-4/FT-COD-1 until `records()` unwrapped `record`. A driver is not trustworthy
+  until it is shown to read a non-empty field.
+- **Content-check false positive.** FT-OTEL-3's first real run flagged `privacy-mode-changed` / `retention-changed` /
+  `export-configured` — control-plane markers whose `arguments` are their own metadata, not user content; the check is
+  now scoped to records with a `step_type`.
+- **Hardening is not done until it is re-run and green:** of batch-2's 20, **10 are confirmed** (CUR-1/2, GEM-1,
+  MCP-1, OTEL-3/4, PG-1/3, COD-1, LOG-1), **5 were already grounded**, and **5 are not yet hardened** (STR-1/2,
+  LG-1, XHT-2/3). Several first attempts were red and only went green after a further fix.
 
 ### Harness vs product
 
@@ -762,6 +745,17 @@ FT-COD-1) are still driver-side.
    honest: once the LUI-1 harness was correct, it surfaced **1 real product defect** (the console `<main>` landmark).
 6. **`declared` is not "done".** No case may end as "not run" for a harness reason.
 7. **Reset docker every case.** v0.1.0's per-case `down -v` is the correct method.
+8. **A driver that reads the store must be shown to read a non-empty field.** The store wraps each fact as
+   `{"seq","prev_hash","hash","record":{…}}`; returning the wrapper makes every `tool`/`span_id`/`step_type` check
+   `None` — a silent no-op that made FT-OTEL-3 vacuous and broke FT-OTEL-4/FT-COD-1.
+9. **Harden against the shipped design, not the plan's prose, when they disagree** (FT-PG-3: `union.py` marks SDK
+   records read-only) — encode the real behaviour and record the divergence rather than the wrong claim.
+10. **A flag the driver ignores is a strong over-claim tell** (`--mb` ignored; `--budget-ms` ignored; `--opencode`
+    ignored).
+11. **Fixtures carry their own oracle** — the `expected` canonical record per event grounds adapter fidelity cheaply
+    (CUR-1/2, GEM-1, MCP-1).
+12. **Iterate and re-run:** first hardening attempts are often wrong (wrong field, wrong dedup key, wrong fixture
+    format); a fix is only real when the case is re-run green.
 
 
 ## Takeaways

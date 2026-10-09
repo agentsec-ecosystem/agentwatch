@@ -1,3 +1,2 @@
  Container agentwatch-recorder-1 Restarting 
  Container agentwatch-recorder-1 Started 
-fail: no OTLP fixture span mapped into the store (store tools=[None], ops=['execute_tool', 'invoke_agent'])

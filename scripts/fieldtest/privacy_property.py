@@ -12,10 +12,16 @@ def main(argv: list[str]) -> int:
     leaks: list[str] = []
     for r in records():
         tool = r.get("tool") or {}
-        if what == "content" and tool.get("privacy_mode") == "metadata-only":
-            # Under metadata-only there must be no captured content anywhere.
-            if tool.get("arguments") or tool.get("response") or tool.get("content"):
-                leaks.append(str(r.get("session_id")))
+        # Only captured *tool calls* carry user content; recorder control-plane
+        # markers (privacy-mode-changed, retention-changed, …) legitimately carry
+        # their own arguments and have no step_type.
+        if (
+            what == "content"
+            and tool.get("privacy_mode") == "metadata-only"
+            and r.get("step_type") in ("act", "observe")
+            and (tool.get("arguments") or tool.get("response") or tool.get("content"))
+        ):
+            leaks.append(str(r.get("session_id")))
         if what == "identity" and (r.get("identity") or {}).get("secret"):
             leaks.append(str(r.get("session_id")))
     if leaks:

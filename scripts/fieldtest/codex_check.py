@@ -10,24 +10,14 @@ from pathlib import Path
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-from _ftutil import fail, ok  # noqa: E402
+from _ftutil import fail, ok, records  # noqa: E402
 
 FIXTURE = Path("/ft/fixtures/codex")
 STORE = Path("/data/agentwatch/records.jsonl")
 
 
 def _store_records() -> list[dict]:
-    if not STORE.exists():
-        return []
-    out = []
-    for line in STORE.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line:
-            try:
-                out.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
-    return out
+    return records()
 
 
 def main(argv: list[str]) -> int:

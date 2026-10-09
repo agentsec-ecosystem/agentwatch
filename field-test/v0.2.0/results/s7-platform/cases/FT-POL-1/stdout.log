@@ -21,3 +21,6 @@ agentwatch: wrote advisory policy suggestion to /tmp/proposed.json
   "authorization_differences": [],
   "unsupported": []
 }
+....................                                                     [100%]
+20 passed in 1.77s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_policy_suggest.py packages/python-sdk/tests/test_policy_whatif.py

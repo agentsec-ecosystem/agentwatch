@@ -1,1 +1,4 @@
 DO
+....                                                                     [100%]
+4 passed in 0.09s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_credential_hygiene.py

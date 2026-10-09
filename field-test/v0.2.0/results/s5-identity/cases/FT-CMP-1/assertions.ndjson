@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"compliance-report","ok":true}
+{"name":"compliance-semantics","ok":true}

@@ -1083,7 +1083,7 @@
     "prd": "IDN-3,DD-07",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"credential-hygiene\" \"agentwatch search --identity user --json\"\n",
+    "steps": "ft_assert_recorder \"credential-hygiene\" \"agentwatch search --identity user --json\"\nft_assert \"credential-hygiene-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_credential_hygiene.py\n",
     "recycle": false
   },
   {
@@ -1096,7 +1096,7 @@
     "prd": "CMP-1/2",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"compliance-report\" \"agentwatch compliance report --framework iso-42001 --period Q3-2026 --out /tmp/audit\"\n",
+    "steps": "ft_assert_recorder \"compliance-report\" \"agentwatch compliance report --framework iso-42001 --period Q3-2026 --out /tmp/audit\"\nft_assert \"compliance-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_compliance.py packages/python-sdk/tests/test_compliance_docs.py\n",
     "recycle": false
   },
   {
@@ -1174,7 +1174,7 @@
     "prd": "GWY-1/2",
     "class": "P/F",
     "suite": "s6-surfaces",
-    "steps": "ft_assert_recorder \"gateway-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind gateway --corpus /ft/fixtures/gateway\"\nft_assert_recorder \"cost-exact-vs-estimated\" \"agentwatch cost --json | grep -Eq 'exact|estimated'\"\n",
+    "steps": "ft_assert_recorder \"gateway-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind gateway --corpus /ft/fixtures/gateway\"\nft_assert_recorder \"cost-exact-vs-estimated\" \"agentwatch cost --json | grep -Eq 'exact|estimated'\"\nft_assert \"gateway-cost-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_gateway_cost.py\n",
     "recycle": false
   },
   {
@@ -1304,7 +1304,7 @@
     "prd": "POL-1/2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"suggest-policy-no-write\" \"cd /tmp && rm -f proposed.json && agentwatch suggest-policy --since 30d --target claude-settings --out /tmp/proposed.json && test -s /tmp/proposed.json\"\nft_assert_recorder \"what-if\" \"agentwatch what-if /tmp/proposed.json --since 30d --json\"\n",
+    "steps": "ft_assert_recorder \"suggest-policy-no-write\" \"cd /tmp && rm -f proposed.json && agentwatch suggest-policy --since 30d --target claude-settings --out /tmp/proposed.json && test -s /tmp/proposed.json\"\nft_assert_recorder \"what-if\" \"agentwatch what-if /tmp/proposed.json --since 30d --json\"\nft_assert \"policy-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_policy_suggest.py packages/python-sdk/tests/test_policy_whatif.py\n",
     "recycle": false
   },
   {
@@ -1356,7 +1356,7 @@
     "prd": "CCO-2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"agent-sdk-native\" \"python3 /ft/scripts/ingest-fixture.py --kind cco\"\n",
+    "steps": "ft_assert_recorder \"agent-sdk-native\" \"python3 /ft/scripts/ingest-fixture.py --kind cco\"\nft_assert \"agent-sdk-native-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_claude_agent_sdk.py\n",
     "recycle": false
   },
   {

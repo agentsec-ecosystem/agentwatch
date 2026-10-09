@@ -105,9 +105,9 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-CAP-2 | s9-capability | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
 | FT-CCA-1 | s6-surfaces | P/F | PASS | — |
 | FT-CCO-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): `native-otel-join.py` asserts coverage carries the classified join summary after claude-otel ingest; shipped `test_claude_otel.py` covers join-by-`tool_use_id` + discrepancy classification (was exit-0 + loose grep) |
-| FT-CCO-2 | s7-platform | P/F | PASS | — |
+| FT-CCO-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_claude_agent_sdk.py` — `producer.name=sdk-native` + identity from resource attributes (was ingest exit-0) |
 | FT-CLAIM-1 | s15-hostile | P/F | PASS | HARDENED (confirmed PASS): `claims_ledger_check.py` asserts every claim has claim/source/evidence + the generated table + known-limitations (was `json.tool`) |
-| FT-CMP-1 | s5-identity | P/F | PASS | — |
+| FT-CMP-1 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_compliance.py` + `test_compliance_docs.py` — every row control→evidence→verdict, never certifies, doc links resolve (was report exit-0) |
 | FT-CMP-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `signed_default.py` asserts `doctor` surfaces the signing key id+epoch + the store verifies; shipped `test_signing_posture.py` covers tamper + missing-key (was export/verify/doctor exit-0) |
 | FT-CMP-3 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `compliance_templates.py` asserts each of the 5 templates writes a non-empty report; `checkpoint_rotate.py` asserts the `key-rotation` chain event matches the reported key id; shipped `test_signing_posture.py` (was exit-0 + loose event grep) |
 | FT-CNC-1 | s13-investigation | P/F\|D | PASS | fixed F-1a: incident via case_incident.py (auto case id) |
@@ -134,12 +134,12 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-FWK-2 | s7-platform | P/F | PASS | fixed F-1c: `detect_installed()` iterable |
 | FT-GEM-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the gemini corpus |
 | FT-GOV-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `tests/test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` (codemod + unregistered-plugin rejection) (was `import` only) |
-| FT-GWY-1 | s6-surfaces | P/F | PASS | — |
+| FT-GWY-1 | s6-surfaces | P/F | PASS | HARDENED (confirmed PASS): shipped `test_gateway_cost.py` — exact gateway usage preferred + each cost row stamped exact/estimated (was ingest + `grep exact\|estimated`) |
 | FT-HLD-1 | s12-governance | P/F | PASS | fixed F-1a: `hold add --reason` |
 | FT-HOSTILE-1 | s15-hostile | P/F | PASS | fixed F-1b: hostile ingest via a real `--format` |
 | FT-IDN-1 | s5-identity | P/F | PASS | ✅ fixed (F-4a): driver's `--attribution` mode seeds a multi-agent chain with `principal` + `delegation_chain`; `trace`/`impact`/`tree`/`blame` answer identity + delegation (or honest `unknown`) in one command |
 | FT-IDN-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py --what identity` scans every identity string field for secret material (regex) + `verify-privacy` |
-| FT-IDN-3 | s5-identity | P/F | PASS | fixed F-1a: `search --identity user` value |
+| FT-IDN-3 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_credential_hygiene.py` — `credential_class` exported as a span attribute; ambient/shared flagged, absent never invented (was `search --identity user` exit-0) |
 | FT-IR-1 | s13-investigation | P/F | PASS | HARDENED (confirmed PASS): `case_incident.py` asserts the merged timeline states its ordering rule + is ordered + carries gaps, and the exported bundle verifies offline; shipped `test_incident_cases.py` covers gap classification (was create/show/export exit-0) |
 | FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs a real LangGraph / raw-Python SDK driver — not available in this environment |
 | FT-LOG-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-file assertion — each log reader must produce ≥1 record |
@@ -159,7 +159,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-PG-1 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `pg_rebuild.py` runs `index rebuild` twice and asserts byte-identical output + sha256 |
 | FT-PG-2 | s2-interop | P/F\|D | PASS | ✓ grounded: cross-tenant `search` returns empty + coverage |
 | FT-PG-3 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `sdk_emit.py` asserts the union integrity distinction (hook chain-protected, SDK read-only) + verify-store |
-| FT-POL-1 | s7-platform | P/F | PASS | fixed F-1a: `what-if <policy_file>` positional |
+| FT-POL-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_policy_suggest.py` + `test_policy_whatif.py` — never-allow classes stay ask, broad-rule lint, writes only `--out`, deterministic simulation (was `--out` + what-if exit-0) |
 | FT-PRV-1 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
 | FT-PRV-2 | s10-provenance | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
 | FT-PRV-3 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
@@ -524,14 +524,14 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s4 | FT-RED-1 | ✅ G | done — shipped redact-eval test |
 | s5 | FT-IDN-1 | G | — (fleet-run asserts identity + delegation) |
 | s5 | FT-IDN-2 | ✅ G | done — identity secret scan |
-| s5 | FT-IDN-3 | R | `search --identity user` exit 0; assert `credential_class: ambient/shared` fires with precision/recall |
-| s5 | FT-CMP-1 | R | `compliance report` exit 0; regenerate one row's cited command; assert zero unverifiable claims |
+| s5 | FT-IDN-3 | ✅ G | done — shipped credential-hygiene test |
+| s5 | FT-CMP-1 | ✅ G | done — shipped compliance + docs tests |
 | s5 | FT-CMP-2 | ✅ G | done — doctor signing posture + shipped test |
 | s5 | FT-CMP-3 | ✅ G | done — templates write + rotation event + shipped test |
 | s5 | FT-SIEM-1 | ✅ G | done — shipped siem tests |
 | s5 | FT-ASI-1 | ✅ G | done — shipped compliance-asi test |
 | s6 | FT-A2A-1 | G | — (a2a_roundtrip asserts an unverified card never verifies) |
-| s6 | FT-GWY-1 | R | ingest exit 0 + `grep exact\|estimated`; assert cost source-stamped per record |
+| s6 | FT-GWY-1 | ✅ G | done — shipped gateway-cost test |
 | s6 | FT-SYS-1 | ✅ G | done — shipped system-ingest test |
 | s6 | FT-CCA-1 | R | ingest exit 0; assert consent gating + pull recorded as `store-access` |
 | s6 | FT-ACS-1 | ✅ G | done — shipped acs-ingest test |
@@ -541,11 +541,11 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s7 | FT-GOV-1 | ✅ G | done — shipped codemod + conformance tests |
 | s7 | FT-AGI-1 | G | — (mcp_readonly asserts no write tool) |
 | s7 | FT-AGI-2 | ✅ G | done — documented answers + shipped schema guard |
-| s7 | FT-POL-1 | R | `suggest-policy` writes `--out` (real) + `what-if`; assert **no write outside `--out`** + broad-rule lint |
+| s7 | FT-POL-1 | ✅ G | done — shipped policy tests |
 | s7 | FT-FWK-1 | ✅ G | done — recipe integrity + shipped test |
 | s7 | FT-FWK-2 | R | `instrument_detect.py`; assert detected frameworks + gaps (no silent partial) |
 | s7 | FT-CCO-1 | ✅ G | done — coverage join + shipped test |
-| s7 | FT-CCO-2 | R | `ingest-fixture --kind cco`; assert `source: sdk-native` + identity from resource attributes |
+| s7 | FT-CCO-2 | ✅ G | done — shipped claude-agent-sdk test |
 | s7 | FT-TSS-1 | V | `grep -q TSS-1 <wbs>`; link the spike report and assert its findings produced M31 tickets |
 | s8 | FT-APV-1/2/3 | R | `oversight-corpus.py` runs `oversight --json`; assert no auto/bypass misreported as `user` + mode transitions |
 | s9 | FT-CAP-1 | R | `capability-drift.py --kind drift`; assert scope+digest + "content changed, version unchanged" class |
@@ -604,6 +604,11 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-ASI-1 | shipped `test_compliance_asi.py` | PASS |
 | FT-SYS-1 | shipped `test_system_ingest.py` | PASS |
 | FT-ACS-1 | shipped `test_acs_ingest.py` | PASS |
+| FT-IDN-3 | shipped `test_credential_hygiene.py` | PASS |
+| FT-CMP-1 | shipped `test_compliance.py` + `test_compliance_docs.py` | PASS |
+| FT-GWY-1 | shipped `test_gateway_cost.py` | PASS |
+| FT-CCO-2 | shipped `test_claude_agent_sdk.py` | PASS |
+| FT-POL-1 | shipped `test_policy_suggest.py` + `test_policy_whatif.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Hardening patterns (the common shapes)

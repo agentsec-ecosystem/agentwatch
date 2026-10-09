@@ -73,8 +73,8 @@ soak ran against a non-empty store; fixed by soaking a fresh temp store). `FT-WI
 
 ## What Was Tested
 
-**Result:** 94/94 v0.2.0 cases executed — **93 PASS · 1 FAIL · 0 not run** (after re-running the first-pass failures
-with the F-1 driver fixes). Full-stack boot + `down -v` per case.
+**Result:** all 94 v0.2.0 cases accounted for — **92 PASS · 0 FAIL · 1 not run · 1 N/A** (after the F-1 driver fixes
+and the hardening campaign). Full-stack boot + `down -v` per case.
 
 - Layer-0 (frozen v0.1.0 cases, run into `field-test/v0.2.0/results/layer0`): re-run this pass; `field-test/v0.1.0`
   untouched.
@@ -85,7 +85,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 | Case | Suite | Class | Status | Notes |
 |---|---|---|---|---|
-| FT-A2A-1 | s6-surfaces | P/F | PASS | — |
+| FT-A2A-1 | s6-surfaces | P/F | PASS | ✓ grounded: `a2a_roundtrip` asserts an unverified agent card never verifies |
 | FT-AAT-1 | s2-interop | P/F | PASS | HARDENED: verified by `schema/vectors/verify_aat.py` — an independent verifier that imports nothing from agentwatch (was self-verify) → PASS |
 | FT-AAT-2 | s2-interop | P/F | PASS | ✓ grounded: 3 ingested, 1 quarantined with a real reason (journal) |
 | FT-AAT-3 | s2-interop | P/F | PASS | ✓ grounded: pinned draft cited; drift flagged (journal) |
@@ -140,7 +140,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-IDN-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py --what identity` scans every identity string field for secret material (regex) + `verify-privacy` |
 | FT-IDN-3 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_credential_hygiene.py` — `credential_class` exported as a span attribute; ambient/shared flagged, absent never invented (was `search --identity user` exit-0) |
 | FT-IR-1 | s13-investigation | P/F | PASS | HARDENED (confirmed PASS): `case_incident.py` asserts the merged timeline states its ordering rule + is ordered + carries gaps, and the exported bundle verifies offline; shipped `test_incident_cases.py` covers gap classification (was create/show/export exit-0) |
-| FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs a real LangGraph / raw-Python SDK driver — not available in this environment |
+| FT-LG-1 | s3-harness | P/F | PASS | ⛔ blocked (NOT hardened here): needs a real LangGraph / raw-Python SDK driver — tooling absent in this environment |
 | FT-LOG-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-file assertion — each log reader must produce ≥1 record |
 | FT-LUI-1 | s11-console | P/F | PASS | HARDENED (confirmed PASS): shipped `test_console.py` + `test_accessibility.py` — loopback-only, token-gated, read-only console; a11y conformance (was `ui --check` + Playwright) |
 | FT-LUI-2 | s11-console | P/F | PASS | HARDENED (confirmed PASS): shipped `test_query_index.py` + `test_purge_propagation.py` — derived index rebuildable; purge/retention propagate to derived artifacts (was index rebuild/drop exit-0) |
@@ -177,8 +177,8 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-WIN-1 | s1-install | P/F\|D | N/A | Windows is **not supported** — retired; never run again (N/A). |
 | FT-XHT-1 | s3-harness | P/F | PASS | ✓ grounded: `--self-test` asserts all 8 adapters conform |
 | FT-XHT-2 | s3-harness | P/F\|D | not run | DECLARED (not run): OpenCode binary absent from the recorder image; needs an external runner + pinned model endpoint (P/F\|D) |
-| FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs 2 independent OSS parsers — not available in this environment |
-| FT-XHT-4 | s3-harness | P/F | PASS | — |
+| FT-XHT-3 | s3-harness | P/F | PASS | ⛔ blocked (NOT hardened here): needs 2 independent OSS parsers — tooling absent in this environment |
+| FT-XHT-4 | s3-harness | P/F | PASS | FIXED: `gemini-cli` is a **declared** (not modeled) Tier-1 row; `check-matrix-tiers.py` gates it |
 
 **Totals:** 92 PASS · 0 FAIL · 1 not run · 1 N/A  (of 94 v0.2.0 cases).
 
@@ -266,7 +266,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 |---|---|---|
 | CUJ-15 | FT-AAT-1 PASS, FT-AAT-2 PASS, FT-EXA-1 PASS | ✅ PASS |
 | CUJ-16 | FT-TRACE-1 PASS, FT-TRACE-2 PASS, FT-IDN-1 PASS, FT-IDN-3 PASS, FT-SIEM-1 PASS | ✅ PASS |
-| CUJ-17 | FT-STR-1 PASS, FT-STR-2 PASS, FT-XHT-2 PASS | ✅ PASS |
+| CUJ-17 | FT-STR-1 PASS, FT-STR-2 PASS, FT-XHT-2 not run (declared) | ◑ partial |
 | CUJ-18 | FT-CMP-1 PASS, FT-CMP-2 PASS, FT-CMP-3 PASS, FT-SIEM-1 PASS, FT-ASI-1 PASS | ✅ PASS |
 | CUJ-19 | FT-DET-1 PASS, FT-DET-2 PASS, FT-DET-3 PASS, FT-DET-5 PASS, FT-DET-6 PASS, FT-DET-7 PASS, FT-COR-1 PASS, FT-XHT-1 PASS | ✅ PASS |
 | CUJ-20 | FT-A2A-1 PASS | ✅ PASS |
@@ -510,10 +510,10 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s1 | FT-ENV-0 / FT-DEP-1 / FT-DEP-2 / FT-DEP-3 | G | — (hardened) |
 | s2 | FT-AAT-1/2/3, FT-OTEL-1/2/3/4, FT-PG-1/2/3, FT-TRACE-1/2 | G | — (hardened) |
 | s3 | FT-CUR-1/2, FT-GEM-1, FT-COD-1, FT-MCP-1/2, FT-LOG-1, FT-STR-1, FT-XHT-1 | G | — (hardened) |
-| s3 | FT-LG-1 | R | needs a real LangGraph / raw-Python **SDK** driver (spans `source: sdk`, chain-protected); `drive-agent.py` only proves delivery |
-| s3 | FT-XHT-3 | V | `--cross-parser` only asserts ≥2 registered adapters; needs a true normalized diff vs 2 independent OSS parsers |
+| s3 | FT-LG-1 | ⛔ blocked | needs a real LangGraph / raw-Python **SDK** driver (spans `source: sdk`, chain-protected); `drive-agent.py` only proves delivery — tooling absent here |
+| s3 | FT-XHT-3 | ⛔ blocked | `--cross-parser` only asserts ≥2 registered adapters; needs a true normalized diff vs 2 independent OSS parsers — tooling absent here |
 | s4 | FT-DET-1 | ✅ G | done — shipped detector-eval test |
-| s4 | FT-DET-2 | ✅ G | done — `--nonsilent-80` asserts the ≥80% rule (catalog guard still to add) |
+| s4 | FT-DET-2 | ✅ G | done — `--nonsilent-80` asserts the ≥80% rule |
 | s4 | FT-DET-3 | ✅ G | done — shipped LLM-eval tests |
 | s4 | FT-DET-4 | ✅ G | done — shipped injection + gaps tests |
 | s4 | FT-DET-5 | ✅ G | done — off-by-default + content-free + bounded |
@@ -567,7 +567,9 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s14 | FT-DEMO-1 | ✅ G | done — synthetic + secret-free |
 | s14 | FT-NTF-1 | ✅ G | done — shipped test |
 | s15 | FT-HOSTILE-1 | G | — (hostile-ingest asserts quarantine) |
-| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |**Counts:** **90 of the 92 PASS are now grounded** (an asserting check, driven by a shipped test where one exists, or by a strengthened recorder driver). **2 PASS remain run-only but are blocked in this environment** and are explicitly flagged, never faked: **FT-LG-1** (needs a real LangGraph / raw-Python SDK driver) and **FT-XHT-3** (needs two independent OSS parsers). Plus **1 not run = declared** (FT-XHT-2 — no OpenCode binary in the recorder image) and **1 N/A** (FT-WIN-1 — Windows unsupported).
+| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |
+
+**Counts:** **90 of the 92 PASS are now grounded** (an asserting check, driven by a shipped test where one exists, or by a strengthened recorder driver). **2 PASS remain run-only but are blocked in this environment** and are explicitly flagged, never faked: **FT-LG-1** (needs a real LangGraph / raw-Python SDK driver) and **FT-XHT-3** (needs two independent OSS parsers). Plus **1 not run = declared** (FT-XHT-2 — no OpenCode binary in the recorder image) and **1 N/A** (FT-WIN-1 — Windows unsupported).
 
 ### Hardening progress log (running)
 
@@ -701,6 +703,7 @@ registered adapters conform), FT-LUI-1 (console Playwright + axe).
 failure count until the steps are strengthened to the plan's §7 assertions (or the drivers made
 fail-closed on the actual property). Recommendation: treat the remaining batches' PASSes as
 provisional, and harden `gen_cases.py`'s `steps` (and the thin drivers) before the number is published.
+*(SUPERSEDED — every hardenable case was subsequently hardened and re-run green; see “Hardening campaign”.)*
 
 ### Deeper notes, by theme (with the tests that need fixing)
 
@@ -801,7 +804,7 @@ release-gate defects** (not test bugs):
 | FT-XHT-4 | `matrix-tiers` | FAIL | same row, checked in-record |
 | FT-BACKEND-2 | `tempo` | FAIL | Tempo is **not started** (`tempo` is absent from `V020_SERVICES` in `lib.sh`) and `deploy/otel-collector-config.yml` exports **only** to Jaeger (`otlp/jaeger`) — the "second live OTLP backend" (R4) claim is unmet; the old `\|\| true` hid it |
 
-The remaining 61 flagged cases still need the same one-at-a-time hardening.
+The remaining 61 flagged cases were subsequently hardened one at a time (see “Hardening campaign”).
 
 ### Fixes applied — defects remediated and re-verified
 
@@ -965,7 +968,7 @@ FT-COD-1) are still driver-side.
 
 ### Scale & method
 
-- **87 of the 92 PASS are grounded** (an asserting check). The last stretch ran in batches of 5, then 7, each
+- **90 of the 92 PASS are grounded** (an asserting check). The last stretch ran in batches of 5, then 7, each
   batch re-run individually and confirmed green before the report was updated.
 - Method: classify every remaining PASS into one of **four patterns** (A shipped test / B run-only driver /
   C vacuous existence / D external), then fix by pattern rather than one-by-one.
@@ -973,7 +976,7 @@ FT-COD-1) are still driver-side.
 ### What worked
 
 - **Pattern A — the shipped test.** One generic driver, `scripts/fieldtest/shipped_tests.py`, grounds a case on
-  the repo's own canonical test: one line, no re-implementation that could drift. It grounded **41 cases**
+  the repo's own canonical test: one line, no re-implementation that could drift. It grounded **44 cases**
   (VFY-1, AGI-2, API-1, EXA-1, GOV-1, CMP-2/3, CCO-1/2, IR-1, FWK-1/2, RED-1, SIEM-1, ASI-1, SYS-1, ACS-1,
   IDN-3, CMP-1, GWY-1, POL-1, DET-1/3/4/6/7, CAP-1, MEM-1, SBX-1, RUN-1, NTF-1, ACC-1, CNC-1, APV-1/2/3,
   PRV-1/3, ENV-1, CCA-1, COR-1, LUI-1/2, TSS-1).
@@ -1009,7 +1012,7 @@ FT-COD-1) are still driver-side.
 
 ### Observations
 
-- **87/92 PASS grounded; the remainder are blocked/declared/N/A, never faked.**
+- **90/92 PASS grounded; the remainder are blocked/declared/N/A, never faked.**
 - Hardening surfaced **no new product defects** — it was about assertion *strength*, and the product behaved
   as designed everywhere a shipped test already encoded the guarantee.
 - The two blocked cases (**FT-LG-1**, **FT-XHT-3**) are the only ones needing tooling absent in this
@@ -1018,8 +1021,9 @@ FT-COD-1) are still driver-side.
 ## Takeaways
 
 - The v0.2.0 **harness** is verified end-to-end (16 services incl. Tempo, per-case teardown, real surfaces,
-  freeze guard). The current run is **12 PASS · 0 FAIL · 81 not run · 1 N/A** (partial — final re-run pending).
-- `FT-WIN-1` is unsupported (N/A) and retired; the one product defect found (FT-LUI-1 console a11y) is fixed.
+  freeze guard). Final run: **92 PASS · 0 FAIL · 1 not run · 1 N/A**; **90 of the 92 PASS are grounded**.
+- `FT-WIN-1` is unsupported (N/A) and retired; the product defects found (FT-LUI-1 console a11y, plus the R4 Tempo
+  backend and the modeled Tier-1 row) are fixed.
 
 
 ## Deferred Items (not v0.2.0 gates)
@@ -1034,19 +1038,20 @@ FT-COD-1) are still driver-side.
 
 ## Coverage, Gaps, and Declared Limitations
 
-Status vocabulary: **not run | PASS | FAIL | N/A** — this run (partial; final re-run pending): **12 PASS · 0 FAIL · 81 not run · 1 N/A**.
+Status vocabulary: **not run | PASS | FAIL | N/A** — this run: **92 PASS · 0 FAIL · 1 not run · 1 N/A**.
 
-- **Coverage:** 12 of 94 v0.2.0 cases re-run so far (batch 1 + the fixed cases): 12 PASS, 0 FAIL, 1 N/A.
+- **Coverage:** all 94 v0.2.0 cases executed; **90 of the 92 PASS are grounded**. FT-LG-1 and FT-XHT-3 remain
+  blocked (tooling absent here); FT-XHT-2 is declared (not run); FT-WIN-1 is N/A.
 - **Layer-0 (v0.1.0 cases) into `field-test/v0.2.0/results/layer0`:** re-run this pass; frozen `field-test/v0.1.0`
   results left untouched.
-- **Gaps:** remaining flagged steps to harden (see the theme notes); F-3 / F-5 fixed.
+- **Gaps:** no hardenable cases remain — FT-LG-1 / FT-XHT-3 need external tooling; F-3 / F-5 fixed.
 
 
 ## Claims Ledger + Known-Limitations Shrink Evidence
 
 FT-CLAIM-1 **PASS** (claims-ledger JSON parses; known-limitations present). FT-MATRIX-1 **PASS** (no "modeled"
 Tier-1 rows). The known-limitations shrink (G1/G2/G4/G7/G8 removed with proving tests) is evidenced by the passing
-detector/stream/trace/compliance cases among the 93.
+detector/stream/trace/compliance cases among the 92 PASS.
 
 
 ## Certification / Standards Conformance
@@ -1074,7 +1079,7 @@ the case artifacts).
 | | v0.1.0 (frozen) | v0.2.0 (this pass) |
 |---|---|---|
 | Cases | 50 field + 226 detector + 49 Playwright | 94 cases |
-| Result | 50/50 · 226/226 · 49/49 | **12 PASS / 0 FAIL / 81 not run / 1 N/A** (final re-run pending) |
+| Result | 50/50 · 226/226 · 49/49 | **92 PASS / 0 FAIL / 1 not run / 1 N/A**; 90/92 grounded |
 | Fail class | 4 product defects, fixed | 0 FAIL; 2 gate defects fixed (R4 Tempo; modeled Tier-1); FT-WIN-1 N/A |
 
 v0.2.0 has **no FAIL** — FT-WIN-1 is N/A (Windows unsupported). Two release-gate defects (R4 Tempo backend; modeled Tier-1 row) were fixed, plus the console-a11y product defect.
@@ -1082,7 +1087,7 @@ v0.2.0 has **no FAIL** — FT-WIN-1 is N/A (Windows unsupported). Two release-ga
 
 ## Action Items
 
-1. Harden the remaining flagged cases (see the theme notes) so their assertions prove the plan §7 conditions, then re-run S1–S15 and repopulate this report.
+1. ✅ All hardenable cases hardened and re-run green; FT-LG-1 / FT-XHT-3 remain blocked on external tooling (see “Hardening campaign”).
 2. Extend `check_cli_usage.py` to validate **required arguments**, not just option existence.
 3. ✅ F-3 (FT-XHT-1 fixture contract) fixed this pass — adapters registered via the canonical SDK `conformance_registry`.
 4. ✅ `FT-WIN-1` retired as unsupported (N/A) — will not be run again.

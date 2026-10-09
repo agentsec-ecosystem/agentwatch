@@ -114,7 +114,7 @@ Version
 ========================================================
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Public auto-detect entry point (M29 FWK-2): importing the submodules here binds
 # ``agentwatch.instrument`` (callable) and ``agentwatch.autoinstrument``.

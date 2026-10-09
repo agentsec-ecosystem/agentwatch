@@ -5,6 +5,8 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
 ### Added
 - v0.2.0 M30 (Expanded II — Code, Capabilities, Console & Investigation):
   - LUI-1: `agentwatch ui` read-only loopback console — one command serves the chain store over a stdlib HTTP
@@ -715,5 +717,6 @@ versioning: [Semantic Versioning](https://semver.org/).
 - Initial release: Claude Code recording, OTel GenAI export, security-event schema, redaction-by-default,
   local-first hash-chained store, session replay (R1–R8).
 
-[Unreleased]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/agentsec-ecosystem/agentwatch/releases/tag/v0.1.0

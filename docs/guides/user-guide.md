@@ -1,6 +1,6 @@
 # agentwatch User Guide
 
-> v0.1.0 — Production-grade observability for AI agent workflows
+> v0.2.0 — Production-grade observability for AI agent workflows
 
 ---
 
@@ -67,6 +67,35 @@ Export is blocked until the redaction self-test passes. See
 
 - No session recorded → check hooks + daemon; recording must not be silent.
 - Unexpected gap → see [runbooks/tamper-response.md](../runbooks/tamper-response.md).
+
+---
+
+## What's new in v0.2.0
+
+v0.2.0 adds the expanded trust, capability, console, and investigation surfaces on top of the v0.1.0 recorder.
+All of it stays local-first and monitor-only.
+
+- **Read-only console** — `agentwatch ui` serves the chain store over a loopback-only, token-gated HTTP console
+  with **no Docker**; UI numbers equal the CLI `--json` (ADR-0036).
+- **Investigation skill + versioned CLI JSON** — `sessions`/`search`/`replay`/`impact`/`blame` are a versioned
+  contract (`schema/cli/v0.1.0/`) with a shipped skill (`docs/skills/investigation/SKILL.md`).
+- **Capability & memory supply chain** — `agentwatch capabilities` inventories plugins and memory stores with
+  content digests; Plugin4Shell-shape drift ("content changed, version unchanged") and out-of-band memory edits
+  are surfaced and attributed (or flagged unattributable).
+- **Provenance** — `agentwatch provenance <commit|file|pr>` resolves a commit to the session that produced it;
+  Cursor Agent Trace export validates.
+- **Approval provenance v2** — no auto/bypass call is reported as `user`; `oversight` reports the authorization
+  mix and the bypass interval.
+- **Sandbox boundary** — `oversight` reports the % of calls unsandboxed and denials by class.
+- **Legal hold** — held records survive retention, purge, and index rebuild.
+- **Compliance** — `agentwatch compliance report --framework owasp-asi-2026` (ASI01–ASI10 + AST10) and the
+  ISO/EU/NIST/SOC 2 templates, all offline with per-row evidence commands.
+- **Native telemetry & ingest** — Claude Code native OTel joins hook records by `tool_use_id`; gateway records
+  carry exact vs estimated cost; Cursor native hooks; system-effects ingest (opt-in, `source: system-ingest`).
+
+See the [v0.2.0 release notes](../release/v0.2.0/release-notes.md),
+[reference docs](../reference/), and the
+[field-test report](../field-test/v0.2.0/FIELD_TEST_REPORT.md).
 
 ---
 

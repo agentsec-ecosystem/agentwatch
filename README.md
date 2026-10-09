@@ -3,21 +3,22 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyPI](https://img.shields.io/badge/pypi-agentsec--agentwatch-blue.svg)](https://pypi.org/project/agentsec-agentwatch/)
-[![Status: v0.1.0](https://img.shields.io/badge/status-v0.1.0-green.svg)](docs/release/v0.1.0/release-notes.md)
+[![Status: v0.2.0](https://img.shields.io/badge/status-v0.2.0-green.svg)](docs/release/v0.2.0/release-notes.md)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy strict](https://img.shields.io/badge/mypy-strict-blue.svg)](https://github.com/python/mypy)
 [![Coverage](https://img.shields.io/badge/coverage-95%25%20gate-green.svg)](https://github.com/agentsec-ecosystem/agentwatch/actions)
 [![OpenSSF Best Practices](https://img.shields.io/badge/OpenSSF-best%20practices-blue.svg)](docs/compliance/openssf-badge.md)
-[![Field Test](https://img.shields.io/badge/field%20test-v0.1.0%20%7C%2050%2F50%20cases-brightgreen.svg)](docs/field-test/v0.1.0/FIELD_TEST_REPORT.md)
+[![Field Test](https://img.shields.io/badge/field%20test-v0.2.0%20%7C%2092%2F94%20cases-brightgreen.svg)](docs/field-test/v0.2.0/FIELD_TEST_REPORT.md)
 [![Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog-%23E05735.svg)](CHANGELOG.md)
 
 > **Observability and the security-event record for AI agents.** OpenTelemetry GenAI traces that tell you
 > *why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
 > [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-**Status: v0.1.0 released** — feature-complete, documented, and validated at the release gate. Tagged
-`v0.1.0` and published on [PyPI](https://pypi.org/project/agentsec-agentwatch/) — see the
-[release notes](docs/release/v0.1.0/release-notes.md).
+**Status: v0.2.0 release-ready** — feature-complete, documented, and validated at the release gate (the v0.2.0
+field test ran all 94 cases: **92 PASS · 0 FAIL**). See the
+[v0.2.0 release notes](docs/release/v0.2.0/release-notes.md) and the
+[release checklist](docs/release/v0.2.0/release-checklist.md).
 
 ---
 
@@ -81,13 +82,15 @@ consented live capture lands). Codex CLI, Gemini CLI, CrewAI, and PydanticAI shi
 
 ## Security & supply chain
 
-- **Self-audit, 0 unresolved findings** — [security-audit.md](docs/release/v0.1.0/security-audit.md).
-- **No secrets in first-party source or history** — [secret-scan-report.md](docs/release/v0.1.0/secret-scan-report.md)
-  (gitleaks + trufflehog + pip-audit; run `make security-scan`).
-- **Signed artifacts + SBOM + provenance** on the tag — [release-evidence.md](docs/release/v0.1.0/release-evidence.md);
+- **Self-audit, 0 unresolved findings** — [security-audit.md](docs/release/v0.2.0/security-audit.md).
+- **No secrets in first-party source or history** — [secret-scan-report.md](docs/release/v0.2.0/secret-scan-report.md)
+  (gitleaks + trufflehog + pip-audit + egress; run `make security-scan`).
+- **Signed artifacts + SBOM + provenance** on the tag — [release-evidence.md](docs/release/v0.2.0/release-evidence.md);
   local dry-run via `make release-dry-run`.
-- **Compliance mapping** — [compliance-matrix.md](docs/release/v0.1.0/compliance-matrix.md) ·
-  [OpenSSF checklist](docs/reference/open-source-checklist.md) · [compliance/](docs/compliance/).
+- **Dependencies & licences** — [dependency-review.md](docs/release/v0.2.0/dependency-review.md) ·
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- **Compliance mapping** — [OpenSSF checklist](docs/reference/open-source-checklist.md) ·
+  [compliance/](docs/compliance/).
 - **Disclosure** — [SECURITY.md](SECURITY.md).
 
 ## Verification & quality gates
@@ -101,10 +104,10 @@ make security-scan       # gitleaks + trufflehog + pip-audit + egress audit
 make release-dry-run     # build + CycloneDX SBOM + checksums + verify-release
 ```
 
-- Field test: **50/50 cases, 226/226 detector scenarios, 49/49 Playwright tests** —
-  [FIELD_TEST_REPORT.md](docs/field-test/v0.1.0/FIELD_TEST_REPORT.md).
-- Parity gate A1–A6: [parity-checklist.md](docs/release/v0.1.0/parity-checklist.md) (`python scripts/check_parity.py`).
-- First-run timing: [first-run-evidence.md](docs/release/v0.1.0/first-run-evidence.md).
+- Field test: **92 PASS / 0 FAIL of 94 v0.2.0 cases** (1 declared, 1 N/A) —
+  [FIELD_TEST_REPORT.md](docs/field-test/v0.2.0/FIELD_TEST_REPORT.md).
+- Release gate: [release-checklist.md](docs/release/v0.2.0/release-checklist.md) (PRD 40 §5 gates 1–16).
+- First-run timing: [first-run-evidence.md](docs/release/v0.2.0/first-run-evidence.md).
 
 ## Development
 
@@ -141,6 +144,14 @@ Full index: [docs/README.md](docs/README.md).
   [Backwards-compatibility policy](docs/reference/backwards-compatibility-policy.md)
 - [Errors](docs/reference/errors.md) · [Known limitations](docs/reference/known-limitations.md) ·
   [Performance](docs/reference/performance.md) · [Reference index](docs/reference/README.md)
+
+**Release v0.2.0**
+
+- [Release notes](docs/release/v0.2.0/release-notes.md) · [Release checklist & go/no-go](docs/release/v0.2.0/release-checklist.md)
+- [Security audit](docs/release/v0.2.0/security-audit.md) · [Secret scan report](docs/release/v0.2.0/secret-scan-report.md) ·
+  [Dependency & license review](docs/release/v0.2.0/dependency-review.md)
+- [Release evidence](docs/release/v0.2.0/release-evidence.md) · [First-run evidence](docs/release/v0.2.0/first-run-evidence.md)
+- [Field test report v0.2.0](docs/field-test/v0.2.0/FIELD_TEST_REPORT.md) · [WBS v0.2.0](docs/wbs/v0.2.0/wbs-v0.2.0-index.md)
 
 **Release v0.1.0**
 

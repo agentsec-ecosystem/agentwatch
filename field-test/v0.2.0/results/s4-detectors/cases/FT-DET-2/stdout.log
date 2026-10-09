@@ -1,0 +1,4 @@
+detector-scenarios [full-enumeration]: 234/234 ok; 0 failed
+wrote /artifacts/detector-results.json
+detector-results: detectors=45 non-silent=45 (100%)
+  silent detectors: none

@@ -1,0 +1,4 @@
+detector-scenarios [full-enumeration]: 234/234 ok; 0 failed
+wrote /artifacts/detector-results.json
+detector-results: mode=full-enumeration total=234 failed=0 detectors=45
+  detectors with TPR<95 or FPR>5: none

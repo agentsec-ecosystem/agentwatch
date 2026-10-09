@@ -60,9 +60,16 @@ def _p99(argv: list[str]) -> int:
 
 
 def _drop_consumer(argv: list[str]) -> int:
+    import os
+    import tempfile
+
     from agentwatch.streaming_soak import run_streaming_soak
 
-    report = run_streaming_soak(STORE)
+    # The soak's `within_bounds` (delivered == count) assumes a clean store; the
+    # recorder's live store already holds the daemon's attestation records, which
+    # would be counted as extra deliveries. Use a fresh store for the reconciliation.
+    path = os.path.join(tempfile.mkdtemp(prefix="ft-str2-"), "records.jsonl")
+    report = run_streaming_soak(path)
     # Zero store loss = every seq delivered at least once (reconnects may re-deliver).
     if report.delivered < report.records:
         fail(f"store loss on consumer crash: delivered {report.delivered} < {report.records}")

@@ -1,0 +1,4 @@
+DO
+{"path": "/data/agentwatch/index.sqlite3", "present": true, "fresh": true, "records": 3, "format_version": 1}
+{"dropped": true, "path": "/data/agentwatch/index.sqlite3"}
+{"path": "/data/agentwatch/index.sqlite3", "present": true, "fresh": true, "records": 3, "format_version": 1}

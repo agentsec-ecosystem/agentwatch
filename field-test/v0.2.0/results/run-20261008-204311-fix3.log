@@ -1,0 +1,27 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-COR-2 (s4-detectors) ########################
+== case FT-COR-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  PASS incident-export
+  PASS no-auto-submit
+== case FT-COR-2: pass ==
+######################## FT-CAP-2 (s9-capability) ########################
+== case FT-CAP-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  PASS capability-load-attribution
+== case FT-CAP-2: pass ==
+######################## FT-PRV-2 (s10-provenance) ########################
+== case FT-PRV-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS emit
+  PASS agent-trace-export
+== case FT-PRV-2: pass ==
+>>> BATCH COMPLETE

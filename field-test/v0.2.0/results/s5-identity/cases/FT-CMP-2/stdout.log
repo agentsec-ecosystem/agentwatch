@@ -1,0 +1,3 @@
+DO
+agentwatch: retention (general-6mo) purged 0, kept 3 (180 day window)
+ok: signed default verifies; unverifiable is never 'ok'

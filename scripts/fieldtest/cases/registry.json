@@ -940,7 +940,7 @@
     "prd": "DET-3",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-nonsilent-80\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
+    "steps": "ft_assert \"detector-matrix\" \"${STACK_COMPOSE[@]}\" run --rm --entrypoint python -v \"$FT_CASE_DIR/artifacts\":/artifacts analytics -m analytics.scenario_validation --all --out /artifacts/detector-results.json\nft_assert \"detector-nonsilent-80\" python3 \"$REPO_ROOT/scripts/fieldtest/check-detector-results.py\" --nonsilent-80 \"$FT_CASE_DIR/artifacts/detector-results.json\"\n",
     "recycle": true
   },
   {
@@ -979,7 +979,7 @@
     "prd": "DET-5",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"telemetry-off-default\" \"agentwatch coverage --json\"\nft_assert_recorder \"telemetry-module\" \"python3 -c 'import agentwatch.detector_telemetry'\"\n",
+    "steps": "ft_assert_recorder \"telemetry-content-free-bounded\" \"python3 /ft/scripts/detector_telemetry_check.py\"\n",
     "recycle": false
   },
   {
@@ -1031,7 +1031,7 @@
     "prd": "COR-2/3",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"incident-export\" \"agentwatch evidence ft04 --include incident-report.json --out /tmp/inc.zip && test -s /tmp/inc.zip\"\nft_assert_recorder \"no-auto-submit\" \"! agentwatch evidence --help | grep -qi submit\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"incident-export\" \"agentwatch evidence ft04 --include incident-report.json --out /tmp/inc.zip && test -s /tmp/inc.zip\"\nft_assert_recorder \"no-auto-submit\" \"! agentwatch evidence --help | grep -qi submit\"\n",
     "recycle": false
   },
   {
@@ -1434,7 +1434,7 @@
     "prd": "CAP-3",
     "class": "P/F",
     "suite": "s9-capability",
-    "steps": "ft_assert_recorder \"capability-load-attribution\" \"python3 /ft/scripts/capability-drift.py --kind load\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"capability-load-attribution\" \"python3 /ft/scripts/capability-drift.py --kind load\"\n",
     "recycle": false
   },
   {
@@ -1473,7 +1473,7 @@
     "prd": "PRV-2/3",
     "class": "P/F",
     "suite": "s10-provenance",
-    "steps": "ft_assert_recorder \"agent-trace-export\" \"python3 /ft/scripts/provenance-repo.py --agent-trace\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"agent-trace-export\" \"python3 /ft/scripts/provenance-repo.py --agent-trace\"\n",
     "recycle": false
   },
   {
@@ -1538,7 +1538,7 @@
     "prd": "ACC-2",
     "class": "P/F",
     "suite": "s12-governance",
-    "steps": "ft_assert_recorder \"governance-notice\" \"agentwatch governance notice --json | grep -qi 'not legal advice'\"\n",
+    "steps": "ft_assert_recorder \"governance-notice-backed\" \"python3 /ft/scripts/governance_notice_check.py\"\n",
     "recycle": false
   },
   {
@@ -1629,7 +1629,7 @@
     "prd": "OUT-1",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert_recorder \"outcomes\" \"agentwatch outcomes --since 30d --by project --json | grep -Eq 'numerator|denominator'\"\n",
+    "steps": "ft_assert_recorder \"outcomes-facts\" \"python3 /ft/scripts/outcomes_check.py\"\n",
     "recycle": false
   },
   {
@@ -1668,7 +1668,7 @@
     "prd": "DEMO-1",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert \"demo-bundle-json\" python3 -m json.tool \"$REPO_ROOT/examples/demo-bundle/bundle.json\"\n",
+    "steps": "ft_assert \"demo-bundle-synthetic-secretfree\" python3 \"$REPO_ROOT/scripts/fieldtest/demo_bundle_check.py\"\n",
     "recycle": false
   },
   {
@@ -1707,7 +1707,7 @@
     "prd": "PRD-48 \u00a75",
     "class": "P/F",
     "suite": "s15-hostile",
-    "steps": "ft_assert \"claims-ledger-json\" python3 -m json.tool \"$REPO_ROOT/docs/release/claims-ledger.json\"\nft_assert \"known-limitations\" test -f \"$REPO_ROOT/docs/reference/known-limitations.md\"\n",
+    "steps": "ft_assert \"claims-ledger-backed\" python3 \"$REPO_ROOT/scripts/fieldtest/claims_ledger_check.py\"\n",
     "recycle": false
   },
   {

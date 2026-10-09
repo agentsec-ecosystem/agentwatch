@@ -1,0 +1,9 @@
+{
+  "id": "FT-SIEM-1",
+  "status": "pass",
+  "class": "P/F",
+  "declared": false,
+  "run_id": "s5-identity",
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"emit","ok":true},{"name":"siem-conformance","ok":true}
+]
+}

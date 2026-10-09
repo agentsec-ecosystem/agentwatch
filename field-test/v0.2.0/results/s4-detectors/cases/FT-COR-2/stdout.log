@@ -1,0 +1,4 @@
+DO
+emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
+agentwatch: wrote evidence bundle to /tmp/inc.zip
+  handling: may contain redacted-but-sensitive paths/arguments; treat as confidential.

@@ -1,0 +1,70 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-FWK-1 (s7-platform) ########################
+== case FT-FWK-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS framework-recipes
+== case FT-FWK-1: pass ==
+######################## FT-FWK-2 (s7-platform) ########################
+== case FT-FWK-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS instrument-detect
+== case FT-FWK-2: pass ==
+######################## FT-CCO-1 (s7-platform) ########################
+== case FT-CCO-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS native-otel-join
+== case FT-CCO-1: pass ==
+######################## FT-CCO-2 (s7-platform) ########################
+== case FT-CCO-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS agent-sdk-native
+== case FT-CCO-2: pass ==
+######################## FT-TSS-1 (s7-platform) ########################
+== case FT-TSS-1 ==
+  PASS ts-spike-tracked
+== case FT-TSS-1: pass ==
+######################## FT-APV-1 (s8-apv) ########################
+== case FT-APV-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS approval-fidelity
+== case FT-APV-1: pass ==
+######################## FT-APV-2 (s8-apv) ########################
+== case FT-APV-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS oversight-report
+== case FT-APV-2: pass ==
+######################## FT-APV-3 (s8-apv) ########################
+== case FT-APV-3 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS permission-mode
+== case FT-APV-3: pass ==
+######################## FT-CAP-1 (s9-capability) ########################
+== case FT-CAP-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS capability-drift
+== case FT-CAP-1: pass ==
+######################## FT-CAP-2 (s9-capability) ########################
+== case FT-CAP-2 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  FAIL capability-load-attribution
+== case FT-CAP-2: fail ==
+>>> CASE FAILED: FT-CAP-2
+>>> BATCH COMPLETE

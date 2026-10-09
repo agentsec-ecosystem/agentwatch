@@ -1,0 +1,4 @@
+DO
+ok: ingested acs from /ft/fixtures/acs
+agentwatch: chain ok (0 entries)
+  signing: not configured (optional; `checkpoint export --sign`)

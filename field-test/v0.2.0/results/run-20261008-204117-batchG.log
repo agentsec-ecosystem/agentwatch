@@ -1,0 +1,10 @@
+/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
+######################## FT-CLAIM-1 (s15-hostile) ########################
+== case FT-CLAIM-1 ==
+  PASS reset-recorder-restart
+  PASS state-reset
+  PASS stack-reused
+  PASS claims-ledger-json
+  PASS known-limitations
+== case FT-CLAIM-1: pass ==
+>>> BATCH COMPLETE

@@ -4,7 +4,7 @@
 compliance, retention profiles, signed checkpoints); it does not break the v0.1.0 instrumentation API, read-API
 shapes, store format, or record contract. A v0.1.0 store upgrades in place — no rewrite, no export/import.
 
-Status: **draft** (v0.2.0). See the [v0.1.0 migration guide](../v0.1.0/migration-guide.md) for the
+Status: **release-ready** (v0.2.0). See the [v0.1.0 migration guide](../v0.1.0/migration-guide.md) for the
 `agent-exec-trace` → `agentwatch` rename that preceded this.
 
 ## What changes

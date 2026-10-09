@@ -5,7 +5,7 @@ sampler), extend the platform to **Windows**, decide the **TypeScript SDK** dire
 contract, ship an executable **examples gallery**, run a structured **v0.2.0 field test**, and grow the
 contributor ecosystem — the product motions around the record layer.
 
-**Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M28 ·
 **M25 subset implemented:** SDK-1/SDK-2/SDK-3 (provider/sampler/lifecycle + conformance pack).
 **Depends on:** PRD 05 (SDK), PRD 33, PRD 38 (Engineering Rigor) · **Extends:** PRD 05, PRD 27, PRD 28
 

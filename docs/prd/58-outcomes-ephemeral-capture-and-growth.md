@@ -5,7 +5,7 @@ exits, reverts, interruptions, retained changes) and cost-per-retained-change; a
 CI/cloud/background agents that import with chain-of-custody labels; a try-before-install demo bundle; and alert-routing
 recipes (routing stays in the user's stack).
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M28–M29,
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M28–M29,
 v0.2.x candidates · **Depends on:** PRD 53 (PRV), PRD 33 (S6/S7), PRD 42 (TRACE), PRD 36 (S10), PRD 46 (EXA-1) ·
 **Extends:** `cost`, `digest`, `demo`, sinks, behavior fingerprint · **Adds:** CUJ-29, CUJ-30
 

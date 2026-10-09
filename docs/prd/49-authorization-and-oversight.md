@@ -7,7 +7,7 @@ classifier / hook / bypass / not-required / denied / unknown), record **permissi
 and publish an **`oversight` report** that turns human-in-the-loop into data. This closes the flagship journey's
 gap: today the record can answer "what happened" but mis-answers "did a human approve that?".
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
 **Depends on:** PRD 19, PRD 35 (S14), PRD 44 (IDN-1) · **Extends:** S14 approval provenance, CUJ-14 · **Adds:** CUJ-21
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06); the trust

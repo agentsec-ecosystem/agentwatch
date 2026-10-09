@@ -5,7 +5,7 @@ multi-user/fleet views with self-visible access logs; a privacy notice + DPIA st
 config*; a legal-hold mechanism that suspends retention and purge; and a published, reproducible **redaction quality**
 benchmark so "0 leaks" has a measured recall behind it.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 44 (IDN-1, CMP-3), PRD 37 (`config explain`), PRD 31 (S21) · **Extends:** IDN-1, CMP-3, `retention apply`,
 `purge`, `verify-privacy` · **Adds:** CUJ-31, CUJ-32
 

@@ -6,7 +6,7 @@ is surfaced as a `capability-changed` security event, and each action can be att
 before it. The rug-pull threat the corpus already tracks for MCP tools (CUJ-13) now covers the surfaces attackers
 actually use: Plugin4Shell, ClawHavoc, ToxicSkills, SKILL.md poisoning.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 25, PRD 36 (S4), PRD 43 (DET-7), PRD 50 (DEP-2) · **Extends:** R9 inventory, S4 tool-surface drift,
 S9 Agent BOM, `CLAUDE.md` fingerprint · **Adds/extends:** CUJ-23 (extends CUJ-13)
 

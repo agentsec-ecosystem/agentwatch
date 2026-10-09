@@ -5,7 +5,7 @@ a shipped investigation skill, and a versioned CLI JSON contract let coding/IR a
 `suggest-policy` / `what-if` derive least-privilege permission candidates from observed behavior — **advisory only**,
 never applied by agentwatch.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 49 (APV), PRD 31 (S21), PRD 36 (S8), PRD 45 (ACS) · **Extends:** H3 search, H6 JSON, `inventory`,
 cls1, "no policy-overlay view" limitation · **Adds:** CUJ-26, CUJ-27
 

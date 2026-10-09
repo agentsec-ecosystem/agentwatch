@@ -5,7 +5,7 @@ session wrote these lines, under what authorization, at what cost, with which ca
 `exact | heuristic | unknown` confidence; **Agent Trace** export/ingest (pinned RFC) makes agentwatch an evidence-grade
 source for the code-attribution ecosystem (Cursor, Cognition, git-ai, Jules, Amp, OpenCode, Cline) rather than a silo.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 33 (S3/S18), PRD 35 (S16), PRD 49 (APV), PRD 52 (CAP) · **Extends:** `impact`, `blame`, evidence, S16
 git snapshot · **Adds:** CUJ-22
 

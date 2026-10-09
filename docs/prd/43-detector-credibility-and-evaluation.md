@@ -5,7 +5,7 @@ field-test corpus, publish per-detector precision/recall against a **public, ver
 academic agent-security benchmarks, emit opt-in local detector telemetry, and add deterministic injection/memory
 surface observations — all signals, never verdicts.
 
-**Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
 **Depends on:** PRD 30 (Analytics Signals), PRD 38 (Engineering Rigor), PRD 47 · **Extends:** L1 detector catalog
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06);

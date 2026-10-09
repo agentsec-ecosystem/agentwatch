@@ -5,7 +5,7 @@
 account; a zero-ops, rebuildable embedded index makes long-window search interactive while the chain store stays the sole
 source of truth. This re-sequences the Postgres tier (PRD 41 PG-1..3) behind the console.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
 **Depends on:** PRD 42 (STR-1/2), ADR-0019 (derived index), PRD 28 · **Extends:** `view` TUI, operator UI, PG-1..3, STR-2 · **Adds:** CUJ-24
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06); the trust

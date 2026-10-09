@@ -5,7 +5,7 @@ whose behalf, with whose approval* — with a first-class **agent identity** dim
 convert the shipped compliance mappings into **one-command, offline-verifiable framework reports**, with managed
 retention, a signed default posture, and hardened SIEM sinks.
 
-**Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
 **Depends on:** PRD 35 (Capture Context), PRD 39 (Standards & Compliance Acceptance), PRD 18 (Security &
 Compliance), PRD 31 (Evidence) · **Extends:** S14 approval provenance, W1–W9
 

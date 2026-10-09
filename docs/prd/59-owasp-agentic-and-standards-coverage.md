@@ -5,7 +5,7 @@ use — **OWASP Top 10 for Agentic Applications 2026 (ASI01–ASI10)** plus the 
 `compliance report` framework; and commit to a standards-participation plan (closing the open DD-05) so the open
 security-event schema and authorization taxonomy are proposed upstream rather than only owned locally.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27 (ASI),
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27 (ASI),
 M30/governance (STD) · **Depends on:** PRD 39 (W1/W2), PRD 44 (CMP-1/2), PRD 49 (APV), PRD 52 (CAP), PRD 43 (DET-7) ·
 **Extends:** compliance matrix (OWASP **LLM** Top-10 only today), DD-05 · **Adds:** CUJ-18 extension
 

@@ -5,7 +5,7 @@
 brought up to the 2026-07-28 spec (Streamable HTTP; the deprecated surfaces marked closed-by-spec), a
 **streaming** daemon with live operator views, and **LangGraph/raw-Python** Tier-2 at full fidelity.
 
-**Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M25–M27 ·
 **M25 subset implemented:** CUR-1/CUR-2, GEM-1, STR-1 (COD/MCP/LG/STR-2/3 in later milestones).
 **Depends on:** PRD 25, PRD 27, PRD 36 · **Extends:** PRD 27 (Harness Expansion)
 

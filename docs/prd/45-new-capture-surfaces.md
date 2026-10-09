@@ -6,7 +6,7 @@ emerged in 2026: **A2A** agent-to-agent delegation with signed agent cards, **LL
 the long tail of **coding-agent log readers**, and **ACS** (Agent Control Standard) interop — all additive, all
 keeping monitor-only, local-first, redaction-before-store, and the deterministic trust path.
 
-**Status:** proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0 (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 27, PRD 36, PRD 41, PRD 42 · **Extends:** PRD 27 (Harness Expansion)
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06);

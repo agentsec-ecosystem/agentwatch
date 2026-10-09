@@ -5,7 +5,7 @@ fingerprint** and delta ("what changed between these sessions?"), **case** packa
 **concurrency** view for parallel agents, a **browser-based evidence verifier** that needs nothing installed, and
 **sandbox-boundary events** ("what did the agent try, and what was blocked?").
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M27–M28 ·
 **Depends on:** PRD 26 (diff), PRD 33, PRD 31 (evidence/verifier), PRD 51 (CCO), PRD 52 (CAP), PRD 49 (APV) ·
 **Extends:** `diff`, `drift`, `at`, `annotate`, `tree`, standalone verifier · **Adds:** CUJ-33, CUJ-34, CUJ-8 extension
 

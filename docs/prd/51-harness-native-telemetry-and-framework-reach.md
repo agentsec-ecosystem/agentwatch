@@ -6,7 +6,7 @@ for exact tokens/cost/latency and authoritative permission decisions — the sam
 source — and add certified OTel-native recipes for ADK, Strands, OpenAI Agents SDK and the Claude Agent SDK so the
 embedder journey is one or two lines.
 
-**Status:** proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
+**Status:** shipped in v0.2.0 (2026-10-08) — originally proposed v0.2.0-expanded (2026-10-05) · **Parent:** agentsec-ecosystem #209 · **Milestone:** M26–M28 ·
 **Depends on:** PRD 41 (OTEL-3), PRD 42 (GEM-1), PRD 44 (IDN), PRD 46 (EXA-1) · **Extends:** A5, S6, PRD 27 N2, GEM-1, CCA-1 · **Adds:** CUJ-21, CUJ-28
 
 > Cross-cutting rules (PRD 19–30): fail closed and never silent (PRD 17); redaction before storage (DD-06); the trust

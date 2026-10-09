@@ -1,2 +1,2 @@
 DO
-ok: flush-on-exit loses no record; sampler deterministic; no-op after shutdown
+ok: SDK lifecycle: flush-on-exit; no-op after shutdown; at-most-once/thread-safe shutdown; deterministic sampler

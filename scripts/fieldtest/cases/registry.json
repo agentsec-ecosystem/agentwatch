@@ -1291,7 +1291,7 @@
     "prd": "AGI-2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"skill-answers\" \"python3 /ft/scripts/investigation_skill.py\"\n",
+    "steps": "ft_assert_recorder \"skill-answers\" \"python3 /ft/scripts/investigation_skill.py\"\nft_assert \"skill-contract\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_agent_interfaces.py\n",
     "recycle": false
   },
   {
@@ -1577,7 +1577,7 @@
     "prd": "VFY-1",
     "class": "P/F",
     "suite": "s13-investigation",
-    "steps": "ft_assert \"verifier-artifact\" bash -lc \"test -f $REPO_ROOT/docs/release/verifier/agentwatch-verify.html\"\nft_assert \"verifier-checksum\" bash -lc \"cd $REPO_ROOT && python3 scripts/build_browser_verifier.py --check\"\n",
+    "steps": "ft_assert \"verifier-artifact\" bash -lc \"test -f $REPO_ROOT/docs/release/verifier/agentwatch-verify.html\"\nft_assert \"verifier-checksum\" bash -lc \"cd $REPO_ROOT && python3 scripts/build_browser_verifier.py --check\"\nft_assert \"verifier-parity\" python3 \"$REPO_ROOT/scripts/fieldtest/vfy_parity.py\"\n",
     "recycle": false
   },
   {
@@ -1642,7 +1642,7 @@
     "prd": "OUT-2",
     "class": "P/F|D",
     "suite": "s14-outcomes",
-    "steps": "ft_assert_recorder \"digest\" \"agentwatch digest --since 30d\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"digest-derived\" \"python3 /ft/scripts/digest_check.py\"\n",
     "recycle": false
   },
   {

@@ -4,6 +4,6 @@
   "class": "P/F",
   "declared": false,
   "run_id": "s13-investigation",
-  "assertions": [{"name":"verifier-artifact","ok":true},{"name":"verifier-checksum","ok":true}
+  "assertions": [{"name":"verifier-artifact","ok":true},{"name":"verifier-checksum","ok":true},{"name":"verifier-parity","ok":true}
 ]
 }

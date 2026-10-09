@@ -1,2 +1,3 @@
 {"name":"verifier-artifact","ok":true}
 {"name":"verifier-checksum","ok":true}
+{"name":"verifier-parity","ok":true}

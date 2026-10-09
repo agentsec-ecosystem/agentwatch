@@ -94,7 +94,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-ACC-2 | s12-governance | P/F | PASS | HARDENED (confirmed PASS): `governance_notice_check.py` asserts every statement is backed by a config key/guarantee + the not-legal-advice banner (was a banner grep) |
 | FT-ACS-1 | s6-surfaces | P/F\|D | PASS | — |
 | FT-AGI-1 | s7-platform | P/F | PASS | fixed F-1c: `mcp_surface.survey(records)` |
-| FT-AGI-2 | s7-platform | P/F | PASS | ✅ fixed (F-4e): seeded session `ft04` via `ft_emit --corpus secrets` and used a valid `--include incident-report.json`; `evidence` + `coverage --json` answer |
+| FT-AGI-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): recorder seeds a temp demo store and asserts the skill's documented answers (6 records; replay 6; impact 6 w/ a denial) + host runs shipped `test_agent_interfaces.py` (schema guard + skill) (was evidence+coverage) |
 | FT-API-1 | s7-platform | P/F | PASS | — |
 | FT-APV-1 | s8-apv | P/F | PASS | — |
 | FT-APV-2 | s8-apv | P/F | PASS | — |
@@ -138,7 +138,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-HLD-1 | s12-governance | P/F | PASS | fixed F-1a: `hold add --reason` |
 | FT-HOSTILE-1 | s15-hostile | P/F | PASS | fixed F-1b: hostile ingest via a real `--format` |
 | FT-IDN-1 | s5-identity | P/F | PASS | ✅ fixed (F-4a): driver's `--attribution` mode seeds a multi-agent chain with `principal` + `delegation_chain`; `trace`/`impact`/`tree`/`blame` answer identity + delegation (or honest `unknown`) in one command |
-| FT-IDN-2 | s5-identity | P/F | PASS | — |
+| FT-IDN-2 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py --what identity` scans every identity string field for secret material (regex) + `verify-privacy` |
 | FT-IDN-3 | s5-identity | P/F | PASS | fixed F-1a: `search --identity user` value |
 | FT-IR-1 | s13-investigation | P/F | PASS | fixed F-1a: incident create via case_incident.py |
 | FT-LG-1 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs a real LangGraph / raw-Python SDK driver — not available in this environment |
@@ -155,7 +155,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-OTEL-3 | s2-interop | P/F | PASS | HARDENED (confirmed PASS): `privacy_property.py` asserts no content on metadata-only *tool calls* (`step_type` set; control-plane markers excluded) + `verify-privacy` |
 | FT-OTEL-4 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `skill_spans.py` asserts OTLP spans map from the fixture by spanId/traceId (after fixing the store-unwrap bug) |
 | FT-OUT-1 | s14-outcomes | P/F\|D | PASS | HARDENED (confirmed PASS): `outcomes_check.py` asserts numerator/denominator facts + a `derivation_version` (was a substring grep) |
-| FT-OUT-2 | s14-outcomes | P/F\|D | PASS | — |
+| FT-OUT-2 | s14-outcomes | P/F\|D | PASS | HARDENED (confirmed PASS): `digest_check.py` derives the digest and asserts `signatures_version` + pattern count/first-seen (was exit-0) |
 | FT-PG-1 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `pg_rebuild.py` runs `index rebuild` twice and asserts byte-identical output + sha256 |
 | FT-PG-2 | s2-interop | P/F\|D | PASS | ✓ grounded: cross-tenant `search` returns empty + coverage |
 | FT-PG-3 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `sdk_emit.py` asserts the union integrity distinction (hook chain-protected, SDK read-only) + verify-store |
@@ -166,7 +166,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-RED-1 | s4-detectors | P/F | PASS | ✅ fixed (F-4d): mounted the canonical `schema/vectors/redaction` corpus at `/work/schema/vectors/redaction` so `redact eval` resolves it via `_corpus_root()`; per-class numbers reproduced |
 | FT-RUN-1 | s14-outcomes | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) ahead of the driver; the sealed segment exports, imports and anchors |
 | FT-SBX-1 | s13-investigation | P/F\|D | PASS | fixed F-1c: `sandbox_boundary_event()` 0-arg |
-| FT-SDK-1 | s7-platform | P/F | PASS | — |
+| FT-SDK-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): `sdk_lifecycle.py` drives the installed SDK — context-exit flush, no-op tracer after shutdown, at-most-once/16-thread-safe shutdown, deterministic sampler (was `--version`+`coverage`) |
 | FT-SIEM-1 | s5-identity | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
 | FT-STR-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): `stream-probe --mode p99` now measures hook→store latency (real socket send + store poll) and gates p99 ≤ budget |
 | FT-STR-2 | s3-harness | P/F | PASS | FIXED (confirmed PASS): harness artifact, not a product defect — the soak ran against the recorder's non-empty store (daemon attestation → delivered=count+3); now runs a fresh temp store → `within_bounds=True` |
@@ -174,12 +174,12 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-TRACE-1 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run` asserts a 3-host chain + a classified `missing-parent` gap |
 | FT-TRACE-2 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run --skew` asserts a classified `clock-skew` gap |
 | FT-TSS-1 | s7-platform | P/F\|D | PASS | fixed H-7: declared → real assertion |
-| FT-VFY-1 | s13-investigation | P/F | PASS | — |
+| FT-VFY-1 | s13-investigation | P/F | PASS | HARDENED (confirmed PASS): runs the shipped differential `test_browser_verifier.py` — zero-network page, verdicts equal CLI on every fixture, tampered bundle names the first broken link (was `test -f` + checksum) |
 | FT-WIN-1 | s1-install | P/F\|D | N/A | Windows is **not supported** — retired; never run again (N/A). |
 | FT-XHT-1 | s3-harness | P/F | PASS | ✓ grounded: `--self-test` asserts all 8 adapters conform |
 | FT-XHT-2 | s3-harness | P/F\|D | not run | DECLARED (not run): OpenCode binary absent from the recorder image; needs an external runner + pinned model endpoint (P/F\|D) |
 | FT-XHT-3 | s3-harness | P/F | PASS | ⚠ over-claimed (NOT hardened): needs 2 independent OSS parsers — not available in this environment |
-| FT-XHT-4 | s3-harness | P/F | PASS | FIXED: same declared row; re-run PASS (fresh stack) |
+| FT-XHT-4 | s3-harness | P/F | PASS | — |
 
 **Totals:** 92 PASS · 0 FAIL · 1 not run · 1 N/A  (of 94 v0.2.0 cases).
 
@@ -535,12 +535,12 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s6 | FT-SYS-1 | R | ingest exit 0; assert the synthetic process tree joins its session + `source: system-ingest` |
 | s6 | FT-CCA-1 | R | ingest exit 0; assert consent gating + pull recorded as `store-access` |
 | s6 | FT-ACS-1 | R | ingest + verify-store; assert `record_phase: pre_execution` + no decision executes |
-| s7 | FT-SDK-1 | R | `sdk_lifecycle.py` runs `--version`/`coverage`; assert flush-on-exit + sampler determinism + no-op after shutdown |
+| s7 | FT-SDK-1 | ✅ G | done — real lifecycle driver |
 | s7 | FT-API-1 | V | `curl openapi.json`; add a contract test that fails on live-app/client drift |
 | s7 | FT-EXA-1 | V | `find examples -name '*.py'`; run each recipe and assert it passes |
 | s7 | FT-GOV-1 | V | `import agentwatch.conformance`; run the codemod against a migration fixture |
 | s7 | FT-AGI-1 | G | — (mcp_readonly asserts no write tool) |
-| s7 | FT-AGI-2 | R | `investigation_skill.py` runs evidence+coverage; assert the skill reaches documented answers |
+| s7 | FT-AGI-2 | ✅ G | done — documented answers + shipped schema guard |
 | s7 | FT-POL-1 | R | `suggest-policy` writes `--out` (real) + `what-if`; assert **no write outside `--out`** + broad-rule lint |
 | s7 | FT-FWK-1 | R | `framework_recipes.py`; assert each recipe runs against a pinned version + `unmapped` explicit |
 | s7 | FT-FWK-2 | R | `instrument_detect.py`; assert detected frameworks + gaps (no silent partial) |
@@ -558,7 +558,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s12 | FT-ACC-2 | ✅ G | done — every statement backed + banner |
 | s12 | FT-HLD-1 | G | — (hold_lifecycle asserts purge fails closed under hold) |
 | s13 | FT-ENV-1 | R | `env_delta.py` runs drift/diff/sessions; assert env delta ranks above behaviour delta |
-| s13 | FT-VFY-1 | V | `test -f verifier.html` + build `--check`; assert verdicts equal CLI + tampered bundle names the link |
+| s13 | FT-VFY-1 | ✅ G | done — shipped differential test |
 | s13 | FT-IR-1 | R | `case_incident.py`; assert the merged timeline ordering + classified gaps + offline bundle |
 | s13 | FT-CNC-1 | R | `concurrency_probe.py`; assert overlap reported + ranges marked `ambiguous` |
 | s13 | FT-SBX-1 | R | `oversight-corpus.py --sandbox`; assert "% calls unsandboxed" + denials by class |
@@ -586,6 +586,11 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-DEMO-1 | `demo_bundle_check.py` (synthetic + secret-free) | PASS |
 | FT-ACC-2 | `governance_notice_check.py` (statements backed + banner) | PASS |
 | FT-OUT-1 | `outcomes_check.py` (facts + derivation version) | PASS |
+| FT-IDN-2 | `privacy_property.py --what identity` (identity secret scan) | PASS |
+| FT-OUT-2 | `digest_check.py` (derived + versioned patterns) | PASS |
+| FT-VFY-1 | shipped `test_browser_verifier.py` (parity + first-broken) | PASS |
+| FT-SDK-1 | `sdk_lifecycle.py` (flush/no-op/thread-safe/deterministic) | PASS |
+| FT-AGI-2 | `investigation_skill.py` + shipped `test_agent_interfaces.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Systematic finding — the case *steps* are shallower than the plan (all 94 audited)

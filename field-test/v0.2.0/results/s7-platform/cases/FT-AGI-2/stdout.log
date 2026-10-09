@@ -1,3 +1,5 @@
 DO
-emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
-ok: skill reaches documented answers; CLI JSON published
+ok: investigation skill: demo-store answers match the skill (6 records; replay 6; impact 6 with a denial)
+.......                                                                  [100%]
+7 passed in 1.88s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_agent_interfaces.py

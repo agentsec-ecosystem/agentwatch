@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """M31 31.2 — privacy-mode property test: no content leaks (OTEL-3, IDN-2)."""
+import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _ftutil import arg, ok, records, run
+
+
+_SECRET = re.compile(r"sk-[A-Za-z0-9]{16,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----")
 
 
 def main(argv: list[str]) -> int:
@@ -12,6 +16,10 @@ def main(argv: list[str]) -> int:
     leaks: list[str] = []
     for r in records():
         tool = r.get("tool") or {}
+        if what == "identity":
+            for key, value in (r.get("identity") or {}).items():
+                if isinstance(value, str) and _SECRET.search(value):
+                    leaks.append(f"{r.get('session_id')}:identity.{key}")
         # Only captured *tool calls* carry user content; recorder control-plane
         # markers (privacy-mode-changed, retention-changed, …) legitimately carry
         # their own arguments and have no step_type.
@@ -21,8 +29,6 @@ def main(argv: list[str]) -> int:
             and r.get("step_type") in ("act", "observe")
             and (tool.get("arguments") or tool.get("response") or tool.get("content"))
         ):
-            leaks.append(str(r.get("session_id")))
-        if what == "identity" and (r.get("identity") or {}).get("secret"):
             leaks.append(str(r.get("session_id")))
     if leaks:
         print(f"leaks: {len(leaks)} ({what})", file=sys.stderr)

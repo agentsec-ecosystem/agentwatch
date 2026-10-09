@@ -1,4 +1,3 @@
 DO
-# agentwatch digest — last 30d
-
-No agent activity recorded in this window.
+emit-hook: 6 delivered, 0 spooled (6 frames) -> /run/agentwatch/agentwatch.sock
+ok: digest: records=6, signatures_version=sg1, patterns=3

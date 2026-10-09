@@ -1239,8 +1239,8 @@
     "prd": "API-1",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert \"openapi-present\" bash -lc \"curl -sf http://localhost:8100/openapi.json >/dev/null\"\n",
-    "recycle": false
+    "steps": "ft_assert \"openapi-present\" bash -lc \"curl -sf http://localhost:8100/openapi.json >/dev/null\"\nft_assert \"openapi-contract\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" services/api/tests/test_openapi_contract.py\n",
+    "recycle": true
   },
   {
     "id": "FT-EXA-1",
@@ -1252,7 +1252,7 @@
     "prd": "EXA-1",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert \"examples-gallery\" test -n \"$(find \"$REPO_ROOT/examples\" -name \"*.py\" -print -quit)\"\n",
+    "steps": "ft_assert \"examples-gallery\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_examples_gallery.py\n",
     "recycle": false
   },
   {
@@ -1265,7 +1265,7 @@
     "prd": "GOV-1",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"plugin-conformance\" \"python3 -c 'import agentwatch.conformance'\"\n",
+    "steps": "ft_assert \"codemod\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" tests/test_codemod_agent_exec_trace.py packages/python-sdk/tests/test_conformance_runner.py\n",
     "recycle": false
   },
   {

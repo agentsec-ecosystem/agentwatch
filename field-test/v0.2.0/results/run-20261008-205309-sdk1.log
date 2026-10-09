@@ -1,9 +1,0 @@
-/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
-######################## FT-SDK-1 (s7-platform) ########################
-== case FT-SDK-1 ==
-  PASS reset-recorder-restart
-  PASS state-reset
-  PASS stack-reused
-  PASS sdk-lifecycle
-== case FT-SDK-1: pass ==
->>> BATCH COMPLETE

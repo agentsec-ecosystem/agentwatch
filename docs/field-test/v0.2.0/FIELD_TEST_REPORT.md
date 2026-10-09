@@ -95,7 +95,7 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-ACS-1 | s6-surfaces | P/F\|D | PASS | — |
 | FT-AGI-1 | s7-platform | P/F | PASS | fixed F-1c: `mcp_surface.survey(records)` |
 | FT-AGI-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): recorder seeds a temp demo store and asserts the skill's documented answers (6 records; replay 6; impact 6 w/ a denial) + host runs shipped `test_agent_interfaces.py` (schema guard + skill) (was evidence+coverage) |
-| FT-API-1 | s7-platform | P/F | PASS | — |
+| FT-API-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): live `/openapi.json` + shipped `services/api/tests/test_openapi_contract.py` (drift) (was curl only) |
 | FT-APV-1 | s8-apv | P/F | PASS | — |
 | FT-APV-2 | s8-apv | P/F | PASS | — |
 | FT-APV-3 | s8-apv | P/F | PASS | — |
@@ -129,11 +129,11 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-DET-7 | s4-detectors | P/F | PASS | — |
 | FT-ENV-0 | s1-install | P/F | PASS | HARDENED: `first_run_timing.py` now enforces the ≤900 s budget; `naming_guard.py` asserts the NAM-1 warning fires for a foreign distribution (no false positive) → PASS |
 | FT-ENV-1 | s13-investigation | P/F | PASS | fixed F-1a: `diff <a> <b>` positionals |
-| FT-EXA-1 | s7-platform | P/F | PASS | fixed F-1c: examples-gallery step quoting |
+| FT-EXA-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_examples_gallery.py` — every recipe exists, is indexed, and runs green or is explicitly illustrative (was `find` only) |
 | FT-FWK-1 | s7-platform | P/F\|D | PASS | fixed F-1c: `framework_recipes` signature |
 | FT-FWK-2 | s7-platform | P/F | PASS | fixed F-1c: `detect_installed()` iterable |
 | FT-GEM-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the gemini corpus |
-| FT-GOV-1 | s7-platform | P/F | PASS | — |
+| FT-GOV-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `tests/test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` (codemod + unregistered-plugin rejection) (was `import` only) |
 | FT-GWY-1 | s6-surfaces | P/F | PASS | — |
 | FT-HLD-1 | s12-governance | P/F | PASS | fixed F-1a: `hold add --reason` |
 | FT-HOSTILE-1 | s15-hostile | P/F | PASS | fixed F-1b: hostile ingest via a real `--format` |
@@ -523,7 +523,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s4 | FT-COR-1 | R | `corpus.sh` exit 0; assert the numbers reproduce the published set within stated bounds + CIs |
 | s4 | FT-RED-1 | R | `redact eval --json` exit 0; assert per-class recall/FP + misses listed in known-limitations |
 | s5 | FT-IDN-1 | G | — (fleet-run asserts identity + delegation) |
-| s5 | FT-IDN-2 | R | `privacy_property --what identity` now checks identity secrets — keep, add a hashed-by-default assertion |
+| s5 | FT-IDN-2 | ✅ G | done — identity secret scan |
 | s5 | FT-IDN-3 | R | `search --identity user` exit 0; assert `credential_class: ambient/shared` fires with precision/recall |
 | s5 | FT-CMP-1 | R | `compliance report` exit 0; regenerate one row's cited command; assert zero unverifiable claims |
 | s5 | FT-CMP-2 | R | `signed_default.py` runs export/verify/doctor; assert tamper **fails** + missing key names the key id/epoch |
@@ -536,9 +536,9 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s6 | FT-CCA-1 | R | ingest exit 0; assert consent gating + pull recorded as `store-access` |
 | s6 | FT-ACS-1 | R | ingest + verify-store; assert `record_phase: pre_execution` + no decision executes |
 | s7 | FT-SDK-1 | ✅ G | done — real lifecycle driver |
-| s7 | FT-API-1 | V | `curl openapi.json`; add a contract test that fails on live-app/client drift |
-| s7 | FT-EXA-1 | V | `find examples -name '*.py'`; run each recipe and assert it passes |
-| s7 | FT-GOV-1 | V | `import agentwatch.conformance`; run the codemod against a migration fixture |
+| s7 | FT-API-1 | ✅ G | done — live + shipped contract test |
+| s7 | FT-EXA-1 | ✅ G | done — shipped examples-gallery gate |
+| s7 | FT-GOV-1 | ✅ G | done — shipped codemod + conformance tests |
 | s7 | FT-AGI-1 | G | — (mcp_readonly asserts no write tool) |
 | s7 | FT-AGI-2 | ✅ G | done — documented answers + shipped schema guard |
 | s7 | FT-POL-1 | R | `suggest-policy` writes `--out` (real) + `what-if`; assert **no write outside `--out`** + broad-rule lint |
@@ -563,7 +563,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s13 | FT-CNC-1 | R | `concurrency_probe.py`; assert overlap reported + ranges marked `ambiguous` |
 | s13 | FT-SBX-1 | R | `oversight-corpus.py --sandbox`; assert "% calls unsandboxed" + denials by class |
 | s14 | FT-OUT-1 | ✅ G | done — facts + derivation version |
-| s14 | FT-OUT-2 | R | `digest` exit 0; assert top-N patterns + counts + links to replay/diff |
+| s14 | FT-OUT-2 | ✅ G | done — derived + versioned patterns |
 | s14 | FT-RUN-1 | R | `segment-runner.py`; assert sealed segment verifies + imported visibly weaker than local |
 | s14 | FT-DEMO-1 | ✅ G | done — synthetic + secret-free |
 | s14 | FT-NTF-1 | R | `alert_recipes.py`; assert the three recipes fire via the shipped `WebhookSink` |
@@ -591,6 +591,9 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-VFY-1 | shipped `test_browser_verifier.py` (parity + first-broken) | PASS |
 | FT-SDK-1 | `sdk_lifecycle.py` (flush/no-op/thread-safe/deterministic) | PASS |
 | FT-AGI-2 | `investigation_skill.py` + shipped `test_agent_interfaces.py` | PASS |
+| FT-API-1 | live `/openapi.json` + shipped `test_openapi_contract.py` | PASS |
+| FT-EXA-1 | shipped `test_examples_gallery.py` | PASS |
+| FT-GOV-1 | shipped `test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Systematic finding — the case *steps* are shallower than the plan (all 94 audited)

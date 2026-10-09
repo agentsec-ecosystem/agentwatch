@@ -1,8 +1,0 @@
-/Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/fieldtest/lib.sh: line 129: /commands.log: Read-only file system
-######################## FT-VFY-1 (s13-investigation) ########################
-== case FT-VFY-1 ==
-  PASS verifier-artifact
-  PASS verifier-checksum
-  PASS verifier-parity
-== case FT-VFY-1: pass ==
->>> BATCH COMPLETE

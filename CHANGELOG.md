@@ -5,6 +5,12 @@ versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-09
+
+### Fixed
+- `agentwatch --version` reported the `0.1.0` fallback because `_version()` queried the namesake
+  distribution `agentwatch` instead of `agentsec-agentwatch`; it now returns the real version (#497).
+
 ## [0.2.0] - 2026-10-09
 
 ### Added
@@ -717,6 +723,7 @@ versioning: [Semantic Versioning](https://semver.org/).
 - Initial release: Claude Code recording, OTel GenAI export, security-event schema, redaction-by-default,
   local-first hash-chained store, session replay (R1–R8).
 
-[Unreleased]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/agentsec-ecosystem/agentwatch/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/agentsec-ecosystem/agentwatch/releases/tag/v0.1.0

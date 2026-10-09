@@ -260,14 +260,17 @@ _EXIT_USAGE_ERROR = errors.exit_code(errors.ErrorCode.USAGE)
 
 
 def _version() -> str:
+    from agentwatch import __version__
+
     try:
         from importlib.metadata import PackageNotFoundError, version
     except ImportError:  # pragma: no cover - stdlib always present on 3.10+
-        return "0.1.0"
+        return __version__
     try:
-        return version("agentwatch")
+        # The distribution is `agentsec-agentwatch`; a bare `agentwatch` is a namesake.
+        return version(naming.DISTRIBUTION_NAME)
     except PackageNotFoundError:  # pragma: no cover - editable/source checkout
-        return "0.1.0"
+        return __version__
 
 
 def _version_string() -> str:

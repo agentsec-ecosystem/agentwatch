@@ -1,2 +1,5 @@
 DO
 ok: provenance check
+..................                                                       [100%]
+18 passed in 1.69s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_provenance.py

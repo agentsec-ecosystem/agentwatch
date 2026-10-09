@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"commit-to-session","ok":true}
+{"name":"provenance-semantics","ok":true}

@@ -1,2 +1,5 @@
 DO
 ok: instrument() detected frameworks + gaps (no silent partial): installed=[] missing=['adk', 'claude-agent-sdk', 'openai-agents', 'strands']
+...........                                                              [100%]
+11 passed in 0.08s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_autoinstrument.py

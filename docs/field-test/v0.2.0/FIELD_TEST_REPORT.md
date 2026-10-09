@@ -96,9 +96,9 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-AGI-1 | s7-platform | P/F | PASS | fixed F-1c: `mcp_surface.survey(records)` |
 | FT-AGI-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): recorder seeds a temp demo store and asserts the skill's documented answers (6 records; replay 6; impact 6 w/ a denial) + host runs shipped `test_agent_interfaces.py` (schema guard + skill) (was evidence+coverage) |
 | FT-API-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): live `/openapi.json` + shipped `services/api/tests/test_openapi_contract.py` (drift) (was curl only) |
-| FT-APV-1 | s8-apv | P/F | PASS | — |
-| FT-APV-2 | s8-apv | P/F | PASS | — |
-| FT-APV-3 | s8-apv | P/F | PASS | — |
+| FT-APV-1 | s8-apv | P/F | PASS | HARDENED (confirmed PASS): shipped `test_authorization.py` — taxonomy v2, classifier never user/rule, legacy `approval` maps at read time (was fidelity driver exit-0) |
+| FT-APV-2 | s8-apv | P/F | PASS | HARDENED (confirmed PASS): shipped `test_permission_mode.py` — per-call mode + transition observations, bypass interval flagged, missing = unknown (was modes driver exit-0) |
+| FT-APV-3 | s8-apv | P/F | PASS | HARDENED (confirmed PASS): shipped `test_oversight.py` — authorization mix/cross-tab, ratios always carry a denominator, version-stamped (was report driver exit-0) |
 | FT-ASI-1 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_compliance_asi.py` — all 10 ASI rows + AST10, no prevention claim, every evidenced command runs (was report exit-0) |
 | FT-BACKEND-2 | s15-hostile | P/F | PASS | FIXED (R4): `tempo` added to `V020_PROFILE_SERVICES` (`lib.sh`) + `otlp/tempo` exporter/fan-out in `deploy/otel-collector-config.yml`; re-run PASS (`svc-tempo` up, trace resolves in Tempo) |
 | FT-CAP-1 | s9-capability | P/F | PASS | HARDENED (confirmed PASS): shipped `test_capability_drift.py` — Plugin4Shell content-changed/version-unchanged class + scope+digest, factual wording (was drift driver exit-0) |
@@ -128,10 +128,10 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-DET-6 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_detector_catalog.py` — per-detector precision/recall regenerated from the field-test matrix; the committed doc cannot drift (was matrix + non-silent check) |
 | FT-DET-7 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_detector_real_traces.py` — every rule detector runs over real licensed captures (was matrix + non-silent check) |
 | FT-ENV-0 | s1-install | P/F | PASS | HARDENED: `first_run_timing.py` now enforces the ≤900 s budget; `naming_guard.py` asserts the NAM-1 warning fires for a foreign distribution (no false positive) → PASS |
-| FT-ENV-1 | s13-investigation | P/F | PASS | fixed F-1a: `diff <a> <b>` positionals |
+| FT-ENV-1 | s13-investigation | P/F | PASS | HARDENED (confirmed PASS): shipped `test_environment_fingerprint.py` — env delta surfaced beside behaviour delta, absent facts unknown (was env-delta driver exit-0) |
 | FT-EXA-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_examples_gallery.py` — every recipe exists, is indexed, and runs green or is explicitly illustrative (was `find` only) |
 | FT-FWK-1 | s7-platform | P/F\|D | PASS | HARDENED (confirmed PASS): `framework_recipes.py` asserts each recipe ≤2 lines, a valid source tag, a pinned version, and non-empty identity/step/cost mappings; shipped `test_frameworks.py` (was line-count only) |
-| FT-FWK-2 | s7-platform | P/F | PASS | fixed F-1c: `detect_installed()` iterable |
+| FT-FWK-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_autoinstrument.py` — detected frameworks + explicit gaps, idempotent, flush-on-exit once (was instrument-detect driver exit-0) |
 | FT-GEM-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): per-event `expected` fidelity for the gemini corpus |
 | FT-GOV-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `tests/test_codemod_agent_exec_trace.py` + `test_conformance_runner.py` (codemod + unregistered-plugin rejection) (was `import` only) |
 | FT-GWY-1 | s6-surfaces | P/F | PASS | HARDENED (confirmed PASS): shipped `test_gateway_cost.py` — exact gateway usage preferred + each cost row stamped exact/estimated (was ingest + `grep exact\|estimated`) |
@@ -160,9 +160,9 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-PG-2 | s2-interop | P/F\|D | PASS | ✓ grounded: cross-tenant `search` returns empty + coverage |
 | FT-PG-3 | s2-interop | P/F\|D | PASS | HARDENED (confirmed PASS): `sdk_emit.py` asserts the union integrity distinction (hook chain-protected, SDK read-only) + verify-store |
 | FT-POL-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): shipped `test_policy_suggest.py` + `test_policy_whatif.py` — never-allow classes stay ask, broad-rule lint, writes only `--out`, deterministic simulation (was `--out` + what-if exit-0) |
-| FT-PRV-1 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
+| FT-PRV-1 | s10-provenance | P/F | PASS | HARDENED (confirmed PASS): shipped `test_provenance.py` — commit→session <2s, no-session says 'no recorded agent activity', mixed/gaps (was commit-to-session driver exit-0) |
 | FT-PRV-2 | s10-provenance | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
-| FT-PRV-3 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
+| FT-PRV-3 | s10-provenance | P/F | PASS | HARDENED (confirmed PASS): shipped `test_code_provenance.py` — range+keyed-hash content-free under metadata-only, attack pack never leaks (was range-hash driver exit-0) |
 | FT-RED-1 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_redact_eval.py` — deterministic offline eval, published per-class recall/FP, known misses listed (was `redact eval --json` exit-0) |
 | FT-RUN-1 | s14-outcomes | P/F | PASS | HARDENED (confirmed PASS): shipped `test_runner_segments.py` — sealed segment self-verifies; imported records anchored + visibly weaker than local (was segment driver exit-0) |
 | FT-SBX-1 | s13-investigation | P/F\|D | PASS | HARDENED (confirmed PASS): shipped `test_sandbox_events.py` — oversight reports % unsandboxed + denials by class; unknown counted separately (was sandbox driver exit-0) |
@@ -543,21 +543,21 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s7 | FT-AGI-2 | ✅ G | done — documented answers + shipped schema guard |
 | s7 | FT-POL-1 | ✅ G | done — shipped policy tests |
 | s7 | FT-FWK-1 | ✅ G | done — recipe integrity + shipped test |
-| s7 | FT-FWK-2 | R | `instrument_detect.py`; assert detected frameworks + gaps (no silent partial) |
+| s7 | FT-FWK-2 | ✅ G | done — shipped test |
 | s7 | FT-CCO-1 | ✅ G | done — coverage join + shipped test |
 | s7 | FT-CCO-2 | ✅ G | done — shipped claude-agent-sdk test |
 | s7 | FT-TSS-1 | V | `grep -q TSS-1 <wbs>`; link the spike report and assert its findings produced M31 tickets |
 | s8 | FT-APV-1/2/3 | R | `oversight-corpus.py` runs `oversight --json`; assert no auto/bypass misreported as `user` + mode transitions |
 | s9 | FT-CAP-1 | ✅ G | done — shipped test |
 | s9 | FT-MEM-1 | ✅ G | done — shipped test |
-| s10 | FT-PRV-1 | R | `provenance-repo.py --commit-to-session`; assert commit→session <2 s + `mixed`/gaps |
-| s10 | FT-PRV-3 | R | `--range-hash`; assert ranges/hashes under metadata-only + no content/diff text |
+| s10 | FT-PRV-1 | ✅ G | done — shipped test |
+| s10 | FT-PRV-3 | ✅ G | done — shipped test |
 | s11 | FT-LUI-1 | V+G | `ui --check` + `import` are weak; the Playwright/axe check is real — add UI≡CLI `--json` |
 | s11 | FT-LUI-2 | R | `index rebuild/drop/rebuild` exit 0; assert bit-for-bit rebuild + purge/retention propagate |
 | s12 | FT-ACC-1 | ✅ G | done — shipped test |
 | s12 | FT-ACC-2 | ✅ G | done — every statement backed + banner |
 | s12 | FT-HLD-1 | G | — (hold_lifecycle asserts purge fails closed under hold) |
-| s13 | FT-ENV-1 | R | `env_delta.py` runs drift/diff/sessions; assert env delta ranks above behaviour delta |
+| s13 | FT-ENV-1 | ✅ G | done — shipped test |
 | s13 | FT-VFY-1 | ✅ G | done — shipped differential test |
 | s13 | FT-IR-1 | ✅ G | done — ordered timeline + offline bundle + shipped test |
 | s13 | FT-CNC-1 | ✅ G | done — shipped test |
@@ -568,8 +568,7 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s14 | FT-DEMO-1 | ✅ G | done — synthetic + secret-free |
 | s14 | FT-NTF-1 | ✅ G | done — shipped test |
 | s15 | FT-HOSTILE-1 | G | — (hostile-ingest asserts quarantine) |
-| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |
-**Counts:** grounded ≈ **31** (28 hardened/verified + FT-IDN-1, FT-A2A-1, FT-AGI-1, FT-HLD-1, FT-HOSTILE-1), of which
+| s15 | FT-CLAIM-1 | ✅ G | done — claims backed + generated table |**Counts:** grounded ≈ **31** (28 hardened/verified + FT-IDN-1, FT-A2A-1, FT-AGI-1, FT-HLD-1, FT-HOSTILE-1), of which
 the ones previously counted are exact; the rest of the 88 PASS are **run-only or vacuous** and make up the backlog
 above. 4 FAIL, 1 declared (FT-XHT-2), 1 N/A (FT-WIN-1).
 
@@ -620,6 +619,13 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-NTF-1 | shipped `test_alert_recipes.py` | PASS |
 | FT-ACC-1 | shipped `test_access.py` | PASS |
 | FT-CNC-1 | shipped `test_concurrency.py` | PASS |
+| FT-APV-1 | shipped `test_authorization.py` | PASS |
+| FT-APV-2 | shipped `test_permission_mode.py` | PASS |
+| FT-APV-3 | shipped `test_oversight.py` | PASS |
+| FT-PRV-1 | shipped `test_provenance.py` | PASS |
+| FT-PRV-3 | shipped `test_code_provenance.py` | PASS |
+| FT-ENV-1 | shipped `test_environment_fingerprint.py` | PASS |
+| FT-FWK-2 | shipped `test_autoinstrument.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Hardening patterns (the common shapes)

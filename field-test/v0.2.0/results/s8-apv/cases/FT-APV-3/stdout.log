@@ -1,2 +1,5 @@
 DO
 ok: oversight check
+..............                                                           [100%]
+14 passed in 0.56s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_oversight.py

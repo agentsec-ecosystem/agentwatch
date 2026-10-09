@@ -4,6 +4,6 @@
   "class": "P/F",
   "declared": false,
   "run_id": "s8-apv",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"approval-fidelity","ok":true}
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"approval-fidelity","ok":true},{"name":"authorization-semantics","ok":true}
 ]
 }

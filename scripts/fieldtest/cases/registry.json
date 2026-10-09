@@ -1330,7 +1330,7 @@
     "prd": "FWK-2",
     "class": "P/F",
     "suite": "s7-platform",
-    "steps": "ft_assert_recorder \"instrument-detect\" \"python3 /ft/scripts/instrument_detect.py\"\n",
+    "steps": "ft_assert_recorder \"instrument-detect\" \"python3 /ft/scripts/instrument_detect.py\"\nft_assert \"instrument-detect-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_autoinstrument.py\n",
     "recycle": false
   },
   {
@@ -1382,7 +1382,7 @@
     "prd": "APV-1",
     "class": "P/F",
     "suite": "s8-apv",
-    "steps": "ft_assert_recorder \"approval-fidelity\" \"python3 /ft/scripts/oversight-corpus.py --fidelity\"\n",
+    "steps": "ft_assert_recorder \"approval-fidelity\" \"python3 /ft/scripts/oversight-corpus.py --fidelity\"\nft_assert \"authorization-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_authorization.py\n",
     "recycle": false
   },
   {
@@ -1395,7 +1395,7 @@
     "prd": "APV-3",
     "class": "P/F",
     "suite": "s8-apv",
-    "steps": "ft_assert_recorder \"oversight-report\" \"python3 /ft/scripts/oversight-corpus.py --report\"\n",
+    "steps": "ft_assert_recorder \"oversight-report\" \"python3 /ft/scripts/oversight-corpus.py --report\"\nft_assert \"permission-mode-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_permission_mode.py\n",
     "recycle": false
   },
   {
@@ -1408,7 +1408,7 @@
     "prd": "APV-2",
     "class": "P/F",
     "suite": "s8-apv",
-    "steps": "ft_assert_recorder \"permission-mode\" \"python3 /ft/scripts/oversight-corpus.py --modes\"\n",
+    "steps": "ft_assert_recorder \"permission-mode\" \"python3 /ft/scripts/oversight-corpus.py --modes\"\nft_assert \"oversight-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_oversight.py\n",
     "recycle": false
   },
   {
@@ -1460,7 +1460,7 @@
     "prd": "PRV-1",
     "class": "P/F",
     "suite": "s10-provenance",
-    "steps": "ft_assert_recorder \"commit-to-session\" \"python3 /ft/scripts/provenance-repo.py --commit-to-session\"\n",
+    "steps": "ft_assert_recorder \"commit-to-session\" \"python3 /ft/scripts/provenance-repo.py --commit-to-session\"\nft_assert \"provenance-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_provenance.py\n",
     "recycle": false
   },
   {
@@ -1486,7 +1486,7 @@
     "prd": "PRV-2",
     "class": "P/F",
     "suite": "s10-provenance",
-    "steps": "ft_assert_recorder \"range-hash-capture\" \"python3 /ft/scripts/provenance-repo.py --range-hash\"\n",
+    "steps": "ft_assert_recorder \"range-hash-capture\" \"python3 /ft/scripts/provenance-repo.py --range-hash\"\nft_assert \"range-hash-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_code_provenance.py\n",
     "recycle": false
   },
   {
@@ -1564,7 +1564,7 @@
     "prd": "ENV-1",
     "class": "P/F",
     "suite": "s13-investigation",
-    "steps": "ft_assert_recorder \"env-delta\" \"python3 /ft/scripts/env_delta.py\"\n",
+    "steps": "ft_assert_recorder \"env-delta\" \"python3 /ft/scripts/env_delta.py\"\nft_assert \"env-delta-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_environment_fingerprint.py\n",
     "recycle": false
   },
   {

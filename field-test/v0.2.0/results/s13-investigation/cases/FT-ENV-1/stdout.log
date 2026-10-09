@@ -1,2 +1,5 @@
 DO
 ok: environment delta surfaced above behavior delta ('coincides with')
+.........                                                                [100%]
+9 passed in 1.34s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_environment_fingerprint.py

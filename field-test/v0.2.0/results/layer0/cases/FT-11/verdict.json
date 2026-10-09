@@ -1,9 +1,0 @@
-{
-  "id": "FT-11",
-  "status": "pass",
-  "class": "P/F",
-  "declared": false,
-  "run_id": "layer0",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"drive-agent","ok":true},{"name":"verify-store","ok":true},{"name":"records","ok":true},{"name":"llm-io-captured","ok":true},{"name":"llm-response-captured","ok":true},{"name":"store-has-records","ok":true}
-]
-}

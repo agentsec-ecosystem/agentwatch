@@ -1,3 +1,0 @@
- Container agentwatch-recorder-1 Restarting 
- Container agentwatch-recorder-1 Started 
-{"error": {"code": "E_FAILED", "message": "The command failed without a more specific code.", "hint": "Re-run with more context or check the message.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-failed"}}

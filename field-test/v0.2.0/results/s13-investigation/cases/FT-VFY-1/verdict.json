@@ -1,9 +1,0 @@
-{
-  "id": "FT-VFY-1",
-  "status": "pass",
-  "class": "P/F",
-  "declared": false,
-  "run_id": "s13-investigation",
-  "assertions": [{"name":"verifier-artifact","ok":true},{"name":"verifier-checksum","ok":true}
-]
-}

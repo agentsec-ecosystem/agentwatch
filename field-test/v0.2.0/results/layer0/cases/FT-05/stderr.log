@@ -1,4 +1,0 @@
- Container agentwatch-recorder-1 Restarting 
- Container agentwatch-recorder-1 Started 
-agentwatch: chain broken at seq 1
-{"error": {"code": "E_CHAIN_BROKEN", "message": "chain broken at seq 1", "hint": "Run `agentwatch sessions --check` or `agentwatch verify-store` for the break.", "doc_url": "https://github.com/agentsec-ecosystem/agentwatch/blob/main/docs/reference/errors.md#e-chain-broken"}}

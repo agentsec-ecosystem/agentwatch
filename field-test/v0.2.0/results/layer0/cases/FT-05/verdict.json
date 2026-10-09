@@ -1,9 +1,0 @@
-{
-  "id": "FT-05",
-  "status": "pass",
-  "class": "P/F",
-  "declared": false,
-  "run_id": "layer0",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"emit","ok":true},{"name":"tamper-detected","ok":true},{"name":"break-at-seq1","ok":true},{"name":"store-has-records","ok":true}
-]
-}

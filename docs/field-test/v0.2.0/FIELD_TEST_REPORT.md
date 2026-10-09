@@ -81,100 +81,100 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 
 | Case | Suite | Class | Status | Notes |
 |---|---|---|---|---|
-| FT-A2A-1 | s6-surfaces | P/F | PASS | — |
-| FT-AAT-1 | s2-interop | P/F | PASS | — |
-| FT-AAT-2 | s2-interop | P/F | PASS | fixed H-1/H-5: AAT ingest shape + fixtures mounted |
-| FT-AAT-3 | s2-interop | P/F | PASS | — |
-| FT-ACC-1 | s12-governance | P/F | PASS | — |
-| FT-ACC-2 | s12-governance | P/F | PASS | — |
-| FT-ACS-1 | s6-surfaces | P/F|D | PASS | — |
-| FT-AGI-1 | s7-platform | P/F | PASS | fixed F-1c: `mcp_surface.survey(records)` |
-| FT-AGI-2 | s7-platform | P/F | PASS | ✅ fixed (F-4e): seeded session `ft04` via `ft_emit --corpus secrets` and used a valid `--include incident-report.json`; `evidence` + `coverage --json` answer |
-| FT-API-1 | s7-platform | P/F | PASS | — |
-| FT-APV-1 | s8-apv | P/F | PASS | — |
-| FT-APV-2 | s8-apv | P/F | PASS | — |
-| FT-APV-3 | s8-apv | P/F | PASS | — |
-| FT-ASI-1 | s5-identity | P/F | PASS | — |
-| FT-BACKEND-2 | s15-hostile | P/F | PASS | — |
-| FT-CAP-1 | s9-capability | P/F | PASS | — |
-| FT-CAP-2 | s9-capability | P/F | PASS | — |
-| FT-CCA-1 | s6-surfaces | P/F | PASS | — |
-| FT-CCO-1 | s7-platform | P/F | PASS | — |
-| FT-CCO-2 | s7-platform | P/F | PASS | — |
-| FT-CLAIM-1 | s15-hostile | P/F | PASS | — |
-| FT-CMP-1 | s5-identity | P/F | PASS | — |
-| FT-CMP-2 | s5-identity | P/F | PASS | fixed F-1a: `retention apply --profile general-6mo` enum |
-| FT-CMP-3 | s5-identity | P/F | PASS | — |
-| FT-CNC-1 | s13-investigation | P/F|D | PASS | fixed F-1a: incident via case_incident.py (auto case id) |
-| FT-COD-1 | s3-harness | P/F | PASS | — |
-| FT-COR-1 | s4-detectors | P/F | PASS | — |
-| FT-COR-2 | s4-detectors | P/F | PASS | — |
-| FT-CUR-1 | s3-harness | P/F|D | PASS | fixed H-1/H-5: cursor corpus ingest + normalize `message` |
-| FT-CUR-2 | s3-harness | P/F | PASS | fixed F-1b: cursor ingest dispatch (not `--kind`) |
-| FT-DEMO-1 | s14-outcomes | P/F|D | PASS | — |
-| FT-DEP-1 | s1-install | P/F|D | PASS | fixed H-6: doctor regex + fixture mount |
-| FT-DEP-2 | s1-install | P/F | PASS | — |
-| FT-DEP-3 | s1-install | P/F|D | PASS | — |
-| FT-DET-1 | s4-detectors | P/F | PASS | — |
-| FT-DET-2 | s4-detectors | P/F | PASS | fixed F-1c: mount artifact path for detector eval |
-| FT-DET-3 | s4-detectors | P/F | PASS | fixed F-1c: drop invalid `--llm`; LLM matrix |
-| FT-DET-4 | s4-detectors | P/F | PASS | — |
-| FT-DET-5 | s4-detectors | P/F | PASS | fixed F-1c: step quoting |
-| FT-DET-6 | s4-detectors | P/F | PASS | — |
-| FT-DET-7 | s4-detectors | P/F | PASS | — |
-| FT-ENV-0 | s1-install | P/F | PASS | — |
-| FT-ENV-1 | s13-investigation | P/F | PASS | fixed F-1a: `diff <a> <b>` positionals |
-| FT-EXA-1 | s7-platform | P/F | PASS | fixed F-1c: examples-gallery step quoting |
-| FT-FWK-1 | s7-platform | P/F|D | PASS | fixed F-1c: `framework_recipes` signature |
-| FT-FWK-2 | s7-platform | P/F | PASS | fixed F-1c: `detect_installed()` iterable |
-| FT-GEM-1 | s3-harness | P/F | PASS | fixed H-1/H-5: gemini ingest normalize `message` |
-| FT-GOV-1 | s7-platform | P/F | PASS | — |
-| FT-GWY-1 | s6-surfaces | P/F | PASS | — |
-| FT-HLD-1 | s12-governance | P/F | PASS | fixed F-1a: `hold add --reason` |
-| FT-HOSTILE-1 | s15-hostile | P/F | PASS | fixed F-1b: hostile ingest via a real `--format` |
-| FT-IDN-1 | s5-identity | P/F | PASS | ✅ fixed (F-4a): driver's `--attribution` mode seeds a multi-agent chain with `principal` + `delegation_chain`; `trace`/`impact`/`tree`/`blame` answer identity + delegation (or honest `unknown`) in one command |
-| FT-IDN-2 | s5-identity | P/F | PASS | — |
-| FT-IDN-3 | s5-identity | P/F | PASS | fixed F-1a: `search --identity user` value |
-| FT-IR-1 | s13-investigation | P/F | PASS | fixed F-1a: incident create via case_incident.py |
-| FT-LG-1 | s3-harness | P/F | PASS | fixed F-1c: `drive-agent.py` (no `--framework`) |
-| FT-LOG-1 | s3-harness | P/F | PASS | ✅ fixed (F-4b/F-1b): `ingest-fixture.py` now dispatches the long-tail corpus per file — claude-code `.jsonl` via `importer.import_transcripts`, codex `.jsonl` via `codex_rollout.ingest_rollouts`, cursor/gemini framed fixtures via their adapters (was a single wrong `claude_code` adapter over `*.json` only) |
-| FT-LUI-1 | s11-console | P/F | PASS | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
-| FT-LUI-2 | s11-console | P/F | PASS | — |
-| FT-MATRIX-1 | s15-hostile | P/F | PASS | — |
-| FT-MCP-1 | s3-harness | P/F | PASS | fixed F-1b: MCP ingest dispatch |
-| FT-MCP-2 | s3-harness | P/F | PASS | ✅ fixed (F-4b/F-1b): added the `mcp-malformed` fixture (closed-by-spec `roots/list`, missing `params`, missing `rpc`) and a driver branch that quarantines non-normalizable frames via `agentwatch.quarantine.QuarantineLog` (reason names the offending field) while normalizable frames ingest |
-| FT-MEM-1 | s9-capability | P/F | PASS | — |
-| FT-NTF-1 | s14-outcomes | P/F|D | PASS | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
-| FT-OTEL-1 | s2-interop | P/F | PASS | fixed H-6: jaeger wait / default |
-| FT-OTEL-2 | s2-interop | P/F | PASS | fixed H-4: `--spans` (not `--mb`) |
-| FT-OTEL-3 | s2-interop | P/F | PASS | ✅ fixed (F-4f): generator step now greps `privacy_mode.*metadata-only`; the old text's nested `"` were stripped by the shell chain |
-| FT-OTEL-4 | s2-interop | P/F|D | PASS | — |
-| FT-OUT-1 | s14-outcomes | P/F|D | PASS | — |
-| FT-OUT-2 | s14-outcomes | P/F|D | PASS | — |
-| FT-PG-1 | s2-interop | P/F|D | PASS | — |
-| FT-PG-2 | s2-interop | P/F|D | PASS | — |
-| FT-PG-3 | s2-interop | P/F|D | PASS | fixed F-1c: `drive-agent.py` (no `--sdk`) |
-| FT-POL-1 | s7-platform | P/F | PASS | fixed F-1a: `what-if <policy_file>` positional |
-| FT-PRV-1 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
-| FT-PRV-2 | s10-provenance | P/F | PASS | — |
-| FT-PRV-3 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
-| FT-RED-1 | s4-detectors | P/F | PASS | ✅ fixed (F-4d): mounted the canonical `schema/vectors/redaction` corpus at `/work/schema/vectors/redaction` so `redact eval` resolves it via `_corpus_root()`; per-class numbers reproduced |
-| FT-RUN-1 | s14-outcomes | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) ahead of the driver; the sealed segment exports, imports and anchors |
-| FT-SBX-1 | s13-investigation | P/F|D | PASS | fixed F-1c: `sandbox_boundary_event()` 0-arg |
-| FT-SDK-1 | s7-platform | P/F | PASS | — |
-| FT-SIEM-1 | s5-identity | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
-| FT-STR-1 | s3-harness | P/F | PASS | — |
-| FT-STR-2 | s3-harness | P/F | PASS | fixed F-1c: `stream-probe` accepts a path |
-| FT-SYS-1 | s6-surfaces | P/F|D | PASS | fixed H-7: declared → real assertion |
-| FT-TRACE-1 | s2-interop | P/F | PASS | ✅ fixed (F-4a): driver now seeds a genuine 3-host × 3-harness chain (host-tagged, W3C `traceparent`, `parent_span_id`), ingests via `agentwatch fleet ingest`, and reconstructs with `trace <trace_id>`; the injected broker gap is classified `missing-parent` |
-| FT-TRACE-2 | s2-interop | P/F | PASS | ✅ fixed (F-4a): same driver, `--skew 3` mode seeds a child that starts 3 s before its parent; `trace <tid>` flags a `clock-skew` gap (F9), never silently reorders |
-| FT-TSS-1 | s7-platform | P/F|D | PASS | fixed H-7: declared → real assertion |
-| FT-VFY-1 | s13-investigation | P/F | PASS | — |
-| FT-WIN-1 | s1-install | P/F|D | FAIL | **platform F-2**: no Windows host |
-| FT-XHT-1 | s3-harness | P/F | PASS | ✅ fixed (F-3): driver registers the shipped adapters via the SDK's canonical `conformance_registry` (fixtures in `packages/python-sdk/tests/fixtures/`), not the field-test corpora whose `manifest.json` broke the `message`/`expected` contract; all 8 adapters conform. XHT-2/3 re-run (no regression) |
-| FT-XHT-2 | s3-harness | P/F|D | PASS | fixed F-3: register shipped adapters in self-test |
-| FT-XHT-3 | s3-harness | P/F | PASS | fixed F-3: register shipped adapters |
-| FT-XHT-4 | s3-harness | P/F | PASS | — |
+| FT-A2A-1 | s6-surfaces | P/F | not run | — |
+| FT-AAT-1 | s2-interop | P/F | not run | — |
+| FT-AAT-2 | s2-interop | P/F | not run | fixed H-1/H-5: AAT ingest shape + fixtures mounted |
+| FT-AAT-3 | s2-interop | P/F | not run | — |
+| FT-ACC-1 | s12-governance | P/F | not run | — |
+| FT-ACC-2 | s12-governance | P/F | not run | — |
+| FT-ACS-1 | s6-surfaces | P/F|D | not run | — |
+| FT-AGI-1 | s7-platform | P/F | not run | fixed F-1c: `mcp_surface.survey(records)` |
+| FT-AGI-2 | s7-platform | P/F | not run | ✅ fixed (F-4e): seeded session `ft04` via `ft_emit --corpus secrets` and used a valid `--include incident-report.json`; `evidence` + `coverage --json` answer |
+| FT-API-1 | s7-platform | P/F | not run | — |
+| FT-APV-1 | s8-apv | P/F | not run | — |
+| FT-APV-2 | s8-apv | P/F | not run | — |
+| FT-APV-3 | s8-apv | P/F | not run | — |
+| FT-ASI-1 | s5-identity | P/F | not run | — |
+| FT-BACKEND-2 | s15-hostile | P/F | not run | — |
+| FT-CAP-1 | s9-capability | P/F | not run | — |
+| FT-CAP-2 | s9-capability | P/F | not run | — |
+| FT-CCA-1 | s6-surfaces | P/F | not run | — |
+| FT-CCO-1 | s7-platform | P/F | not run | — |
+| FT-CCO-2 | s7-platform | P/F | not run | — |
+| FT-CLAIM-1 | s15-hostile | P/F | not run | — |
+| FT-CMP-1 | s5-identity | P/F | not run | — |
+| FT-CMP-2 | s5-identity | P/F | not run | fixed F-1a: `retention apply --profile general-6mo` enum |
+| FT-CMP-3 | s5-identity | P/F | not run | — |
+| FT-CNC-1 | s13-investigation | P/F|D | not run | fixed F-1a: incident via case_incident.py (auto case id) |
+| FT-COD-1 | s3-harness | P/F | not run | — |
+| FT-COR-1 | s4-detectors | P/F | not run | — |
+| FT-COR-2 | s4-detectors | P/F | not run | — |
+| FT-CUR-1 | s3-harness | P/F|D | not run | fixed H-1/H-5: cursor corpus ingest + normalize `message` |
+| FT-CUR-2 | s3-harness | P/F | not run | fixed F-1b: cursor ingest dispatch (not `--kind`) |
+| FT-DEMO-1 | s14-outcomes | P/F|D | not run | — |
+| FT-DEP-1 | s1-install | P/F|D | not run | fixed H-6: doctor regex + fixture mount |
+| FT-DEP-2 | s1-install | P/F | not run | — |
+| FT-DEP-3 | s1-install | P/F|D | not run | — |
+| FT-DET-1 | s4-detectors | P/F | not run | — |
+| FT-DET-2 | s4-detectors | P/F | not run | fixed F-1c: mount artifact path for detector eval |
+| FT-DET-3 | s4-detectors | P/F | not run | fixed F-1c: drop invalid `--llm`; LLM matrix |
+| FT-DET-4 | s4-detectors | P/F | not run | — |
+| FT-DET-5 | s4-detectors | P/F | not run | fixed F-1c: step quoting |
+| FT-DET-6 | s4-detectors | P/F | not run | — |
+| FT-DET-7 | s4-detectors | P/F | not run | — |
+| FT-ENV-0 | s1-install | P/F | not run | — |
+| FT-ENV-1 | s13-investigation | P/F | not run | fixed F-1a: `diff <a> <b>` positionals |
+| FT-EXA-1 | s7-platform | P/F | not run | fixed F-1c: examples-gallery step quoting |
+| FT-FWK-1 | s7-platform | P/F|D | not run | fixed F-1c: `framework_recipes` signature |
+| FT-FWK-2 | s7-platform | P/F | not run | fixed F-1c: `detect_installed()` iterable |
+| FT-GEM-1 | s3-harness | P/F | not run | fixed H-1/H-5: gemini ingest normalize `message` |
+| FT-GOV-1 | s7-platform | P/F | not run | — |
+| FT-GWY-1 | s6-surfaces | P/F | not run | — |
+| FT-HLD-1 | s12-governance | P/F | not run | fixed F-1a: `hold add --reason` |
+| FT-HOSTILE-1 | s15-hostile | P/F | not run | fixed F-1b: hostile ingest via a real `--format` |
+| FT-IDN-1 | s5-identity | P/F | not run | ✅ fixed (F-4a): driver's `--attribution` mode seeds a multi-agent chain with `principal` + `delegation_chain`; `trace`/`impact`/`tree`/`blame` answer identity + delegation (or honest `unknown`) in one command |
+| FT-IDN-2 | s5-identity | P/F | not run | — |
+| FT-IDN-3 | s5-identity | P/F | not run | fixed F-1a: `search --identity user` value |
+| FT-IR-1 | s13-investigation | P/F | not run | fixed F-1a: incident create via case_incident.py |
+| FT-LG-1 | s3-harness | P/F | not run | fixed F-1c: `drive-agent.py` (no `--framework`) |
+| FT-LOG-1 | s3-harness | P/F | not run | ✅ fixed (F-4b/F-1b): `ingest-fixture.py` now dispatches the long-tail corpus per file — claude-code `.jsonl` via `importer.import_transcripts`, codex `.jsonl` via `codex_rollout.ingest_rollouts`, cursor/gemini framed fixtures via their adapters (was a single wrong `claude_code` adapter over `*.json` only) |
+| FT-LUI-1 | s11-console | P/F | not run | ✅ fixed (F-4g/F-1d): driver launches the console via `python -m agentwatch` (host has no `agentwatch` on PATH) with `PYTHONUNBUFFERED` and bounded waits, and the console page gained a `<main>` landmark (product a11y fix: axe `landmark-one-main`/`region`); the 3 Playwright tests pass |
+| FT-LUI-2 | s11-console | P/F | not run | — |
+| FT-MATRIX-1 | s15-hostile | P/F | not run | — |
+| FT-MCP-1 | s3-harness | P/F | not run | fixed F-1b: MCP ingest dispatch |
+| FT-MCP-2 | s3-harness | P/F | not run | ✅ fixed (F-4b/F-1b): added the `mcp-malformed` fixture (closed-by-spec `roots/list`, missing `params`, missing `rpc`) and a driver branch that quarantines non-normalizable frames via `agentwatch.quarantine.QuarantineLog` (reason names the offending field) while normalizable frames ingest |
+| FT-MEM-1 | s9-capability | P/F | not run | — |
+| FT-NTF-1 | s14-outcomes | P/F|D | not run | ✅ fixed (F-4h): driver now exercises the three shipped recipes (`deploy/recipes`, mounted at `/ft/recipes`) via the shipped `WebhookSink` with an injected transport, mirroring the CI test — the old target was a wrong `syslog://localhost:514` (Alertmanager v2 is HTTP) |
+| FT-OTEL-1 | s2-interop | P/F | not run | fixed H-6: jaeger wait / default |
+| FT-OTEL-2 | s2-interop | P/F | not run | fixed H-4: `--spans` (not `--mb`) |
+| FT-OTEL-3 | s2-interop | P/F | not run | ✅ fixed (F-4f): generator step now greps `privacy_mode.*metadata-only`; the old text's nested `"` were stripped by the shell chain |
+| FT-OTEL-4 | s2-interop | P/F|D | not run | — |
+| FT-OUT-1 | s14-outcomes | P/F|D | not run | — |
+| FT-OUT-2 | s14-outcomes | P/F|D | not run | — |
+| FT-PG-1 | s2-interop | P/F|D | not run | — |
+| FT-PG-2 | s2-interop | P/F|D | not run | — |
+| FT-PG-3 | s2-interop | P/F|D | not run | fixed F-1c: `drive-agent.py` (no `--sdk`) |
+| FT-POL-1 | s7-platform | P/F | not run | fixed F-1a: `what-if <policy_file>` positional |
+| FT-PRV-1 | s10-provenance | P/F | not run | fixed F-1a: `provenance <target>` positional |
+| FT-PRV-2 | s10-provenance | P/F | not run | — |
+| FT-PRV-3 | s10-provenance | P/F | not run | fixed F-1a: `provenance <target>` positional |
+| FT-RED-1 | s4-detectors | P/F | not run | ✅ fixed (F-4d): mounted the canonical `schema/vectors/redaction` corpus at `/work/schema/vectors/redaction` so `redact eval` resolves it via `_corpus_root()`; per-class numbers reproduced |
+| FT-RUN-1 | s14-outcomes | P/F | not run | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) ahead of the driver; the sealed segment exports, imports and anchors |
+| FT-SBX-1 | s13-investigation | P/F|D | not run | fixed F-1c: `sandbox_boundary_event()` 0-arg |
+| FT-SDK-1 | s7-platform | P/F | not run | — |
+| FT-SIEM-1 | s5-identity | P/F | not run | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
+| FT-STR-1 | s3-harness | P/F | not run | — |
+| FT-STR-2 | s3-harness | P/F | not run | fixed F-1c: `stream-probe` accepts a path |
+| FT-SYS-1 | s6-surfaces | P/F|D | not run | fixed H-7: declared → real assertion |
+| FT-TRACE-1 | s2-interop | P/F | not run | ✅ fixed (F-4a): driver now seeds a genuine 3-host × 3-harness chain (host-tagged, W3C `traceparent`, `parent_span_id`), ingests via `agentwatch fleet ingest`, and reconstructs with `trace <trace_id>`; the injected broker gap is classified `missing-parent` |
+| FT-TRACE-2 | s2-interop | P/F | not run | ✅ fixed (F-4a): same driver, `--skew 3` mode seeds a child that starts 3 s before its parent; `trace <tid>` flags a `clock-skew` gap (F9), never silently reorders |
+| FT-TSS-1 | s7-platform | P/F|D | not run | fixed H-7: declared → real assertion |
+| FT-VFY-1 | s13-investigation | P/F | not run | — |
+| FT-WIN-1 | s1-install | P/F|D | not run | **platform F-2**: no Windows host |
+| FT-XHT-1 | s3-harness | P/F | not run | ✅ fixed (F-3): driver registers the shipped adapters via the SDK's canonical `conformance_registry` (fixtures in `packages/python-sdk/tests/fixtures/`), not the field-test corpora whose `manifest.json` broke the `message`/`expected` contract; all 8 adapters conform. XHT-2/3 re-run (no regression) |
+| FT-XHT-2 | s3-harness | P/F|D | not run | fixed F-3: register shipped adapters in self-test |
+| FT-XHT-3 | s3-harness | P/F | not run | fixed F-3: register shipped adapters |
+| FT-XHT-4 | s3-harness | P/F | not run | — |
 
 **Totals:** 93 PASS · 1 FAIL · 0 not run  (of 94 v0.2.0 cases).
 

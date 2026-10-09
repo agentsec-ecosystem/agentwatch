@@ -1,2 +1,0 @@
-{"format": 1}
-{"seq": 0, "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "hash": "3fdb15f4e44d43e5587a8655208af0bf58420b09252d54de6398bb054b7fa9ad", "record": {"schema_version": "0.1.0", "session_id": "s-bad", "agent": {"identity": "unknown"}, "tool": {"name": "issue_get", "server": "github"}, "outcome": "ok", "started_at": "2026-01-02T03:04:05+00:00", "trace_id": "s-bad", "span_id": "mcp:github:7", "harness": "mcp-proxy", "project": "/repo", "producer": {"kind": "proxy", "name": "mcp-proxy"}, "step_type": "act"}}

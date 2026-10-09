@@ -1,2 +1,0 @@
-+ compose --profile v020 --profile tempo up -d (v0.2.0 services)
-+ compose exec recorder bash -lc python3 /ft/scripts/ingest-fixture.py --kind logreaders --corpus /ft/fixtures/logreaders

@@ -1,4 +1,0 @@
-+ reset: restart recorder; wipe store+socket; truncate read-model
-+ compose exec recorder bash -lc shopt -s dotglob; rm -rf /data/agentwatch/* /run/agentwatch/* 2>/dev/null; mkdir -p /data/agentwatch /run/agentwatch; true
-+ compose exec recorder bash -lc agentwatch ingest --format aat /ft/fixtures/aat/foreign.aat.json
-+ compose exec recorder bash -lc test -s /data/agentwatch/quarantine.jsonl

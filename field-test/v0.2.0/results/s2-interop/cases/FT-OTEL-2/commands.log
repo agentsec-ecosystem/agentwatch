@@ -1,3 +1,0 @@
-+ recycle: down -v before case
-+ compose --profile v020 --profile tempo up -d (v0.2.0 services)
-+ compose exec recorder bash -lc python3 /ft/scripts/otel_grpc_stream.py --endpoint http://otel-grpc:4317 --mb 100

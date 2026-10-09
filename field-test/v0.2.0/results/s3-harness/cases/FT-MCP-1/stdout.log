@@ -1,4 +1,0 @@
-DO
-ok: ingested mcp from /ft/fixtures/mcp
-agentwatch: chain ok (13 entries)
-  signing: not configured (optional; `checkpoint export --sign`)

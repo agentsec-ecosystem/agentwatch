@@ -1,1 +1,0 @@
-ok: three routing recipes forward every event rule-free: slack_webhook, pagerduty, alertmanager

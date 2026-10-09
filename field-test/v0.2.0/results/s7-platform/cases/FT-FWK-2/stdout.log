@@ -1,2 +1,0 @@
-DO
-ok: instrument() detected frameworks + gaps (no silent partial): installed=[] missing=['adk', 'claude-agent-sdk', 'openai-agents', 'strands']

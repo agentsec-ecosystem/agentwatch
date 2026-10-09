@@ -1,9 +1,0 @@
-{
-  "id": "FT-PRV-1",
-  "status": "pass",
-  "class": "P/F",
-  "declared": false,
-  "run_id": "s10-provenance",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"commit-to-session","ok":true}
-]
-}

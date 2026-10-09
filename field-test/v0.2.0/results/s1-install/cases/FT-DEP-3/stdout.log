@@ -1,2 +1,0 @@
-DO
-run-soak: 500/500 calls delivered; p50=0.03ms p99=0.11ms mean=0.03ms

@@ -1,4 +1,0 @@
-DO
-run-soak: 1000/1000 calls delivered; p50=0.04ms p99=0.14ms mean=0.05ms
-agentwatch: chain ok (2005 entries)
-  signing: not configured (optional; `checkpoint export --sign`)

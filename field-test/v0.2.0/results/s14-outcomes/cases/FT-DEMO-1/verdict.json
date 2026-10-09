@@ -1,9 +1,0 @@
-{
-  "id": "FT-DEMO-1",
-  "status": "pass",
-  "class": "P/F|D",
-  "declared": false,
-  "run_id": "s14-outcomes",
-  "assertions": [{"name":"demo-bundle-json","ok":true}
-]
-}

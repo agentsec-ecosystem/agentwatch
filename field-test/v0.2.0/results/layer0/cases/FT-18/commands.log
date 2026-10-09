@@ -1,4 +1,0 @@
-+ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
-+ compose exec recorder bash -lc AGENTWATCH_STORE__MAX_SIZE_MB=1 agentwatch-daemon >/tmp/daemon.log 2>&1 & for i in $(seq 1 50); do [ -S "$AGENTWATCH_SOCKET" ] && break; sleep 0.2; done
-+ compose exec recorder python3 /ft/scripts/run-soak.py --count 6000 --interval 0.001
-+ compose exec recorder bash -lc agentwatch status | grep -qi stopped

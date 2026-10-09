@@ -1,9 +1,0 @@
-{
-  "id": "FT-DEP-3",
-  "status": "pass",
-  "class": "P/F|D",
-  "declared": false,
-  "run_id": "s1-install",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"hook-perf-gate","ok":true}
-]
-}

@@ -1,4 +1,0 @@
-+ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
-+ compose exec recorder bash -lc agentwatch --set store.path=/data/agentwatch migrate 2>&1 | grep -q E_NOT_IMPLEMENTED
-+ compose exec recorder bash -lc ! agentwatch --set store.path=/data/agentwatch migrate
-+ compose exec recorder bash -lc agentwatch --set store.path=/data/agentwatch verify-store

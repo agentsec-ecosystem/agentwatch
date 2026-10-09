@@ -1,2 +1,0 @@
-DO
-ok: held records survive retention+purge+rebuild; purge fails closed

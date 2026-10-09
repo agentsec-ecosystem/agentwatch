@@ -1,2 +1,0 @@
-{"format": 1}
-{"seq": 0, "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "hash": "5bedfef924f87f16b8d6b471b176b0ce2336412ef89c1ec5589884ace98a6a1e", "record": {"schema_version": "0.1.0", "session_id": "agentwatch", "agent": {"identity": "agentwatch"}, "tool": {"name": "privacy-mode-changed", "arguments": {"old": "unknown", "new": "truncated"}, "privacy_mode": "metadata-only"}, "outcome": "ok", "started_at": "2026-10-08T05:50:45.266273+00:00", "producer": {"kind": "sdk", "name": "agentwatch"}}}

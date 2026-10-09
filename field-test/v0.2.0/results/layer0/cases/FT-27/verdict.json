@@ -1,9 +1,0 @@
-{
-  "id": "FT-27",
-  "status": "fail",
-  "class": "P/F",
-  "declared": false,
-  "run_id": "layer0",
-  "assertions": [{"name":"host-native-demo","ok":false}
-]
-}

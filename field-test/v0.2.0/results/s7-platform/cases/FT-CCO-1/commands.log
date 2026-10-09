@@ -1,2 +1,0 @@
-+ compose --profile v020 --profile tempo up -d --build (v0.2.0 services)
-+ compose exec recorder bash -lc python3 /ft/scripts/native-otel-join.py --corpus /ft/fixtures/cco

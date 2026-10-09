@@ -1,4 +1,0 @@
-+ recycle: down -v before case
-+ compose --profile v020 --profile tempo up -d (v0.2.0 services)
-+ python3 /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/migrate-db.py
-+ python3 /Users/deghosal/Desktop/code/github/agentsec-ecosystem/agentwatch/scripts/seed-e2e-data.py

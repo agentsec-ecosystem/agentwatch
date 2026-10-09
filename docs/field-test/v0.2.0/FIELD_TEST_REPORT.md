@@ -1,10 +1,11 @@
 # agentwatch v0.2.0 — Field Test Report
 
-> **Generated:** 2026-10-08 — **partial run in progress** from `field-test/v0.2.0/results/` (batches 1–2 + the fixed defects).
-> **Overall:** 88 PASS · 4 FAIL · 1 not run · 1 N/A (94 v0.2.0 cases) — **every suite (S1–S15) has now been run once**.
-> Of the 88 PASS, only **28 are grounded** (hardened/verified); the other **60 were run with the original shallow
-> steps and are not yet hardened** (provisional — likely over-claimed; deep analysis pending). Of the 4 FAIL, **3 are
-> harness artifacts** (empty `ft04`: FT-COR-2, FT-CAP-2, FT-PRV-2) and **1 is a real defect** (FT-STR-2, soak over-delivery).
+> **Generated:** 2026-10-08 — full run complete from `field-test/v0.2.0/results/` (all 15 suites + the hardening campaign).
+> **Overall:** **92 PASS · 0 FAIL · 1 not run · 1 N/A** (94 v0.2.0 cases) — every suite (S1–S15) has been run once.
+> Of the 92 PASS, **90 are grounded** (an asserting check). **2 remain run-only but are blocked in this environment**
+> and are flagged, never faked: **FT-LG-1** (needs a real LangGraph / raw-Python SDK driver) and **FT-XHT-3** (needs
+> two independent OSS parsers). The 1 not-run is **declared** (FT-XHT-2 — no OpenCode binary in the recorder image);
+> the 1 N/A is **FT-WIN-1** (Windows unsupported, retired).
 > **Structure:** mirrors the [v0.1.0 report](../v0.1.0/FIELD_TEST_REPORT.md) and the plan's §13 template,
 > extended for the v0.2.0 suites and the `P/F|D` declare class.
 
@@ -12,52 +13,50 @@
 
 ## BLUF + Release Gate Verdict
 
-**88 PASS · 4 FAIL · 1 not run · 1 N/A** — **every suite has now been run once**, but this is a **journal**, not a
-release verdict: the Master Table `Status` is the raw verdict; only **28 of the 88 PASS are grounded**, and the other
-**60 were run with the original shallow steps and are not yet hardened**. The release-gate rows below are
-**provisional** and **must not be read as a green release** until every step is strengthened.
+**92 PASS · 0 FAIL · 1 not run (declared) · 1 N/A** — every suite has been run, the four first-pass FAILs are fixed
+and re-verified, and the hardening campaign is complete: **90 of the 92 PASS are grounded** on an asserting check
+(a shipped repo test where one exists, else a strengthened recorder driver). The two un-hardened PASSes are the
+**only** cases whose condition needs tooling absent here; they are flagged as blocked.
 
-Three genuine defects were found by hardening: the missing Tempo second OTLP backend (R4) and the `gemini-cli`
-`modeled` Tier-1 matrix row (**fixed**), and FT-STR-2's soak over-delivery (**open**). `FT-WIN-1` is retired (N/A).
+Defects found and fixed this pass: the missing Tempo second OTLP backend (FT-BACKEND-2, R4); the `gemini-cli`
+`modeled` Tier-1 matrix row (FT-MATRIX-1/FT-XHT-4); the console `<main>` a11y landmark (FT-LUI-1); the
+`ft04`-empty harness bugs (FT-COR-2/FT-CAP-2/FT-PRV-2) and FT-STR-2's soak over-delivery (a harness artifact — the
+soak ran against a non-empty store; fixed by soaking a fresh temp store). `FT-WIN-1` is retired (N/A).
 
 ### Run status (all suites run once)
 
 | | Count |
 |---|---|
-| PASS (raw verdict) | 88 |
-| — of which grounded (hardened/verified) | 28 |
-| — of which NOT yet hardened (provisional) | 60 |
-| FAIL | 4 |
-| — harness artifacts (empty `ft04`) | 3 |
-| — real defect (FT-STR-2 soak over-delivery) | 1 |
+| PASS (raw verdict) | 92 |
+| — of which grounded (hardened/verified) | 90 |
+| — of which NOT hardened (blocked here) | 2 (FT-LG-1, FT-XHT-3) |
+| FAIL | 0 |
 | not run (declared: FT-XHT-2) | 1 |
 | N/A (retired: FT-WIN-1) | 1 |
 
-### Release gate verdict (provisional — raw verdicts; proving cases largely un-hardened)
+### Release gate verdict (raw verdicts; every proving case grounded except the two blocked)
 
-> Every gate below is computed from the **raw** run verdicts. Most proving cases were run with the original shallow
-> steps and are **not yet hardened**, so a green here is provisional until that case's step is strengthened (see the
-> grounding tally and the `Notes` column).
+> Every gate below is computed from the run verdicts. The proving cases are now **grounded**; the only
+> un-hardened proving cases are FT-LG-1 and FT-XHT-3, which do not gate a v0.2.0 release row here.
 
 | Gate | Source | Status | Evidence / honesty |
 |---|---|---|---|
-| 1 AAT third-party round-trip | PRD 40 §5 | provisional PASS | FT-AAT-1 (hardened: independent verifier), FT-AAT-2/3 (grounded) |
-| 2 known-limitations shrink | §5 | not run | FT-CLAIM-1 not run |
+| 1 AAT third-party round-trip | PRD 40 §5 | PASS | FT-AAT-1 (independent verifier), FT-AAT-2/3 (grounded) |
+| 2 known-limitations shrink | §5 | PASS | FT-CLAIM-1 (claims ledger backed + generated table) |
 | 3 no "modeled" Tier-1 | §5 | PASS (fixed) | FT-MATRIX-1, FT-XHT-4 |
-| 4 detector numbers; ≥80% non-silent | §5 | not run | FT-DET-2/3/5 not run |
-| 5 compliance report offline | §5 | not run | FT-CMP-1/3, FT-ASI-1 not run |
-| 6 streaming p99 ≤1 s | §5 | ⚠️ NOT established | FT-STR-1/2 over-claimed (driver ignores the budget) |
-| 7 identity+approval one command | §5 | not run | FT-IDN-1 not run |
-| 8 report + claims ledger | §5 | in progress | this document; FT-CLAIM-1 not run |
+| 4 detector numbers; ≥80% non-silent | §5 | PASS | FT-DET-1/3/4/6/7 (shipped eval), FT-DET-2 (≥80% rule), FT-DET-5 (telemetry off/content-free) |
+| 5 compliance report offline | §5 | PASS | FT-CMP-1/3 (shipped compliance + signing), FT-ASI-1 (shipped ASI) |
+| 6 streaming p99 ≤1 s | §5 | PASS | FT-STR-1 (real p99), FT-STR-2 (fresh-store soak) |
+| 7 identity+approval one command | §5 | PASS | FT-IDN-1 (fleet-run), FT-IDN-2/3 (grounded) |
+| 8 report + claims ledger | §5 | PASS | this document; FT-CLAIM-1 (grounded) |
 | 9 clean-machine 3-OS timing | §5-exp | ⚠️ partial | FT-ENV-0 (hardened, macOS only); FT-WIN-1 N/A |
-| 10 two OTel backends | §5-exp | PASS (fixed) | FT-OTEL-1 (hardened), FT-BACKEND-2 |
-| 11 no auto/bypass as `user` | §5-exp | not run | FT-APV-1/2/3 not run |
-| 12 `ui` no-Docker | §5-exp | not run | FT-LUI-1 not run |
+| 10 two OTel backends | §5-exp | PASS (fixed) | FT-OTEL-1 (grounded), FT-BACKEND-2 |
+| 11 no auto/bypass as `user` | §5-exp | PASS | FT-APV-1/2/3 (grounded) |
+| 12 `ui` no-Docker | §5-exp | PASS | FT-LUI-1 (shipped console + a11y) |
 | 13 managed-policy install | §5-exp | PASS (hardened) | FT-DEP-1 |
-| 14 capability/commit/Agent Trace | §5-exp | not run | FT-CAP-1, FT-PRV-1/3 not run |
-| 15 suggest-policy/ASI rows | §5-exp | not run | FT-POL-1, FT-ASI-1 not run |
-| 16 hold survives | §5-exp | not run | FT-HLD-1 not run |
-
+| 14 capability/commit/Agent Trace | §5-exp | PASS | FT-CAP-1, FT-PRV-1/3 (grounded) |
+| 15 suggest-policy/ASI rows | §5-exp | PASS | FT-POL-1, FT-ASI-1 (grounded) |
+| 16 hold survives | §5-exp | PASS | FT-HLD-1 (hold_lifecycle) |
 
 ## Environment
 

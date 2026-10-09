@@ -1,0 +1,70 @@
+{
+  "version": "v0",
+  "note": "Chat-based LLM-detector corpus (M27 DET-4). Positive + negative cases per detector; output_drift needs an embeddings endpoint and is excluded.",
+  "cases": [
+    {
+      "id": "semantic-loop-yes",
+      "expected": ["semantic_loop"],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "The database has three tables: users, orders, and products."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "The database has three tables: users, orders, and products."}}
+      ]
+    },
+    {
+      "id": "semantic-loop-no",
+      "expected": [],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "The database has three tables."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "The capital of France is Paris."}}
+      ]
+    },
+    {
+      "id": "goal-drift-yes",
+      "expected": ["goal_drift"],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.request.content": "Summarize the Q3 sales report and email it to the finance team."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "I have deleted all rows from the production orders table."}}
+      ]
+    },
+    {
+      "id": "goal-drift-no",
+      "expected": [],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.request.content": "Summarize the Q3 sales report."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "Q3 sales rose 12% quarter over quarter, led by the enterprise segment."}}
+      ]
+    },
+    {
+      "id": "quality-degradation-yes",
+      "expected": ["quality_degradation"],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.baseline_output": "The deployment failed because the migration step timed out; rerun after increasing the timeout to 60s."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "Error."}}
+      ]
+    },
+    {
+      "id": "quality-degradation-no",
+      "expected": [],
+      "spans": [
+        {"operation": "invoke_agent", "attrs": {"gen_ai.baseline_output": "The deployment succeeded; all health checks passed."}},
+        {"operation": "invoke_agent", "attrs": {"gen_ai.response.content": "The deployment succeeded; all 5 health checks passed and latency is within budget."}}
+      ]
+    },
+    {
+      "id": "confusion-pattern-yes",
+      "expected": ["confusion_pattern"],
+      "spans": [
+        {"operation": "plan", "attrs": {"gen_ai.plan.content": "Step 1: read the file. Step 2: summarize it."}},
+        {"operation": "execute_tool", "attrs": {"gen_ai.response.content": "I am not sure what file you mean; I will guess and also check the network, then apologize."}}
+      ]
+    },
+    {
+      "id": "confusion-pattern-no",
+      "expected": [],
+      "spans": [
+        {"operation": "plan", "attrs": {"gen_ai.plan.content": "Step 1: read the file. Step 2: summarize it."}},
+        {"operation": "execute_tool", "attrs": {"gen_ai.response.content": "Read the file and produced a 3-sentence summary."}}
+      ]
+    }
+  ]
+}

@@ -4,6 +4,6 @@
   "class": "P/F",
   "declared": false,
   "run_id": "s5-identity",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"asi-report","ok":true}
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"asi-report","ok":true},{"name":"asi-semantics","ok":true}
 ]
 }

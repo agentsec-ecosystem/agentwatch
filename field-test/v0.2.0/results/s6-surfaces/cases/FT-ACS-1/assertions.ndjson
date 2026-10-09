@@ -2,3 +2,4 @@
 {"name":"state-reset","ok":true}
 {"name":"stack-reused","ok":true}
 {"name":"acs-ingest","ok":true}
+{"name":"acs-semantics","ok":true}

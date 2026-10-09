@@ -1044,7 +1044,7 @@
     "prd": "RED-1",
     "class": "P/F",
     "suite": "s4-detectors",
-    "steps": "ft_assert_recorder \"redaction-benchmark\" \"agentwatch redact eval --json\"\n",
+    "steps": "ft_assert_recorder \"redaction-benchmark\" \"agentwatch redact eval --json\"\nft_assert \"redact-eval-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_redact_eval.py\n",
     "recycle": false
   },
   {
@@ -1135,7 +1135,7 @@
     "prd": "SIEM-1/2",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"siem-conformance\" \"python3 /ft/scripts/siem_conformance.py\"\n",
+    "steps": "ft_emit --corpus secrets\nft_assert_recorder \"siem-conformance\" \"python3 /ft/scripts/siem_conformance.py\"\nft_assert \"siem-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_siem_consumers.py packages/python-sdk/tests/test_siem_syslog.py\n",
     "recycle": false
   },
   {
@@ -1148,7 +1148,7 @@
     "prd": "ASI-1",
     "class": "P/F",
     "suite": "s5-identity",
-    "steps": "ft_assert_recorder \"asi-report\" \"agentwatch compliance report --framework owasp-asi-2026 --out /tmp/asi\"\n",
+    "steps": "ft_assert_recorder \"asi-report\" \"agentwatch compliance report --framework owasp-asi-2026 --out /tmp/asi\"\nft_assert \"asi-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_compliance_asi.py\n",
     "recycle": false
   },
   {
@@ -1187,7 +1187,7 @@
     "prd": "SYS-1",
     "class": "P/F|D",
     "suite": "s6-surfaces",
-    "steps": "ft_assert_recorder \"system-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind system\"\n",
+    "steps": "ft_assert_recorder \"system-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind system\"\nft_assert \"system-ingest-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_system_ingest.py\n",
     "recycle": false
   },
   {
@@ -1213,7 +1213,7 @@
     "prd": "ACS-1",
     "class": "P/F|D",
     "suite": "s6-surfaces",
-    "steps": "ft_assert_recorder \"acs-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind acs --corpus /ft/fixtures/acs && agentwatch verify-store\"\n",
+    "steps": "ft_assert_recorder \"acs-ingest\" \"python3 /ft/scripts/ingest-fixture.py --kind acs --corpus /ft/fixtures/acs && agentwatch verify-store\"\nft_assert \"acs-semantics\" python3 \"$REPO_ROOT/scripts/fieldtest/shipped_tests.py\" packages/python-sdk/tests/test_acs_ingest.py\n",
     "recycle": false
   },
   {

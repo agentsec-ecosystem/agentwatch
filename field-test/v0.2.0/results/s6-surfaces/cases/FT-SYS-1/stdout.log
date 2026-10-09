@@ -1,2 +1,5 @@
 DO
 ok: ingested system from /ft/fixtures/system
+........................                                                 [100%]
+24 passed in 1.08s
+ok: shipped test(s) passed: packages/python-sdk/tests/test_system_ingest.py

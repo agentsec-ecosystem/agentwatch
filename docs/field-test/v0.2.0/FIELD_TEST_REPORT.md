@@ -92,14 +92,14 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-AAT-3 | s2-interop | P/F | PASS | ✓ grounded: pinned draft cited; drift flagged (journal) |
 | FT-ACC-1 | s12-governance | P/F | PASS | — |
 | FT-ACC-2 | s12-governance | P/F | PASS | HARDENED (confirmed PASS): `governance_notice_check.py` asserts every statement is backed by a config key/guarantee + the not-legal-advice banner (was a banner grep) |
-| FT-ACS-1 | s6-surfaces | P/F\|D | PASS | — |
+| FT-ACS-1 | s6-surfaces | P/F\|D | PASS | HARDENED (confirmed PASS): shipped `test_acs_ingest.py` — decisions map to `record_phase: pre_execution`, monitor-only, unknown frames quarantined (was ingest+verify exit-0) |
 | FT-AGI-1 | s7-platform | P/F | PASS | fixed F-1c: `mcp_surface.survey(records)` |
 | FT-AGI-2 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): recorder seeds a temp demo store and asserts the skill's documented answers (6 records; replay 6; impact 6 w/ a denial) + host runs shipped `test_agent_interfaces.py` (schema guard + skill) (was evidence+coverage) |
 | FT-API-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): live `/openapi.json` + shipped `services/api/tests/test_openapi_contract.py` (drift) (was curl only) |
 | FT-APV-1 | s8-apv | P/F | PASS | — |
 | FT-APV-2 | s8-apv | P/F | PASS | — |
 | FT-APV-3 | s8-apv | P/F | PASS | — |
-| FT-ASI-1 | s5-identity | P/F | PASS | — |
+| FT-ASI-1 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_compliance_asi.py` — all 10 ASI rows + AST10, no prevention claim, every evidenced command runs (was report exit-0) |
 | FT-BACKEND-2 | s15-hostile | P/F | PASS | FIXED (R4): `tempo` added to `V020_PROFILE_SERVICES` (`lib.sh`) + `otlp/tempo` exporter/fan-out in `deploy/otel-collector-config.yml`; re-run PASS (`svc-tempo` up, trace resolves in Tempo) |
 | FT-CAP-1 | s9-capability | P/F | PASS | — |
 | FT-CAP-2 | s9-capability | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
@@ -163,14 +163,14 @@ with the F-1 driver fixes). Full-stack boot + `down -v` per case.
 | FT-PRV-1 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
 | FT-PRV-2 | s10-provenance | P/F | PASS | FIXED (confirmed PASS): step now seeds `ft04` via `ft_emit --corpus secrets` (was an empty-store `E_SESSION_NOT_FOUND` harness bug) |
 | FT-PRV-3 | s10-provenance | P/F | PASS | fixed F-1a: `provenance <target>` positional |
-| FT-RED-1 | s4-detectors | P/F | PASS | ✅ fixed (F-4d): mounted the canonical `schema/vectors/redaction` corpus at `/work/schema/vectors/redaction` so `redact eval` resolves it via `_corpus_root()`; per-class numbers reproduced |
+| FT-RED-1 | s4-detectors | P/F | PASS | HARDENED (confirmed PASS): shipped `test_redact_eval.py` — deterministic offline eval, published per-class recall/FP, known misses listed (was `redact eval --json` exit-0) |
 | FT-RUN-1 | s14-outcomes | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) ahead of the driver; the sealed segment exports, imports and anchors |
 | FT-SBX-1 | s13-investigation | P/F\|D | PASS | fixed F-1c: `sandbox_boundary_event()` 0-arg |
 | FT-SDK-1 | s7-platform | P/F | PASS | HARDENED (confirmed PASS): `sdk_lifecycle.py` drives the installed SDK — context-exit flush, no-op tracer after shutdown, at-most-once/16-thread-safe shutdown, deterministic sampler (was `--version`+`coverage`) |
-| FT-SIEM-1 | s5-identity | P/F | PASS | ✅ fixed (F-4e): added `ft_emit --corpus secrets` (real hook path → session `ft04`) and gave `event emit` its required positional `type` (`secret-detected`); `export-session ft04 --format ocsf` + `event emit` green |
+| FT-SIEM-1 | s5-identity | P/F | PASS | HARDENED (confirmed PASS): shipped `test_siem_consumers.py` + `test_siem_syslog.py` — OCSF reference consumer + syslog redaction gate/degraded state (was export/emit exit-0) |
 | FT-STR-1 | s3-harness | P/F | PASS | HARDENED (confirmed PASS): `stream-probe --mode p99` now measures hook→store latency (real socket send + store poll) and gates p99 ≤ budget |
 | FT-STR-2 | s3-harness | P/F | PASS | FIXED (confirmed PASS): harness artifact, not a product defect — the soak ran against the recorder's non-empty store (daemon attestation → delivered=count+3); now runs a fresh temp store → `within_bounds=True` |
-| FT-SYS-1 | s6-surfaces | P/F\|D | PASS | fixed H-7: declared → real assertion |
+| FT-SYS-1 | s6-surfaces | P/F\|D | PASS | HARDENED (confirmed PASS): shipped `test_system_ingest.py` — opt-in, `source: system-ingest`, unowned lineage not attributed, published false-join precision (was ingest exit-0) |
 | FT-TRACE-1 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run` asserts a 3-host chain + a classified `missing-parent` gap |
 | FT-TRACE-2 | s2-interop | P/F | PASS | ✓ grounded: `fleet-run --skew` asserts a classified `clock-skew` gap |
 | FT-TSS-1 | s7-platform | P/F\|D | PASS | fixed H-7: declared → real assertion |
@@ -521,20 +521,20 @@ One entry per fix, newest last. Each is confirmed by a targeted re-run of that c
 | s4 | FT-DET-6 | V | same generic check; assert per-class scenarios + per-harness numbers in the catalog |
 | s4 | FT-DET-7 | V | same generic check; assert firing on **real** harness traces (not fixtures) |
 | s4 | FT-COR-1 | R | `corpus.sh` exit 0; assert the numbers reproduce the published set within stated bounds + CIs |
-| s4 | FT-RED-1 | R | `redact eval --json` exit 0; assert per-class recall/FP + misses listed in known-limitations |
+| s4 | FT-RED-1 | ✅ G | done — shipped redact-eval test |
 | s5 | FT-IDN-1 | G | — (fleet-run asserts identity + delegation) |
 | s5 | FT-IDN-2 | ✅ G | done — identity secret scan |
 | s5 | FT-IDN-3 | R | `search --identity user` exit 0; assert `credential_class: ambient/shared` fires with precision/recall |
 | s5 | FT-CMP-1 | R | `compliance report` exit 0; regenerate one row's cited command; assert zero unverifiable claims |
 | s5 | FT-CMP-2 | ✅ G | done — doctor signing posture + shipped test |
 | s5 | FT-CMP-3 | ✅ G | done — templates write + rotation event + shipped test |
-| s5 | FT-SIEM-1 | R | `siem_conformance.py` runs export/emit; assert OCSF/Syslog conformance + redaction gate blocks a sink |
-| s5 | FT-ASI-1 | R | `compliance report --framework owasp-asi-2026` exit 0; assert all 10 ASI rows + AST10 present |
+| s5 | FT-SIEM-1 | ✅ G | done — shipped siem tests |
+| s5 | FT-ASI-1 | ✅ G | done — shipped compliance-asi test |
 | s6 | FT-A2A-1 | G | — (a2a_roundtrip asserts an unverified card never verifies) |
 | s6 | FT-GWY-1 | R | ingest exit 0 + `grep exact\|estimated`; assert cost source-stamped per record |
-| s6 | FT-SYS-1 | R | ingest exit 0; assert the synthetic process tree joins its session + `source: system-ingest` |
+| s6 | FT-SYS-1 | ✅ G | done — shipped system-ingest test |
 | s6 | FT-CCA-1 | R | ingest exit 0; assert consent gating + pull recorded as `store-access` |
-| s6 | FT-ACS-1 | R | ingest + verify-store; assert `record_phase: pre_execution` + no decision executes |
+| s6 | FT-ACS-1 | ✅ G | done — shipped acs-ingest test |
 | s7 | FT-SDK-1 | ✅ G | done — real lifecycle driver |
 | s7 | FT-API-1 | ✅ G | done — live + shipped contract test |
 | s7 | FT-EXA-1 | ✅ G | done — shipped examples-gallery gate |
@@ -599,6 +599,11 @@ One row per case hardened, with the assertion and the confirmed re-run result.
 | FT-CCO-1 | `native-otel-join.py` + shipped `test_claude_otel.py` | PASS |
 | FT-IR-1 | `case_incident.py` + shipped `test_incident_cases.py` | PASS |
 | FT-FWK-1 | `framework_recipes.py` + shipped `test_frameworks.py` | PASS |
+| FT-RED-1 | shipped `test_redact_eval.py` | PASS |
+| FT-SIEM-1 | shipped `test_siem_consumers.py` + `test_siem_syslog.py` | PASS |
+| FT-ASI-1 | shipped `test_compliance_asi.py` | PASS |
+| FT-SYS-1 | shipped `test_system_ingest.py` | PASS |
+| FT-ACS-1 | shipped `test_acs_ingest.py` | PASS |
 | FT-STR-1/2, FT-OTEL-3/4, FT-CUR-1/2, FT-GEM-1, FT-MCP-1, FT-PG-1/3, FT-COD-1, FT-LOG-1 | (earlier tranche — see “Hardening — batch-1” and “Batch 2 — hardening status”) | PASS |
 
 ### Hardening patterns (the common shapes)

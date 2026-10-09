@@ -4,6 +4,6 @@
   "class": "P/F|D",
   "declared": false,
   "run_id": "s6-surfaces",
-  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"acs-ingest","ok":true}
+  "assertions": [{"name":"reset-recorder-restart","ok":true},{"name":"state-reset","ok":true},{"name":"stack-reused","ok":true},{"name":"acs-ingest","ok":true},{"name":"acs-semantics","ok":true}
 ]
 }

@@ -15,7 +15,7 @@
 > *why* an agent looped, overused a tool, or burned budget — plus the open security-event schema the
 > [agentsec-ecosystem](https://github.com/agentsec-ecosystem) is built on.
 
-**Status: v0.2.0 release-ready** — feature-complete, documented, and validated at the release gate (the v0.2.0
+**Status: v0.2.0 released** — feature-complete, documented, and validated at the release gate (the v0.2.0
 field test ran all 94 cases: **92 PASS · 0 FAIL**). See the
 [v0.2.0 release notes](docs/release/v0.2.0/release-notes.md) and the
 [release checklist](docs/release/v0.2.0/release-checklist.md).
